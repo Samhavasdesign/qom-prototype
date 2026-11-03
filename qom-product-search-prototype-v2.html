@@ -442,8 +442,8 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
   </label>
   <label>Scenario
     <select id="scenario">
-      <option value="normal" selected>Normal</option>
-      <option value="fresh">Fresh quote, no lines</option>
+      <option value="normal">Normal</option>
+      <option value="fresh" selected>Fresh quote, no lines</option>
     </select>
   </label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
@@ -492,7 +492,7 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <span class="spin sbusy" aria-hidden="true"></span>
           <label class="sr" for="q">Search by product name, collection, finish or item number</label>
-          <input id="q" type="search" placeholder="Search by name, collection, finish or item number, then press Enter" autocomplete="off">
+          <input id="q" type="search" placeholder="Search by name, collection, finish or item number" autocomplete="off">
           <button type="button" class="clear" id="clearQ" aria-label="Clear search" hidden>✕</button>
         </div>
 
@@ -1277,6 +1277,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("#filters").h
 renderQView();
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; $("#detToggle").checked=S.det; $("#shipToggle").checked=S.ship; // a reload can restore old checkbox state, so always start from the defaults
 renderRoomMenu(); renderAll();
+$("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
 // panes fill the space below the page header; re-measure when anything above them changes height
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
 new ResizeObserver(fitPanes).observe(document.body);
