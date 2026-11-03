@@ -12,7 +12,7 @@
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--panel:#e7ecf2;--panel-soft:#f1f4f8;--panel-line:#d3dae4;--panel-head:#627186;--surface:#f5f5f5;--surface-2:#ececec;--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
   --line:#d9d9d9;--line-2:#eeeeee;--rail:#151515;--rail-ink:#ffffff;--rail-muted:#9a9a9a;
   --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:#5b5b5b;--note-bg:#f1efe9;
-  --pill:#f3d64b;--focus:#1d4ed8;--proto:#ffffff;--proto-ink:#111111;
+  --pill:#f3d64b;--focus:#1d4ed8;--proto:#e4e4e4;--proto-ink:#111111;
   --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -27,15 +27,15 @@ button{cursor:pointer}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 /* prototype controls (not part of the product) */
-/* prototype controls: plain black and white with a dashed edge, so they never read as part of the design */
+/* prototype controls: grey with a dashed edge and a yellow note, so they never read as part of the design */
 .proto{background:var(--proto);color:var(--proto-ink);padding:10px 16px;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;font-size:13px;border-bottom:2px dashed var(--proto-ink)}
 .proto input{accent-color:var(--proto-ink)}
-.proto .protonote{background:var(--proto-ink);color:var(--proto);padding:4px 8px;font-weight:700;letter-spacing:.04em;font-size:12px}
+.proto .protonote{background:#ffe14d;color:var(--proto-ink);padding:4px 8px;font-weight:700;letter-spacing:.04em;font-size:12px}
 .proto strong{font-weight:600}
 .proto label{display:inline-flex;align-items:center;gap:6px}
-.proto .seg{display:inline-flex;border:1px solid var(--proto-ink);border-radius:6px;overflow:hidden}
-.proto .seg button{background:transparent;border:0;padding:5px 10px;color:var(--proto-ink)}
-.proto .seg button[aria-pressed="true"]{background:var(--proto-ink);color:var(--bg)}
+.proto .seg{display:inline-flex}
+.proto .seg button{background:transparent;border:0;padding:0;color:var(--proto-ink);font:inherit}
+.proto .seg button[aria-pressed="true"]{font-weight:600} /* only layout A shows for now, so it reads as plain text */
 .proto select{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 6px}
 
 /* app chrome */
@@ -431,7 +431,7 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
   <strong class="protonote">NOTE: FOR PROTOTYPE ONLY – NOT PART OF THE DESIGN</strong>
   <span>Layout:</span>
   <span class="seg" role="group" aria-label="Layout">
-    <button type="button" data-layout="split" aria-pressed="true">A · Side by side</button>
+    <button type="button" data-layout="split" aria-pressed="true">Side by side</button>
     <button type="button" data-layout="tabs" aria-pressed="false" hidden>B · Search and quote tabs</button> <!-- layout B hidden for now -->
   </span>
   <label>View
