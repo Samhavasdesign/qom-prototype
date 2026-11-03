@@ -135,6 +135,7 @@ table.res th{background:var(--surface-2);text-align:left;padding:10px 6px;font-w
 table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-align:middle}
 table.res tr.blocked td{color:var(--ink-3)}
 table.res td.num{white-space:nowrap}
+table.res .sty{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
 table.res .uom button{border:0;background:none;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 table.res tr.has-tray td{border-bottom:0}
 table.res tr.tray td{background:var(--surface);padding:8px 6px;font-size:14px;line-height:1.5}
@@ -641,6 +642,8 @@ CAT.push(
   {sku:"ARBAR-N", name:"Arrow Deck Mounted Bar Faucet", sec:"Gooseneck spout, single lever", col:"Arrow", series:"Modern", cat:"Fittings", fin:"Nickel", st:20, stock:8, price:1420},
   {sku:"ARBAR-CP", name:"Arrow Deck Mounted Bar Faucet", sec:"Gooseneck spout, single lever", col:"Arrow", series:"Modern", cat:"Fittings", fin:"Chrome", st:20, stock:4, price:1420}
 );
+// Essentials accessory from the public waterworks.com page; style EBR001 is the shared code across finishes (price is mock)
+CAT.push({sku:"EBR001-C011", style:"EBR001", name:"Essentials Watercloset Brush with Holder", sec:"Freestanding, with brush", col:"Essentials", series:"Modern", cat:"Accessories", fin:"Brass", st:20, stock:6, price:395});
 // kits: one sellable item that includes component products (kit = [{sku, qty per kit}]); priced as the kit, not by component
 CAT.push(
   {sku:"HNSHW-KIT-N", name:"Henry Shower Kit", sec:"Thermostatic valve trim, 8 inch shower arm and 10 inch rain shower head", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:6, price:2390, kit:[{sku:"HNTVC-N",qty:1},{sku:"HGARM-N",qty:1},{sku:"UNRSH10-N",qty:1}]},
@@ -651,11 +654,12 @@ CAT.push(
 const IMG={
   "HNBAR-N":"easton-24-towel-bar","HNTVC-N":"henry-single-hook","HNTVC-DB":"easton-18-towel-bar","HNWS29":"easton-24-glass-towel-bar-rosette",
   "HGLAV-BUN":"easton-18-glass-towel-bar","HGARM-N":"easton-10-guest-bar","UNRSH10-N":"easton-10-guest-bar-pearl","UNRSH10-CP":"easton-24-towel-bar-rosette",
-  "HNTWL-N":"easton-24-towel-bar","HNTWL-DB":"easton-18-towel-bar"
+  "HNTWL-N":"easton-24-towel-bar","HNTWL-DB":"easton-18-towel-bar",
+  "EBR001-C011":"essentials-watercloset-brush"
 };
 // uom (unit of measure, default "each") and mult (sold-in multiple, default 1) are cached QOM fields
 const SAMPLE_PHOTOS=["easton-24-towel-bar","henry-single-hook","easton-18-towel-bar","easton-24-glass-towel-bar-rosette","easton-18-glass-towel-bar","easton-10-guest-bar","easton-10-guest-bar-pearl","easton-24-towel-bar-rosette"];
-CAT.forEach((p,i)=>{p.img="images/"+(IMG[p.sku]||SAMPLE_PHOTOS[i%SAMPLE_PHOTOS.length])+".jpg"; p.uom=p.uom||"each"; p.mult=p.mult||1; p.whst=p.whst||20; p.ig=p.part?"SVP-01":(p.cat==="Surfaces"?"FG-SUR":"FG-FIT"); p.part=p.ig.startsWith("SVP"); p.noimg=["HNBAR-DB","HGLAV-N","ARTF-N","KSTN36-POL","HNKIT-N"].includes(p.sku);
+CAT.forEach((p,i)=>{p.img="images/"+(IMG[p.sku]||SAMPLE_PHOTOS[i%SAMPLE_PHOTOS.length])+".jpg"; p.uom=p.uom||"each"; p.style=p.style||p.sku.replace(/-[^-]+$/,""); /* style = item number without its finish code */ p.mult=p.mult||1; p.whst=p.whst||20; p.ig=p.part?"SVP-01":(p.cat==="Surfaces"?"FG-SUR":"FG-FIT"); p.part=p.ig.startsWith("SVP"); p.noimg=["HNBAR-DB","HGLAV-N","ARTF-N","KSTN36-POL","HNKIT-N"].includes(p.sku);
   // mock M3 item fields shown in results: UOM code, line type and shipping weight
   p.uomCode={each:"EA","square feet":"SF"}[p.uom]||p.uom.toUpperCase(); p.lt=(p.part||p.wh)?"Non-Stocked":"Stocked"; p.wt=(([...p.sku].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%4000)/1000+0.2).toFixed(4);});
 const METAL = new Set(["Nickel","Dark Brass","Burnished Brass","Chrome","Matte Black","Matte Nickel","Brass","Dark Nickel","Antique Brass","Unfinished"]);
@@ -681,7 +685,7 @@ const priceCell = (l,p,line) => {
 
 // ---------- search logic (FR-1, FR-2, FR-6, FR-10 light) ----------
 function tokens(q){ return q.toLowerCase().trim().split(/\s+/).filter(Boolean); }
-function haystack(p){ return [p.sku,p.name,p.sec,p.col,p.series,p.fin,p.cat,p.jde||""].join(" ").toLowerCase(); }
+function haystack(p){ return [p.sku,p.style,p.name,p.sec,p.col,p.series,p.fin,p.cat,p.jde||""].join(" ").toLowerCase(); }
 function matches(p, toks){
   const h = haystack(p);
   return toks.every(t => h.includes(t) || fuzzy(h,t));
@@ -708,6 +712,7 @@ function rank(p,q){
   const ql=q.toLowerCase().trim();
   let r=0;
   if(ql && (p.sku.toLowerCase()===ql || (p.jde&&p.jde===ql))) r-=1000;      // exact code first
+  else if(ql && p.style.toLowerCase()===ql) r-=900;                          // every finish of a style next
   else if(ql && p.sku.toLowerCase().startsWith(ql)) r-=500;
   if(p.part) r+=200;                                                         // sellable above parts
   if(p.st===10||p.st===80) r+=100;                                                      // can't-add below
@@ -720,7 +725,7 @@ function run(){
   const list=CAT.filter(p=>visible(p)&&passesFilters(p)&&(toks.length? matches(p,toks):true));
   if(S.sort==="best") return list.sort((a,b)=>rank(a,S.query)-rank(b,S.query) || a.name.localeCompare(b.name));
   // other sorts still keep an exact item number match at the top
-  const ql=S.query.toLowerCase().trim(), exact=p=>ql&&(p.sku.toLowerCase()===ql||p.jde===ql)?0:1;
+  const ql=S.query.toLowerCase().trim(), exact=p=>ql&&(p.sku.toLowerCase()===ql||p.jde===ql||p.style.toLowerCase()===ql)?0:1;
   const by={name:(a,b)=>a.name.localeCompare(b.name)||a.fin.localeCompare(b.fin), namedesc:(a,b)=>b.name.localeCompare(a.name)||a.fin.localeCompare(b.fin), sku:(a,b)=>a.sku.localeCompare(b.sku), col:(a,b)=>a.col.localeCompare(b.col)||a.name.localeCompare(b.name)}[S.sort];
   return list.sort((a,b)=>exact(a)-exact(b) || by(a,b));
 }
@@ -798,10 +803,10 @@ function renderResults(){
       <td><button type="button" class="add" data-add="${esc(p.sku)}" ${canAdd?'':'disabled'} aria-label="Add ${esc(p.name)} in ${esc(p.fin)} to ${esc(S.room||'quote')}" title="${canAdd?'Add to '+esc(S.room):(blocked?'Can’t be added':'Choose a room first')}">+</button></td>
       <td>${thumbHtml(p)}</td>
       <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}<small>${hl(p.sec)} · ${esc(p.col)}${p.series?' · '+esc(p.series):''}</small>${accents}${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
-      <td class="sku wd">${hl(p.sku)}</td>
+      <td class="sku wd">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd">${p.st}</td>
       <td class="wd">${esc(p.lt)}</td>
-      <td class="nr det"><span class="sku">${hl(p.sku)}</span><small class="wrap">Status ${p.st} · ${esc(p.lt)}</small>${S.price?`<small class="uom">List ${price}</small>`:""}<small class="uom">UOM <button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></small></td>
+      <td class="nr det"><span class="sku">${hl(p.sku)}</span>${p.style!==p.sku?`<small>Style ${hl(p.style)}</small>`:""}<small class="wrap">Status ${p.st} · ${esc(p.lt)}</small>${S.price?`<small class="uom">List ${price}</small>`:""}<small class="uom">UOM <button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></small></td>
       <td class="uom wd"><button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></td>
       ${S.price?`<td class="sku wd">${price}</td>`:""}
     </tr>${openTrays.has(p.sku)?`<tr class="tray" id="tray-${esc(p.sku)}"><td colspan="2"></td><td colspan="10">Weight: ${p.wt}<br>Collection Name: ${esc(p.col)}<br>${p.cat==="Surfaces"?"Color":"Metal Finish"}: ${esc(p.fin)}</td></tr>`:""}`;
