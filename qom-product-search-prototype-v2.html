@@ -12,7 +12,7 @@
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--panel:#e7ecf2;--panel-soft:#f1f4f8;--panel-line:#d3dae4;--panel-head:#627186;--surface:#f5f5f5;--surface-2:#ececec;--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
   --line:#d9d9d9;--line-2:#eeeeee;--rail:#151515;--rail-ink:#ffffff;--rail-muted:#9a9a9a;
   --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:#5b5b5b;--note-bg:#f1efe9;
-  --pill:#f3d64b;--focus:#1d4ed8;--proto:#eef2ff;--proto-ink:#2b3a8f;
+  --pill:#f3d64b;--focus:#1d4ed8;--proto:#ffffff;--proto-ink:#111111;
   --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -27,7 +27,10 @@ button{cursor:pointer}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 /* prototype controls (not part of the product) */
-.proto{background:var(--proto);color:var(--proto-ink);padding:10px 16px;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;font-size:13px;border-bottom:1px solid var(--line)}
+/* prototype controls: plain black and white with a dashed edge, so they never read as part of the design */
+.proto{background:var(--proto);color:var(--proto-ink);padding:10px 16px;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;font-size:13px;border-bottom:2px dashed var(--proto-ink)}
+.proto input{accent-color:var(--proto-ink)}
+.proto .protonote{background:var(--proto-ink);color:var(--proto);padding:4px 8px;font-weight:700;letter-spacing:.04em;font-size:12px}
 .proto strong{font-weight:600}
 .proto label{display:inline-flex;align-items:center;gap:6px}
 .proto .seg{display:inline-flex;border:1px solid var(--proto-ink);border-radius:6px;overflow:hidden}
@@ -425,11 +428,11 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 <body>
 
 <div class="proto" role="region" aria-label="Prototype controls">
-  <strong>Prototype</strong>
+  <strong class="protonote">NOTE: FOR PROTOTYPE ONLY – NOT PART OF THE DESIGN</strong>
   <span>Layout:</span>
   <span class="seg" role="group" aria-label="Layout">
     <button type="button" data-layout="split" aria-pressed="true">A · Side by side</button>
-    <button type="button" data-layout="tabs" aria-pressed="false">B · Search and quote tabs</button>
+    <button type="button" data-layout="tabs" aria-pressed="false" hidden>B · Search and quote tabs</button> <!-- layout B hidden for now -->
   </span>
   <label>View
     <select id="view">
@@ -439,15 +442,11 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
   </label>
   <label>Scenario
     <select id="scenario">
-      <option value="normal">Normal</option>
-      <option value="loading">Slow search (3 s)</option>
-      <option value="error">Search error</option>
-      <option value="noroom">No room chosen yet</option>
+      <option value="normal" selected>Normal</option>
       <option value="fresh">Fresh quote, no lines</option>
     </select>
   </label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
-  <label><input type="checkbox" id="showParts" checked> Include service parts</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
   <label><input type="checkbox" id="showStock" checked> Stock hint in results (engineering says availability is read with the quote, not per result)</label>
   <label><input type="checkbox" id="showPrice" checked> Price in results (needs an M3 call per item)</label>
@@ -1054,7 +1053,7 @@ document.addEventListener("click",e=>{
   if(t.id==="clearAll"){ Object.values(S.filters).forEach(s=>s.clear()); renderChips(); search(); return; }
   if(t.id==="clearQ"){ S.query=""; $("#q").value=""; t.hidden=true; search(); return; }
   if(t.id==="retry"){ S.scenario="normal"; $("#scenario").value="normal"; search(); return; }
-  if(t.id==="showPartsLink"){ S.parts=true; $("#partsInline").checked=true; $("#showParts").checked=true; search(); return; }
+  if(t.id==="showPartsLink"){ S.parts=true; $("#partsInline").checked=true; search(); return; }
   if(t.id==="showDiscLink"){ S.disc=true; $("#showDisc").checked=true; search(); return; }
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
   if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; renderQuote(); return; }
@@ -1086,7 +1085,7 @@ document.addEventListener("change",e=>{
   if(t.id==="shipToggle"){ S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l); } } return; }
-  if(t.id==="showParts"||t.id==="partsInline"){ S.parts=t.checked; $("#showParts").checked=S.parts; $("#partsInline").checked=S.parts; search(); return; }
+  if(t.id==="partsInline"){ S.parts=t.checked; search(); return; }
   if(t.id==="sortSel"){ S.sort=t.value; search(); return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
   if(t.id==="showStock"){ S.stock=t.checked; renderResults(); return; }
