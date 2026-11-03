@@ -271,7 +271,8 @@ table.res tr.part td .name{color:var(--ink-2)}
 .toast[hidden]{display:none}
 .toast.ok{background:var(--ok);color:#fff;font-weight:500;animation:toastin .15s ease-out} /* quick success after adding a product */
 @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}}
-@media (prefers-reduced-motion:reduce){.toast.ok{animation:none}}
+.toast.warn{background:var(--warn);color:#fff;font-weight:500;animation:toastin .15s ease-out}
+@media (prefers-reduced-motion:reduce){.toast.ok,.toast.warn{animation:none}}
 .shipsw{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer;margin-right:6px;position:relative}
 .shipsw input{position:absolute;opacity:0;width:1px;height:1px}
 .swtrack{position:relative;width:34px;height:20px;border-radius:999px;background:var(--ink-3);flex:none;transition:background .15s}
@@ -991,7 +992,9 @@ function search(){ // the spinner only appears if a search takes longer than 300
   clearTimeout(timer); clearTimeout(spinTimer); S.notice=null; S.page=1;
   const delay = S.scenario==="loading" ? 3000 : 250;
   spinTimer=setTimeout(()=>{ S.loading=true; renderResults(); }, 300);
-  timer=setTimeout(()=>{ clearTimeout(spinTimer); S.loading=false; renderFilters(); renderResults(); }, delay);
+  timer=setTimeout(()=>{ clearTimeout(spinTimer); S.loading=false; renderFilters(); renderResults();
+    if(!S.room && S.query.trim()) showToast("Add room to quote to start adding products","warn"); // searching before a room exists
+  }, delay);
 }
 function addLine(sku){
   const p=CAT.find(x=>x.sku===sku); const r=S.quote.rooms.find(x=>x.name===S.room); if(!r) return;
