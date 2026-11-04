@@ -357,7 +357,7 @@ table.res tr.part td .name{color:var(--ink-2)}
 .qi h3{font-size:24px;font-weight:600;margin:26px 0 10px}
 .qi .qf{margin:0 0 16px}
 .qi .ql{font-weight:600;font-size:15px}
-.qi .qv{font-family:var(--serif);font-size:16px;margin-top:2px;min-height:1em}
+.qi .qv{font-size:16px;margin-top:2px;min-height:1em}
 .qi .qnone{font-family:var(--serif);color:var(--ink-3)}
 .pdfwrap{background:var(--surface-2);padding:12px}
 .pdfpage{position:relative;overflow:hidden;background:#fff;color:#111;border:1px solid var(--line);padding:18px 18px 10px;margin-bottom:12px;font-size:10px;line-height:1.35}
@@ -468,6 +468,7 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
       <div class="qtop" id="qTop">
       <div class="qseg" role="tablist" aria-label="Quote panel view">
         <button type="button" class="qtab" role="tab" data-qview="products" aria-selected="true">Products</button>
+        <button type="button" class="qtab" role="tab" data-qview="info" aria-selected="false">Quote information</button>
         <button type="button" class="qtab" role="tab" data-qview="pdf" aria-selected="false">PDF preview</button>
       </div>
       <button type="button" class="expandbtn" id="expandBtn" aria-pressed="false" aria-label="Enlarge panel to full screen" title="Enlarge"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg></button>
@@ -1220,7 +1221,7 @@ const infoHtml=()=>`<div class="qi">
   <div class="qihead"><span class="qid">Quote ID: ${QI.id}</span><span class="qexp">Expires on: ${QI.expires}</span></div>
   <span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span>
   <h3>Essential Quote Info</h3>${qfield("Order Type",QI.orderType)}${qfield("Order Subtype",QI.subtype)}${qfield("Requested Delivery Date",QI.delivery)}${qfield("Est. Conv. Date",QI.conv)}${qfield("Payment Amount",QI.payment)}
-  <h3>Header Information</h3>${qfield("Sales Consultant 1",QI.consultant)}${qfield("Payer",QI.payer)}
+  <h3>Header Information</h3>${qfield("Sales Consultant 1",QI.consultant)}${qfield("Quote Status","Draft")}${qfield("Payer",QI.payer)}
   <h3>Shipping Information</h3>${qfield("Service Level",QI.service)}${qfield("Cost center",QI.cost)}
   <h3>Associations</h3><p class="qnone">No associated parties yet.</p>
   <h3>Generated documents</h3><div class="qf"><div class="ql">Sales Quote</div><div class="qv">2 pages</div><button type="button" class="backlink" data-qview="pdf" style="margin:6px 0 0">View PDF preview</button></div>
@@ -1256,6 +1257,7 @@ function renderQView(){
   const v=S.qview;
   document.querySelector(".qroom").hidden=v!=="products"; $("#shipSwWrap").hidden=!(v==="products"&&S.view==="residential"); $("#detSwWrap").hidden=v!=="products";
   $("#qProducts").hidden=v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
+  $(".qhead .qtitle").textContent={products:"Selected Products",info:"Quote information",pdf:"PDF preview"}[v]; $("#qSub").hidden=v!=="products";
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
   if(v==="info") $("#qInfo").innerHTML=infoHtml();
   if(v==="pdf") $("#qPdf").innerHTML=pdfHtml();
