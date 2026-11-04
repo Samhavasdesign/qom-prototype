@@ -342,6 +342,7 @@ table.res tr.part td .name{color:var(--ink-2)}
 .toast.warn{background:var(--warn);color:#fff;font-weight:500;animation:toastin .15s ease-out}
 @media (prefers-reduced-motion:reduce){.toast.ok,.toast.warn{animation:none}}
 .shipsw{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer;margin-right:6px;position:relative}
+.shipsw[hidden]{display:none}
 .shipsw input{position:absolute;opacity:0;width:1px;height:1px}
 .swtrack{position:relative;width:34px;height:20px;border-radius:999px;background:var(--ink-3);flex:none;transition:background .15s}
 .swtrack::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--bg);transition:transform .15s}
@@ -628,8 +629,8 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <div class="qbar">
         <div class="qhead"><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
         <div class="qright">
-        <label class="shipsw" id="detSwWrap"><span class="shiplbl">Item details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
-        <label class="shipsw" id="shipSwWrap"><span class="shiplbl">Shipping details</span><input type="checkbox" role="switch" id="shipToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
+        <!-- one switch shows or hides both the item details and the shipping fields on every line -->
+        <label class="shipsw" id="detSwWrap"><span class="shiplbl">Shipping Details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
         </div>
         </div>
         <div id="qProducts">
@@ -1054,6 +1055,8 @@ const qtyCell=(r,l,p,id)=>{
     : `<button type="button" class="sbtn" data-step="${key}|-1" aria-label="Decrease quantity of ${esc(p.name)}">${ICON.minus}</button>`;
   return `<div class="qty"><div class="stepper${bad?" bad":""}">${first}<input type="number" inputmode="numeric" min="${m}" step="${m}" value="${l.qty}" aria-label="Quantity for ${esc(p.name)}${unitShown?" in "+esc(p.uom):""}" ${help?`aria-describedby="${id}" `:""}aria-invalid="${bad}" data-qty="${key}"><button type="button" class="sbtn" data-step="${key}|1" aria-label="Increase quantity of ${esc(p.name)}">${ICON.plus}</button></div>${help}</div>`;
 };
+// the Details switch only appears once the quote has rooms with lines in them
+const detSwShown=()=>{ $("#detSwWrap").hidden=S.qview!=="products"||!S.quote.rooms.some(r=>r.lines.length); };
 function renderQuote(){
   RISK=computeRisk();
   if(S.collapsedFor && S.collapsedFor!==S.room) S.collapsedFor=null; // only the room you're adding to is open; it can be folded shut by hand
@@ -1069,6 +1072,7 @@ function renderQuote(){
   // freight and tax are worked out by Freight & Save, so they show as "-" until then
   $("#totals").innerHTML=`<span class="lb">Additional Charges:</span><span class="v">-</span><span class="lb big">Subtotal:</span><span class="v big">${money(sub)}</span><span class="lb">Additional Discount(s):</span><span class="v">${money(0)}</span><span class="lb">Freight Cost:</span><span class="v">-</span><span class="lb">Tax:</span><span class="v">-</span><hr><span></span><span class="lb big">Total:</span><span class="v"><span class="bf">(before freight)</span><span class="big">${money(sub)}</span></span>`; $("#footTotal").textContent=money(sub);
   $("#saveMsg").className=S.dirty||bad?"unsaved":"ok-msg"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":S.dirty?"Unsaved changes. Added lines are drafts until you save.":"All changes saved";
+  detSwShown();
   $("#saveBtn").disabled=!S.dirty||bad>0; $("#sideSave").disabled=$("#saveBtn").disabled;
   $("#sideRooms").innerHTML=rooms.length?rooms.map(r=>`<button type="button" class="sroom" data-sideroom="${esc(r.name)}" aria-current="${S.room===r.name}"><span class="sricon">${ICON.door}</span><span class="srn">${esc(r.name)}</span><span class="srbadge" aria-label="${r.lines.length} line${r.lines.length===1?"":"s"}">${r.lines.length}</span></button>`).join(""):'<p class="snone">No rooms yet.</p>';
   const bl=RISK.blockers, sb=$("#sendBtn"); sb.classList.toggle("blocked",bl.length>0); sb.setAttribute("aria-disabled",String(bl.length>0)); sb.title=bl.map(b=>`Line ${b.n} · ${b.sku}: ${b.label}`).join("\n");
@@ -1136,8 +1140,8 @@ function addLine(sku){
   const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:p.price});
   showToast(ex ? `✓ ${p.name} in ${p.fin}: quantity now ${ex.qty} in ${r.name}` : `✓ Added ${p.name} in ${p.fin} to ${r.name}`, "ok");
   S.collapsedFor=null; S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu(); renderResults();
-  showAddedLine(r.name,sku);
-  const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; btn.focus(); setTimeout(()=>{btn.innerHTML=ICON.plus;},900); }
+  const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; btn.focus({preventScroll:true}); setTimeout(()=>{btn.innerHTML=ICON.plus;},900); }
+  showAddedLine(r.name,sku); // after the focus, which would otherwise cut the smooth scroll short
 }
 // new lines go at the end of the room; the quote side scrolls so the added line sits at the top, just under the title and room bars
 function showAddedLine(room,sku){
@@ -1231,8 +1235,7 @@ document.addEventListener("change",e=>{
     markSaved(); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
   if(t.id==="view"){ setView(t.value); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
-  if(t.id==="detToggle"){ S.det=t.checked; renderQuote(); return; }
-  if(t.id==="shipToggle"){ S.ship=t.checked; renderQuote(); return; }
+  if(t.id==="detToggle"){ S.det=S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
@@ -1413,7 +1416,7 @@ const pdfHtml=()=>{
 function shipDirty(){ S.dirty=true; const bad=S.quote.rooms.some(r=>r.lines.some(l=>{const p=CAT.find(x=>x.sku===l.sku); return l.qty%p.mult;})); $("#saveMsg").className="unsaved"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":"Unsaved changes. Added lines are drafts until you save."; $("#saveBtn").disabled=bad; }
 function renderQView(){
   const v=S.qview;
-  $("#shipSwWrap").hidden=!(v==="products"&&S.view==="residential"); $("#detSwWrap").hidden=v!=="products";
+  detSwShown();
   $("#qProducts").hidden=v!=="products"; $("#qSide").hidden=!S.expanded||v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
   $(".qhead .qtitle").textContent={products:"Selected Products",info:"Quote information",pdf:"PDF preview"}[v]; $("#qSub").hidden=v!=="products";
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
@@ -1437,7 +1440,7 @@ function closeFilters(){ $("#filters").hidden=true; $("#filterBtn").setAttribute
 document.addEventListener("click",e=>{ if(!$("#filters").hidden && !e.target.closest(".filterwrap")) closeFilters(); },true);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("#filters").hidden){ closeFilters(); $("#filterBtn").focus(); } });
 renderQView();
-applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; $("#detToggle").checked=S.det; $("#shipToggle").checked=S.ship; // a reload can restore old checkbox state, so always start from the defaults
+applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
 renderRoomMenu(); renderAll();
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
 // panes fill the space below the page header; re-measure when anything above them changes height
