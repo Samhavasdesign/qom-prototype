@@ -246,8 +246,6 @@ table.res tr.part td .name{color:var(--ink-2)}
 .roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 -6px 0 0;text-decoration:none;opacity:.85}
 .roomhdr button.rchev svg{transition:transform .15s}
 .roomhdr button.rchev[aria-expanded="true"] svg{transform:rotate(180deg)}
-.rname{cursor:text;user-select:none}
-.rname:hover{text-decoration:underline dotted;text-underline-offset:3px}
 .rname-in{font:inherit;font-weight:600;border:1px solid var(--ink);padding:2px 6px;width:min(130px,100%);background:var(--bg);color:var(--ink)}
 .rmblock .form-err{color:var(--warn);font-size:13px;margin:6px 0 0;padding:0 10px}
 .dragging{opacity:.4}
@@ -321,6 +319,11 @@ table.res tr.part td .name{color:var(--ink-2)}
 .lmenu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:transparent;border:0;padding:11px 16px;font-size:14px;color:var(--ink)}
 .lmenu button:hover,.lmenu button:focus-visible{background:var(--surface)}
 .lmenu button:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.roomhdr .more{width:18px;height:18px;border:.5px solid currentColor;border-radius:50%;background:transparent;color:var(--bg);padding:0;display:flex;align-items:center;justify-content:center;text-decoration:none;opacity:.9}
+.roomhdr .more:hover,.roomhdr .more:focus-visible,.roomhdr .more[aria-expanded="true"]{opacity:1}
+.roomhdr.menuopen{z-index:8} /* the open menu sits over the lines and later room bars */
+.rmenu{top:calc(100% + 2px);right:44px;cursor:default}
+.roomhdr .rmenu button{color:var(--ink);text-decoration:none;font-size:14px;font-weight:400}
 .dlgwrap{position:fixed;inset:0;z-index:200;background:rgba(17,17,17,.45);display:flex;align-items:center;justify-content:center;padding:20px}
 .dlgwrap[hidden]{display:none}
 .dlg{background:var(--bg);width:min(560px,100%);padding:36px 32px 32px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3)}
@@ -770,7 +773,7 @@ const S = {
   rq:{}, // quantity chosen on a result row before adding, by SKU
   layout:"split", pane:"search", query:"", room:"Bar",
   filters:{cat:new Set(), col:new Set(), fin:new Set(), series:new Set()},
-  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",series:""}, facc:null, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"",
+  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",series:""}, facc:null, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"",
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026"},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
@@ -921,7 +924,7 @@ function renderRoomMenu(){
 const grip=(type,room,sku,label)=>`<button type="button" class="grip" data-grip="${type}" data-groom="${esc(room)}" data-gsku="${esc(sku)}" aria-label="Reorder ${esc(label)}. Drag, or press arrow up or down." title="Drag to reorder">⠿</button>`;
 const roomName=r=>S.editRoom===r.name
   ? `<input class="rname-in" value="${esc(S.editVal)}" aria-label="Room name" aria-invalid="${!!S.editErr}">`
-  : `<span class="rname" tabindex="0" role="button" data-rename="${esc(r.name)}" title="Double-click to rename" aria-label="${esc(r.name)}. Press Enter to rename.">${esc(r.name)}</span>`;
+  : esc(r.name); // renaming is only in the room's "…" menu; a click on the name opens the room like the rest of the bar
 // quantity cell: stepper always visible; unit + info icon unless the unit is "each"; the sold-in multiple is helper text, not just a tooltip
 const ICON={
   door:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 18V2h10v16M3 18h14M5 2l6 2v14"/><circle cx="9.3" cy="10.5" r=".6" fill="currentColor"/></svg>`,
@@ -945,6 +948,21 @@ const MENU_ITEMS=[
   ["addr","Alt. Address",MI('<path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14"/>')],
   ["remove","Remove Product",MI('<path d="M9 3h6M4 6h16"/><rect x="6" y="6" width="12" height="15" rx="1"/><path d="M10 11l4 5M14 11l-4 5"/>')]
 ];
+const MORE_DOTS='<svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg>';
+// the "…" on each room bar: same menu style as the line menu
+const ROOM_MENU=[
+  ["dup","Duplicate room",MI('<rect x="8" y="3" width="11" height="14" rx="1"/><path d="M5 7v13a1 1 0 0 0 1 1h10"/>')],
+  ["del","Delete room",MI('<path d="M9 3h6M4 6h16"/><rect x="6" y="6" width="12" height="15" rx="1"/><path d="M10 11l4 5M14 11l-4 5"/>')],
+  ["ren","Edit room name",MI('<path d="M4 20l1-5L16 4l4 4L9 19zM14 6l4 4"/>')]
+];
+const roomMenu=r=>`<div class="lmenu rmenu" role="menu" aria-label="Actions for ${esc(r.name)}">${ROOM_MENU.map(([id,label,icon])=>`<button type="button" role="menuitem" data-ract="${id}" data-rname="${esc(r.name)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
+// a copy goes straight after the original, named "Bar 2", "Bar 3"…; it is a draft until saved, like any other change
+function duplicateRoom(name){
+  const rooms=S.quote.rooms, idx=rooms.findIndex(r=>r.name===name); if(idx<0) return;
+  const base=name.replace(/ \d+$/,""); let n=2; while(rooms.some(r=>r.name.toLowerCase()===`${base} ${n}`.toLowerCase())) n++;
+  const copy=structuredClone(rooms[idx]); copy.name=`${base} ${n}`; rooms.splice(idx+1,0,copy); S.dirty=true;
+  renderRoomMenu(); renderQuote(); showToast(`✓ Duplicated ${name} as ${copy.name}`,"ok"); document.querySelector(`[data-rmore="${CSS.escape(copy.name)}"]`)?.focus();
+}
 const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
 let toastTimer=null;
 function showToast(msg,kind){ const t=$("#toast"); t.textContent=msg; t.className="toast"+(kind?" "+kind:""); t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true,kind==="ok"?1600:2600); }
@@ -961,7 +979,7 @@ function markSaved(){ S.base=structuredClone(S.quote); }
 // opening a room makes it the one you add to; the open room can also be folded shut by hand
 function pickRoom(name){ S.room=name; S.collapsedFor=null; if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
 function toggleRoom(name){ if(S.room===name){ S.collapsedFor=S.collapsedFor===name?null:name; renderQuote(); } else pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus(); }
-document.addEventListener("click",e=>{ const h=e.target.closest(".roomhdr"); if(!h||e.target.closest("button,input,.rname,.grip")) return; toggleRoom(h.dataset.roomhdr); });
+document.addEventListener("click",e=>{ const h=e.target.closest(".roomhdr"); if(!h||e.target.closest("button,input,.grip,.lmenu")) return; toggleRoom(h.dataset.roomhdr); });
 function openDiscardDialog(){
   S.confirm={kind:"discard"}; dlgReturn=$("#discardBtn");
   const d=$("#rmDialog"); d.hidden=false;
@@ -1067,7 +1085,7 @@ function renderQuote(){
     const isOpen=S.room===r.name&&S.collapsedFor!==r.name;
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       return `<div class="line" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.sec?`<small>${esc(p.sec)}</small>`:""}${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||'<div class="empty-quote">No lines in this room yet.</div>')}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||'<div class="empty-quote">No lines in this room yet.</div>')}</div>`;
   }).join("");
   // freight and tax are worked out by Freight & Save, so they show as "-" until then
   $("#totals").innerHTML=`<span class="lb">Additional Charges:</span><span class="v">-</span><span class="lb big">Subtotal:</span><span class="v big">${money(sub)}</span><span class="lb">Additional Discount(s):</span><span class="v">${money(0)}</span><span class="lb">Freight Cost:</span><span class="v">-</span><span class="lb">Tax:</span><span class="v">-</span><hr><span></span><span class="lb big">Total:</span><span class="v"><span class="bf">(before freight)</span><span class="big">${money(sub)}</span></span>`; $("#footTotal").textContent=money(sub);
@@ -1191,7 +1209,12 @@ document.addEventListener("click",e=>{
     if(dir==="-1"&&l.qty===m){ dropLine(rm,idx,p.name); return; } // at the minimum, the minus is a trash can
     l.qty = dir==="1" ? (Math.floor(l.qty/m)+1)*m : Math.max(m,(Math.ceil(l.qty/m)-1)*m); // steps by the sold-in multiple; snaps a typed odd value to the next valid one
     S.dirty=true; renderQuote(); document.querySelector(`[data-step="${CSS.escape(t.dataset.step)}"]`)?.focus(); return; }
-  if(t.dataset.more){ S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
+  if(t.dataset.rmore){ S.lmenu=null; S.rmenu=S.rmenu===t.dataset.rmore?null:t.dataset.rmore; renderQuote(); document.querySelector(S.rmenu?".rmenu [role=menuitem]":`[data-rmore="${CSS.escape(t.dataset.rmore)}"]`)?.focus(); return; }
+  if(t.dataset.ract){ const name=t.dataset.rname; S.rmenu=null;
+    if(t.dataset.ract==="dup"){ duplicateRoom(name); return; }
+    if(t.dataset.ract==="del"){ removeRoom(name); return; }
+    renderQuote(); startRename(name); return; }
+  if(t.dataset.more){ S.rmenu=null; S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
@@ -1313,10 +1336,11 @@ document.addEventListener("keydown",e=>{
   document.querySelector(`.grip[data-grip="${g.dataset.grip}"][data-groom="${CSS.escape(g.dataset.groom)}"]`+(isRoom?"":`[data-gsku="${CSS.escape(g.dataset.gsku)}"]`))?.focus();
 });
 // the line menu closes on an outside click or Escape, and arrow keys move through it
-document.addEventListener("click",e=>{ if(S.lmenu && !e.target.closest(".lmenu,[data-more]")){ S.lmenu=null; renderQuote(); } },true);
+document.addEventListener("click",e=>{ if(S.lmenu && !e.target.closest(".lmenu,[data-more]")){ S.lmenu=null; renderQuote(); } if(S.rmenu && !e.target.closest(".rmenu,[data-rmore]")){ S.rmenu=null; renderQuote(); } },true);
 document.addEventListener("keydown",e=>{
   if(S.confirm){ if(e.key==="Escape"){ e.preventDefault(); closeRemoveDialog(); } else if(e.key==="Tab"){ const b=[$("#rmCancel"),$("#rmYes")]; const i=b.indexOf(document.activeElement); e.preventDefault(); b[(i+(e.shiftKey?b.length-1:1))%b.length].focus(); } return; }
-  if(!S.lmenu) return;
+  if(!S.lmenu&&!S.rmenu) return;
+  if(e.key==="Escape"&&S.rmenu){ const k=S.rmenu; S.rmenu=null; renderQuote(); document.querySelector(`[data-rmore="${CSS.escape(k)}"]`)?.focus(); return; }
   if(e.key==="Escape"){ const k=S.lmenu; S.lmenu=null; renderQuote(); document.querySelector(`[data-more="${CSS.escape(k)}"]`)?.focus(); return; }
   if(e.key==="ArrowDown"||e.key==="ArrowUp"){ const items=[...document.querySelectorAll(".lmenu [role=menuitem]")]; const i=items.indexOf(document.activeElement); if(!items.length) return; e.preventDefault(); items[(i+(e.key==="ArrowDown"?1:items.length-1))%items.length].focus(); }
 });
@@ -1350,7 +1374,7 @@ function applyRename(r,name){
   r.name=name; if(S.room===old) S.room=name; if(S.undo&&S.undo.room===old) S.undo.room=name;
 }
 function redrawQuote(){ quiet=true; renderQuote(); quiet=false; }
-function focusName(name){ document.querySelector(`.rname[data-rename="${CSS.escape(name)}"]`)?.focus(); }
+function focusName(name){ document.querySelector(`[data-rmore="${CSS.escape(name)}"]`)?.focus(); } // back to the "…" the rename came from
 function startRename(name){
   if(S.editRoom) finishRename(true,false,true);
   S.editRoom=name; S.editVal=name; S.editErr=""; redrawQuote();
@@ -1366,9 +1390,7 @@ function finishRename(commit,refocus,fromBlur){
   if(commit && !err && name!==old){ applyRename(r,name); S.dirty=true; renderRoom(); renderResults(); renderRoomMenu(); }
   redrawQuote(); if(refocus) focusName(r.name);
 }
-document.addEventListener("dblclick",e=>{ const n=e.target.closest?.(".rname"); if(n) startRename(n.dataset.rename); });
 document.addEventListener("keydown",e=>{
-  const n=e.target.closest?.(".rname"); if(n&&(e.key==="Enter"||e.key==="F2")){ e.preventDefault(); startRename(n.dataset.rename); return; }
   if(e.target.matches?.(".rname-in")){ if(e.key==="Enter"){ e.preventDefault(); finishRename(true,true); } else if(e.key==="Escape"){ e.preventDefault(); finishRename(false,true); } }
 });
 document.addEventListener("input",e=>{ if(e.target.matches?.(".rname-in")) S.editVal=e.target.value; if(e.target.dataset?.fq){ S.fq[e.target.dataset.fq]=e.target.value; applyFq(e.target.dataset.fq); } });
