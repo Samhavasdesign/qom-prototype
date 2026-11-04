@@ -74,11 +74,17 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .toprow{display:grid;grid-template-columns:1fr;gap:14px;align-items:end;margin-bottom:12px}
 .field label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:5px}
 .room{position:relative}
-.qroom{margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.qroom label{margin:0;white-space:nowrap;font-size:13px}
-.qroom .room-btn{height:34px;padding:0 10px;font-size:14px}
-.roomctl{position:relative;flex:none;width:160px;max-width:100%}
-.roomctl .menu{right:auto;min-width:330px}
+/* the room picker matches the search input: same height, border and type, full width of the search side */
+.qroom{position:relative;margin-bottom:10px}
+.roomctl{width:100%}
+.roomctl .menu{left:0;right:0;width:auto}
+.qroom .room-btn{height:44px;padding:0 12px;border:1px solid var(--ink-3);border-radius:0;font-family:var(--sans);font-size:15px;color:var(--ink);cursor:pointer}
+.qroom .room-btn:hover{border-color:var(--ink-2)}
+.qroom .room-btn:focus-visible,.qroom .room-btn[aria-expanded="true"]{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.room-btn .rtxt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-btn .rpre{color:var(--ink-3)}
+.room-btn #roomLabel{font-weight:600}
+.room-btn.empty #roomLabel{color:var(--ink-3);font-weight:400}
 /* search controls sit in a tinted header, matching the quote panel */
 .shead{position:sticky;top:0;z-index:6;background:var(--panel-soft);border:1px solid var(--panel-line);padding:14px 16px 2px;margin-bottom:14px} /* stays in view while scrolling results */
 .room-btn{width:100%;text-align:left;background:var(--bg);border:1px solid var(--line);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -87,6 +93,10 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .menu .grp{font-size:12px;color:var(--ink-3);padding:10px 12px 4px;letter-spacing:.06em}
 .menu > button{display:flex;justify-content:space-between;width:100%;text-align:left;background:transparent;border:0;padding:10px 12px}
 .menu > button:hover,.menu > button:focus-visible{background:var(--surface)}
+/* rooms already on the quote are bold, each in its own grey box, so they stand out from the standard room types */
+.menu > button[data-room]{width:calc(100% - 24px);margin:0 12px 6px;background:var(--surface-2);font-weight:600}
+.menu > button[data-room]:hover,.menu > button[data-room]:focus-visible{background:#e0e0e0}
+.menu > button[data-room] .cnt{font-weight:400}
 .menu .modes{display:flex;border-bottom:1px solid var(--line-2)}
 .menu .modes button{flex:1;background:transparent;border:0;border-bottom:3px solid transparent;padding:10px 12px;color:var(--ink-2)}
 .menu .modes button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
@@ -99,7 +109,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .menu form{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line-2)}
 .menu form input{flex:1 1 100%;min-width:0;border:1px solid var(--line);padding:8px;background:var(--bg)}
 .menu form select{flex:1 1 100%;min-width:0;border:1px solid var(--line);padding:8px;background:var(--bg)}
-.search{position:relative;margin-bottom:10px}
+.search{position:relative;flex:1;min-width:0}
 .search input{width:100%;height:44px;border:1px solid var(--ink-3);border-radius:0;background:var(--bg);padding:0 40px 0 40px;font-family:var(--sans);font-size:15px;color:var(--ink)}
 .search input::placeholder{color:var(--ink-3)}
 .search input:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
@@ -111,11 +121,42 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chip .x{border:0;background:transparent;color:inherit;padding:0 2px;font-size:15px;line-height:1}
 .chips .clear{border:0;background:transparent;color:var(--ink-2);text-decoration:underline;padding:4px}
-.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 18px;border:1px solid var(--line);padding:12px 14px;margin-bottom:12px;background:var(--surface)}
+/* filter tray: black FILTERS bar, one collapsible row per group, Reset and Close at the bottom (staging pattern) */
+.filters{display:flex;flex-direction:column;border:1px solid var(--ink);margin-bottom:12px;background:var(--bg);overflow:hidden}
+.filters[hidden]{display:none}
+.filters .fbar{flex:none;background:#000;color:#fff;padding:16px;font-size:13px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+.filters .fbody{flex:1;min-height:0;overflow:auto}
+.filters .facc{border-bottom:1px solid var(--line-2)}
+.filters h4{margin:0;font-size:13px;font-weight:500}
+.fhead{display:flex;align-items:center;gap:8px;width:100%;padding:16px;background:transparent;border:0;text-align:left;font:inherit;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);cursor:pointer}
+.fhead:hover{background:var(--surface)}
+.fhead:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.fhead .flabel{flex:1}
+.fhead .fsel{letter-spacing:0;text-transform:none;color:var(--ink-3);font-weight:400}
+.fhead svg{flex:none;color:var(--ink-2);transition:transform .15s}
+.fhead[aria-expanded="true"] svg{transform:rotate(180deg)}
+.filters .fpanel{padding:0 16px 14px}
+.filters .fpanel[hidden]{display:none}
+.filters .ffoot{flex:none;display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--line-2)}
+.filters .ffoot button{flex:1;height:44px;display:flex;align-items:center;justify-content:center;gap:10px;font:inherit;font-size:14px;letter-spacing:.04em;cursor:pointer;border-radius:0}
+.filters .ffoot .freset{background:var(--bg);border:1px solid var(--ink-3);color:var(--ink-2)}
+.filters .ffoot .freset:hover{border-color:var(--ink)}
+.filters .ffoot .fclose{background:var(--ink);border:1px solid var(--ink);color:var(--bg)}
+.filters .ffoot .fclose:hover{background:var(--ink-2)}
+/* Discard changes and Save quote stay pinned to the bottom of the search side */
+.sfoot{position:sticky;bottom:0;z-index:5;display:flex;gap:10px;margin:14px 0 0;padding:12px 0;background:var(--bg);border-top:1px solid var(--line)}
+.sfoot .btn{flex:1;min-width:0;padding:12px 10px}
 .filters h4{margin:0 0 6px;font-size:13px;font-weight:600}
 .filters label{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:13px}
 .filters label span.c{color:var(--ink-3)}
 .filters label.off{color:var(--ink-3)}
+.filters label[hidden]{display:none}
+/* each group has its own search; long lists scroll inside the group */
+.filters .fsearch{display:block;width:100%;height:32px;margin:0 0 6px;padding:0 8px;border:1px solid var(--ink-3);border-radius:0;background:var(--bg);font:inherit;font-size:13px;color:var(--ink)}
+.filters .fsearch:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.filters .fopts{max-height:240px;overflow:auto}
+.filters .fnone{margin:0;padding:3px 0;font-size:13px;color:var(--ink-3)}
+.filters .fnone[hidden]{display:none}
 .meta{display:flex;justify-content:flex-start;align-items:center;gap:6px 20px;margin:0 0 8px;color:var(--ink-2);font-size:13px;flex-wrap:wrap}
 .meta label{display:inline-flex;gap:6px;align-items:center}
 .meta label input{margin-left:0}
@@ -155,7 +196,21 @@ table.res tr.part td .name{color:var(--ink-2)}
 .tag.warn{background:var(--warn-bg);color:var(--warn)}
 .tag.note{background:var(--note-bg);color:var(--note)}
 .reason{display:block;color:var(--warn);font-size:13px;margin-top:4px}
-.add{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);border:0;font-size:13px;line-height:1;padding:0}
+.addcell{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.addpill{display:inline-flex;align-items:stretch;height:30px;border:1px solid var(--ink-3);border-radius:999px;background:var(--bg);overflow:hidden}
+.addpill:focus-within{border-color:var(--ink)}
+.addpill.bad{border-color:var(--warn)}
+.addpill.bad input{background:var(--warn-bg)}
+.addpill input{width:44px;border:0;background:transparent;text-align:center;padding:0 0 0 4px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.addpill input:focus-visible{outline:none}
+.addpill input::-webkit-inner-spin-button,.addpill input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.addpill .add{height:auto;min-width:34px;padding:0 10px 0 8px;border-radius:0 999px 999px 0;display:flex;align-items:center;justify-content:center}
+.addpill .add:focus-visible{outline-offset:-3px}
+.addpill.off{border-color:var(--line);background:var(--surface)}
+.addpill.off input{color:var(--ink-3)}
+.addcell .help{font-size:11px;color:var(--ink-2)}
+.addcell .help.err{color:var(--warn)}
+.add{min-width:58px;height:28px;border-radius:999px;background:var(--ink);color:var(--bg);border:0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1;padding:0 12px}
 .add:disabled{background:var(--surface-2);color:var(--ink-3)}
 .state{border:1px dashed var(--line);padding:28px 20px;color:var(--ink-2);text-align:left}
 .state h3{margin:0 0 6px;font-family:var(--serif);font-weight:400;font-size:20px;color:var(--ink)}
@@ -187,6 +242,12 @@ table.res tr.part td .name{color:var(--ink-2)}
 .grip{border:0;background:transparent;color:var(--ink-3);cursor:grab;padding:0 2px;font-size:16px;line-height:1;text-decoration:none}
 .grip:hover{color:var(--ink)}
 .roomhdr .grip{font-size:15px;text-decoration:none}
+.roomhdr{cursor:pointer}
+.roomhdr .rwarn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;font-size:12px;font-weight:600;background:var(--warn-bg);color:var(--warn)}
+.roomhdr .rwarn.risk{background:var(--amber-bg);color:var(--amber)}
+.roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 4px 0 -6px;vertical-align:middle;text-decoration:none;opacity:.85}
+.roomhdr button.rchev svg{transition:transform .15s}
+.roomhdr button.rchev[aria-expanded="true"] svg{transform:rotate(180deg)}
 .rname{cursor:text;user-select:none}
 .rname:hover{text-decoration:underline dotted;text-underline-offset:3px}
 .rname-in{font:inherit;font-weight:600;border:1px solid var(--ink);padding:2px 6px;width:min(130px,100%);background:var(--bg);color:var(--ink)}
@@ -221,19 +282,22 @@ table.res tr.part td .name{color:var(--ink-2)}
 .btn.blocked{background:var(--surface-2);color:var(--ink-3);border-color:var(--line);cursor:not-allowed}
 .sendwhy{margin:0;font-size:13px;color:var(--ink-2)}
 .sendmsg{margin:0;font-size:13px;color:var(--warn);background:var(--warn-bg);padding:8px 10px}
-.line .qty{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
-.line .qty .stepper{display:inline-flex;align-items:center;height:32px;border:1px solid var(--ink-3);border-radius:999px;background:var(--bg);overflow:hidden}
-.line .qty .stepper:focus-within{border-color:var(--ink)}
-.line .qty .stepper.bad{border-color:var(--warn);background:var(--warn-bg)}
-.line .qty input{width:32px;height:100%;border:0;background:transparent;text-align:center;padding:0;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
-.line .qty input:focus-visible{outline:none}
-.line .qty input::-webkit-inner-spin-button,.line .qty input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.line .qty .sbtn{width:30px;height:100%;border:0;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0}
-.line .qty .sbtn:focus-visible{outline-offset:-3px}
+.qty{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.qty .stepper{display:inline-flex;align-items:center;height:32px;border:1px solid var(--ink-3);border-radius:999px;background:var(--bg);overflow:hidden}
+.qty .stepper:focus-within{border-color:var(--ink)}
+.qty .stepper.bad{border-color:var(--warn);background:var(--warn-bg)}
+.qty input{width:46px;height:100%;border:0;background:transparent;text-align:center;padding:0;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.qty input:focus-visible{outline:none}
+.qty input::-webkit-inner-spin-button,.qty input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.qty .sbtn{width:28px;height:100%;border:0;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0}
+.qty .sbtn:focus-visible{outline-offset:-3px}
+.qty .sbtn:disabled{color:var(--ink-3)}
+.qty .stepper.off{border-color:var(--line);background:var(--surface)}
+.qty .stepper.off input{color:var(--ink-3)}
 .undo{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--amber-bg);color:var(--amber);padding:8px 12px;margin-bottom:10px;font-size:13px;font-weight:600}
 .undo .btn{padding:7px 12px}
-.line .qty .help{font-size:11px;line-height:inherit;color:var(--ink-2)}
-.line .qty .help.err{color:var(--warn)}
+.qty .help{font-size:11px;line-height:inherit;color:var(--ink-2)}
+.qty .help.err{color:var(--warn)}
 .line .thumb{width:72px;height:72px}
 .line .nm small.kitrow{display:flex;align-items:center;gap:6px;margin-top:4px}
 .kit-toggle{border:0;background:transparent;padding:0;color:var(--ink-2);text-decoration:underline;font-size:12px}
@@ -336,14 +400,12 @@ table.res tr.part td .name{color:var(--ink-2)}
 }
 
 .qtitle{font-family:var(--serif);font-weight:400;font-size:20px;margin:0}
-.stitle{margin-bottom:12px}
 /* both panel titles sit at the top of their rows, so they line up */
 .qhead{align-self:flex-start;margin-right:auto}
 .qsub{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
 .qright{display:flex;align-items:center;gap:8px;margin-left:auto}
 /* the quote title bar stays at the top of the quote side; room bars pin just below it (--qbar-h is measured in script) */
 .qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
-.qbar .qroom{margin-bottom:0}
 .qseg{display:inline-flex}
 .qtab{background:var(--bg);color:var(--ink-2);border:1px solid var(--line);height:34px;padding:0 12px;font-size:13px}
 .qtab + .qtab{margin-left:-1px}
@@ -409,18 +471,21 @@ body.noscroll{overflow:hidden}
 /* while the quote is enlarged, its view tabs and the shrink button float over its top right corner */
 body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)/2));z-index:101;margin:0}
 .pane.quote.expanded{padding-top:64px !important}
-.filterwrap{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+/* the search box and the Filters button share one row; chips and the tray sit below it */
+.filterwrap{position:relative;margin-bottom:12px}
+.srow{display:flex;align-items:center;gap:8px}
 .filterwrap .chips{margin:0}
-.filterwrap .rgrp{margin-left:auto;display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.filterwrap .chips:not(:empty){margin-top:10px}
 .resmeta{margin:0 0 8px;color:var(--ink-2);font-size:13px}
 .resmeta:empty{display:none}
 .pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;font-size:13px;color:var(--ink-2)}
 .pager .btn{padding:8px 14px}
-.sortsel{appearance:none;-webkit-appearance:none;height:34px;border:1px solid var(--ink);border-radius:0;background:var(--bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 12 8' fill='none' stroke='%23111' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M1 1.5l5 5 5-5'/></svg>") no-repeat right 10px center;padding:0 30px 0 10px;font:inherit;font-size:13px;color:var(--ink)}
-.filterbtn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border:1px solid var(--ink);background:var(--bg);font-size:13px}
-.filterbtn[aria-expanded="true"] svg{transform:rotate(180deg)}
-.filterwrap .filters{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;margin:0;max-height:min(62vh,480px);overflow:auto;box-shadow:0 10px 28px rgba(0,0,0,.16)}
-.filters .ftray-foot{grid-column:1/-1;display:flex;justify-content:flex-end;border-top:1px solid var(--line);padding-top:10px}
+.filterbtn{position:relative;flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;background:var(--ink);color:var(--bg);padding:0}
+.filterbtn[aria-expanded="true"]{background:var(--ink-2)}
+.filterbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fcount{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--bg);color:var(--ink);border:1px solid var(--ink);font-size:11px;font-weight:600;line-height:16px;text-align:center}
+.fcount:empty{display:none}
+.filterwrap .filters{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;margin:0;max-height:min(70vh,560px);box-shadow:0 10px 28px rgba(0,0,0,.16)}
 /* hide the browser's own clear button; the search box has its own */
 #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 </style>
@@ -487,29 +552,25 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
       <!-- SEARCH PANE -->
       <section class="pane" id="searchPane" aria-label="Find products">
         <div class="shead">
-          <h2 class="qtitle stitle">Product search</h2>
-
-        <div class="search">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <span class="spin sbusy" aria-hidden="true"></span>
-          <label class="sr" for="q">Search by product name, collection, finish or item number</label>
-          <input id="q" type="search" placeholder="Search by name, collection, finish or item number" autocomplete="off">
-          <button type="button" class="clear" id="clearQ" aria-label="Clear search" hidden>✕</button>
-        </div>
+          <div class="field room qroom">
+            <div class="roomctl">
+              <button type="button" class="room-btn" id="roomBtn" aria-controls="roomMenu" aria-expanded="false"><span class="rtxt"><span class="rpre">Adding to:</span> <span id="roomLabel">Bar</span> <span class="fr">FR-21</span></span><span aria-hidden="true">▾</span></button>
+              <div class="menu" id="roomMenu" hidden></div>
+            </div>
+          </div>
 
         <div class="filterwrap">
-          <button type="button" class="filterbtn" id="filterBtn" aria-expanded="false" aria-controls="filters">Filters <span id="filterCount"></span><svg width="11" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button>
-          <select id="sortSel" class="sortsel" aria-label="Sort results">
-            <option value="best">Sort: Best match</option>
-            <option value="name">Sort: Name A–Z</option>
-            <option value="namedesc">Sort: Name Z–A</option>
-            <option value="sku">Sort: Item number</option>
-            <option value="col">Sort: Collection</option>
-          </select>
+          <div class="srow">
+            <div class="search">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="spin sbusy" aria-hidden="true"></span>
+              <label class="sr" for="q">Search by product name, collection, finish or item number</label>
+              <input id="q" type="search" placeholder="Search by name, collection, finish or item number" autocomplete="off">
+              <button type="button" class="clear" id="clearQ" aria-label="Clear search" hidden>✕</button>
+            </div>
+            <button type="button" class="filterbtn" id="filterBtn" aria-expanded="false" aria-controls="filters" aria-label="Filters" title="Filters"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg><span id="filterCount" class="fcount" aria-hidden="true"></span></button>
+          </div>
           <div class="chips" id="chips"></div>
-          <span class="rgrp">
-            <label class="shipsw partsw"><input type="checkbox" role="switch" id="partsInline" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span><span class="shiplbl">Show service parts</span> <span class="fr">FR-2</span></label>
-          </span>
           <div class="filters" id="filters" hidden></div>
         </div>
         </div>
@@ -517,6 +578,8 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <p class="resmeta" id="count"></p>
         <div id="notice" aria-live="assertive"></div>
         <div id="results" aria-live="polite"></div>
+        <!-- save actions live on the search side, as in staging -->
+        <div class="sfoot"><button type="button" class="btn ghost" id="discardBtn">Discard changes</button><button type="button" class="btn" id="saveBtn" disabled>Save quote</button></div>
       </section>
 
             <!-- QUOTE PANE -->
@@ -524,13 +587,6 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <div class="qbox">
         <div class="qbar">
         <div class="qhead"><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
-        <div class="field room qroom">
-          <label for="roomBtn">Adding to: <span class="fr">FR-21</span></label>
-          <div class="roomctl">
-            <button type="button" class="room-btn" id="roomBtn" aria-controls="roomMenu" aria-expanded="false"><span id="roomLabel">Bar</span><span aria-hidden="true">▾</span></button>
-            <div class="menu" id="roomMenu" hidden></div>
-          </div>
-        </div>
         <div class="qright">
         <label class="shipsw" id="detSwWrap"><span class="shiplbl">Item details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
         <label class="shipsw" id="shipSwWrap"><span class="shiplbl">Shipping details</span><input type="checkbox" role="switch" id="shipToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
@@ -540,7 +596,7 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <div id="rooms"></div>
         <div class="qfoot">
           <div class="undo" id="undoBar" role="status" hidden></div>
-          <div class="qrow"><div class="qsum"><span id="saveMsg" class="ok-msg">All changes saved</span><span>Total (before freight) <b id="footTotal"></b></span></div><div class="qacts"><button type="button" class="tolink" id="toFreight">Scroll to Freight &amp; Save</button><button type="button" class="btn" id="saveBtn" disabled>Save quote</button></div></div>
+          <div class="qrow"><div class="qsum"><span id="saveMsg" class="ok-msg">All changes saved</span><span>Total (before freight) <b id="footTotal"></b></span></div><div class="qacts"><button type="button" class="tolink" id="toFreight">Scroll to Freight &amp; Save</button></div></div>
         </div>
         <div class="qend">
         <div class="totals" id="totals"></div>
@@ -663,14 +719,16 @@ const SAMPLE_PHOTOS=["easton-24-towel-bar","henry-single-hook","easton-18-towel-
 CAT.forEach((p,i)=>{p.img="images/"+(IMG[p.sku]||SAMPLE_PHOTOS[i%SAMPLE_PHOTOS.length])+".jpg"; p.uom=p.uom||"each"; p.style=p.style||p.sku.replace(/-[^-]+$/,""); /* style = item number without its finish code */ p.mult=p.mult||1; p.whst=p.whst||20; p.ig=p.part?"SVP-01":(p.cat==="Surfaces"?"FG-SUR":"FG-FIT"); p.part=p.ig.startsWith("SVP"); p.noimg=["HNBAR-DB","HGLAV-N","ARTF-N","KSTN36-POL","HNKIT-N"].includes(p.sku);
   // mock M3 item fields shown in results: UOM code, line type and shipping weight
   p.uomCode={each:"EA","square feet":"SF"}[p.uom]||p.uom.toUpperCase(); p.lt=(p.part||p.wh)?"Non-Stocked":"Stocked"; p.wt=(([...p.sku].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%4000)/1000+0.2).toFixed(4);});
-const METAL = new Set(["Nickel","Dark Brass","Burnished Brass","Chrome","Matte Black","Matte Nickel","Brass","Dark Nickel","Antique Brass","Unfinished"]);
+// every filter list is alphabetical, ignoring case, with numbers sorted as numbers
+const alpha=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true});
 const ROOM_TYPES = ["Bar","Club House","Commercial Model","Commercial Other","Commercial Parts","Fitness","Hotel ADA Guestroom","Hotel Guestroom","Hotel Suites","Kitchen","Lobby","Misc","Parts","Powder Bath","Primary Bath","Product Support","Public Area ADA","Public Areas","Restaurant","Secondary Bath","Secondary Kitchen","Store Display Use Only","Utility","Website Order"];
 
 // ---------- state ----------
 const S = {
+  rq:{}, // quantity chosen on a result row before adding, by SKU
   layout:"split", pane:"search", query:"", room:"Bar",
   filters:{cat:new Set(), col:new Set(), fin:new Set(), series:new Set()},
-  sort:"best", page:1, parts:true, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"",
+  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",series:""}, facc:null, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"",
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026"},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
@@ -705,7 +763,6 @@ function passesFilters(p){
   return true;
 }
 function visible(p){
-  if(p.part && !S.parts) return false;
   if(!S.disc && (p.st===80||p.st===10)) return false;
   return true;
 }
@@ -724,11 +781,7 @@ function rank(p,q){
 function run(){
   const toks=tokens(S.query);
   const list=CAT.filter(p=>visible(p)&&passesFilters(p)&&(toks.length? matches(p,toks):true));
-  if(S.sort==="best") return list.sort((a,b)=>rank(a,S.query)-rank(b,S.query) || a.name.localeCompare(b.name));
-  // other sorts still keep an exact item number match at the top
-  const ql=S.query.toLowerCase().trim(), exact=p=>ql&&(p.sku.toLowerCase()===ql||p.jde===ql||p.style.toLowerCase()===ql)?0:1;
-  const by={name:(a,b)=>a.name.localeCompare(b.name)||a.fin.localeCompare(b.fin), namedesc:(a,b)=>b.name.localeCompare(a.name)||a.fin.localeCompare(b.fin), sku:(a,b)=>a.sku.localeCompare(b.sku), col:(a,b)=>a.col.localeCompare(b.col)||a.name.localeCompare(b.name)}[S.sort];
-  return list.sort((a,b)=>exact(a)-exact(b) || by(a,b));
+  return list.sort((a,b)=>rank(a,S.query)-rank(b,S.query) || a.name.localeCompare(b.name));
 }
 function facetCounts(){ // counts use the SAME filters as the results (NFR-2)
   const toks=tokens(S.query); const base=CAT.filter(p=>visible(p)&&(toks.length? matches(p,toks):true));
@@ -752,20 +805,26 @@ function hl(text){ // mark ranges on the raw text, then escape, so markup is nev
   while(i<text.length){ let j=i; while(j<text.length&&on[j]===on[i]) j++; out+= on[i] ? "<mark>"+esc(text.slice(i,j))+"</mark>" : esc(text.slice(i,j)); i=j; }
   return out;
 }
+// filters one group's options by what is typed in its own search box
+function applyFq(k){ const g=document.querySelector(`#filters [data-fg="${k}"]`); if(!g) return; const q=(S.fq[k]||"").trim().toLowerCase(); let shown=0;
+  g.querySelectorAll(".fopts label").forEach(l=>{ const ok=!q||l.querySelector("input").value.toLowerCase().includes(q); l.hidden=!ok; if(ok) shown++; });
+  g.querySelector(".fnone").hidden=shown>0; }
 function renderFilters(){
   const {count}=facetCounts();
-  const groups=[["cat","Category",["Fittings","Fixtures","Surfaces","Accessories","Lighting"]],["fin","Finish",finishOptions()],["col","Collection",[...new Set(CAT.map(p=>p.col))].sort()],["series","Series",[...new Set(CAT.map(p=>p.series))].sort()]];
-  $("#filters").innerHTML=groups.map(([k,label,opts])=>`<div><h4>${label}${k==="fin"?' <span class="fr">FR-3</span><span class="fr">FR-15</span>':''}</h4>${opts.map(o=>{const n=count(k,o);return `<label class="${n?'':'off'}"><span><input type="checkbox" data-f="${k}" value="${esc(o)}" ${S.filters[k].has(o)?'checked':''}> ${esc(o)}</span><span class="c">${n}</span></label>`;}).join("")}</div>`).join("");
-  $("#filters").insertAdjacentHTML("beforeend",'<div class="ftray-foot"><button type="button" class="btn sm" id="filtersDone">Done</button></div>');
+  const groups=[["cat","Category",["Fittings","Fixtures","Surfaces","Accessories","Lighting"].sort(alpha)],["col","Collection",[...new Set(CAT.map(p=>p.col))].sort(alpha)],["fin","Finish",finishOptions()],["series","Series",[...new Set(CAT.map(p=>p.series))].sort(alpha)]];
+  const group=([k,label,opts])=>{ const open=S.facc===k, n=S.filters[k].size;
+    return `<div class="facc" data-fg="${k}"><h4><button type="button" class="fhead" data-facc="${k}" aria-expanded="${open}" aria-controls="fp-${k}"><span class="flabel">${label}${k==="fin"?' <span class="fr">FR-3</span><span class="fr">FR-15</span>':''}</span>${n?`<span class="fsel">(${n})</span>`:''}<svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></h4><div class="fpanel" id="fp-${k}" ${open?'':'hidden'}><input type="search" class="fsearch" data-fq="${k}" placeholder="Search…" aria-label="Search ${label.toLowerCase()} options" value="${esc(S.fq[k])}" autocomplete="off"><div class="fopts">${opts.map(o=>{const c=count(k,o);return `<label class="${c?'':'off'}"><span><input type="checkbox" data-f="${k}" value="${esc(o)}" ${S.filters[k].has(o)?'checked':''}> ${esc(o)}</span><span class="c">${c}</span></label>`;}).join("")}<p class="fnone" hidden>No matches</p></div></div></div>`; };
+  $("#filters").innerHTML=`<div class="fbar">Filters</div><div class="fbody">${groups.map(group).join("")}</div><div class="ffoot"><button type="button" class="freset" id="filtersReset"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3"/></svg>Reset</button><button type="button" class="fclose" id="filtersDone"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg>Close</button></div>`;
+  groups.forEach(([k])=>applyFq(k));
 }
 function finishOptions(){ // finish list follows category (FR-3): metal finishes for fittings and accessories
   const cats=S.filters.cat; let pool=CAT;
   if(cats.size) pool=CAT.filter(p=>cats.has(p.cat));
-  return [...new Set(pool.map(p=>p.fin))].sort((a,b)=>(METAL.has(b)-METAL.has(a))||a.localeCompare(b));
+  return [...new Set(pool.map(p=>p.fin))].sort(alpha);
 }
 function renderChips(){
   const act=[]; Object.entries(S.filters).forEach(([k,set])=>set.forEach(v=>act.push([k,v])));
-  $("#filterCount").textContent=act.length?"("+act.length+")":"";
+  $("#filterCount").textContent=act.length||""; $("#filterBtn").setAttribute("aria-label",act.length?`Filters, ${act.length} active`:"Filters");
   const labels={cat:"Category",fin:"Finish",col:"Collection",series:"Series"};
   $("#chips").innerHTML = act.length
     ? act.map(([k,v])=>`<span class="chip on">${labels[k]}: ${esc(v)} <button type="button" class="x" data-rm="${k}" data-v="${esc(v)}" aria-label="Remove ${esc(v)} filter">×</button></span>`).join("")+`<button type="button" class="clear" id="clearAll">Clear all filters</button><span class="fr">FR-3</span>`
@@ -786,22 +845,21 @@ function renderResults(){
     box.innerHTML=`<div class="state"><h3>Keep typing to see results</h3>Three or more characters narrows thousands of items to a useful list. An item number can be entered in full. <span class="fr">FR-18</span></div>`; cnt.textContent=""; return;
   }
   const list=run();
-  const hiddenParts = CAT.filter(p=>p.part && !S.parts && passesFilters(p) && (tokens(q).length? matches(p,tokens(q)):true)).length;
   const hiddenDisc = CAT.filter(p=>(p.st===80||p.st===10) && !S.disc && passesFilters(p) && (tokens(q).length? matches(p,tokens(q)):true)).length;
   if(!list.length){
     cnt.textContent="";
-    box.innerHTML=`<div class="state"><h3>No products match “${esc(q)}”${anyFilter?" with these filters":""}</h3>Try one of these:<ul><li>Check the spelling, or use fewer words</li>${anyFilter?'<li>Clear a filter; finish filters narrow the most</li>':''}<li>Enter the item number if you have it</li>${hiddenParts?`<li>${hiddenParts} service part${hiddenParts>1?'s':''} match. <button type="button" class="chip" id="showPartsLink">Show service parts</button></li>`:''}${hiddenDisc?`<li>${hiddenDisc} discontinued or in-development item${hiddenDisc>1?'s':''} match. <button type="button" class="chip" id="showDiscLink">Show them</button></li>`:''}</ul><span class="fr">FR-5</span></div>`; cnt.textContent="";
+    box.innerHTML=`<div class="state"><h3>No products match “${esc(q)}”${anyFilter?" with these filters":""}</h3>Try one of these:<ul><li>Check the spelling, or use fewer words</li>${anyFilter?'<li>Clear a filter; finish filters narrow the most</li>':''}<li>Enter the item number if you have it</li>${hiddenDisc?`<li>${hiddenDisc} discontinued or in-development item${hiddenDisc>1?'s':''} match. <button type="button" class="chip" id="showDiscLink">Show them</button></li>`:''}</ul><span class="fr">FR-5</span></div>`; cnt.textContent="";
     return;
   }
   const pages=Math.ceil(list.length/PAGE); S.page=Math.min(Math.max(1,S.page),pages); const from=(S.page-1)*PAGE, shown=list.slice(from,from+PAGE);
-  cnt.innerHTML=`Showing ${from+1}–${from+shown.length} of ${list.length} product${list.length===1?'':'s'}${hiddenParts?` · ${hiddenParts} service part${hiddenParts>1?'s':''} hidden`:""}${hiddenDisc?` · ${hiddenDisc} discontinued or in-development hidden`:""} <span class="fr">FR-17</span>`;
+  cnt.innerHTML=`Showing ${from+1}–${from+shown.length} of ${list.length} product${list.length===1?'':'s'}${hiddenDisc?` · ${hiddenDisc} discontinued or in-development hidden`:""} <span class="fr">FR-17</span>`;
   const rows=shown.map(p=>{ // UOM opens a tray with weight, collection and finish, as in QOM staging
     const reason=reasonFor(p); const blocked=!!reason; const canAdd=roomOk && !blocked;
     const stock = !S.stock ? "" : (p.st!==20 ? "" : (p.stock>0 ? `<span class="tag ok">In stock: ${p.stock} in USC · from M3, today</span>` : `<span class="tag note">${p.lead?"Lead time "+esc(p.lead):"Not in stock"} · from M3, today</span>`));
     const price = p.price==null ? "—" : money(p.price);
     const accents = p.accents ? `<small>${esc(p.accents)} <span class="fr">FR-11</span></small>` : "";
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
-      <td><button type="button" class="add" data-add="${esc(p.sku)}" ${canAdd?'':'disabled'} aria-label="Add ${esc(p.name)} in ${esc(p.fin)} to ${esc(S.room||'quote')}" title="${canAdd?'Add to '+esc(S.room):(blocked?'Can’t be added':'Choose a room first')}">+</button></td>
+      <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
       <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}<small>${hl(p.sec)} · ${esc(p.col)}${p.series?' · '+esc(p.series):''}</small>${accents}${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
       <td class="sku wd">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
@@ -855,6 +913,23 @@ function openRemoveDialog(room,sku){
   d.innerHTML=`<div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="dlgicon" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v2h5v2H4V4h5zM5.5 8h13l-.9 13.1a1 1 0 0 1-1 .9H7.4a1 1 0 0 1-1-.9zM9.5 11v8h2v-8zm3 0v8h2v-8z"/></svg></div><h2 id="dlgTitle">Are you sure you want to remove this product?</h2><div class="dlgcard">${thumbHtml(p)}<div>${esc(p.name)} in ${esc(p.fin)}<small>${esc(p.sku)}</small></div></div><div class="dlgbtns"><button type="button" class="dbtn cancel" id="rmCancel">Cancel</button><button type="button" class="dbtn yes" id="rmYes">Yes, delete</button></div></div>`;
   $("#rmCancel").focus();
 }
+// the last saved copy of the quote; "Discard changes" goes back to it
+function markSaved(){ S.base=structuredClone(S.quote); }
+// opening a room makes it the one you add to; the open room can also be folded shut by hand
+function pickRoom(name){ S.room=name; S.collapsedFor=null; if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
+function toggleRoom(name){ if(S.room===name){ S.collapsedFor=S.collapsedFor===name?null:name; renderQuote(); } else pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus(); }
+document.addEventListener("click",e=>{ const h=e.target.closest(".roomhdr"); if(!h||e.target.closest("button,input,.rname,.grip")) return; toggleRoom(h.dataset.roomhdr); });
+function openDiscardDialog(){
+  S.confirm={kind:"discard"}; dlgReturn=$("#discardBtn");
+  const d=$("#rmDialog"); d.hidden=false;
+  d.innerHTML=`<div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgWhat"><div class="dlgicon" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v2h5v2H4V4h5zM5.5 8h13l-.9 13.1a1 1 0 0 1-1 .9H7.4a1 1 0 0 1-1-.9zM9.5 11v8h2v-8zm3 0v8h2v-8z"/></svg></div><h2 id="dlgTitle">Discard your unsaved changes?</h2><div class="dlgcard" id="dlgWhat"><div><span class="pn">Back to the last saved quote</span><small>Rooms and lines added, removed or edited since you last saved will be lost.</small></div></div><div class="dlgbtns"><button type="button" class="dbtn cancel" id="rmCancel">Keep editing</button><button type="button" class="dbtn yes" id="rmYes">Yes, discard</button></div></div>`;
+  $("#rmCancel").focus();
+}
+function discardChanges(){
+  S.quote=structuredClone(S.base||S.quote); S.dirty=false; S.undo=null; S.lmenu=null; S.open=[];
+  if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
+  renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); showToast("Changes discarded");
+}
 function openRoomDialog(name){
   const r=S.quote.rooms.find(x=>x.name===name), n=r.lines.length; S.confirm={kind:"room",room:name}; dlgReturn=document.querySelector(`[data-delroom="${CSS.escape(name)}"]`);
   const d=$("#rmDialog"); d.hidden=false;
@@ -870,7 +945,7 @@ function removeRoom(name){
 }
 function closeRemoveDialog(restore=true){ $("#rmDialog").hidden=true; $("#rmDialog").innerHTML=""; S.confirm=null; if(restore) (dlgReturn&&document.body.contains(dlgReturn)?dlgReturn:null)?.focus(); }
 function confirmRemove(){
-  const c=S.confirm; if(!c) return; if(c.kind==="room"){ closeRemoveDialog(false); removeRoom(c.room); return; } const rm=S.quote.rooms.find(r=>r.name===c.room); const idx=rm?rm.lines.findIndex(l=>l.sku===c.sku):-1; const p=CAT.find(x=>x.sku===c.sku);
+  const c=S.confirm; if(!c) return; if(c.kind==="discard"){ closeRemoveDialog(); discardChanges(); return; } if(c.kind==="room"){ closeRemoveDialog(false); removeRoom(c.room); return; } const rm=S.quote.rooms.find(r=>r.name===c.room); const idx=rm?rm.lines.findIndex(l=>l.sku===c.sku):-1; const p=CAT.find(x=>x.sku===c.sku);
   closeRemoveDialog(false);
   if(idx<0) return; const [l]=rm.lines.splice(idx,1); S.undo={room:c.room,line:l,idx,name:p.name}; S.dirty=true; renderQuote(); renderRoomMenu(); $("#undoBtn")?.focus();
 }
@@ -912,6 +987,8 @@ function computeRisk(){
     res.n=n; by[r.name+"|"+l.sku]=res;
     if(res.level==="blocking"||res.level==="unknown") blockers.push({n,sku:l.sku,label:res.reason==="discontinued"?"discontinued":res.reason==="stock"?"insufficient inventory":"status unavailable"}); }));
   return {by,blockers}; }
+// how many lines in a room need attention (stock, discontinued, status unavailable, bad quantity); shown on the bar when the room is folded
+const roomAttention=r=>{ let n=0, bad=false; r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku), res=RISK&&RISK.by[r.name+"|"+l.sku]; const q=l.qty%p.mult!==0; if(q||(res&&res.level!=="ok")){ n++; if(q||res.level==="blocking"||res.level==="unknown") bad=true; } }); return {n,sev:bad?"bad":"risk"}; };
 const riskShort=x=>x.reason==="discontinued"?"Discontinued":x.reason==="stock"?"Not enough stock":x.reason==="useup"?"Limited stock":"Status unavailable";
 const RI={bad:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.8L14.5 13.5h-13z"/><path d="M8 6.5v3.2M8 11.6v.1"/></svg>',unk:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v3.6M8 5v.1"/></svg>'};
 const riskBanner=(res,p)=>{ if(!res||res.level==="ok") return "";
@@ -935,12 +1012,15 @@ const qtyCell=(r,l,p,id)=>{
 };
 function renderQuote(){
   RISK=computeRisk();
+  if(S.collapsedFor && S.collapsedFor!==S.room) S.collapsedFor=null; // only the room you're adding to is open; it can be folded shut by hand
   const rooms=S.quote.rooms; const wrap=$("#rooms"); let sub=0, bad=0;
+  rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku); sub+=l.qty*l.unit; if(l.qty%p.mult) bad++; }));
   if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote"><p>No rooms yet. Add a room to start adding products.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
-    const lines=r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; sub+=line; if(l.qty%p.mult) bad++; const open=S.open.includes(l.sku+r.name);
+    const isOpen=S.room===r.name&&S.collapsedFor!==r.name;
+    const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       return `<div class="line" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.sec?`<small>${esc(p.sec)}</small>`:""}${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${S.room===r.name?'<span class="status">Active room</span>':`<button type="button" data-pick="${esc(r.name)}">Add here</button>`}<button type="button" class="rmdel" data-delroom="${esc(r.name)}" aria-label="Remove room ${esc(r.name)}" title="Remove room">${ICON.trash}</button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${lines||'<div class="empty-quote">No lines in this room yet.</div>'}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}" data-roomhdr="${esc(r.name)}"><span><button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}${S.room===r.name?'<span class="status">Active room</span>':`<button type="button" data-pick="${esc(r.name)}">Add here</button>`}<button type="button" class="rmdel" data-delroom="${esc(r.name)}" aria-label="Remove room ${esc(r.name)}" title="Remove room">${ICON.trash}</button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||'<div class="empty-quote">No lines in this room yet.</div>')}</div>`;
   }).join("");
   // freight and tax are worked out by Freight & Save, so they show as "-" until then
   $("#totals").innerHTML=`<span class="lb">Additional Charges:</span><span class="v">-</span><span class="lb big">Subtotal:</span><span class="v big">${money(sub)}</span><span class="lb">Additional Discount(s):</span><span class="v">${money(0)}</span><span class="lb">Freight Cost:</span><span class="v">-</span><span class="lb">Tax:</span><span class="v">-</span><hr><span></span><span class="lb big">Total:</span><span class="v"><span class="bf">(before freight)</span><span class="big">${money(sub)}</span></span>`; $("#footTotal").textContent=money(sub);
@@ -980,7 +1060,7 @@ const RES_QUOTE=structuredClone(S.quote);
 function setView(v){
   S.view=v; S.undo=null; S.saved=null; S.scenario="normal"; $("#scenario").value="normal";
   S.quote= v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE);
-  S.room=S.quote.rooms[0].name; S.dirty=false;
+  S.room=S.quote.rooms[0].name; S.dirty=false; markSaved();
   QI.subtype= v==="commercial" ? "Commercial Order Domestic" : "Residential Order Domestic";
   renderRoom(); renderRoomMenu(); renderQuote(); renderQView(); search();
 }
@@ -996,15 +1076,22 @@ function search(){ // the spinner only appears if a search takes longer than 300
     if(!S.room && S.query.trim()) showToast("Add room to quote to start adding products","warn"); // searching before a room exists
   }, delay);
 }
+// result row: type how many, then Add; same typing rules as a quote line
+const addCell=(p,canAdd,blocked)=>{
+  const m=p.mult, q=S.rq[p.sku]??m, bad=q%m!==0, k=esc(p.sku), id="rh_"+k, unitShown=p.uom!=="each", dis=canAdd?"":" disabled";
+  const help=!canAdd?"":bad?`<span class="help err" id="${id}" role="alert">Enter a multiple of ${m}</span>`:(m>1?`<span class="help" id="${id}">Sold in ${m}${unitShown?" "+(UNIT_SHORT[p.uom]||p.uom):"s"}</span>`:"");
+  return `<div class="addcell"><div class="addpill${bad&&canAdd?" bad":""}${canAdd?"":" off"}"><input type="number" inputmode="numeric" min="${m}" step="${m}" value="${q}" aria-label="Quantity of ${esc(p.name)} to add${unitShown?" in "+esc(p.uom):""}" ${help?`aria-describedby="${id}" `:""}aria-invalid="${bad}" data-rqty="${k}"${dis}><button type="button" class="add" data-add="${k}"${dis} aria-label="Add ${q} of ${esc(p.name)} in ${esc(p.fin)} to ${esc(S.room||'quote')}" title="${canAdd?'Add to '+esc(S.room):(blocked?'Can’t be added':'Choose a room first')}">${ICON.plus}</button></div>${help}</div>`;
+};
 function addLine(sku){
   const p=CAT.find(x=>x.sku===sku); const r=S.quote.rooms.find(x=>x.name===S.room); if(!r) return;
   const why = p.whst===50 ? (p.wh||"Not stocked in this warehouse")+" (warehouse status "+p.whst+")" : (p.price==null ? "Waiting on a price" : null);
   if(why){ S.notice="Not added: "+p.name+" in "+p.fin+". "+why+". This is only known when the item is added."; renderResults(); return; }
   S.notice=null;
-  const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=p.mult; else r.lines.push({sku,qty:p.mult,unit:p.price});
+  const n=S.rq[sku]??p.mult; delete S.rq[sku]; // the row goes back to one sold-in amount after adding
+  const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:p.price});
   showToast(ex ? `✓ ${p.name} in ${p.fin}: quantity now ${ex.qty} in ${r.name}` : `✓ Added ${p.name} in ${p.fin} to ${r.name}`, "ok");
-  S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu();
-  const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; setTimeout(()=>{btn.textContent="+";},900); }
+  S.collapsedFor=null; S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu(); renderResults();
+  const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; btn.focus(); setTimeout(()=>{btn.innerHTML=ICON.plus;},900); }
 }
 let roomMode="add";
 function openRoomForm(mode,preset){
@@ -1021,6 +1108,8 @@ document.addEventListener("click",e=>{
   if(t.id==="expandBtn"){ setExpanded(!S.expanded); return; }
   if(t.dataset.qview){ setQView(t.dataset.qview); document.querySelector('.qtab[aria-selected="true"]')?.focus(); return; }
   if(t.id==="filterBtn"){ const open=$("#filters").hidden; $("#filters").hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
+  if(t.dataset.facc){ const k=t.dataset.facc; S.facc=S.facc===k?null:k; renderFilters(); document.querySelector(`[data-facc="${k}"]`)?.focus(); return; }
+  if(t.id==="filtersReset"){ Object.values(S.filters).forEach(x=>x.clear()); Object.keys(S.fq).forEach(k=>S.fq[k]=""); renderChips(); renderFilters(); search(); document.querySelector("#filtersReset")?.focus(); return; }
   if(t.id==="filtersDone"){ closeFilters(); $("#filterBtn").focus(); return; }
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
@@ -1028,10 +1117,11 @@ document.addEventListener("click",e=>{
   if(t.id==="emptyAdd"){ openRoomForm("add"); return; }
   if(t.id==="menuAdd"){ openRoomForm("add"); return; }
   if(t.id==="roomCancel"){ $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); return; }
-  if(t.dataset.room){ S.room=t.dataset.room; S.scenario= S.scenario==="noroom"?"normal":S.scenario; $("#scenario").value=S.scenario; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); renderRoom(); renderResults(); renderQuote(); return; }
+  if(t.dataset.room){ S.room=t.dataset.room; S.collapsedFor=null; S.scenario= S.scenario==="noroom"?"normal":S.scenario; $("#scenario").value=S.scenario; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); renderRoom(); renderResults(); renderQuote(); return; }
   if(t.dataset.newroom){ openRoomForm("add",t.dataset.newroom); return; }
   if(t.dataset.delroom){ const r=S.quote.rooms.find(x=>x.name===t.dataset.delroom); if(r.lines.length) openRoomDialog(r.name); else removeRoom(r.name); return; }
-  if(t.dataset.pick){ S.room=t.dataset.pick; if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); if(S.layout==="tabs"){S.pane="search";renderLayout();} return; }
+  if(t.dataset.toggleroom){ toggleRoom(t.dataset.toggleroom); return; }
+  if(t.dataset.pick){ pickRoom(t.dataset.pick); if(S.layout==="tabs"){S.pane="search";renderLayout();} return; }
   if(t.dataset.add){ addLine(t.dataset.add); return; }
   if(t.dataset.page){ S.page+=Number(t.dataset.page); renderResults(); $("#count").scrollIntoView({block:"nearest"}); $(`.pager [data-page="${t.dataset.page}"]`)?.focus(); return; }
   if(t.dataset.tray){ const k=t.dataset.tray; openTrays.has(k)?openTrays.delete(k):openTrays.add(k); renderResults(); [...document.querySelectorAll(`[data-tray="${CSS.escape(k)}"]`)].find(b=>b.offsetParent)?.focus(); return; }
@@ -1054,10 +1144,10 @@ document.addEventListener("click",e=>{
   if(t.id==="clearAll"){ Object.values(S.filters).forEach(s=>s.clear()); renderChips(); search(); return; }
   if(t.id==="clearQ"){ S.query=""; $("#q").value=""; t.hidden=true; search(); return; }
   if(t.id==="retry"){ S.scenario="normal"; $("#scenario").value="normal"; search(); return; }
-  if(t.id==="showPartsLink"){ S.parts=true; $("#partsInline").checked=true; search(); return; }
   if(t.id==="showDiscLink"){ S.disc=true; $("#showDisc").checked=true; search(); return; }
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
-  if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; renderQuote(); return; }
+  if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; markSaved(); renderQuote(); return; }
+  if(t.id==="discardBtn"){ if(S.dirty) openDiscardDialog(); else showToast("No unsaved changes to discard"); return; }
   if(t.id==="undoBtn"&&S.undo?.kind==="room"){ const u=S.undo; S.quote.rooms.splice(Math.min(u.idx,S.quote.rooms.length),0,u.roomObj); if(u.wasActive) S.room=u.room; S.undo=null; renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); return; }
   if(t.id==="undoBtn"){ const u=S.undo; const rm=u&&S.quote.rooms.find(r=>r.name===u.room); if(rm) rm.lines.splice(Math.min(u.idx,rm.lines.length),0,u.line); S.undo=null; renderQuote(); renderRoomMenu(); return; }
   if(t.dataset.q){ S.query=t.dataset.q; $("#q").value=S.query; $("#clearQ").hidden=false; search(); return; }
@@ -1079,20 +1169,29 @@ document.addEventListener("change",e=>{
     if(t.value==="fresh"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote.rooms=[]; S.room=""; }
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
-    renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
+    markSaved(); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
   if(t.id==="view"){ setView(t.value); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
   if(t.id==="detToggle"){ S.det=t.checked; renderQuote(); return; }
   if(t.id==="shipToggle"){ S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l); } } return; }
-  if(t.id==="partsInline"){ S.parts=t.checked; search(); return; }
-  if(t.id==="sortSel"){ S.sort=t.value; search(); return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
   if(t.id==="showStock"){ S.stock=t.checked; renderResults(); return; }
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
-  if(t.dataset.qty){ const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room).lines.find(x=>x.sku===sku); l.qty=Math.max(1,parseInt(t.value)||1); S.dirty=true; renderQuote(); }
+  if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult; if(n>0) S.rq[sku]=n; const q=S.rq[sku]??m; t.value=q;
+    // updated in place, not re-rendered, so typing a number and then clicking Add still lands on the button
+    const cell=t.closest(".addcell"), bad=q%m!==0, help=cell.querySelector(".help"); cell.querySelector(".addpill").classList.toggle("bad",bad); t.setAttribute("aria-invalid",String(bad));
+    if(help){ help.classList.toggle("err",bad); help.textContent=bad?`Enter a multiple of ${m}`:`Sold in ${m}${p.uom!=="each"?" "+(UNIT_SHORT[p.uom]||p.uom):"s"}`; } else if(bad) cell.insertAdjacentHTML("beforeend",`<span class="help err" role="alert">Enter a multiple of ${m}</span>`);
+    cell.querySelector(".add").setAttribute("aria-label",`Add ${q} of ${p.name} in ${p.fin} to ${S.room||"quote"}`);
+    if(document.activeElement===t) t.select(); return; }
+  if(t.dataset.qty){ const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room).lines.find(x=>x.sku===sku); const n=parseInt(t.value,10), keep=document.activeElement===t; // Enter keeps the cursor here; tabbing or clicking away does not
+    if(n>0 && n!==l.qty){ l.qty=n; S.dirty=true; } // empty, 0 or negative puts the old number back; the trash button is how a line is removed
+    renderQuote(); if(keep){ const ni=document.querySelector(`[data-qty="${CSS.escape(t.dataset.qty)}"]`); ni?.focus(); ni?.select(); } }
 });
+// quantity box: select on focus so a new number replaces the old one, Escape puts the saved number back
+document.addEventListener("focusin",e=>{ if(e.target.dataset?.qty||e.target.dataset?.rqty) e.target.select(); });
+document.addEventListener("keydown",e=>{ const t=e.target; if(t.dataset?.rqty&&e.key==="Enter"){ e.preventDefault(); t.dispatchEvent(new Event("change",{bubbles:true})); if(!t.disabled){ const sku=t.dataset.rqty; addLine(sku); const ni=document.querySelector(`[data-rqty="${CSS.escape(sku)}"]`); ni?.focus(); ni?.select(); } return; } if(t.dataset?.rqty&&e.key==="Escape"){ const p=CAT.find(x=>x.sku===t.dataset.rqty); t.value=S.rq[p.sku]??p.mult; t.select(); e.stopPropagation(); return; } if(!t.dataset?.qty||e.key!=="Escape") return; const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(l){ t.value=l.qty; t.select(); e.stopPropagation(); } },true);
 $("#q").addEventListener("input",e=>{ $("#clearQ").hidden=!e.target.value; });
 $("#q").addEventListener("keydown",e=>{
   if(e.key==="Escape"){ S.query=""; e.target.value=""; $("#clearQ").hidden=true; search(); }
@@ -1210,7 +1309,7 @@ document.addEventListener("keydown",e=>{
   const n=e.target.closest?.(".rname"); if(n&&(e.key==="Enter"||e.key==="F2")){ e.preventDefault(); startRename(n.dataset.rename); return; }
   if(e.target.matches?.(".rname-in")){ if(e.key==="Enter"){ e.preventDefault(); finishRename(true,true); } else if(e.key==="Escape"){ e.preventDefault(); finishRename(false,true); } }
 });
-document.addEventListener("input",e=>{ if(e.target.matches?.(".rname-in")) S.editVal=e.target.value; });
+document.addEventListener("input",e=>{ if(e.target.matches?.(".rname-in")) S.editVal=e.target.value; if(e.target.dataset?.fq){ S.fq[e.target.dataset.fq]=e.target.value; applyFq(e.target.dataset.fq); } });
 document.addEventListener("focusout",e=>{ if(!quiet && e.target.matches?.(".rname-in")) finishRename(true,false,true); });
 // ---------- quote panel views: the hamburger swaps the panel for Quote Information or a PDF preview (all values are mock) ----------
 const QI={id:"6000024967",expires:"Apr 27, 2028",orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
@@ -1255,7 +1354,7 @@ const pdfHtml=()=>{
 function shipDirty(){ S.dirty=true; const bad=S.quote.rooms.some(r=>r.lines.some(l=>{const p=CAT.find(x=>x.sku===l.sku); return l.qty%p.mult;})); $("#saveMsg").className="unsaved"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":"Unsaved changes. Added lines are drafts until you save."; $("#saveBtn").disabled=bad; }
 function renderQView(){
   const v=S.qview;
-  document.querySelector(".qroom").hidden=v!=="products"; $("#shipSwWrap").hidden=!(v==="products"&&S.view==="residential"); $("#detSwWrap").hidden=v!=="products";
+  $("#shipSwWrap").hidden=!(v==="products"&&S.view==="residential"); $("#detSwWrap").hidden=v!=="products";
   $("#qProducts").hidden=v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
   $(".qhead .qtitle").textContent={products:"Selected Products",info:"Quote information",pdf:"PDF preview"}[v]; $("#qSub").hidden=v!=="products";
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
