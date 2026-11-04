@@ -235,8 +235,6 @@ table.res tr.part td .name{color:var(--ink-2)}
 .roomhdr.active{background:var(--ink);color:var(--bg)}
 .roomhdr .rcount,.roomhdr .grip{color:var(--bg);opacity:.75}
 .roomhdr .hdrend{display:flex;align-items:center;gap:10px}
-.roomhdr button.rmdel{display:flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin-right:-6px;text-decoration:none;opacity:.8}
-.roomhdr button.rmdel:hover,.roomhdr button.rmdel:focus-visible{opacity:1}
 .roomhdr .status{font-size:12px;font-weight:400;color:var(--bg);opacity:.7}
 .roomhdr .grip:hover{opacity:1}
 .grip{border:0;background:transparent;color:var(--ink-3);cursor:grab;padding:0 2px;font-size:16px;line-height:1;text-decoration:none}
@@ -245,7 +243,7 @@ table.res tr.part td .name{color:var(--ink-2)}
 .roomhdr{cursor:pointer}
 .roomhdr .rwarn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;font-size:12px;font-weight:600;background:var(--warn-bg);color:var(--warn)}
 .roomhdr .rwarn.risk{background:var(--amber-bg);color:var(--amber)}
-.roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 4px 0 -6px;vertical-align:middle;text-decoration:none;opacity:.85}
+.roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 -6px 0 0;text-decoration:none;opacity:.85}
 .roomhdr button.rchev svg{transition:transform .15s}
 .roomhdr button.rchev[aria-expanded="true"] svg{transform:rotate(180deg)}
 .rname{cursor:text;user-select:none}
@@ -258,6 +256,9 @@ table.res tr.part td .name{color:var(--ink-2)}
 .line{display:grid;grid-template-columns:18px 104px 72px 1fr 96px 28px;gap:10px;align-items:center;padding:8px 6px}
 .line{background:var(--bg);border:1px solid var(--panel-line);border-top:0;margin-top:0;padding:10px 12px}
 .line .amt{text-align:right}
+.line.justadded{animation:justadded 1.6s ease-out}
+@keyframes justadded{from{background:var(--amber-bg)}}
+@media (prefers-reduced-motion:reduce){.line.justadded{animation:none;outline:2px solid var(--ink);outline-offset:-2px}}
 .line .amt{font-variant-numeric:tabular-nums;font-size:14px}
 .line .amt small.each{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
 .pane.quote{container:quote/inline-size}
@@ -349,13 +350,14 @@ table.res tr.part td .name{color:var(--ink-2)}
 .shipsw input:focus-visible + .swtrack{outline:2px solid var(--ink);outline-offset:2px}
 .line .pdet{grid-column:3/-1;display:grid;grid-template-columns:repeat(3,max-content);justify-content:start;grid-template-rows:auto auto;grid-auto-flow:column;gap:2px 22px;font-size:12px;line-height:1.5;color:var(--ink-2);margin-top:2px}
 .line .pdet b{font-weight:600;color:var(--ink)}
-.line .shiprow{grid-column:3/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px;margin-top:2px;align-items:start}
+.line .shiprow{grid-column:3/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 10px;margin-top:2px;align-items:start}
 .line .shiprow.solo{grid-template-columns:1fr}
 .cddnote{display:block;margin-top:4px;font-size:12px;color:var(--ink-3)}
 .cddnote.late{display:inline-block;color:var(--amber);background:var(--amber-bg);padding:3px 8px;font-weight:600}
 .shiprow .sf{position:relative;display:block}
 .shiprow input,.shiprow select{width:100%;height:38px;border:1px solid var(--line);background:var(--bg);padding:0 12px;font:inherit;font-size:13px;color:var(--ink);border-radius:0}
 .shiprow input::placeholder{color:var(--ink-3)}
+.shiprow input[readonly]{color:var(--ink-2);cursor:default} /* CDD comes from M3; the SC can't edit it */
 .shiprow select{appearance:none;-webkit-appearance:none;text-overflow:ellipsis;padding-right:30px;background:var(--bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%236f6f6f'/></svg>") no-repeat right 12px center}
 .shiprow .cal{position:absolute;right:6px;top:19px;transform:translateY(-50%);width:28px;height:28px;border:0;background:transparent;color:var(--ink-3);display:flex;align-items:center;justify-content:center;padding:0}
 .shiprow .cal:hover{color:var(--ink)}
@@ -459,6 +461,9 @@ table.res tr.part td .name{color:var(--ink-2)}
    so a long result list never leaves the quote off screen (and the sticky headers and Save bar pin to each side) */
 @media (min-width:981px){
   .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - 16px));overflow-y:auto;overscroll-behavior:none;padding-right:6px}
+  .work[data-layout="split"] #searchPane{display:flex;flex-direction:column} /* Save bar sits at the bottom even when the results are short */
+  .work[data-layout="split"] #searchPane>*{flex-shrink:0}
+  .work[data-layout="split"] #searchPane>.sfoot{margin-top:auto}
   .work[data-layout="split"] .filterwrap .filters{max-height:max(220px,calc(100vh - var(--work-top,0px) - 200px))} /* the tray fits inside the search side */
   .work[data-layout="split"] .pane.quote.expanded{position:fixed;height:auto;padding-right:max(24px,calc((100vw - 1200px)/2))}
 }
@@ -466,6 +471,35 @@ table.res tr.part td .name{color:var(--ink-2)}
 .pane.quote.expanded .qbar{top:-64px;margin-top:-62px;padding-top:62px} /* reaches up under the floating view tabs */
 .pane.quote.expanded .qfoot{bottom:-24px}
 body.noscroll{overflow:hidden}
+/* full screen: left panel with rooms, totals and save actions; products on the right */
+.pane.quote.expanded .qbox{display:grid;grid-template-columns:300px minmax(0,1fr);column-gap:28px;align-items:start;border:0;padding:0;background:transparent}
+.pane.quote.expanded .qbox>:not(.qside){grid-column:2}
+.pane.quote.expanded .qbar{margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+.pane.quote.expanded .qfoot{display:none}
+.qside{grid-column:1;grid-row:1/span 5;position:sticky;top:0;background:var(--bg);border:1px solid var(--panel-line);max-height:calc(100vh - 88px);overflow:auto}
+.qside[hidden]{display:none}
+.pane.quote.expanded .rmblock{scroll-margin-top:calc(var(--qbar-h,64px) - 12px)} /* a room picked in the left panel lands just under the title bar */
+.qsidet{font-weight:400;font-size:18px;margin:0;padding:16px 18px;border-bottom:1px solid var(--panel-line)}
+.siderooms{min-height:120px;border-bottom:1px solid var(--panel-line);background:var(--surface)}
+.sroom{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--panel-line);background:var(--bg);padding:14px 18px;font:inherit;font-size:15px;color:var(--ink);text-align:left}
+.sroom:hover{background:var(--surface)}
+.sroom[aria-current="true"]{box-shadow:inset 3px 0 0 var(--ink);font-weight:600}
+.sroom .sricon{display:flex;color:var(--ink-2)}
+.sroom .srn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sroom .srbadge{min-width:26px;height:26px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);font-size:13px;display:flex;align-items:center;justify-content:center;padding:0 6px;font-weight:400}
+.siderooms .snone{color:var(--ink-3);font-size:13px;padding:14px 18px;margin:0}
+.sidesave{display:none}
+.qside .qend{margin:0;padding:16px 18px 20px}
+.qside .totals{margin:0;width:100%;font-size:13px;gap:8px 12px}
+.qside .totals .big{font-size:18px}
+.qside .totals .lb{white-space:nowrap}
+.qside .totals .bf{display:none}
+.qside .totals::after{content:"Total is before freight";grid-column:1/-1;margin-top:6px;font-style:italic;color:var(--ink-3);font-size:12px}
+.qside .save{flex-direction:column;align-items:stretch;gap:12px;margin-top:22px}
+.qside .save .sidesave{display:block}
+.qside .save .act{justify-content:center}
+.qside .save .act .btn{flex:1}
+.qside .save .btn{width:100%}
 .qtop[hidden]{display:none}
 .tabs .qtop{margin:0 0 0 auto;align-self:center;flex:none}
 /* while the quote is enlarged, its view tabs and the shrink button float over its top right corner */
@@ -585,6 +619,12 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
             <!-- QUOTE PANE -->
       <section class="pane quote" id="quotePane" aria-label="Quote">
         <div class="qbox">
+        <!-- full screen only: rooms, totals and save actions sit in a left panel, as in the QOM staging quote screen -->
+        <aside class="qside" id="qSide" aria-label="Rooms and totals" hidden>
+          <h3 class="qsidet">Rooms</h3>
+          <div class="siderooms" id="sideRooms"></div>
+          <div id="sideEnd"></div>
+        </aside>
         <div class="qbar">
         <div class="qhead"><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
         <div class="qright">
@@ -601,6 +641,7 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <div class="qend">
         <div class="totals" id="totals"></div>
         <div class="save">
+          <button type="button" class="btn sidesave" id="sideSave" disabled>Save</button>
           <span class="act"><button type="button" class="btn text" id="freightBtn" aria-describedby="sendWhy">Freight &amp; Save</button><span class="warnicon" id="freightWarn" tabindex="0" role="img" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 7.6v5.6"/><circle cx="12" cy="16.4" r=".6" fill="currentColor"/></svg></span></span>
           <span class="act"><button type="button" class="btn ghost" id="sendBtn" aria-describedby="sendWhy">Send to Client</button><span class="warnicon" id="sendWarn" tabindex="0" role="img" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 7.6v5.6"/><circle cx="12" cy="16.4" r=".6" fill="currentColor"/></svg></span></span>
           <p class="sr" id="sendWhy"></p>
@@ -882,6 +923,7 @@ const roomName=r=>S.editRoom===r.name
   : `<span class="rname" tabindex="0" role="button" data-rename="${esc(r.name)}" title="Double-click to rename" aria-label="${esc(r.name)}. Press Enter to rename.">${esc(r.name)}</span>`;
 // quantity cell: stepper always visible; unit + info icon unless the unit is "each"; the sold-in multiple is helper text, not just a tooltip
 const ICON={
+  door:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 18V2h10v16M3 18h14M5 2l6 2v14"/><circle cx="9.3" cy="10.5" r=".6" fill="currentColor"/></svg>`,
   minus:`<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   plus:`<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10M7 2v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   trash:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9h6.6L12 4M6.5 7v3.5M9.5 7v3.5"/></svg>`
@@ -930,24 +972,24 @@ function discardChanges(){
   if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
   renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); showToast("Changes discarded");
 }
-function openRoomDialog(name){
-  const r=S.quote.rooms.find(x=>x.name===name), n=r.lines.length; S.confirm={kind:"room",room:name}; dlgReturn=document.querySelector(`[data-delroom="${CSS.escape(name)}"]`);
-  const d=$("#rmDialog"); d.hidden=false;
-  d.innerHTML=`<div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgWhat"><div class="dlgicon" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v2h5v2H4V4h5zM5.5 8h13l-.9 13.1a1 1 0 0 1-1 .9H7.4a1 1 0 0 1-1-.9zM9.5 11v8h2v-8zm3 0v8h2v-8z"/></svg></div><h2 id="dlgTitle">Are you sure you want to remove this room?</h2><div class="dlgcard" id="dlgWhat"><div><span class="pn">${esc(r.name)}</span><small>${r.type&&r.type!==r.name?esc(r.type)+" · ":""}${n} item${n===1?"":"s"} will be removed with it</small></div></div><div class="dlgbtns"><button type="button" class="dbtn cancel" id="rmCancel">Cancel</button><button type="button" class="dbtn yes" id="rmYes">Yes, delete room</button></div></div>`;
-  $("#rmCancel").focus();
+// removes a line; taking out a room's last item removes the room as well, and Undo brings both back
+function dropLine(rm,idx,name){
+  const [l]=rm.lines.splice(idx,1); S.dirty=true;
+  if(rm.lines.length){ S.undo={room:rm.name,line:l,idx,name}; renderQuote(); renderRoomMenu(); $("#undoBtn")?.focus(); return; }
+  rm.lines.push(l); removeRoom(rm.name,name);
 }
 // removes a room; if it was the active room, products go to the first room left (or none)
-function removeRoom(name){
+function removeRoom(name,lastItem){
   const rooms=S.quote.rooms, idx=rooms.findIndex(r=>r.name===name); if(idx<0) return; const [room]=rooms.splice(idx,1), wasActive=S.room===name;
   if(wasActive) S.room=rooms[0]?.name||"";
-  S.undo={kind:"room",room:name,roomObj:room,idx,wasActive,count:room.lines.length}; S.dirty=true;
+  S.undo={kind:"room",room:name,roomObj:room,idx,wasActive,count:room.lines.length,lastItem}; S.dirty=true;
   renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); $("#undoBtn")?.focus();
 }
 function closeRemoveDialog(restore=true){ $("#rmDialog").hidden=true; $("#rmDialog").innerHTML=""; S.confirm=null; if(restore) (dlgReturn&&document.body.contains(dlgReturn)?dlgReturn:null)?.focus(); }
 function confirmRemove(){
-  const c=S.confirm; if(!c) return; if(c.kind==="discard"){ closeRemoveDialog(); discardChanges(); return; } if(c.kind==="room"){ closeRemoveDialog(false); removeRoom(c.room); return; } const rm=S.quote.rooms.find(r=>r.name===c.room); const idx=rm?rm.lines.findIndex(l=>l.sku===c.sku):-1; const p=CAT.find(x=>x.sku===c.sku);
+  const c=S.confirm; if(!c) return; if(c.kind==="discard"){ closeRemoveDialog(); discardChanges(); return; } const rm=S.quote.rooms.find(r=>r.name===c.room); const idx=rm?rm.lines.findIndex(l=>l.sku===c.sku):-1; const p=CAT.find(x=>x.sku===c.sku);
   closeRemoveDialog(false);
-  if(idx<0) return; const [l]=rm.lines.splice(idx,1); S.undo={room:c.room,line:l,idx,name:p.name}; S.dirty=true; renderQuote(); renderRoomMenu(); $("#undoBtn")?.focus();
+  if(idx<0) return; dropLine(rm,idx,p.name);
 }
 // mock M3 read: Available to Promise is today when the item is in stock, otherwise today plus the lead time
 const atpDate=p=>{ const d=new Date(); if(!(p.stock>0)){ const w=parseInt((p.lead||"").replace(/\D+/g,""),10)||8; d.setDate(d.getDate()+w*7); } return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
@@ -959,13 +1001,15 @@ const dayOf=v=>{ const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((v||"").trim());
 const fmtDay=v=>{ const t=dayOf(v); if(isNaN(t)) return v; const d=new Date(t); return d.toLocaleDateString("en-US",d.getFullYear()===new Date().getFullYear()?{month:"short",day:"numeric"}:{month:"short",day:"numeric",year:"numeric"}); };
 const cddLate=l=>{ const c=dayOf(l.cdd), r=dayOf(l.rdd); return !isNaN(c)&&!isNaN(r)&&c>r; };
 // the confirmed date comes back from the system after saving, so it is plain text, never an input; nothing shows until there is one
-const cddNote=(r,l)=>{ if(!l.cdd) return `<span class="cddnote" data-cddnote="${esc(r.name)}|${esc(l.sku)}" hidden></span>`;
+// inField: the CDD field already shows the date, so the note only appears when it's later than requested
+const cddNote=(r,l,inField)=>{ if(!l.cdd||(inField&&!cddLate(l))) return `<span class="cddnote" data-cddnote="${esc(r.name)}|${esc(l.sku)}" hidden></span>`;
+  if(inField) return `<span class="cddnote late" data-cddnote="${esc(r.name)}|${esc(l.sku)}" title="We can't deliver by the requested date for this quantity.">⚠ Later than requested</span>`;
   return cddLate(l)
     ? `<span class="cddnote late" data-cddnote="${esc(r.name)}|${esc(l.sku)}" title="We can't deliver by the requested date for this quantity.">⚠ Confirmed: ${esc(fmtDay(l.cdd))} · Later than requested</span>`
     : `<span class="cddnote" data-cddnote="${esc(r.name)}|${esc(l.sku)}">Confirmed: ${esc(fmtDay(l.cdd))}</span>`; };
 const shipRow=(r,l)=>{ if(S.view!=="residential") return ""; if(!S.ship) return cddLate(l)?`<div class="shiprow solo">${cddNote(r,l)}</div>`:"";
   const key=esc(r.name)+"|"+esc(l.sku);
-  return `<div class="shiprow" role="group" aria-label="Shipping details for ${esc(l.sku)}"><span class="sf"><input type="text" data-sf="rdd" data-key="${key}" placeholder="RDD" aria-label="Requested delivery date (RDD)" value="${esc(l.rdd||"")}" autocomplete="off"><button type="button" class="cal" data-cal="${key}" aria-label="Pick requested delivery date">${CAL_ICON}</button><input class="hdate" type="date" tabindex="-1" aria-hidden="true" data-hdate="${key}">${cddNote(r,l)}</span><span class="sf"><select data-sf="ship" data-key="${key}" aria-label="Shipping service level">${SHIP_OPTS.map(o=>`<option${(l.ship||SHIP_OPTS[0])===o?" selected":""}>${o}</option>`).join("")}</select></span></div>`; };
+  return `<div class="shiprow" role="group" aria-label="Shipping details for ${esc(l.sku)}"><span class="sf"><input type="text" data-sf="rdd" data-key="${key}" placeholder="RDD" aria-label="Requested delivery date (RDD)" value="${esc(l.rdd||"")}" autocomplete="off"><button type="button" class="cal" data-cal="${key}" aria-label="Pick requested delivery date">${CAL_ICON}</button><input class="hdate" type="date" tabindex="-1" aria-hidden="true" data-hdate="${key}"></span><span class="sf"><input type="text" readonly placeholder="CDD" aria-label="Confirmed delivery date (CDD), set by M3" title="Confirmed delivery date, set by M3" value="${l.cdd?esc(l.cdd.replace(/\b0(\d)/g,"$1")):""}">${cddNote(r,l,true)}</span><span class="sf"><select data-sf="ship" data-key="${key}" aria-label="Shipping service level">${SHIP_OPTS.map(o=>`<option${(l.ship||SHIP_OPTS[0])===o?" selected":""}>${o}</option>`).join("")}</select></span></div>`; };
 const kitClosed=(r,l)=>S.kitClosed.includes(l.sku+r.name);
 const kitToggle=(r,l,p)=>`<small class="kitrow"><span class="tag note">Kit</span> <button type="button" class="kit-toggle" data-kit="${esc(r.name)}|${esc(l.sku)}" aria-expanded="${!kitClosed(r,l)}">${p.kit.length} products · ${kitClosed(r,l)?"Show":"Hide"} contents</button></small>`;
 // ---- stock warnings: Warehouse Status from M3 against stock across the whole quote (rules after QOM-2475 / QOM-2476) ----
@@ -1020,16 +1064,17 @@ function renderQuote(){
     const isOpen=S.room===r.name&&S.collapsedFor!==r.name;
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       return `<div class="line" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.sec?`<small>${esc(p.sec)}</small>`:""}${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}" data-roomhdr="${esc(r.name)}"><span><button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}${S.room===r.name?'<span class="status">Active room</span>':`<button type="button" data-pick="${esc(r.name)}">Add here</button>`}<button type="button" class="rmdel" data-delroom="${esc(r.name)}" aria-label="Remove room ${esc(r.name)}" title="Remove room">${ICON.trash}</button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||'<div class="empty-quote">No lines in this room yet.</div>')}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||'<div class="empty-quote">No lines in this room yet.</div>')}</div>`;
   }).join("");
   // freight and tax are worked out by Freight & Save, so they show as "-" until then
   $("#totals").innerHTML=`<span class="lb">Additional Charges:</span><span class="v">-</span><span class="lb big">Subtotal:</span><span class="v big">${money(sub)}</span><span class="lb">Additional Discount(s):</span><span class="v">${money(0)}</span><span class="lb">Freight Cost:</span><span class="v">-</span><span class="lb">Tax:</span><span class="v">-</span><hr><span></span><span class="lb big">Total:</span><span class="v"><span class="bf">(before freight)</span><span class="big">${money(sub)}</span></span>`; $("#footTotal").textContent=money(sub);
   $("#saveMsg").className=S.dirty||bad?"unsaved":"ok-msg"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":S.dirty?"Unsaved changes. Added lines are drafts until you save.":"All changes saved";
-  $("#saveBtn").disabled=!S.dirty||bad>0;
+  $("#saveBtn").disabled=!S.dirty||bad>0; $("#sideSave").disabled=$("#saveBtn").disabled;
+  $("#sideRooms").innerHTML=rooms.length?rooms.map(r=>`<button type="button" class="sroom" data-sideroom="${esc(r.name)}" aria-current="${S.room===r.name}"><span class="sricon">${ICON.door}</span><span class="srn">${esc(r.name)}</span><span class="srbadge" aria-label="${r.lines.length} line${r.lines.length===1?"":"s"}">${r.lines.length}</span></button>`).join(""):'<p class="snone">No rooms yet.</p>';
   const bl=RISK.blockers, sb=$("#sendBtn"); sb.classList.toggle("blocked",bl.length>0); sb.setAttribute("aria-disabled",String(bl.length>0)); sb.title=bl.map(b=>`Line ${b.n} · ${b.sku}: ${b.label}`).join("\n");
   const why=bl.length?"Quote contains discontinued items or items with insufficient inventory. Please update before sending.":""; $("#sendWhy").textContent=why;
   $("#freightBtn").disabled=bl.length>0; ["#freightWarn","#sendWarn"].forEach(id=>{ const w=$(id); w.hidden=!bl.length; w.title=why; w.setAttribute("aria-label",why||"No problems"); }); $("#sendMsg").hidden=true;
-  if(S.qview==="pdf") $("#qPdf").innerHTML=pdfHtml(); const ub=$("#undoBar"); ub.hidden=!S.undo; ub.innerHTML=S.undo?`<span>⚠ ${S.undo.kind==="room"?`Removed room ${esc(S.undo.room)}${S.undo.count?` and its ${S.undo.count} item${S.undo.count===1?"":"s"}`:""}`:`Removed ${esc(S.undo.name)} from ${esc(S.undo.room)}`}.</span><button type="button" class="btn ghost" id="undoBtn">Undo</button>`:"";
+  if(S.qview==="pdf") $("#qPdf").innerHTML=pdfHtml(); const ub=$("#undoBar"); ub.hidden=!S.undo; ub.innerHTML=S.undo?`<span>⚠ ${S.undo.kind==="room"?(S.undo.lastItem?`Removed ${esc(S.undo.lastItem)}, the last item in ${esc(S.undo.room)}, so the room was removed too`:`Removed room ${esc(S.undo.room)}${S.undo.count?` and its ${S.undo.count} item${S.undo.count===1?"":"s"}`:""}`):`Removed ${esc(S.undo.name)} from ${esc(S.undo.room)}`}.</span><button type="button" class="btn ghost" id="undoBtn">Undo</button>`:"";
   const n=rooms.reduce((a,r)=>a+r.lines.length,0);
   $("#qSub").textContent=`${rooms.length} room${rooms.length===1?"":"s"} · ${n} line${n===1?"":"s"} total`; $("#tabCount").textContent=`(${n})`; $("#stripCount").textContent=n; $("#stripRoom").textContent=S.room||"no room"; $("#stripTotal").textContent=money(sub);
   placeLineMenu();
@@ -1091,7 +1136,20 @@ function addLine(sku){
   const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:p.price});
   showToast(ex ? `✓ ${p.name} in ${p.fin}: quantity now ${ex.qty} in ${r.name}` : `✓ Added ${p.name} in ${p.fin} to ${r.name}`, "ok");
   S.collapsedFor=null; S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu(); renderResults();
+  showAddedLine(r.name,sku);
   const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; btn.focus(); setTimeout(()=>{btn.innerHTML=ICON.plus;},900); }
+}
+// new lines go at the end of the room; the quote side scrolls so the added line sits at the top, just under the title and room bars
+function showAddedLine(room,sku){
+  const el=document.querySelector(`.line[data-lroom="${CSS.escape(room)}"][data-lsku="${CSS.escape(sku)}"]`), pane=$("#quotePane");
+  if(!el||!pane.offsetParent&&!S.expanded) return; // quote side hidden (tabs layout on the search tab)
+  const hdr=el.closest(".rmblock").querySelector(".roomhdr"), off=$(".qbar").offsetHeight+hdr.offsetHeight;
+  const box=$(".qbox"); box.style.paddingBottom=""; // room below the last line so it can still reach the top
+  const short=pane.clientHeight-off-(pane.scrollHeight-(pane.scrollTop+el.getBoundingClientRect().top-pane.getBoundingClientRect().top));
+  if(short>0) box.style.paddingBottom=`calc(14px + ${Math.ceil(short)}px)`;
+  const top=pane.scrollTop+el.getBoundingClientRect().top-pane.getBoundingClientRect().top-off;
+  pane.scrollTo({top,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+  el.classList.add("justadded"); setTimeout(()=>el.classList.remove("justadded"),1600);
 }
 let roomMode="add";
 function openRoomForm(mode,preset){
@@ -1119,7 +1177,6 @@ document.addEventListener("click",e=>{
   if(t.id==="roomCancel"){ $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); return; }
   if(t.dataset.room){ S.room=t.dataset.room; S.collapsedFor=null; S.scenario= S.scenario==="noroom"?"normal":S.scenario; $("#scenario").value=S.scenario; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); renderRoom(); renderResults(); renderQuote(); return; }
   if(t.dataset.newroom){ openRoomForm("add",t.dataset.newroom); return; }
-  if(t.dataset.delroom){ const r=S.quote.rooms.find(x=>x.name===t.dataset.delroom); if(r.lines.length) openRoomDialog(r.name); else removeRoom(r.name); return; }
   if(t.dataset.toggleroom){ toggleRoom(t.dataset.toggleroom); return; }
   if(t.dataset.pick){ pickRoom(t.dataset.pick); if(S.layout==="tabs"){S.pane="search";renderLayout();} return; }
   if(t.dataset.add){ addLine(t.dataset.add); return; }
@@ -1127,7 +1184,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.tray){ const k=t.dataset.tray; openTrays.has(k)?openTrays.delete(k):openTrays.add(k); renderResults(); [...document.querySelectorAll(`[data-tray="${CSS.escape(k)}"]`)].find(b=>b.offsetParent)?.focus(); return; }
   if(t.dataset.kit){ const [room,sku]=t.dataset.kit.split("|"); const key=sku+room; S.kitClosed=S.kitClosed.includes(key)?S.kitClosed.filter(x=>x!==key):[...S.kitClosed,key]; renderQuote(); document.querySelector(`[data-kit="${CSS.escape(t.dataset.kit)}"]`)?.focus(); return; }
   if(t.dataset.step){ const [room,sku,dir]=t.dataset.step.split("|"); const rm=S.quote.rooms.find(r=>r.name===room); const idx=rm.lines.findIndex(x=>x.sku===sku); const l=rm.lines[idx]; const p=CAT.find(x=>x.sku===sku), m=p.mult;
-    if(dir==="-1"&&l.qty===m){ rm.lines.splice(idx,1); S.undo={room,line:l,idx,name:p.name}; S.dirty=true; renderQuote(); renderRoomMenu(); $("#undoBtn")?.focus(); return; } // at the minimum, the minus is a trash can
+    if(dir==="-1"&&l.qty===m){ dropLine(rm,idx,p.name); return; } // at the minimum, the minus is a trash can
     l.qty = dir==="1" ? (Math.floor(l.qty/m)+1)*m : Math.max(m,(Math.ceil(l.qty/m)-1)*m); // steps by the sold-in multiple; snaps a typed odd value to the next valid one
     S.dirty=true; renderQuote(); document.querySelector(`[data-step="${CSS.escape(t.dataset.step)}"]`)?.focus(); return; }
   if(t.dataset.more){ S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
@@ -1146,6 +1203,8 @@ document.addEventListener("click",e=>{
   if(t.id==="retry"){ S.scenario="normal"; $("#scenario").value="normal"; search(); return; }
   if(t.id==="showDiscLink"){ S.disc=true; $("#showDisc").checked=true; search(); return; }
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
+  if(t.dataset.sideroom){ const n=t.dataset.sideroom; if(S.room!==n) pickRoom(n); else if(S.collapsedFor===n){ S.collapsedFor=null; renderQuote(); } const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
+  if(t.id==="sideSave"){ $("#saveBtn").click(); return; }
   if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; markSaved(); renderQuote(); return; }
   if(t.id==="discardBtn"){ if(S.dirty) openDiscardDialog(); else showToast("No unsaved changes to discard"); return; }
   if(t.id==="undoBtn"&&S.undo?.kind==="room"){ const u=S.undo; S.quote.rooms.splice(Math.min(u.idx,S.quote.rooms.length),0,u.roomObj); if(u.wasActive) S.room=u.room; S.undo=null; renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); return; }
@@ -1175,7 +1234,7 @@ document.addEventListener("change",e=>{
   if(t.id==="detToggle"){ S.det=t.checked; renderQuote(); return; }
   if(t.id==="shipToggle"){ S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
-  if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l); } } return; }
+  if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
   if(t.id==="showStock"){ S.stock=t.checked; renderResults(); return; }
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
@@ -1355,7 +1414,7 @@ function shipDirty(){ S.dirty=true; const bad=S.quote.rooms.some(r=>r.lines.some
 function renderQView(){
   const v=S.qview;
   $("#shipSwWrap").hidden=!(v==="products"&&S.view==="residential"); $("#detSwWrap").hidden=v!=="products";
-  $("#qProducts").hidden=v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
+  $("#qProducts").hidden=v!=="products"; $("#qSide").hidden=!S.expanded||v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
   $(".qhead .qtitle").textContent={products:"Selected Products",info:"Quote information",pdf:"PDF preview"}[v]; $("#qSub").hidden=v!=="products";
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
   if(v==="info") $("#qInfo").innerHTML=infoHtml();
@@ -1367,6 +1426,8 @@ const EXPAND_ICON={off:`<svg width="16" height="16" viewBox="0 0 16 16" fill="no
 function setExpanded(on){
   S.expanded=on; const b=$("#expandBtn");
   $("#quotePane").classList.toggle("expanded",on); document.body.classList.toggle("noscroll",on);
+  // the totals and send actions move into the left panel while enlarged, and back under the rooms after
+  $("#qSide").hidden=!on||S.qview!=="products"; if(on) $("#sideEnd").append($(".qend")); else $(".qfoot").after($(".qend"));
   b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label",on?"Exit full screen":"Enlarge panel to full screen"); b.title=on?"Exit full screen":"Enlarge";
   b.innerHTML=on?EXPAND_ICON.on:EXPAND_ICON.off;
 }
