@@ -2285,6 +2285,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.fpop){ e.preve
 renderQView();
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
 renderRoomMenu(); renderAll();
+S.query="faucet"; $("#q").value=S.query; $("#clearQ").hidden=false; // opens on a "faucet" search so results show right away; clear it to see the empty state
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
 // panes fill the space below the page header; re-measure when anything above them changes height
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
