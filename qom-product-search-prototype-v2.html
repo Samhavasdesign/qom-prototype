@@ -407,12 +407,14 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .cpx input.low{border-color:var(--amber);color:var(--amber);font-weight:600}
 .cpx .cv.im{font-weight:600;color:var(--ink-2)}
 .cpx input[type=text]{width:100%;height:38px;border:1px solid var(--control-line);padding:0 10px;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;border-radius:0;background:var(--bg);color:var(--ink)}
-.cpx .mg{position:relative;grid-row:span 2}
+.cpx .mg{grid-row:span 2}
 .cpx .dm{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--ink-2)}
 .cpx .cinfo{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;margin:-6px 0;padding:0;border:0;background:none;color:var(--ink-3);cursor:pointer}
-.cpx .cinfo:hover,.cpx .cinfo[aria-expanded=true]{color:var(--ink)}
+.cpx .cinfo:hover,.cpx .cinfo:focus-visible{color:var(--ink)}
 .cpx .mlow{display:block;font-size:12px;color:var(--amber);font-weight:600}
-.costpop{position:absolute;right:0;top:calc(100% + 4px);z-index:8;display:grid;grid-template-columns:auto auto;gap:6px 22px;background:var(--bg);border:1px solid var(--control-line);box-shadow:var(--shadow-pop);padding:12px 14px;font-size:13px;white-space:nowrap}
+.cpx .dm{position:relative}
+.costpop{position:absolute;right:0;top:100%;z-index:8;display:none;grid-template-columns:auto auto;gap:6px 22px;background:var(--bg);border:1px solid var(--control-line);box-shadow:var(--shadow-pop);padding:12px 14px;font-size:13px;white-space:nowrap}
+.cpx .dm:hover .costpop,.cpx .cinfo:focus-visible+.costpop{display:grid}
 .costpop>:nth-child(even){text-align:right;font-variant-numeric:tabular-nums}
 .cpx .like{grid-column:2/4;grid-row:2;display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--ink-2);line-height:1.4;cursor:pointer;padding:2px 0}
 .cpx .like input{margin:0;width:16px;height:16px;accent-color:var(--ink);flex:none}
@@ -1583,7 +1585,7 @@ const twinsOf=(r,l)=>{ const it=itemOf(CAT.find(x=>x.sku===l.sku)), out=[]; S.qu
 const roomsWord=n=>`${n} other room${n===1?"":"s"}`;
 const likeLabel=(r,l)=>{ const tw=twinsOf(r,l); if(!tw.length) return "";
   const here=tw.some(x=>x.r===r), rooms=new Set(tw.filter(x=>x.r!==r).map(x=>x.r.name)).size;
-  return "Apply this price and margin to the same item "+(!rooms?"elsewhere in this room":here?`in this room and ${roomsWord(rooms)}`:`in ${roomsWord(rooms)}`); };
+  return "Apply this unit price to the same item "+(!rooms?"elsewhere in this room":here?`in this room and ${roomsWord(rooms)}`:`in ${roomsWord(rooms)}`); };
 // apply l's unit price to its twins; remembers each twin's price before the first change so Undo can put it back
 let LIKE_UNDO=null; // {item, src: the edited line, before: Map(other line -> its unit price before)}
 // mode "price": the other lines get this unit price. mode "margin" (m = the typed margin): each other line is priced from its own cost to hit that margin
@@ -1593,18 +1595,18 @@ const syncLike=(r,l,m)=>{ const it=itemOf(CAT.find(x=>x.sku===l.sku)), changed=[
   twinsOf(r,l).forEach(({r:x,l:y})=>{ y.like=true; if(y.im){ if(!skipped.includes(x.name)) skipped.push(x.name); return; }
     const u=m!=null?unitFor(CAT.find(z=>z.sku===y.sku),m):l.unit;
     if(y.unit!==u){ if(!LIKE_UNDO.before.has(y)) LIKE_UNDO.before.set(y,y.unit); y.unit=u; changed.push(x.name); } });
-  if(changed.length||skipped.length) likeToast(r,l,[...new Set(changed)],skipped,m); return changed.length; };
+  if(changed.length) likeToast(r,l,[...new Set(changed)],skipped,m); return changed.length; }; // nothing changed (all already match, or only Item Management lines): no toast
 const INFO_ICON='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.6"/><path d="M8 7.2v4.2M8 4.8v.1"/></svg>';
-const costPop=p=>`<div class="costpop" role="note" aria-label="Cost behind the margin"><span>Average cost:</span><span>${money(avgCost(p))}</span><span>+${OVERHEAD*100}% overhead:</span><span>${money(estCost(p)-avgCost(p))}</span><b>Estimated cost:</b><b>${money(estCost(p))}</b></div>`;
+const costPop=(p,id)=>`<div class="costpop" id="${id}" role="tooltip"><span>Average cost:</span><span>${money(avgCost(p))}</span><span>+${OVERHEAD*100}% overhead:</span><span>${money(estCost(p)-avgCost(p))}</span><b>Estimated cost:</b><b>${money(estCost(p))}</b></div>`;
 const comRow=(r,l,p,id)=>{
-  const key=esc(r.name)+"|"+esc(l.sku), ck=r.name+"|"+l.sku, m=marginOf(l.unit,p), d=defMargin(p), low=m<d-0.005, lab=likeLabel(r,l), open=S.costOpen===ck;
+  const key=esc(r.name)+"|"+esc(l.sku), m=marginOf(l.unit,p), d=defMargin(p), low=m<d-0.005, lab=likeLabel(r,l);
   const box=(cp,v,lbl)=>`<input type="text" inputmode="decimal" id="${id}${cp}" data-cp="${cp}" data-key="${key}" value="${v}" autocomplete="off"${cp==="margin"&&low?' class="low"':""} aria-label="${lbl} for ${esc(p.name)}">`;
   const im='<span class="cv im" title="Priced by Item Management">IM</span>';
   return `<div class="cpx" role="group" aria-label="Pricing for ${esc(p.name)}">
     <div class="cf"><span class="cl">List $</span><span class="cv">${num2(listOf(p))}</span></div>
     <div class="cf"><label class="cl" for="${id}unit">Unit $</label>${l.im?im:box("unit",l.unit.toFixed(2),"Unit price")}</div>
     <div class="cf"><label class="cl" for="${id}line">Line $</label>${l.im?im:box("line",(l.unit*l.qty).toFixed(2),"Line price")}</div>
-    <div class="cf mg">${l.im?'<span class="cl">Margin %</span><span class="cv">—</span>':`<label class="cl" for="${id}margin">Margin %</label>${box("margin",m.toFixed(2),"Margin")}`}<span class="dm">Default: ${d.toFixed(2)}<button type="button" class="cinfo" data-cost="${key}" aria-expanded="${open}" aria-label="Show the cost behind the margin">${INFO_ICON}</button></span>${low&&!l.im?`<span class="mlow">Below default</span>`:""}${open?costPop(p):""}</div>
+    <div class="cf mg"><span class="cl">Margin %</span><span class="cv${low&&!l.im?" low":""}" title="Margin follows from the unit price and can't be typed">${l.im?"—":m.toFixed(2)}</span><span class="dm">Default: ${d.toFixed(2)}<button type="button" class="cinfo" aria-label="Cost behind the margin" aria-describedby="${id}cost">${INFO_ICON}</button>${costPop(p,id+"cost")}</span>${low&&!l.im?`<span class="mlow">Below default</span>`:""}</div>
     ${lab&&!l.im?`<label class="like"><input type="checkbox" data-like="${key}"${l.like?" checked":""}><span>${lab}</span></label>`:""}
     ${l.im?`<span class="imnote">Priced by Item Management. The same-item box never changes this line.</span>`:""}
   </div>`;
@@ -1614,7 +1616,7 @@ let CT_TIMER=null, CT_HOLD=false;
 const CHECK_ICON='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>';
 function likeToast(r,l,changed,skipped,m){ const p=CAT.find(x=>x.sku===l.sku), others=changed.filter(n=>n!==r.name), total=new Set([r.name,...changed]).size;
   const what=m!=null?`${m.toFixed(2)}% margin`:money(l.unit);
-  const title=!changed.length?`${what} not applied to any other line`:total>2?`${what} applied in ${roomsWord(others.length)}`:others.length?`${what} applied in ${esc(r.name)} and ${esc(others[0])}`:`${what} applied to the same item in ${esc(r.name)}`;
+  const title=total>2?`${what} applied in ${roomsWord(others.length)}`:others.length?`${what} applied in ${esc(r.name)} and ${esc(others[0])}`:`${what} applied to the same item in ${esc(r.name)}`;
   const t=$("#ctoast"); t.innerHTML=`<span class="ctic">${CHECK_ICON}</span><div class="ctx"><b>${title}</b><span class="ctn" title="${esc(p.name)} in ${esc(p.fin)}">${esc(p.name)} in ${esc(p.fin)}</span>${skipped.map(n=>`<span class="cts">${esc(n)} not changed: priced by Item Management</span>`).join("")}</div>${changed.length?'<button type="button" class="ctundo" id="ctUndo">Undo</button>':""}<button type="button" class="ctx-x" id="ctClose" aria-label="Close message"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
   t.hidden=false; ctArm(7000); }
 function ctArm(ms){ clearTimeout(CT_TIMER); if(!CT_HOLD) CT_TIMER=setTimeout(hideCToast,ms); }
@@ -1624,7 +1626,7 @@ function undoLike(){ if(!LIKE_UNDO) return; LIKE_UNDO.before.forEach((u,y)=>{ y.
   LIKE_UNDO=null; hideCToast(); S.dirty=true; renderQuote(); showToast("Other lines put back to their previous prices","ok"); }
 const shipRow=(r,l)=>{ if(S.view!=="residential"&&S.view!=="commercial") return ""; if(!S.ship) return cddLate(l)?`<div class="shiprow solo">${cddNote(r,l)}</div>`:"";
   const key=esc(r.name)+"|"+esc(l.sku);
-  return `<div class="shiprow" role="group" aria-label="Shipping details for ${esc(l.sku)}"><span class="sf"><input type="text" data-sf="rdd" data-key="${key}" placeholder="RDD" aria-label="Requested delivery date (RDD)" value="${esc(l.rdd||"")}" autocomplete="off"><button type="button" class="cal" data-cal="${key}" aria-label="Pick requested delivery date">${CAL_ICON}</button><input class="hdate" type="date" tabindex="-1" aria-hidden="true" data-hdate="${key}"></span><span class="sf"><input type="text" readonly placeholder="CDD" aria-label="Confirmed delivery date (CDD), set by M3" title="Confirmed delivery date, set by M3" value="${l.cdd?esc(l.cdd.replace(/\b0(\d)/g,"$1")):""}">${cddNote(r,l,true)}</span><span class="sf"><select data-sf="ship" data-key="${key}" aria-label="Shipping service level">${SHIP_OPTS.map(o=>`<option${(l.ship||SHIP_OPTS[0])===o?" selected":""}>${o}</option>`).join("")}</select></span>${S.view==="commercial"?`<span class="sf"><input type="text" data-sf="plumb" data-key="${key}" placeholder="Enter plumbing code" aria-label="Plumbing code" value="${esc(l.plumb||"")}" autocomplete="off"></span><span class="sf"><input type="text" data-sf="dcode" data-key="${key}" placeholder="Enter discount code" aria-label="Discount code" value="${esc(l.dcode||"")}" autocomplete="off"></span>`:""}</div>`; };
+  return `<div class="shiprow" role="group" aria-label="Shipping details for ${esc(l.sku)}"><span class="sf"><input type="text" data-sf="rdd" data-key="${key}" placeholder="RDD" aria-label="Requested delivery date (RDD)" value="${esc(l.rdd||"")}" autocomplete="off"><button type="button" class="cal" data-cal="${key}" aria-label="Pick requested delivery date">${CAL_ICON}</button><input class="hdate" type="date" tabindex="-1" aria-hidden="true" data-hdate="${key}"></span><span class="sf"><input type="text" readonly placeholder="CDD" aria-label="Confirmed delivery date (CDD), set by M3" title="Confirmed delivery date, set by M3" value="${l.cdd?esc(l.cdd.replace(/\b0(\d)/g,"$1")):""}">${cddNote(r,l,true)}</span><span class="sf"><select data-sf="ship" data-key="${key}" aria-label="Shipping service level">${SHIP_OPTS.map(o=>`<option${(l.ship||SHIP_OPTS[0])===o?" selected":""}>${o}</option>`).join("")}</select></span>${S.view==="commercial"?`<span class="sf"><input type="text" data-sf="plumb" data-key="${key}" placeholder="Enter plumbing code" aria-label="Plumbing code" value="${esc(l.plumb||"")}" autocomplete="off"></span>`:""}</div>`; };
 const kitClosed=(r,l)=>S.kitClosed.includes(l.sku+r.name);
 const kitToggle=(r,l,p)=>`<small class="kitrow"><span class="tag note">Kit</span> <button type="button" class="kit-toggle" data-kit="${esc(r.name)}|${esc(l.sku)}" aria-expanded="${!kitClosed(r,l)}">${p.kit.length} products · ${kitClosed(r,l)?"Show":"Hide"} contents</button></small>`;
 // ---- stock warnings: Warehouse Status from M3 against stock across the whole quote (rules after QOM-2475 / QOM-2476) ----
@@ -2183,13 +2185,7 @@ document.addEventListener("click",e=>{ if(e.target.closest("#ctUndo")) undoLike(
 ["mouseenter","focusin"].forEach(ev=>document.addEventListener(ev,e=>{ if(e.target.closest?.("#ctoast")){ CT_HOLD=true; clearTimeout(CT_TIMER); } },true));
 ["mouseleave","focusout"].forEach(ev=>document.addEventListener(ev,e=>{ const t=$("#ctoast"); if(e.target!==t&&!(ev==="focusout"&&t?.contains(e.target))) return;
   if(ev==="focusout"&&t.contains(e.relatedTarget)) return; if(ev==="mouseleave"&&t.contains(document.activeElement)) return; CT_HOLD=false; if(!t.hidden) ctArm(1000); },true));
-// the ⓘ beside Default margin opens the cost behind it; any other click or Escape closes it
-document.addEventListener("click",e=>{ const b=e.target.closest("[data-cost]");
-  if(b){ const k=b.dataset.cost; S.costOpen=S.costOpen===k?null:k; renderQuote(); document.querySelector(`[data-cost="${CSS.escape(k)}"]`)?.focus(); return; }
-  if(S.costOpen&&!e.target.closest(".costpop")) closeCostPop(); });
-// closing removes just the popover (no redraw), so the click that closed it still lands on what was clicked
-function closeCostPop(){ S.costOpen=null; document.querySelectorAll(".costpop").forEach(x=>x.remove()); document.querySelectorAll('[data-cost][aria-expanded="true"]').forEach(x=>x.setAttribute("aria-expanded","false")); }
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&S.costOpen){ const k=S.costOpen; closeCostPop(); document.querySelector(`[data-cost="${CSS.escape(k)}"]`)?.focus(); } });
+// the ⓘ beside Default margin shows the cost behind it on hover or keyboard focus (CSS only, see .dm)
 document.addEventListener("keydown",e=>{ const t=e.target; if(t.dataset?.rqty&&e.key==="Enter"){ e.preventDefault(); t.dispatchEvent(new Event("change",{bubbles:true})); if(!t.disabled){ const sku=t.dataset.rqty; addLine(sku); const ni=document.querySelector(`[data-rqty="${CSS.escape(sku)}"]`); ni?.focus(); ni?.select(); } return; } if(t.dataset?.rqty&&e.key==="Escape"){ const p=CAT.find(x=>x.sku===t.dataset.rqty); t.value=S.rq[p.sku]??p.mult; t.select(); e.stopPropagation(); return; } if(!t.dataset?.qty||e.key!=="Escape") return; const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(l){ t.value=l.qty; t.select(); e.stopPropagation(); } },true);
 $("#q").addEventListener("input",e=>{ $("#clearQ").hidden=!e.target.value; });
 $("#q").addEventListener("keydown",e=>{
