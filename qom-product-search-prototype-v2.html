@@ -12,6 +12,7 @@
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--panel:#e7ecf2;--panel-soft:#f1f4f8;--panel-line:#d3dae4;--panel-head:#627186;--surface:#f5f5f5;--surface-2:#ececec;--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
   --line:#d9d9d9;--line-2:#eeeeee;--rail:#151515;--rail-ink:#ffffff;--rail-muted:#9a9a9a;
   --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:#5b5b5b;--note-bg:#f1efe9;
+  --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:#5F5F5F;--sp-w:320px;
   --pill:#f3d64b;--focus:#1d4ed8;--proto:#e4e4e4;--proto-ink:#111111;
   --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
@@ -61,7 +62,13 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 
 /* workspace layouts */
 .work{display:grid;gap:22px;align-items:start}
-.work[data-layout="split"]{grid-template-columns:minmax(300px,.55fr) minmax(320px,1fr)}
+.work[data-layout="split"]{grid-template-columns:minmax(300px,var(--left,.55fr)) 10px minmax(320px,1fr);gap:6px} /* 6px either side of the 10px handle keeps the old 22px gap */
+/* drag handle between the two sides; double-click puts it back */
+.gutter{width:10px;align-self:stretch;cursor:col-resize;display:flex;align-items:center;justify-content:center;touch-action:none}
+.gutter::before{content:"";width:2px;height:48px;background:var(--line);border-radius:2px}
+.gutter:hover::before,.gutter:focus-visible::before,.gutter.dragging::before{background:var(--ink-3);height:72px}
+.work:not([data-layout="split"]) .gutter{display:none}
+body.col-resizing{cursor:col-resize;user-select:none}
 .work[data-layout="tabs"]{grid-template-columns:1fr}
 .work[data-layout="tabs"] .pane[hidden]{display:none}
 .pane-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:14px}
@@ -143,8 +150,8 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .filters .ffoot .freset:hover{border-color:var(--ink)}
 .filters .ffoot .fclose{background:var(--ink);border:1px solid var(--ink);color:var(--bg)}
 .filters .ffoot .fclose:hover{background:var(--ink-2)}
-/* Discard changes and Save quote stay pinned to the bottom of the search side */
-.sfoot{position:sticky;bottom:0;z-index:5;display:flex;gap:10px;margin:14px 0 0;padding:12px 0;background:var(--bg);border-top:1px solid var(--line)}
+/* Discard changes and Save stay pinned to the bottom of the search side */
+.sfoot{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0;padding:12px 0;background:var(--bg);border-top:1px solid var(--line)}
 .sfoot .btn{flex:1;min-width:0;padding:12px 10px}
 .filters h4{margin:0 0 6px;font-size:13px;font-weight:600}
 .filters label{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:13px}
@@ -216,6 +223,8 @@ table.res tr.part td .name{color:var(--ink-2)}
 .state h3{margin:0 0 6px;font-family:var(--serif);font-weight:400;font-size:20px;color:var(--ink)}
 .state ul{margin:8px 0 0 18px;padding:0}
 .state.prompt{background:var(--surface)}
+.state.idle{border:0;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;text-align:center;color:var(--ink-3)}
+.state.idle p{margin:0;font-size:14px;color:var(--ink-2)}
 .state.err{border-color:var(--warn);background:var(--warn-bg);color:var(--ink)}
 .state .recent{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .state .recent button{border:1px solid var(--line);background:var(--bg);padding:7px 10px;color:var(--ink)}
@@ -309,6 +318,18 @@ table.res tr.part td .name{color:var(--ink-2)}
 .thumb{text-align:center;line-height:1.2}
 .thumb.has-img{background:#f7f7f7;overflow:hidden}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+button.thumb{padding:0;border:0;cursor:zoom-in;font:inherit}
+button.thumb:hover img{opacity:.85}
+button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+/* photo viewer: a click on a product photo opens it full screen */
+.zoomwrap{position:fixed;inset:0;z-index:300;background:rgba(17,17,17,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 24px 24px;cursor:zoom-out}
+.zoomwrap[hidden]{display:none}
+.zoomwrap img{max-width:100%;max-height:calc(100vh - 140px);object-fit:contain;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.4);cursor:default}
+.zoomcap{color:#fff;margin-top:14px;text-align:center;font-size:14px;cursor:default}
+.zoomcap small{display:block;color:rgba(255,255,255,.7);font-size:12px;margin-top:2px}
+.zoomx{position:absolute;top:14px;right:16px;background:transparent;border:0;color:#fff;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zoomx:hover{background:rgba(255,255,255,.12)}
+.zoomx:focus-visible{outline:2px solid #fff}
 .line .nm{font-size:14px}
 .line .nm .pn{display:block;font-weight:700;font-size:16px}
 .line .nm small{display:block;color:var(--ink-3);font-size:12px}
@@ -410,7 +431,7 @@ table.res tr.part td .name{color:var(--ink-2)}
 
 @media (max-width:980px){
   .app{grid-template-columns:1fr}.rail{display:flex;flex-wrap:wrap;padding:8px 10px;gap:0 4px}.rail .mark{padding:8px 12px}.rail a{padding:8px 10px;font-size:14px}.rail .sec{display:none}
-  .work[data-layout="split"]{grid-template-columns:1fr}  .toprow{grid-template-columns:1fr}
+  .work[data-layout="split"]{grid-template-columns:1fr;gap:22px}.gutter{display:none}  .toprow{grid-template-columns:1fr}
 }
 
 .qtitle{font-family:var(--serif);font-weight:400;font-size:20px;margin:0}
@@ -421,6 +442,9 @@ table.res tr.part td .name{color:var(--ink-2)}
 /* the quote title bar stays at the top of the quote side; room bars pin just below it (--qbar-h is measured in script) */
 .qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
 .qseg{display:inline-flex}
+.qbar .qtop{flex:1 0 100%;order:-1;margin:0}
+.qbar .qseg{flex:1}
+.qbar .qseg .qtab{flex:1 1 auto;white-space:nowrap;padding:0 8px}
 .qtab{background:var(--bg);color:var(--ink-2);border:1px solid var(--line);height:34px;padding:0 12px;font-size:13px}
 .qtab + .qtab{margin-left:-1px}
 .qtab[aria-selected="true"]{position:relative;z-index:1;background:var(--surface);color:var(--ink);font-weight:600;border-color:var(--ink-3)}
@@ -476,6 +500,16 @@ table.res tr.part td .name{color:var(--ink-2)}
   .work[data-layout="split"] #searchPane{display:flex;flex-direction:column} /* Save bar sits at the bottom even when the results are short */
   .work[data-layout="split"] #searchPane>*{flex-shrink:0}
   .work[data-layout="split"] #searchPane>.sfoot{margin-top:auto}
+  /* Empty states fill their side down to the bottom instead of stopping short */
+  .work[data-layout="split"] #searchPane>#results:has(>.state.idle){flex:1 0 auto;display:flex;flex-direction:column}
+  .work[data-layout="split"] #searchPane>#results>.state.idle{flex:1}
+  .work[data-layout="split"] #searchPane>#results:has(>.state.idle)+.sfoot{margin-top:14px}
+  .work[data-layout="split"] #quotePane:not(.expanded){display:flex;flex-direction:column}
+  .work[data-layout="split"] #quotePane:not(.expanded)>.qbox{flex:1 0 auto}
+  .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none){display:flex;flex-direction:column}
+  .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none)>#qProducts,
+  .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none) #rooms{flex:1 0 auto;display:flex;flex-direction:column}
+  .work[data-layout="split"] #quotePane:not(.expanded) .empty-quote.none{flex:1;justify-content:center}
   .work[data-layout="split"] .filterwrap .filters{max-height:max(220px,calc(100vh - var(--work-top,0px) - 200px))} /* the tray fits inside the search side */
   .work[data-layout="split"] .pane.quote.expanded{position:fixed;height:auto;padding-right:max(24px,calc((100vw - 1200px)/2))}
 }
@@ -491,8 +525,17 @@ body.noscroll{overflow:hidden}
 .qside{grid-column:1;grid-row:1/span 5;position:sticky;top:0;background:var(--bg);border:1px solid var(--panel-line);max-height:calc(100vh - 88px);overflow:auto}
 .qside[hidden]{display:none}
 .pane.quote.expanded .rmblock{scroll-margin-top:calc(var(--qbar-h,64px) - 12px)} /* a room picked in the left panel lands just under the title bar */
-.qsidet{font-weight:400;font-size:18px;margin:0;padding:16px 18px;border-bottom:1px solid var(--panel-line)}
-.siderooms{min-height:120px;border-bottom:1px solid var(--panel-line);background:var(--surface)}
+.qsidet{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--panel-line)}
+.qsidet h3{font-weight:400;font-size:18px;margin:0}
+.qsidet h3 .rcount{color:var(--ink-3);font-size:15px;margin-left:4px}
+.qsidet .tolink{min-height:44px;margin:-12px 0;font-size:14px}
+.sideform{display:flex;flex-direction:column;gap:8px;padding:14px 18px 16px;border-bottom:1px solid var(--panel-line);background:var(--bg)}
+.sideform select,.sideform input{font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink)}
+.sideform .row{display:flex;gap:8px}.sideform .row .btn{flex:1}
+.sideform .hint{margin:0;font-size:12px;color:var(--ink-3)}
+.sideform .form-err{margin:0}
+.empty-quote .addprod{margin-top:10px}
+.siderooms{min-height:120px;border-bottom:1px solid var(--panel-line);background:var(--bg)}
 .sroom{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--panel-line);background:var(--bg);padding:14px 18px;font:inherit;font-size:15px;color:var(--ink);text-align:left}
 .sroom:hover{background:var(--surface)}
 .sroom[aria-current="true"]{box-shadow:inset 3px 0 0 var(--ink);font-weight:600}
@@ -534,6 +577,90 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 .filterwrap .filters{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;margin:0;max-height:min(70vh,560px);box-shadow:0 10px 28px rgba(0,0,0,.16)}
 /* hide the browser's own clear button; the search box has its own */
 #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+
+/* ---------- pricing bar: save status, totals and the next step, pinned to the bottom of the Selected Products side ---------- */
+.pbar{position:fixed;bottom:0;left:var(--qp-left,0px);width:var(--qp-w,100%);z-index:150;margin:0;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;justify-content:space-between;gap:12px 24px;background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 14px -10px rgba(0,0,0,.25)}
+#quotePane .qbox{padding-bottom:calc(14px + var(--bar-h,0px))} /* the last lines can scroll clear of the bar */
+@media (max-width:980px){ body{padding-bottom:var(--bar-h,0px)} }
+.qfoot{bottom:var(--bar-h,0px)} /* the undo message sits just above the bar */
+.sfoot .pb-save{flex-basis:100%}
+.sfoot.fixed{position:fixed;bottom:0;left:var(--sf-left,0px);width:var(--sf-w,100%);z-index:150;margin:0;padding:12px 0 calc(14px + env(safe-area-inset-bottom,0px));align-content:flex-start;border-top:1px solid var(--panel-line);box-shadow:0 -8px 14px -10px rgba(0,0,0,.25)}
+#searchPane:has(> .sfoot.fixed){padding-bottom:var(--bar-h,0px)} /* the last results scroll clear of it */
+.sfoot:not(.fixed){bottom:var(--bar-h,0px)} /* stacked layout: sits above the pricing bar */
+.qside .pb-save{margin-top:12px}
+.pb-acts{margin-left:auto;display:flex;align-items:flex-start;justify-content:flex-end;flex-wrap:wrap;gap:8px 12px}
+.pb-save{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:13px}
+.pb-save .pb-st{display:flex;align-items:flex-start;gap:6px;font-weight:600}
+.pb-save .pb-st svg{flex:none;margin-top:1px}
+.pb-save .ok-msg{color:var(--done)}
+.pb-save .pb-st.dirty{color:var(--warn)}
+.pb-totals{display:flex;align-items:flex-start;gap:10px 24px;margin:0;flex-wrap:wrap}
+.pb-totals div{display:grid;gap:2px}
+.pb-totals dt{font-size:14px;color:var(--ink-2)}
+.pb-totals dd{margin:0;font-size:15px;color:var(--muted)}
+.pb-totals dd.amt{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.pb-totals .pb-total{padding-left:24px;border-left:1px solid var(--line);display:grid;grid-template-columns:auto auto;column-gap:10px;align-items:baseline;justify-content:start}
+#pbSubWrap[hidden] ~ .pb-total{padding-left:0;border-left:0} /* no divider when the total stands alone */
+.pb-totals .pb-total dt{grid-column:1/-1}
+/* the note and the Full breakdown link stack beside the amount */
+.pb-totals .pb-total #pbTotal{grid-column:1;grid-row:2/4;align-self:center}
+.pb-totals .pb-total dd.pb-note{grid-column:2;grid-row:2;align-self:end}
+.pb-totals .pb-total dd.pb-bdl{grid-column:2;grid-row:3;align-self:start}
+.pb-totals .pb-total dd{font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.pb-totals .pb-total dd.pb-bdl{margin-top:1px;font-size:12px;font-weight:400}
+.pb-totals .pb-total dd.pb-note{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;color:var(--muted)}
+.pb-totals .pb-total dd.pb-note.prog{color:var(--prog)}
+.pb-note .spin{width:12px;height:12px;border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
+.pb-bdl .tolink{min-height:44px;margin:-15px 0 -14px;padding:0;font-size:12px;color:var(--ink-2)} /* small link, still a 44px target */
+.sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
+.sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
+.sp-bd h3:focus{outline:none}
+.sp-bd h3:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sp-bd .totals{margin:0;width:100%;font-size:13px;gap:8px 12px}
+.sp-bd .totals .big{font-size:18px}
+.sp-bd .totals .lb{white-space:nowrap}
+.sp-bd .totals .v.nc{color:var(--muted);font-weight:400}
+.pb-act{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:0 20px;white-space:nowrap;border:1px solid var(--ink);background:var(--ink);color:var(--bg);letter-spacing:.14em;font-size:13px;font-weight:600;text-transform:uppercase}
+.pb-act.ghost{background:var(--bg);color:var(--ink)}
+.pb-act.pb-send{width:48px;padding:0} /* icon only; its name comes from aria-label */
+/* not available yet: looks off, but stays focusable so a click can say why (it opens Before you send) */
+.pb-act[aria-disabled="true"]{background:var(--surface-2);border-color:var(--surface-2);color:var(--muted);cursor:not-allowed}
+.pb-fix{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:0 2px;border:0;background:none;color:var(--block);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.pb-act.run{background:var(--prog-bg);border-color:#c9d6e4;color:var(--prog);cursor:progress}
+.pb-act:disabled{opacity:1}
+.pb-act .spin,.spi .spin{border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
+/* "Before you send": a flyout on the right, above the bar; it doesn't block the quote, so it can stay open while the SC works */
+.spanel{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(var(--sp-w),100vw);display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);box-shadow:-10px 0 24px -16px rgba(0,0,0,.3)}
+.sp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:22px 20px 14px;border-bottom:1px solid var(--line)}
+.sp-head h2{margin:0;font-family:var(--sans);font-size:18px;font-weight:600}
+.sp-head h2:focus{outline:none}
+.sp-head h2:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+#spStatus{margin:3px 0 0;font-size:13px}
+.tone-block{color:var(--block)} .tone-prog{color:var(--prog)} .tone-done{color:var(--done)} .tone-muted{color:var(--muted)}
+.sp-close{flex:none;width:44px;height:44px;margin:-10px -12px 0 0;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0}
+.sp-body{flex:1;min-height:0;overflow-y:auto}
+.sp-list{list-style:none;margin:0;padding:4px 20px 16px}
+.spi{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:2px 10px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line-2)}
+.spi:last-child{border-bottom:0}
+.spi .spi-ic{display:flex;padding-top:1px}
+.spi.block .spi-ic{color:var(--block)} .spi.prog .spi-ic{color:var(--prog)} .spi.todo .spi-ic{color:#8a8a8a} .spi.done .spi-ic{color:var(--done)}
+.spi b{display:block;font-size:14px;font-weight:600}
+.spi.prog b{color:var(--prog)}
+.spi .spi-tx span{display:block;color:var(--muted);font-size:13px;margin-top:1px}
+.splink{min-height:44px;margin:-12px 0;padding:0 2px;border:0;background:none;color:var(--ink);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+/* wide screens: the page makes room for the panel so it never covers the quote */
+@media (min-width:1280px){ body.sendopen .app{margin-right:var(--sp-w)} body.sendopen .pane.quote.expanded{right:var(--sp-w)} }
+/* a line the panel points to: orange outline and an inline note */
+.line.lfocus{outline:2px solid var(--block);outline-offset:-1px;position:relative;z-index:1}
+.lflag{grid-column:3/-1;display:flex;align-items:center;flex-wrap:wrap;gap:0 8px;font-size:13px;color:var(--muted)}
+.lflag .lf-b{display:inline-flex;align-items:center;gap:6px;color:var(--block);font-weight:600}
+.lflag .tolink{min-height:44px;margin:-8px 0;font-weight:600}
+#linesEnd{height:1px;margin-top:-1px} /* marks the end of the quote lines (auto-open variant B) */
+/* narrow Selected Products side: the buttons start on the left when they wrap under the totals */
+.pbar.narrow .pb-acts{margin-left:0}
+.qside #sideEnd{padding:16px 18px 20px}
+.qside #sideEnd .sidesave{display:block;width:100%}
+.proto .pbtn{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font-size:13px}
 </style>
 </head>
 <body>
@@ -557,6 +684,14 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
       <option value="fresh" selected>Fresh quote, no lines</option>
     </select>
   </label>
+  <label>Send flow
+    <select id="sendDemo">
+      <option value="needs">1 · Needs action</option>
+      <option value="calc">2 · Freight calculating</option>
+      <option value="ready">3 · Ready to send</option>
+    </select>
+  </label>
+  <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
   <label><input type="checkbox" id="showStock" checked> Stock hint in results (engineering says availability is read with the quote, not per result)</label>
@@ -575,15 +710,6 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
     <p class="sub">QUALITY FINISHES (USC) · Henry bar and club house</p>
     <div class="tabs">
       <span>Essential Quote Info</span><span>Header Information</span><span>Shipping Information</span><span>Associations</span><span class="cur">Product Selection</span>
-      <!-- quote view tabs sit in the page tabs row, so the two panel headers line up -->
-      <div class="qtop" id="qTop">
-      <div class="qseg" role="tablist" aria-label="Quote panel view">
-        <button type="button" class="qtab" role="tab" data-qview="products" aria-selected="true">Products</button>
-        <button type="button" class="qtab" role="tab" data-qview="info" aria-selected="false">Quote information</button>
-        <button type="button" class="qtab" role="tab" data-qview="pdf" aria-selected="false">PDF preview</button>
-      </div>
-      <button type="button" class="expandbtn" id="expandBtn" aria-pressed="false" aria-label="Enlarge panel to full screen" title="Enlarge"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg></button>
-      </div>
     </div>
 
     <div class="pane-tabs" id="paneTabs" hidden>
@@ -625,41 +751,43 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <div id="notice" aria-live="assertive"></div>
         <div id="results" aria-live="polite"></div>
         <!-- save actions live on the search side, as in staging -->
-        <div class="sfoot"><button type="button" class="btn ghost" id="discardBtn">Discard changes</button><button type="button" class="btn" id="saveBtn" disabled>Save quote</button></div>
+        <div class="sfoot"><button type="button" class="btn ghost" id="discardBtn">Discard changes</button><button type="button" class="btn" id="saveBtn" disabled>Save</button><div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">All changes saved</span></span></div></div>
       </section>
 
-            <!-- QUOTE PANE -->
+      <div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Resize panels (drag, or use the arrow keys; double-click to reset)" tabindex="0"></div>
+
+      <!-- QUOTE PANE -->
       <section class="pane quote" id="quotePane" aria-label="Quote">
         <div class="qbox">
         <!-- full screen only: rooms, totals and save actions sit in a left panel, as in the QOM staging quote screen -->
         <aside class="qside" id="qSide" aria-label="Rooms and totals" hidden>
-          <h3 class="qsidet">Rooms</h3>
+          <div class="qsidet"><h3 id="sideRoomsH">Rooms</h3><button type="button" class="tolink" id="sideAddBtn" aria-expanded="false" aria-controls="sideRooms">+ Add room</button></div>
           <div class="siderooms" id="sideRooms"></div>
-          <div id="sideEnd"></div>
+          <div id="sideEnd"><button type="button" class="btn sidesave" id="sideSave" disabled>Save</button></div>
         </aside>
         <div class="qbar">
-        <div class="qhead"><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
+        <!-- view tabs and the enlarge button sit at the top of the quote panel; in full screen they float top right -->
+        <div class="qtop" id="qTop">
+        <div class="qseg" role="tablist" aria-label="Quote panel view">
+          <button type="button" class="qtab" role="tab" data-qview="products" aria-selected="true">Products</button>
+          <button type="button" class="qtab" role="tab" data-qview="info" aria-selected="false">Quote information</button>
+          <button type="button" class="qtab" role="tab" data-qview="pdf" aria-selected="false">PDF preview</button>
+        </div>
+          <button type="button" class="expandbtn" id="expandBtn" aria-pressed="false" aria-label="Enlarge panel to full screen" title="Enlarge"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg></button>
+        </div>
+        <!-- title and room/line count hidden for now; remove "hidden" to bring them back -->
+        <div class="qhead" hidden><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
         <div class="qright">
         <!-- one switch shows or hides both the item details and the shipping fields on every line -->
-        <label class="shipsw" id="detSwWrap"><span class="shiplbl">Shipping Details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
+        <label class="shipsw" id="detSwWrap" hidden><span class="shiplbl">Shipping Details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
         </div>
         </div>
         <div id="qProducts">
         <div id="rooms"></div>
         <div class="qfoot">
           <div class="undo" id="undoBar" role="status" hidden></div>
-          <div class="qrow"><div class="qsum"><span id="saveMsg" class="ok-msg">All changes saved</span><span>Total (before freight) <b id="footTotal"></b></span></div><div class="qacts"><button type="button" class="tolink" id="toFreight">Scroll to Freight &amp; Save</button></div></div>
         </div>
-        <div class="qend">
-        <div class="totals" id="totals"></div>
-        <div class="save">
-          <button type="button" class="btn sidesave" id="sideSave" disabled>Save</button>
-          <span class="act"><button type="button" class="btn text" id="freightBtn" aria-describedby="sendWhy">Freight &amp; Save</button><span class="warnicon" id="freightWarn" tabindex="0" role="img" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 7.6v5.6"/><circle cx="12" cy="16.4" r=".6" fill="currentColor"/></svg></span></span>
-          <span class="act"><button type="button" class="btn ghost" id="sendBtn" aria-describedby="sendWhy">Send to Client</button><span class="warnicon" id="sendWarn" tabindex="0" role="img" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 7.6v5.6"/><circle cx="12" cy="16.4" r=".6" fill="currentColor"/></svg></span></span>
-          <p class="sr" id="sendWhy"></p>
-          <p class="sendmsg" id="sendMsg" role="alert" hidden></p>
-        </div>
-        </div>
+        <div id="linesEnd" aria-hidden="true"></div>
         <div class="sr" id="moveMsg" aria-live="polite"></div>
         </div>
         <div id="qInfo" hidden></div>
@@ -669,6 +797,27 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
     </div>
   </main>
 </div>
+
+<!-- pricing bar: fixed to the bottom of the screen, as wide as the Selected Products side (placeBar) -->
+<div class="pbar" id="pbar" role="region" aria-label="Quote totals and next step">
+  <dl class="pb-totals">
+    <div id="pbSubWrap"><dt>Subtotal</dt><dd class="amt" id="pbSub"></dd></div>
+    <div class="pb-total"><dt>Estimated total</dt><dd id="pbTotal"></dd><dd class="pb-note" id="pbNote"></dd><dd class="pb-bdl"><button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button></dd></div>
+  </dl>
+  <div class="pb-acts">
+    <button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="false" hidden></button>
+    <button type="button" class="pb-act ghost" id="pbFreightBtn">Freight &amp; Save</button>
+    <button type="button" class="pb-act pb-send" id="pbSend" aria-label="Send to client"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg></button>
+  </div>
+</div>
+<aside class="spanel" id="sendPanel" aria-labelledby="spTitle" hidden>
+  <div class="sp-head"><div><h2 id="spTitle" tabindex="-1">Before you send</h2><p id="spStatus"></p></div><button type="button" class="sp-close" id="spClose" aria-label="Close Before you send"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="sp-body">
+    <ul class="sp-list" id="spList"></ul>
+    <section class="sp-bd" aria-labelledby="spBdTitle"><h3 id="spBdTitle" tabindex="-1">Full breakdown</h3><div class="totals" id="totals"></div></section>
+  </div>
+</aside>
+<div class="sr" id="sendLive" aria-live="polite"></div>
 
 <script>
 // ---------- mock catalog (no QOM or M3 calls) ----------
@@ -782,7 +931,7 @@ const S = {
   layout:"split", pane:"search", query:"", room:"Bar",
   filters:{cat:new Set(), col:new Set(), fin:new Set(), series:new Set()},
   page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",series:""}, facc:null, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"",
-  quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026"},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
+  quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
 const $ = s => document.querySelector(s);
@@ -892,7 +1041,7 @@ function renderResults(){
   if(S.scenario==="error"){ box.innerHTML=`<div class="state err"><h3>Search didn't complete</h3>Products didn't load from QOM. Your quote is unchanged. <button type="button" class="btn ghost" id="retry" style="margin-left:10px">Try again</button> <span class="fr">FR-5</span></div>`; cnt.textContent=""; return; }
   const anyFilter=Object.values(S.filters).some(s=>s.size);
   if(!q && !anyFilter){
-    box.innerHTML=`<div class="state prompt"><h3>Find a product to add to ${esc(S.room||"this quote")}</h3>Search by name, collection, finish or item number, or open Filters above. Old 12-digit JDE codes work too.<div class="recent"><span style="align-self:center;color:var(--ink-3)">Recently added:</span>${S.recent.map(s=>{const p=CAT.find(x=>x.sku===s);return `<button type="button" data-q="${esc(p.name)}">${esc(p.name)} · ${esc(p.fin)}</button>`;}).join("")}</div><span class="fr">FR-16</span></div>`; cnt.textContent=""; return;
+    box.innerHTML=`<div class="state idle" role="status"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><p>Search or filter to see products</p><span class="fr">FR-16</span></div>`; cnt.textContent=""; return;
   }
   if(q && q.length<3 && !anyFilter){
     box.innerHTML=`<div class="state"><h3>Keep typing to see results</h3>Three or more characters narrows thousands of items to a useful list. An item number can be entered in full. <span class="fr">FR-18</span></div>`; cnt.textContent=""; return;
@@ -914,7 +1063,7 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}<small>${hl(p.sec)} · ${esc(p.col)}${p.series?' · '+esc(p.series):''}</small>${accents}${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
       <td class="sku wd">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd">${p.st}</td>
       <td class="wd">${esc(p.lt)}</td>
@@ -943,7 +1092,7 @@ const ICON={
 // picture slot shared by results and quote lines; imagery comes from a separate system and often fails, so the failed state is shown too
 const FAILED_THUMB=`<div class="thumb" style="border:1px dashed var(--ink-3);background:transparent;font-size:10px;text-align:center" aria-hidden="true">image failed to load</div>`;
 const thumbHtml=p=>p.noimg ? FAILED_THUMB
-  : p.img ? `<div class="thumb has-img" aria-hidden="true"><img src="${esc(p.img)}" alt="" onerror="this.parentNode.outerHTML=FAILED_THUMB"></div>`
+  : p.img ? `<button type="button" class="thumb has-img" data-zoom="${esc(p.sku)}" title="Enlarge photo" aria-label="Enlarge photo of ${esc(p.name)} in ${esc(p.fin)}"><img src="${esc(p.img)}" alt="" onerror="this.parentNode.outerHTML=FAILED_THUMB"></button>`
   : `<div class="thumb" aria-hidden="true">no image</div>`;
 // kit line: a toggle under the name, and the components listed underneath (quantities follow the kit quantity)
 const LOADED=new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); // mock "as of" time: when the quote's availability was read
@@ -1082,7 +1231,8 @@ const qtyCell=(r,l,p,id)=>{
   return `<div class="qty"><div class="stepper${bad?" bad":""}">${first}<input type="number" inputmode="numeric" min="${m}" step="${m}" value="${l.qty}" aria-label="Quantity for ${esc(p.name)}${unitShown?" in "+esc(p.uom):""}" ${help?`aria-describedby="${id}" `:""}aria-invalid="${bad}" data-qty="${key}"><button type="button" class="sbtn" data-step="${key}|1" aria-label="Increase quantity of ${esc(p.name)}">${ICON.plus}</button></div>${help}</div>`;
 };
 // the Details switch only appears once the quote has rooms with lines in them
-const detSwShown=()=>{ $("#detSwWrap").hidden=S.qview!=="products"||!S.quote.rooms.some(r=>r.lines.length); };
+const SHOW_DET_SWITCH=false; // the Shipping Details switch is hidden for now; set to true to bring it back
+const detSwShown=()=>{ $("#detSwWrap").hidden=!SHOW_DET_SWITCH||S.qview!=="products"||!S.quote.rooms.some(r=>r.lines.length); };
 function renderQuote(){
   RISK=computeRisk();
   if(S.collapsedFor && S.collapsedFor!==S.room) S.collapsedFor=null; // only the room you're adding to is open; it can be folded shut by hand
@@ -1090,24 +1240,24 @@ function renderQuote(){
   rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku); sub+=l.qty*l.unit; if(l.qty%p.mult) bad++; }));
   if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
-    const isOpen=S.room===r.name&&S.collapsedFor!==r.name;
+    const isOpen=(S.room===r.name&&S.collapsedFor!==r.name)||SEND.focus?.room===r.name; // a room the checklist points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
-      return `<div class="line" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.sec?`<small>${esc(p.sec)}</small>`:""}${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||'<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.</div>')}</div>`;
+      return `<div class="line${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
   }).join("");
-  // freight and tax are worked out by Freight & Save, so they show as "-" until then
-  $("#totals").innerHTML=`<span class="lb">Additional Charges:</span><span class="v">-</span><span class="lb big">Subtotal:</span><span class="v big">${money(sub)}</span><span class="lb">Additional Discount(s):</span><span class="v">${money(0)}</span><span class="lb">Freight Cost:</span><span class="v">-</span><span class="lb">Tax:</span><span class="v">-</span><hr><span></span><span class="lb big">Total:</span><span class="v"><span class="bf">(before freight)</span><span class="big">${money(sub)}</span></span>`; $("#footTotal").textContent=money(sub);
+  QSUB=sub; // totals, freight and tax are painted in the pricing bar (renderSend)
   $("#saveMsg").className=S.dirty||bad?"unsaved":"ok-msg"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":S.dirty?"Unsaved changes. Added lines are drafts until you save.":"All changes saved";
   detSwShown();
   $("#saveBtn").disabled=!S.dirty||bad>0; $("#sideSave").disabled=$("#saveBtn").disabled;
-  $("#sideRooms").innerHTML=rooms.length?rooms.map(r=>`<button type="button" class="sroom" data-sideroom="${esc(r.name)}" aria-current="${S.room===r.name}"><span class="sricon">${ICON.door}</span><span class="srn">${esc(r.name)}</span><span class="srbadge" aria-label="${r.lines.length} line${r.lines.length===1?"":"s"}">${r.lines.length}</span></button>`).join(""):'<p class="snone">No rooms yet.</p>';
-  const bl=RISK.blockers, sb=$("#sendBtn"); sb.classList.toggle("blocked",bl.length>0); sb.setAttribute("aria-disabled",String(bl.length>0)); sb.title=bl.map(b=>`Line ${b.n} · ${b.sku}: ${b.label}`).join("\n");
-  const why=bl.length?"Quote contains discontinued items or items with insufficient inventory. Please update before sending.":""; $("#sendWhy").textContent=why;
-  $("#freightBtn").disabled=bl.length>0; ["#freightWarn","#sendWarn"].forEach(id=>{ const w=$(id); w.hidden=!bl.length; w.title=why; w.setAttribute("aria-label",why||"No problems"); }); $("#sendMsg").hidden=true;
-  if(S.qview==="pdf") $("#qPdf").innerHTML=pdfHtml(); const ub=$("#undoBar"); ub.hidden=!S.undo; ub.innerHTML=S.undo?`<span>⚠ ${S.undo.kind==="room"?(S.undo.lastItem?`Removed ${esc(S.undo.lastItem)}, the last item in ${esc(S.undo.room)}, so the room was removed too`:`Removed room ${esc(S.undo.room)}${S.undo.count?` and its ${S.undo.count} item${S.undo.count===1?"":"s"}`:""}`):`Removed ${esc(S.undo.name)} from ${esc(S.undo.room)}`}.</span><button type="button" class="btn ghost" id="undoBtn">Undo</button>`:"";
+  $("#sideRoomsH").innerHTML=`Rooms${rooms.length?` <span class="rcount">(${rooms.length})</span>`:""}`;
+  $("#sideRooms").innerHTML=rooms.length?rooms.map(r=>`<button type="button" class="sroom" data-sideroom="${esc(r.name)}" aria-current="${S.room===r.name}"><span class="sricon">${ICON.door}</span><span class="srn">${esc(r.name)}</span><span class="srbadge" aria-label="${r.lines.length} line${r.lines.length===1?"":"s"}">${r.lines.length}</span></button>`).join(""):(S.sideAdd?'':'<p class="snone">No rooms yet.</p>');
+  // full screen: the add-room form opens at the top of the Rooms panel, since the search side (and its room menu) is hidden
+  if(S.sideAdd) $("#sideRooms").insertAdjacentHTML("afterbegin",`<form class="sideform" id="sideRoomForm" aria-label="Add room"><select id="sideRoomType" aria-label="Room type (required)" required><option value="" selected disabled>Room type (required)</option>${ROOM_TYPES.map(t=>`<option>${t}</option>`).join("")}</select><input id="sideRoomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="sideRoomErr"><p class="form-err" id="sideRoomErr" role="alert" hidden></p><div class="row"><button type="submit" class="btn">Add room</button><button type="button" class="btn ghost" id="sideRoomCancel">Cancel</button></div><p class="hint">Leave the name blank to use the room type. <span class="fr">FR-21</span></p></form>`);
+  $("#sideAddBtn").setAttribute("aria-expanded",String(!!S.sideAdd)); $("#sideAddBtn").hidden=!!S.sideAdd;
+  if(S.qview==="pdf") $("#qPdf").innerHTML=pdfHtml(); const ub=$("#undoBar"); ub.hidden=!S.undo; $(".qfoot").hidden=!S.undo; ub.innerHTML=S.undo?`<span>⚠ ${S.undo.kind==="room"?(S.undo.lastItem?`Removed ${esc(S.undo.lastItem)}, the last item in ${esc(S.undo.room)}, so the room was removed too`:`Removed room ${esc(S.undo.room)}${S.undo.count?` and its ${S.undo.count} item${S.undo.count===1?"":"s"}`:""}`):`Removed ${esc(S.undo.name)} from ${esc(S.undo.room)}`}.</span><button type="button" class="btn ghost" id="undoBtn">Undo</button>`:"";
   const n=rooms.reduce((a,r)=>a+r.lines.length,0);
   $("#qSub").textContent=`${rooms.length} room${rooms.length===1?"":"s"} · ${n} line${n===1?"":"s"} total`; $("#tabCount").textContent=`(${n})`; $("#stripCount").textContent=n; $("#stripRoom").textContent=S.room||"no room"; $("#stripTotal").textContent=money(sub);
-  placeLineMenu();
+  placeLineMenu(); renderSend();
 }
 // pin the open line menu just under its "…" button, right edges aligned
 function placeLineMenu(){
@@ -1126,6 +1276,182 @@ function renderRoom(){ const b=$("#roomBtn"); $("#roomLabel").textContent=S.room
  }
 function renderAll(){ renderLayout(); renderRoom(); renderChips(); renderFilters(); renderResults(); renderQuote(); }
 
+// ---------- pricing bar and "Before you send" ----------
+// Mock only: the delivery address, autospec, custom pricing and the M3 freight run are all simulated here.
+// Auto-open variants for the SC test come from ?open= in the address: a / button (default: opens only from the bar button), b / first-forward, c / new-blocker.
+const OPEN_MODES={a:"button",button:"button",b:"first-forward","first-forward":"first-forward",c:"new-blocker","new-blocker":"new-blocker"};
+const nowTime=()=>new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+const SEND={mode:OPEN_MODES[(new URLSearchParams(location.search).get("open")||"").toLowerCase()]||"button",
+  addr:false, freight:"none", freightAt:null, open:false, forwarded:false, seen:null, focus:null, timer:null, scrolledAt:0};
+let QSUB=0;
+const SI={
+  block:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 8v5" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1" fill="currentColor" stroke="none"/></svg>`,
+  done:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m7.8 12.3 2.8 2.8 5.6-5.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  todo:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/></svg>`,
+  prog:`<span class="spin" aria-hidden="true"></span>`,
+  dirty:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg>`,
+  chev:`<svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 1 6.5 6l-5 5"/></svg>`
+};
+const STATE_SR={block:"Needs fixing",prog:"In progress",todo:"Not started",done:"Done"};
+const quoteLines=()=>S.quote.rooms.flatMap(r=>r.lines.map(l=>({r,l})));
+const specMissing=()=>quoteLines().filter(x=>x.l.spec===false);
+const priceMissing=()=>quoteLines().filter(x=>x.l.cp);
+// stock: the same lines the stock check marks as blocking (discontinued, not enough stock, status unavailable)
+const stockMissing=()=>quoteLines().filter(x=>{ const v=RISK?.by[x.r.name+"|"+x.l.sku]; return v&&(v.level==="blocking"||v.level==="unknown"); });
+const missingOf=k=>k==="spec"?specMissing():k==="stock"?stockMissing():priceMissing();
+const plural=(n,w)=>`${n} ${w}${n===1?"":"s"}`;
+const badQty=()=>quoteLines().some(({l})=>l.qty%CAT.find(x=>x.sku===l.sku).mult);
+// where the panel is pointing: which of the missing lines, counted in quote order
+function focusPos(kind){ const f=SEND.focus; if(!f||f.kind!==kind) return -1; return missingOf(kind).findIndex(x=>x.r.name===f.room&&x.l.sku===f.sku); }
+function sendItems(){
+  const spec=specMissing(), price=priceMissing(), items=[];
+  // an empty quote can't be priced or sent: say what's missing first, with the action that fixes it
+  if(!S.quote.rooms.length) items.push({id:"lines",st:"block",t:"Rooms and products",d:"Add a room, then products, before freight and tax can run",a:["addRoom","Add room"]});
+  else if(!S.quote.rooms.some(r=>r.lines.length)) items.push({id:"lines",st:"block",t:"Products",d:"Add at least one product before freight and tax can run",a:["addProd","Add products"]});
+  items.push(SEND.addr?{id:"addr",st:"done",t:"Delivery address",d:"Added"}:{id:"addr",st:"block",t:"Delivery address",d:"Needed to calculate freight and tax",a:["addAddr","Add address"]});
+  if(spec.length){ const k=focusPos("spec"); items.push({id:"spec",st:"block",t:`Autospec on ${plural(spec.length,"line")}`,d:k>=0?`Needed to send. Showing ${k+1} of ${spec.length} in the quote`:"Needed to send.",a:["nextSpec","Next line"]}); }
+  else items.push({id:"spec",st:"done",t:"Autospec",d:"All lines complete"});
+  const stock=stockMissing();
+  if(stock.length){ const k=focusPos("stock"); items.push({id:"stock",st:"block",t:`Stock on ${plural(stock.length,"line")}`,d:k>=0?`Discontinued, short on stock or status unavailable. Showing ${k+1} of ${stock.length} in the quote`:"Discontinued, short on stock or status unavailable. Needed to send.",a:["nextStock","Next line"]}); }
+  else items.push({id:"stock",st:"done",t:"Stock",d:"No discontinued, short or unavailable lines"});
+  const blocked=!SEND.addr||spec.length||stock.length||price.length||!S.quote.rooms.some(r=>r.lines.length);
+  if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes on large quotes."});
+  else if(SEND.freight==="done") items.push({id:"freight",st:"done",t:"Freight and tax",d:`Calculated by M3 · ${SEND.freightAt}`});
+  else if(blocked) items.push({id:"freight",st:"todo",t:"Freight and tax",d:SEND.addr?"Calculated by M3 once the items above are fixed":"Calculated by M3 once the address is in"});
+  else items.push({id:"freight",st:"todo",t:"Freight and tax",d:"Ready to calculate. M3 does freight first, then tax.",a:["calc","Freight & Save"]});
+  if(price.length){ const k=focusPos("price"); items.push({id:"price",st:"block",t:`Custom pricing on ${plural(price.length,"line")}`,d:k>=0?`Waiting on custom pricing. Showing ${k+1} of ${price.length} in the quote`:"Waiting on custom pricing",a:["nextPrice","Next line"]}); }
+  else items.push({id:"price",st:"done",t:"Every line priced",d:"None waiting on custom pricing"});
+  items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:""}
+    :{id:"saved",st:"todo",t:"Unsaved changes",d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Freight & Save"});
+  const rank={block:0,prog:1,todo:2,done:3};
+  return items.map((x,i)=>({...x,i})).sort((a,b)=>rank[a.st]-rank[b.st]||a.i-b.i);
+}
+// what the one bar button does next
+function barStep(items){ const n=items.filter(x=>x.st==="block").length;
+  return n?{k:"fix",n}:SEND.freight==="run"?{k:"run"}:SEND.freight==="done"&&!S.dirty?{k:"send"}:{k:"calc"}; }
+function blockerKeys(){ return [...(S.quote.rooms.some(r=>r.lines.length)?[]:["lines"]),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockMissing().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
+function renderSend(){
+  if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again
+  const items=sendItems(), step=barStep(items), done=SEND.freight==="done";
+  // save status
+  $("#pbIc").innerHTML=S.dirty?SI.dirty:SI.done; $("#pbSt").classList.toggle("dirty",S.dirty);
+  // totals: never a dash; words until M3 has run
+  const fr=SEND.freight==="run"?["Calculating…","prog"]:done?["[Freight]","amt"]:["Not calculated",""];
+  const tx=SEND.freight==="run"?["After freight",""]:done?["[Tax]","amt"]:["Not calculated",""];
+  $("#pbSub").textContent=money(QSUB); $("#pbSubWrap").hidden=S.view==="residential"; // residential: same as the estimated total until freight runs, so only Full breakdown shows it
+  const nt=$("#pbNote"), calcing=SEND.freight==="run"; nt.className="pb-note"+(calcing?" prog":""); // one note says where freight and tax stand
+  nt.innerHTML=calcing?`${SI.prog}Calculating freight and tax…`:done?"Includes freight and tax":"Freight and tax not calculated yet";
+  $("#pbTotal").textContent=done?"[Total]":money(QSUB);
+  const v=(t,nc)=>`<span class="v${nc?" nc":""}">${t}</span>`;
+  $("#totals").innerHTML=`<span class="lb">Additional Charges:</span>${v("None",1)}<span class="lb big">Subtotal:</span><span class="v big">${money(QSUB)}</span><span class="lb">Additional Discount(s):</span>${v(money(0))}<span class="lb">Freight Cost:</span>${v(fr[0],!done)}<span class="lb">Tax:</span>${v(tx[0],!done)}<hr><span></span><span class="lb big">Estimated total:</span><span class="v">${done?"":`<span class="bf">(before freight)</span>`}<span class="big">${done?"[Total]":money(QSUB)}</span></span>`;
+  // actions: what's left to fix (opens the panel), Freight & Save, Send to Client
+  const fx=$("#pbFix"); fx.hidden=step.k!=="fix"; fx.setAttribute("aria-expanded",String(SEND.open)); if(step.k==="fix") fx.innerHTML=`${SI.block}${plural(step.n,"thing")} to fix`;
+  const fb=$("#pbFreightBtn"), run=step.k==="run"; fb.disabled=run; fb.classList.toggle("run",run); fb.innerHTML=run?`${SI.prog} Calculating…`:"Freight &amp; Save";
+  const fbOff=step.k==="fix"; fb.setAttribute("aria-disabled",String(fbOff)); fb.title=fbOff?"Fix the items in Before you send first":"Save the quote, then M3 calculates freight and tax";
+  const sb=$("#pbSend"), sOff=step.k!=="send"; sb.setAttribute("aria-disabled",String(sOff));
+  sb.title=step.k==="fix"?"Send to client · fix the items in Before you send first":step.k==="send"?"Send to client: quote and payment link":"Send to client · run Freight & Save first";
+  // panel
+  const st=step.k==="fix"?[`${plural(step.n,"thing")} to fix${done?"":", then freight and tax"}`,"block"]:step.k==="run"?["Waiting on M3 for freight and tax","prog"]:step.k==="send"?["Ready to send","done"]:["Ready to calculate freight and tax","muted"];
+  const sp=$("#spStatus"); sp.textContent=st[0]; sp.className="tone-"+st[1];
+  $("#spList").innerHTML=items.map(x=>`<li class="spi ${x.st}"><span class="spi-ic">${SI[x.st]}</span><div class="spi-tx"><b>${x.t}<span class="sr"> · ${STATE_SR[x.st]}</span></b><span>${esc(x.d)}</span></div>${x.a?`<button type="button" class="splink" data-sact="${x.a[0]}">${x.a[1]}</button>`:"<span></span>"}</li>`).join("");
+  $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); placeBar(); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open));
+  // auto-open: B reopens on a new blocker once it has opened by itself; C opens on every new blocker
+  const keys=blockerKeys(), prev=SEND.seen; SEND.seen=new Set(keys);
+  if(prev && !SEND.open && keys.some(k=>!prev.has(k)) && (SEND.mode==="new-blocker"||(SEND.mode==="first-forward"&&SEND.forwarded))) openSend(true);
+}
+function openSend(auto,to){
+  SEND.open=true; SEND.from=to==="breakdown"?"#bdBtn":to||"#pbFix"; renderSend(); // closing returns focus to whichever control opened it
+  if(to==="breakdown"){ const h=$("#spBdTitle"); h.focus({preventScroll:true}); h.scrollIntoView({block:"start"}); return; }
+  if(auto){ const n=blockerKeys().length?barStep(sendItems()).n:0; $("#sendLive").textContent=`Before you send opened${n?`: ${plural(n,"thing")} to fix`:""}.`; }
+  else $("#spTitle").focus();
+}
+function closeSend(){ const inside=$("#sendPanel").contains(document.activeElement); SEND.open=false; renderSend(); if(inside) $(SEND.from&&!$(SEND.from).hidden?SEND.from:"#pbSend").focus(); }
+// B: the first time the SC heads for the end (PDF preview, or scrolling to the end of the lines) while something blocks sending
+function sendForward(){ if(SEND.mode!=="first-forward"||SEND.forwarded||SEND.open||!barStep(sendItems()).n) return; SEND.forwarded=true; openSend(true); }
+function resetSend(){ clearTimeout(SEND.timer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null}); const d=$("#sendDemo"); if(d) d.value="needs"; }
+// Freight & Save and Send to Client: a click on one that isn't available yet opens Before you send, so the SC sees why
+function freightAction(){ const step=barStep(sendItems()); if(step.k==="run") return; if(step.k==="fix"){ openSend(false,"#pbFreightBtn"); return; } runFreight(); }
+function sendClient(){ const step=barStep(sendItems());
+  if(step.k==="send"){ showToast("Quote and payment link sent to [Client name] (prototype)."); return; }
+  if(step.k==="fix"){ openSend(false,"#pbSend"); return; }
+  showToast(step.k==="run"?"Freight and tax are still calculating.":"Run Freight & Save first, then send."); }
+// Calculate saves first (as Freight & Save did), then M3 runs freight, then tax
+function runFreight(){
+  S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
+  clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent="Freight and tax calculated. Ready to send."; },6000);
+}
+function sendAction(a){
+  if(a==="addAddr"){ SEND.addr=true; renderSend(); showToast("Delivery address added (prototype). In QOM this is entered under Shipping Information.","ok"); return; }
+  if(a==="calc"){ runFreight(); return; }
+  if(a==="addRoom"){ closeSend(); startAddRoom(); return; }
+  if(a==="addProd"){ closeSend(); startAddProducts(S.room||S.quote.rooms[0].name); return; }
+  if(a==="nextSpec"||a==="nextPrice"||a==="nextStock") nextLine({nextSpec:"spec",nextPrice:"price",nextStock:"stock"}[a]);
+}
+// Next line: open the line's room, outline the line and scroll it into view; the panel stays open
+function nextLine(kind){
+  const list=missingOf(kind); if(!list.length) return; const x=list[(focusPos(kind)+1)%list.length];
+  SEND.focus={kind,room:x.r.name,sku:x.l.sku}; renderQuote();
+  const el=document.querySelector(`.line[data-lroom="${CSS.escape(x.r.name)}"][data-lsku="${CSS.escape(x.l.sku)}"]`); if(!el) return;
+  const behavior=matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", sc=el.closest(".pane");
+  if(sc&&sc.scrollHeight>sc.clientHeight&&getComputedStyle(sc).overflowY!=="visible"){ const r=el.getBoundingClientRect(), pr=sc.getBoundingClientRect(); sc.scrollTo({top:sc.scrollTop+r.top-pr.top-Math.max(80,(sc.clientHeight-r.height)/2),behavior}); } // only the quote side moves, not the page
+  else el.scrollIntoView({block:"center",behavior});
+  el.querySelector(".lflag button")?.focus({preventScroll:true});
+}
+const lineFocus=(r,l)=>{ const f=SEND.focus; return !!f&&f.room===r.name&&f.sku===l.sku&&missingOf(f.kind).some(x=>x.r===r&&x.l===l); };
+const lineFlag=(r,l)=>{ if(!lineFocus(r,l)) return ""; const f=SEND.focus, k=focusPos(f.kind)+1, n=missingOf(f.kind).length, key=esc(r.name)+"|"+esc(l.sku);
+  if(f.kind==="stock") return `<div class="lflag"><span class="lf-b">${SI.block}${riskShort(RISK.by[r.name+"|"+l.sku])}</span><span>· ${k} of ${n} · change the quantity or remove the line</span></div>`;
+  return f.kind==="spec"
+    ? `<div class="lflag"><span class="lf-b">${SI.block}Autospec incomplete</span><span>· ${k} of ${n}</span><button type="button" class="tolink" data-lfix="spec|${key}">Complete autospec</button></div>`
+    : `<div class="lflag"><span class="lf-b">${SI.block}Waiting on custom pricing</span><span>· ${k} of ${n}</span><button type="button" class="tolink" data-lfix="price|${key}">Pricing returned (prototype)</button></div>`; };
+function lineFix(v){ const [kind,room,sku]=v.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(!l) return;
+  if(kind==="spec"){ l.spec=true; S.dirty=true; } else delete l.cp;
+  renderQuote(); $("#sendLive").textContent=kind==="spec"?"Autospec complete on this line.":"Pricing returned for this line.";
+  const left=missingOf(kind).length; if(left){ nextLine(kind); } else $(barStep(sendItems()).k==="fix"?"#pbFix":"#pbFreightBtn").focus(); }
+// prototype: a save that comes back from M3 with a new autospec or pricing problem on one line
+function simSave(kind){
+  const x=quoteLines().find(x=>x.r.name===S.room&&(kind==="spec"?x.l.spec!==false:!x.l.cp))||quoteLines().find(x=>kind==="spec"?x.l.spec!==false:!x.l.cp);
+  if(!x){ showToast(quoteLines().length?"Every line already has that problem.":"Add a line to the quote first."); return; }
+  if(kind==="spec") x.l.spec=false; else x.l.cp=true;
+  S.dirty=false; S.undo=null; markSaved(); renderQuote();
+  const p=CAT.find(c=>c.sku===x.l.sku); showToast(`Saved. M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`);
+}
+// demo states: 1 needs action, 2 freight calculating, 3 ready to send
+function setSendDemo(v){
+  if(S.scenario==="fresh"||!quoteLines().length){ const sc=$("#scenario"); sc.value="normal"; sc.dispatchEvent(new Event("change",{bubbles:true})); }
+  resetSend(); $("#sendDemo").value=v;
+  S.riskDemo=false; applyRiskDemo(false); $("#riskDemo").checked=false; RISK=computeRisk(); // the demo states use only the blockers they describe; tick "Stock warning examples" to add stock problems
+  const lines=quoteLines(); lines.forEach(({l})=>{ delete l.spec; delete l.cp; });
+  if(v==="needs"){ const want=lines.filter(({l})=>l.sku==="HNTVC-N"||l.sku==="ARCH28-FIG"); (want.length===2?want:lines.slice(0,2)).forEach(({l})=>l.spec=false); }
+  else SEND.addr=true;
+  if(v==="calc") SEND.freight="run";
+  if(v==="ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
+  S.dirty=false; S.undo=null; markSaved(); renderQuote();
+}
+// a click anywhere outside closes it; the bar's own buttons and the line notes it points to don't count
+document.addEventListener("click",e=>{ if(SEND.open&&!e.target.closest("#sendPanel,#pbar,.lflag,.dlgwrap")) closeSend(); },true);
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape") return;
+  if(SEND.open&&$("#sendPanel").contains(document.activeElement)){ closeSend(); e.stopPropagation(); }
+},true);
+// B: reaching the end of the quote lines by scrolling (wheel, touch or keys, not a re-render or a script scroll)
+["wheel","touchmove"].forEach(ev=>addEventListener(ev,()=>SEND.scrolledAt=Date.now(),{passive:true,capture:true}));
+addEventListener("keydown",e=>{ if(["PageDown","End","ArrowDown"," "].includes(e.key)) SEND.scrolledAt=Date.now(); },true);
+document.addEventListener("scroll",()=>{ if(Date.now()-SEND.scrolledAt>1500||S.qview!=="products"||!quoteLines().length) return;
+  const m=$("#linesEnd").getBoundingClientRect(), qp=$("#quotePane").getBoundingClientRect(); if(m.top<=Math.min(innerHeight-$("#pbar").offsetHeight,qp.bottom)+2) sendForward(); },true);
+// both bottom bars share one height so their top edges line up across the screen
+function syncBars(){ const a=$("#pbar"), b=$(".sfoot"), fixed=b.classList.contains("fixed"); a.style.minHeight=b.style.minHeight="";
+  const h=Math.max(a.hidden?0:a.offsetHeight, fixed?b.offsetHeight:0); if(fixed) a.style.minHeight=b.style.minHeight=h+"px";
+  document.documentElement.style.setProperty("--bar-h",(a.hidden?0:h)+"px"); }
+new ResizeObserver(syncBars).observe($("#pbar")); new ResizeObserver(syncBars).observe($(".sfoot"));
+// the bar is fixed to the screen but spans only the Selected Products side, so it follows that side's left edge and width
+function placeBar(){ const p=$("#quotePane"), b=$("#pbar"), r=p.getBoundingClientRect(), show=!p.hidden&&r.width>0; b.hidden=!show; if(!show) return;
+  const st=document.documentElement.style; st.setProperty("--qp-left",Math.round(r.left)+"px"); st.setProperty("--qp-w",Math.round(r.width)+"px"); b.classList.toggle("narrow",r.width<=560);
+  // the Save bar does the same on the search side, when the two sides sit next to each other
+  const sp=$("#searchPane"), sr=sp.getBoundingClientRect(), sf=$(".sfoot"), side=!S.expanded&&!sp.hidden&&sr.width>0&&sr.right<=r.left+1;
+  sf.classList.toggle("fixed",side); if(side){ st.setProperty("--sf-left",Math.round(sr.left)+"px"); st.setProperty("--sf-w",Math.round(sr.width)+"px"); }
+  syncBars(); }
+new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#searchPane")); addEventListener("resize",placeBar); addEventListener("scroll",placeBar,{passive:true});
+
 // ---------- views (Residential is the default) ----------
 const QUOTES={
   residential:()=>structuredClone(S.quote),
@@ -1133,7 +1459,7 @@ const QUOTES={
 };
 const RES_QUOTE=structuredClone(S.quote);
 function setView(v){
-  S.view=v; S.undo=null; S.saved=null; S.scenario="normal"; $("#scenario").value="normal";
+  S.view=v; S.undo=null; S.saved=null; resetSend(); S.scenario="normal"; $("#scenario").value="normal";
   S.quote= v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE);
   S.room=S.quote.rooms[0].name; S.dirty=false; markSaved();
   QI.subtype= v==="commercial" ? "Commercial Order Domestic" : "Residential Order Domestic";
@@ -1202,7 +1528,9 @@ document.addEventListener("click",e=>{
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
-  if(t.id==="emptyAdd"){ openRoomForm("add"); return; }
+  if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
+  if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
+  if(t.dataset.addprod){ startAddProducts(t.dataset.addprod); return; }
   if(t.id==="menuAdd"){ openRoomForm("add"); return; }
   if(t.id==="roomCancel"){ $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); return; }
   if(t.dataset.room){ S.room=t.dataset.room; S.collapsedFor=null; S.scenario= S.scenario==="noroom"?"normal":S.scenario; $("#scenario").value=S.scenario; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); renderRoom(); renderResults(); renderQuote(); return; }
@@ -1226,10 +1554,14 @@ document.addEventListener("click",e=>{
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
-  if(t.id==="sendBtn"){ const bl=RISK.blockers; if(!bl.length){ showToast("Quote sent to client (prototype)."); return; }
-    const m=$("#sendMsg"); m.hidden=false; m.textContent="Can't send yet. "+bl.slice(0,3).map(b=>`Line ${b.n} · ${b.sku}: ${b.label}`).join("; ")+(bl.length>3?` +${bl.length-3} more`:"")+"."; return; }
-  if(t.id==="toFreight"){ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; $(".qend").scrollIntoView({block:"end",behavior:reduce?"auto":"smooth"}); return; }
-  if(t.id==="freightBtn"){ showToast("Freight isn't built in this prototype yet."); return; }
+  if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false); return; }
+  if(t.id==="pbFreightBtn"){ freightAction(); return; }
+  if(t.id==="pbSend"){ sendClient(); return; }
+  if(t.id==="spClose"){ closeSend(); return; }
+  if(t.dataset.sact){ sendAction(t.dataset.sact); return; }
+  if(t.dataset.lfix){ lineFix(t.dataset.lfix); return; }
+  if(t.id==="bdBtn"){ openSend(false,"breakdown"); return; } // Full breakdown opens the side panel at its breakdown section
+  if(t.id==="simSpec"||t.id==="simPrice"){ simSave(t.id==="simSpec"?"spec":"price"); return; }
   if(t.id==="rmCancel"){ closeRemoveDialog(); return; }
   if(t.id==="rmYes"){ confirmRemove(); return; }
   if(t.dataset.rm){ S.filters[t.dataset.rm].delete(t.dataset.v); renderChips(); search(); return; }
@@ -1246,6 +1578,27 @@ document.addEventListener("click",e=>{
   if(t.id==="undoBtn"){ const u=S.undo; const rm=u&&S.quote.rooms.find(r=>r.name===u.room); if(rm) rm.lines.splice(Math.min(u.idx,rm.lines.length),0,u.line); S.undo=null; renderQuote(); renderRoomMenu(); return; }
   if(t.dataset.q){ S.query=t.dataset.q; $("#q").value=S.query; $("#clearQ").hidden=false; search(); return; }
 });
+document.addEventListener("submit",e=>{ if(e.target.id!=="sideRoomForm") return; e.preventDefault();
+  const type=$("#sideRoomType").value; if(!type) return; let name=$("#sideRoomName").value.trim();
+  if(!name){ name=type; let n=2; while(S.quote.rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
+  const clash=S.quote.rooms.find(r=>r.name.toLowerCase()===name.toLowerCase());
+  if(clash){ const err=$("#sideRoomErr"); err.textContent=`This quote already has a room called “${clash.name}”. Pick it from the list, or use a different name.`; err.hidden=false; $("#sideRoomName").focus(); return; }
+  S.quote.rooms.push({name,type,lines:[]}); S.room=name; S.collapsedFor=null; S.sideAdd=false; S.dirty=true;
+  if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";}
+  renderRoom(); renderResults(); renderQuote(); showToast(`${name} added. Add products to it when you're ready.`,"ok");
+  const blk=document.querySelector(`.rmblock[data-rm="${CSS.escape(name)}"]`); blk?.scrollIntoView({block:"start"}); blk?.querySelector("[data-addprod]")?.focus(); });
+// Add room from anywhere: full screen uses the Rooms panel form; otherwise the search side's room menu (switching to it on layout B's Quote tab)
+function startAddRoom(){
+  if(S.expanded){ S.sideAdd=true; S.qview="products"; renderQView(); renderQuote(); $("#sideRoomType").focus(); return; }
+  if(S.layout==="tabs"&&S.pane!=="search"){ S.pane="search"; renderLayout(); }
+  openRoomForm("add");
+}
+// Add products to a room: make it the target, leave full screen, show the search side and put the cursor in search
+function startAddProducts(name){
+  pickRoom(name); if(S.expanded) setExpanded(false);
+  if(S.layout==="tabs"&&S.pane!=="search"){ S.pane="search"; renderLayout(); }
+  $("#q").focus(); $("#q").scrollIntoView({block:"nearest"});
+}
 document.addEventListener("submit",e=>{ if(e.target.id!=="roomForm") return; e.preventDefault(); const type=$("#roomType").value; if(!type) return; let name=$("#roomName").value.trim(); const typed=!!name;
   if(!typed){ name=type; let n=2; while(S.quote.rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
   const existing=S.quote.rooms.find(r=>r.name===S.room); const renaming=roomMode==="rename"&&existing;
@@ -1258,13 +1611,14 @@ document.addEventListener("change",e=>{
   if(t.dataset.f){ const set=S.filters[t.dataset.f]; t.checked?set.add(t.value):set.delete(t.value); renderChips(); search(); return; }
   if(t.id==="scenario"){ S.undo=null;
     if(S.saved && t.value!=="fresh"){ S.quote=S.saved.quote; S.dirty=S.saved.dirty; S.saved=null; } // leaving "Fresh quote" brings the mock lines back
-    S.scenario=t.value;
+    S.scenario=t.value; resetSend();
     if(t.value==="noroom") S.room="";
     if(t.value==="fresh"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote.rooms=[]; S.room=""; }
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
     markSaved(); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
   if(t.id==="view"){ setView(t.value); return; }
+  if(t.id==="sendDemo"){ setSendDemo(t.value); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
   if(t.id==="detToggle"){ S.det=S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
@@ -1343,6 +1697,16 @@ document.addEventListener("keydown",e=>{
   $("#moveMsg").textContent=(isRoom?g.dataset.groom:g.dataset.gsku)+" moved to position "+(j+1)+" of "+list.length;
   document.querySelector(`.grip[data-grip="${g.dataset.grip}"][data-groom="${CSS.escape(g.dataset.groom)}"]`+(isRoom?"":`[data-gsku="${CSS.escape(g.dataset.gsku)}"]`))?.focus();
 });
+// product photos: a click opens the photo full screen; Escape, the close button or a click outside the photo closes it
+let zoomFrom=null;
+function openZoom(btn){ const p=CAT.find(x=>x.sku===btn.dataset.zoom); if(!p) return; zoomFrom=btn;
+  const im=$("#zoomImg"); im.src=p.img; im.alt=`${p.name} in ${p.fin}`;
+  $("#zoomCap").innerHTML=`${esc(p.name)} in ${esc(p.fin)}<small>${esc(p.sku)}</small>`;
+  $("#zoomView").hidden=false; $("#zoomClose").focus(); }
+function closeZoom(){ $("#zoomView").hidden=true; $("#zoomImg").removeAttribute("src"); if(zoomFrom&&document.contains(zoomFrom)) zoomFrom.focus(); zoomFrom=null; }
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-zoom]"); if(!b) return; e.preventDefault(); e.stopPropagation(); openZoom(b); },true);
+document.addEventListener("click",e=>{ if(!e.target.closest("#zoomView")||e.target.closest("#zoomImg,#zoomCap")) return; closeZoom(); });
+document.addEventListener("keydown",e=>{ if($("#zoomView").hidden) return; if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); closeZoom(); } else if(e.key==="Tab"){ e.preventDefault(); $("#zoomClose").focus(); } },true);
 // the line menu closes on an outside click or Escape, and arrow keys move through it
 document.addEventListener("click",e=>{ if(S.lmenu && !e.target.closest(".lmenu,[data-more]")){ S.lmenu=null; renderQuote(); } if(S.rmenu && !e.target.closest(".rmenu,[data-rmore]")){ S.rmenu=null; renderQuote(); } },true);
 document.addEventListener("keydown",e=>{
@@ -1443,7 +1807,7 @@ const pdfHtml=()=>{
   </div>`;
 };
 // editing a shipping field marks the quote unsaved without re-rendering, so focus stays where the user is typing
-function shipDirty(){ S.dirty=true; const bad=S.quote.rooms.some(r=>r.lines.some(l=>{const p=CAT.find(x=>x.sku===l.sku); return l.qty%p.mult;})); $("#saveMsg").className="unsaved"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":"Unsaved changes. Added lines are drafts until you save."; $("#saveBtn").disabled=bad; }
+function shipDirty(){ S.dirty=true; const bad=S.quote.rooms.some(r=>r.lines.some(l=>{const p=CAT.find(x=>x.sku===l.sku); return l.qty%p.mult;})); $("#saveMsg").className="unsaved"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":"Unsaved changes. Added lines are drafts until you save."; $("#saveBtn").disabled=bad; renderSend(); }
 function renderQView(){
   const v=S.qview;
   detSwShown();
@@ -1453,16 +1817,16 @@ function renderQView(){
   if(v==="info") $("#qInfo").innerHTML=infoHtml();
   if(v==="pdf") $("#qPdf").innerHTML=pdfHtml();
 }
-function setQView(v){ S.qview=v; renderQView(); }
+function setQView(v){ S.qview=v; renderQView(); if(v==="pdf") sendForward(); }
 // enlarge: the quote panel fills the whole screen (content stays readable on very wide screens); Escape or the same button exits
 const EXPAND_ICON={off:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg>`,on:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 1v4H1M11 1v4h4M15 11h-4v4M1 11h4v4"/></svg>`};
 function setExpanded(on){
-  S.expanded=on; const b=$("#expandBtn");
+  S.expanded=on; const b=$("#expandBtn"); if(!on&&S.sideAdd){ S.sideAdd=false; renderQuote(); }
   $("#quotePane").classList.toggle("expanded",on); document.body.classList.toggle("noscroll",on);
-  // the totals and send actions move into the left panel while enlarged, and back under the rooms after
-  $("#qSide").hidden=!on||S.qview!=="products"; if(on) $("#sideEnd").append($(".qend")); else $(".qfoot").after($(".qend"));
+  // totals and the next step stay in the pricing bar; the left panel keeps a Save button
+  $("#qSide").hidden=!on||S.qview!=="products"; (on?$("#sideEnd"):$(".sfoot")).append($("#pbSave")); // the save message follows the visible Save button
   b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label",on?"Exit full screen":"Enlarge panel to full screen"); b.title=on?"Exit full screen":"Enlarge";
-  b.innerHTML=on?EXPAND_ICON.on:EXPAND_ICON.off;
+  b.innerHTML=on?EXPAND_ICON.on:EXPAND_ICON.off; placeBar();
 }
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.expanded) setExpanded(false); });
 // filter tray: opens over the results from the Filters button so it never pushes the products down
@@ -1477,8 +1841,20 @@ $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototy
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
 new ResizeObserver(fitPanes).observe(document.body);
 const qbarEl=$(".qbar"); new ResizeObserver(()=>document.documentElement.style.setProperty("--qbar-h",qbarEl.offsetHeight+"px")).observe(qbarEl); addEventListener("resize",fitPanes); fitPanes();
+// drag the handle between the panels to make one side wider; arrow keys nudge it, double-click resets
+(function(){ const g=$("#gutter"), w=$("#work"), MIN=.3, MAX=3; let drag=false;
+  const cur=()=>parseFloat(w.style.getPropertyValue("--left"))||.55;
+  const set=fr=>{ fr=Math.min(MAX,Math.max(MIN,fr)); w.style.setProperty("--left",fr+"fr"); }; // not saved: a refresh starts from the default width
+  g.addEventListener("pointerdown",e=>{ drag=true; g.setPointerCapture(e.pointerId); g.classList.add("dragging"); document.body.classList.add("col-resizing"); });
+  const stop=()=>{ drag=false; g.classList.remove("dragging"); document.body.classList.remove("col-resizing"); };
+  g.addEventListener("pointerup",stop); g.addEventListener("pointercancel",stop);
+  g.addEventListener("pointermove",e=>{ if(!drag) return; const r=w.getBoundingClientRect(), left=e.clientX-r.left-11, right=r.width-22-left; if(right>0) set(left/right); });
+  g.addEventListener("keydown",e=>{ if(e.key==="ArrowLeft"){e.preventDefault();set(cur()-.1);} if(e.key==="ArrowRight"){e.preventDefault();set(cur()+.1);} });
+  g.addEventListener("dblclick",()=>w.style.removeProperty("--left"));
+})();
 </script>
 <div class="dlgwrap" id="rmDialog" hidden></div>
+<div class="zoomwrap" id="zoomView" role="dialog" aria-modal="true" aria-label="Product photo" hidden><button type="button" class="zoomx" id="zoomClose" aria-label="Close photo"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2"/></svg></button><img id="zoomImg" alt=""><div class="zoomcap" id="zoomCap"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
