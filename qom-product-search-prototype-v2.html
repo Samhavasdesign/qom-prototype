@@ -466,6 +466,20 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qhead{align-self:flex-start;margin-right:auto}
 .qsub{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
 .qright{display:flex;align-items:center;gap:8px;margin-left:auto}
+.qtools{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.qtools[hidden]{display:none}
+.qtsum{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap}
+.qtcount{margin:0;font-size:14px;color:var(--ink-2)}.qtcount b{color:var(--ink);font-weight:600}
+.qtact{display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;margin-left:auto}
+.qtact[hidden]{display:none}
+.lfilter{display:flex;align-items:center;gap:8px;height:40px;width:240px;max-width:100%;padding:0 12px;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--ink-3)}
+.lfilter:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
+.qtfold{min-height:40px;color:var(--ink-2);text-decoration:none;font-weight:500}.qtfold:hover{color:var(--ink);text-decoration:underline}
+.qtfold:disabled{color:var(--ink-3);text-decoration:none;cursor:default}
+.qtadd{letter-spacing:0;text-transform:none;font-size:14px;font-weight:600;padding:0 16px;height:40px;border-color:var(--line);border-radius:4px}
+.qtadd:hover{border-color:var(--ink)}
+.lnone{background:var(--bg);border:1px dashed var(--ink-3);margin-top:12px;padding:22px 16px;text-align:center;color:var(--ink-2);font-size:14px}
 /* the quote title bar stays at the top of the quote side; room bars pin just below it (--qbar-h is measured in script) */
 .qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
 .qseg{display:inline-flex}
@@ -675,34 +689,39 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 /* hide the browser's own clear button; the search box has its own */
 #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 
-/* ---------- quote footer: one bar across the page, fixed to the bottom. Save status | total | actions ---------- */
+/* ---------- quote footer: one bar across the page, fixed to the bottom. Two rows:
+   total | save status, divider, buttons
+   note · Full breakdown | helper line ---------- */
 body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pane.quote.expanded{bottom:var(--bar-h,0px)}
-.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:flex;flex-wrap:wrap;align-items:flex-start;gap:14px 28px;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
-/* 1. save status */
-.pb-save{flex:none;width:220px;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;font-size:13px}
+.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:48px 20px;grid-template-areas:"tl tr" "bl br";row-gap:8px;column-gap:24px;align-items:center;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
+/* row 1, left: label and amount on one line */
+.pb-tl{grid-area:tl;display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
+.pb-lbl{font-size:13px;color:var(--muted)}
+.pb-amt{font-family:var(--serif);font-size:28px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+/* row 2, left: note · Full breakdown on one line */
+.pb-bl{grid-area:bl;display:flex;align-items:center;gap:8px;min-width:0;white-space:nowrap;font-size:12px;color:var(--muted)}
+.pb-bl .tolink{min-height:44px;margin:-12px 0;padding:0;font-size:12px;color:var(--ink-2)} /* small link, still a 44px target */
+.pb-prog{display:flex;align-items:center;gap:10px;color:var(--ink-2)}
+.pb-progbar{flex:none;display:block;width:64px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.pb-progbar i{display:block;width:40%;height:100%;background:var(--ink);animation:pbslide 1.6s ease-in-out infinite}
+@keyframes pbslide{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+@media (prefers-reduced-motion:reduce){ .pb-progbar i{animation:none;width:100%;opacity:.45} }
+/* row 1, right: save status, divider, buttons */
+.pb-tr{grid-area:tr;display:flex;align-items:center;gap:20px}
+.pb-save{display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
 .pb-st{display:inline-flex;align-items:center;gap:8px;font-weight:600}
 .pb-st #pbIc{display:inline-flex}
-.pb-st .ok-msg{color:var(--done)}
+.pb-st .ok-msg{color:var(--done);font-size:13px}
 .pb-dot{width:9px;height:9px;border-radius:50%;background:var(--block)}
 .pb-st .unsaved{color:var(--block);font-size:13px}
+.pb-save .pb-sep{color:var(--muted)}
 .pb-discard{min-height:44px;font-size:13px;font-weight:600}
-/* 2. total */
-.pb-mid{flex:1 1 200px;min-width:0;display:grid;gap:1px;align-content:start}
-.pb-lbl{font-size:13px;color:var(--ink-2)}
-.pb-amt{font-family:var(--serif);font-size:24px;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
-.pb-note{font-size:12px;color:var(--muted)}
-.pb-prog{display:grid;gap:5px;max-width:360px;margin-top:3px;font-size:12px;color:var(--prog)}
-.pb-progbar{display:block;height:3px;border-radius:2px;background:var(--prog-bg);overflow:hidden}
-.pb-progbar i{display:block;width:35%;height:100%;background:var(--prog);animation:pbslide 1.6s ease-in-out infinite}
-@keyframes pbslide{from{transform:translateX(-100%)}to{transform:translateX(290%)}}
-@media (prefers-reduced-motion:reduce){ .pb-progbar i{animation:none;width:100%;opacity:.45} }
-.pb-mid .tolink{justify-self:start;min-height:44px;margin:-12px 0 -14px;padding:0;font-size:12px;color:var(--ink-2)} /* small link, still a 44px target */
-/* 3. actions: Save, Calculate freight, Send to client; they keep their places, only their style changes */
-.pb-acts{flex:0 0 auto;margin-left:auto;display:grid;justify-items:end;gap:6px}
+.pb-div{flex:none;width:1px;height:28px;background:var(--line)}
 .pb-btns{display:flex;gap:10px}
-.pb-help{margin:0;min-height:16px;font-size:12px;color:var(--muted);text-align:right}
-@media (max-width:980px){ .pbar{flex-wrap:wrap;padding-left:16px;padding-right:16px} .pb-save{width:auto} .pb-acts{flex-basis:100%;justify-items:start} .pb-help{text-align:left} }
+/* row 2, right: one helper line for the next step */
+.pb-help{grid-area:br;margin:0;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+@media (max-width:980px){ .pbar{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tl" "bl" "tr" "br";padding-left:16px;padding-right:16px} .pb-tr{flex-wrap:wrap} .pb-help{text-align:left;white-space:normal} }
 .sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
 .sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
 .sp-bd h3:focus{outline:none}
@@ -711,13 +730,14 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .sp-bd .totals .big{font-size:18px}
 .sp-bd .totals .lb{white-space:nowrap}
 .sp-bd .totals .v.nc{color:var(--muted);font-weight:400}
-.pb-act{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;white-space:nowrap;border:1px solid var(--ink);background:var(--bg);color:var(--ink);letter-spacing:.12em;font-size:12px;font-weight:600;text-transform:uppercase}
-.pb-act.primary{background:var(--ink);color:var(--bg)} /* only the next step is black */
-/* grey when it can't be used; Calculate freight and Send stay focusable (aria-disabled) so the helper line and panel can explain */
-.pb-act:disabled,.pb-act[aria-disabled="true"]{background:var(--surface-2);border-color:var(--surface-2);color:var(--muted);cursor:not-allowed;opacity:1}
-.pb-act.run{background:var(--prog-bg);border-color:#c9d6e4;color:var(--prog);cursor:progress}
-.pb-act .spin,.spi .spin{border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
-.pb-fix{min-height:44px;margin:-14px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--block);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.pb-act{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;white-space:nowrap;border:1px solid var(--ink);background:var(--bg);color:var(--ink);letter-spacing:.1em;font-size:12px;font-weight:600;text-transform:uppercase}
+.pb-act.primary{background:var(--ink);color:var(--bg)} /* the next step: filled black; available but not next: white, black outline */
+/* disabled: white with a light outline and grey text (#6b6b6b is 5.3:1 on white); Calculate freight and Send stay focusable (aria-disabled) */
+.pb-act:disabled,.pb-act[aria-disabled="true"]{background:var(--bg);border-color:#d9d9d9;color:#6b6b6b;cursor:not-allowed;opacity:1}
+.pb-act.run{cursor:progress}
+.pb-act .spin{border-color:#d9d9d9;border-top-color:#6b6b6b;margin:0}
+.spi .spin{border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
+.pb-fix{min-height:44px;margin:-12px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--block);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 /* "Before you send": a flyout on the right; on wide screens the page makes room for it */
 .spanel{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(var(--sp-w),100vw);display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);box-shadow:-10px 0 24px -16px rgba(0,0,0,.3)}
 .sp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:22px 20px 14px;border-bottom:1px solid var(--line)}
@@ -875,6 +895,15 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         </div>
         <!-- title and room/line count hidden for now; remove "hidden" to bring them back -->
         <div class="qhead" hidden><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
+        <!-- Products view toolbar: what's on the quote, a filter for long quotes, fold every room, add a room -->
+        <div class="qtools" id="qTools">
+          <div class="qtsum"><h2 class="qtitle">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
+          <div class="qtact" id="qtAct">
+            <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Filter lines…" aria-label="Filter lines on this quote by name, item number or finish" autocomplete="off"></label>
+            <button type="button" class="tolink qtfold" id="foldAll"></button>
+            <button type="button" class="btn ghost qtadd" id="qtAddRoom">+ Add room</button>
+          </div>
+        </div>
         <div class="qright">
         <!-- one switch shows or hides both the item details and the shipping fields on every line -->
         <label class="shipsw" id="detSwWrap" hidden><span class="shiplbl">Shipping Details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
@@ -898,22 +927,22 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 
 <!-- quote footer: one bar across the page, fixed to the bottom (placeBar keeps it to the page width) -->
 <div class="pbar" id="pbar" role="region" aria-label="Save status, total and next step">
-  <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">All changes saved</span></span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
-  <div class="pb-mid">
-    <span class="pb-lbl">Estimated total</span>
-    <span class="pb-amt" id="pbTotal"></span>
+  <div class="pb-tl"><span class="pb-lbl" id="pbLbl">Estimated total</span><span class="pb-amt" id="pbTotal"></span></div>
+  <div class="pb-bl">
     <span class="pb-note" id="pbNote"></span>
-    <div class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span><span>Calculating freight in M3. This can take a few minutes; you can keep working.</span></div>
-    <button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button>
+    <span class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span>Calculating freight in M3. You can keep working.</span>
+    <span class="pb-sep" id="pbBdSep" aria-hidden="true">·</span><button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button>
   </div>
-  <div class="pb-acts">
+  <div class="pb-tr">
+    <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">Saved</span></span><span class="pb-sep" id="pbDiscSep" aria-hidden="true" hidden>·</span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
+    <span class="pb-div" aria-hidden="true"></span>
     <div class="pb-btns">
       <button type="button" class="pb-act" id="saveBtn" disabled>Save</button>
       <button type="button" class="pb-act" id="pbFreightBtn">Calculate freight</button>
       <button type="button" class="pb-act" id="pbSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client</button>
     </div>
-    <p class="pb-help" id="pbHelp" aria-live="polite"></p>
   </div>
+  <p class="pb-help" id="pbHelp" aria-live="polite"></p>
 </div>
 <aside class="spanel" id="sendPanel" aria-labelledby="spTitle" hidden>
   <div class="sp-head"><div><h2 id="spTitle" tabindex="-1">Before you send</h2><p id="spStatus"></p></div><button type="button" class="sp-close" id="spClose" aria-label="Close Before you send"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
@@ -1036,7 +1065,7 @@ const S = {
   rq:{}, // quantity chosen on a result row before adding, by SKU
   layout:"split", pane:"search", query:"", room:"Bar",
   filters:{cat:new Set(), col:new Set(), fin:new Set(), series:new Set()},
-  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",series:""}, facc:null, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"",
+  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",series:""}, facc:null, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"", lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
@@ -1240,8 +1269,10 @@ function openRemoveDialog(room,sku){
 // the last saved copy of the quote; "Discard changes" goes back to it
 function markSaved(){ S.base=structuredClone(S.quote); SEND.savedAt=nowTime(); }
 // opening a room makes it the one you add to; the open room can also be folded shut by hand
-function pickRoom(name){ S.room=name; S.collapsedFor=null; if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
-function toggleRoom(name){ if(S.room===name){ S.collapsedFor=S.collapsedFor===name?null:name; renderQuote(); } else pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus(); }
+function pickRoom(name){ S.room=name; S.collapsedFor=null; S.folded=S.folded.filter(x=>x!==name); if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
+function toggleRoom(name){ if(S.lineQ.trim()) return; // while filtering, rooms open by whether they have matching lines
+  if(S.allOpen){ S.folded=S.folded.includes(name)?S.folded.filter(x=>x!==name):[...S.folded,name]; if(S.folded.length>=S.quote.rooms.length){ S.allOpen=false; S.folded=[]; S.collapsedFor=S.room; } renderQuote(); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus(); return; }
+  if(S.room===name){ S.collapsedFor=S.collapsedFor===name?null:name; renderQuote(); } else pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus(); }
 document.addEventListener("click",e=>{ const h=e.target.closest(".roomhdr"); if(!h||e.target.closest("button,input,.grip,.lmenu")) return; toggleRoom(h.dataset.roomhdr); });
 function openDiscardDialog(){
   S.confirm={kind:"discard"}; dlgReturn=$("#discardBtn");
@@ -1339,6 +1370,23 @@ const qtyCell=(r,l,p,id)=>{
 // the Details switch only appears once the quote has rooms with lines in them
 const SHOW_DET_SWITCH=false; // the Shipping Details switch is hidden for now; set to true to bring it back
 const detSwShown=()=>{ $("#detSwWrap").hidden=!SHOW_DET_SWITCH||S.qview!=="products"||!S.quote.rooms.some(r=>r.lines.length); };
+// "Filter lines…": every word must appear in the line's name, item number, finish, collection or room name (any order, any case)
+function lineMatch(r){
+  const w=S.lineQ.trim().toLowerCase().split(/\s+/).filter(Boolean); if(!w.length) return null;
+  const hay=l=>{ const p=CAT.find(x=>x.sku===l.sku); return [p.name,p.sku,p.fin,p.col,p.series,r.name,r.type].filter(Boolean).join(" ").toLowerCase(); };
+  const ok=l=>w.every(x=>hay(l).includes(x)); return {ok, n:r.lines.filter(ok).length};
+}
+// summary, filter, fold-all and add-room above the rooms (Products view only)
+function renderQTools(rooms){
+  const n=rooms.reduce((a,r)=>a+r.lines.length,0), q=S.lineQ.trim();
+  const m=q?rooms.reduce((a,r)=>a+(lineMatch(r)?.n||0),0):0;
+  $("#qTools").hidden=S.qview!=="products";
+  $("#qtCount").innerHTML=!rooms.length?"No rooms yet":q?`<b>${m}</b> of ${n} line${n===1?"":"s"} match`:`<b>${n}</b> line${n===1?"":"s"} across <b>${rooms.length}</b> room${rooms.length===1?"":"s"}`;
+  $("#qtAct").hidden=!rooms.length;
+  $(".lfilter").hidden=n<2&&!q; // nothing to filter on a quote with one line
+  const anyOpen=rooms.some(r=>S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name));
+  const fb=$("#foldAll"); fb.textContent=anyOpen?"Collapse all":"Expand all"; fb.disabled=!!q; fb.title=q?"Rooms open to show matching lines while you filter":"";
+}
 function renderQuote(){
   RISK=computeRisk();
   if(S.collapsedFor && S.collapsedFor!==S.room) S.collapsedFor=null; // only the room you're adding to is open; it can be folded shut by hand
@@ -1346,11 +1394,14 @@ function renderQuote(){
   rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku); sub+=l.qty*l.unit; if(l.qty%p.mult) bad++; }));
   if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
-    const isOpen=(S.room===r.name&&S.collapsedFor!==r.name)||SEND.focus?.room===r.name; // a room the checklist points into opens too
-    const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
+    const fm=lineMatch(r); if(fm&&!fm.n) return ""; // filtering: rooms with nothing that matches drop out
+    const isOpen=fm?true:(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name; // a room the checklist points into opens too
+    const lines=!isOpen?"":r.lines.map((l,li)=>{ if(fm&&!fm.ok(l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       return `<div class="line${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
   }).join("");
+  if(rooms.length&&!wrap.innerHTML.trim()) wrap.innerHTML=`<div class="lnone"><b>No lines match “${esc(S.lineQ.trim())}”.</b> Try an item number, product name or finish.<br><button type="button" class="tolink" id="lineClear">Clear filter</button></div>`;
+  renderQTools(rooms);
   QSUB=sub; // totals, freight and tax are painted in the pricing bar (renderSend)
   $("#saveMsg").className=S.dirty||bad?"unsaved":"ok-msg"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":S.dirty?"Unsaved changes. Added lines are drafts until you save.":"All changes saved";
   detSwShown();
@@ -1446,7 +1497,7 @@ function footState(items=sendItems()){
   const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight");
   const dirty=S.dirty, bad=badQty(), run=SEND.freight==="run", done=SEND.freight==="done"&&!dirty;
   const calcOff=dirty||run||!hasLines||!SEND.addr, canSend=done&&hasLines&&!others.length;
-  const help=!hasLines?"Add products to calculate freight":others.length?null:dirty?(bad?"Fix the quantities marked in the quote to save":"Save your changes to calculate freight"):run?"Send to client unlocks when freight is calculated":!done?"Calculate freight before sending":`Freight calculated ${SEND.freightAt}`;
+  const help=!hasLines?"Add products to calculate freight":dirty?(bad?"Fix the quantities marked in the quote to save":"Save to calculate freight"):others.length?null:run?"Sending unlocks when freight is ready":!done?"Calculate freight before sending":`Freight calculated ${SEND.freightAt}`;
   return {hasLines,issues,others,dirty,bad,run,done,calcOff,canSend,help};
 }
 let helpHtml="";
@@ -1455,13 +1506,14 @@ function renderSend(){
   const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx;
   // 1. save status
   $("#pbIc").innerHTML=F.dirty?SI.dot:SI.done;
-  const sm=$("#saveMsg"); sm.className=F.dirty?"unsaved":"ok-msg"; sm.textContent=F.dirty?plural(changeCount(),"unsaved change"):`All changes saved · ${SEND.savedAt}`;
-  $("#discardBtn").hidden=!F.dirty;
+  const sm=$("#saveMsg"); sm.className=F.dirty?"unsaved":"ok-msg"; sm.textContent=F.dirty?plural(changeCount(),"unsaved change"):`Saved ${SEND.savedAt}`;
+  $("#discardBtn").hidden=!F.dirty; $("#pbDiscSep").hidden=!F.dirty;
   // 2. total
   $("#pbTotal").textContent=money(total);
   if(S.qview==="info"&&!qiEditConv) $("#qInfo").innerHTML=infoHtml();
-  $("#pbNote").hidden=F.run; $("#pbNote").textContent=F.done?`incl. freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
-  $("#pbProg").hidden=!F.run;
+  $("#pbLbl").textContent=F.done?"Total":"Estimated total";
+  $("#pbNote").hidden=F.run; $("#pbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
+  $("#pbProg").hidden=!F.run; $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
   $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
@@ -1659,7 +1711,9 @@ document.addEventListener("click",e=>{
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
-  if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
+  if(t.id==="emptyAdd"||t.id==="sideAddBtn"||t.id==="qtAddRoom"){ startAddRoom(); return; }
+  if(t.id==="foldAll"){ const open=t.textContent==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
+  if(t.id==="lineClear"){ S.lineQ=""; $("#lineFilter").value=""; renderQuote(); $("#lineFilter").focus(); return; }
   if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
   if(t.dataset.addprod){ startAddProducts(t.dataset.addprod); return; }
   if(t.id==="menuAdd"){ openRoomForm("add"); return; }
@@ -1718,6 +1772,8 @@ document.addEventListener("submit",e=>{ if(e.target.id!=="sideRoomForm") return;
   if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";}
   renderRoom(); renderResults(); renderQuote(); showToast(`${name} added. Add products to it when you're ready.`,"ok");
   const blk=document.querySelector(`.rmblock[data-rm="${CSS.escape(name)}"]`); blk?.scrollIntoView({block:"start"}); blk?.querySelector("[data-addprod]")?.focus(); });
+document.addEventListener("input",e=>{ if(e.target.id!=="lineFilter") return; S.lineQ=e.target.value; renderQuote(); });
+document.addEventListener("keydown",e=>{ if(e.target.id==="lineFilter"&&e.key==="Escape"&&e.target.value){ e.target.value=""; S.lineQ=""; renderQuote(); } });
 // Add room from anywhere: full screen uses the Rooms panel form; otherwise the search side's room menu (switching to it on layout B's Quote tab)
 function startAddRoom(){
   if(S.expanded){ S.sideAdd=true; S.qview="products"; renderQView(); renderQuote(); $("#sideRoomType").focus(); return; }
@@ -1985,6 +2041,7 @@ function renderQView(){
   const v=S.qview;
   detSwShown();
   $("#qProducts").hidden=v!=="products"; $("#qSide").hidden=!S.expanded||v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
+  $("#qTools").hidden=v!=="products";
   $(".qhead .qtitle").textContent={products:"Selected Products",info:"Quote information",pdf:"PDF preview"}[v]; $("#qSub").hidden=v!=="products";
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
   if(v==="info") $("#qInfo").innerHTML=infoHtml();
