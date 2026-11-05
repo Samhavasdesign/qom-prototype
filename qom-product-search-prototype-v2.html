@@ -48,6 +48,12 @@ button{cursor:pointer}
 .rail .sec{color:var(--rail-muted);font-size:12px;letter-spacing:.14em;padding:26px 22px 8px}
 .main{padding:14px 28px 40px;min-width:0}
 .crumb{color:var(--ink-3);font-size:14px;display:flex;gap:10px;align-items:center}
+.pghead{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.crumbicon{color:var(--ink-2);margin-right:6px}
+.pgicons{display:flex;align-items:center;gap:22px;color:var(--ink)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-2);color:var(--ink-3);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.infor{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:6px;height:24px;padding:0 4px;background:#d21e2b;color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:-.01em;line-height:1}
+.tabs .tabmore{margin-left:auto;letter-spacing:.1em;color:var(--ink)}
 h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .sub{font-family:var(--serif);font-size:17px;color:var(--ink-2);margin:0 0 14px}
 .tabs{display:flex;gap:26px;margin-bottom:14px;overflow-x:auto}
@@ -118,7 +124,12 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .menu form select{flex:1 1 100%;min-width:0;border:1px solid var(--line);padding:8px;background:var(--bg)}
 .search{position:relative;flex:1;min-width:0}
 .search input{width:100%;height:44px;border:1px solid var(--ink-3);border-radius:0;background:var(--bg);padding:0 40px 0 40px;font-family:var(--sans);font-size:15px;color:var(--ink)}
-.search input::placeholder{color:var(--ink-3)}
+.search input::placeholder{color:var(--ink-3);text-overflow:ellipsis}
+.search input{text-overflow:ellipsis;white-space:nowrap;overflow:hidden} /* long text or placeholder ends in "…" instead of being cut off */
+.search input{padding-left:36px}
+.search input:placeholder-shown{padding-right:10px} /* the clear button only shows once there is text, so the placeholder can use that space */
+.search input::placeholder{font-size:14px}
+.search input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
 .search input:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-2)}
 .search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--ink-3);padding:6px}
@@ -164,6 +175,12 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .filters .fopts{max-height:240px;overflow:auto}
 .filters .fnone{margin:0;padding:3px 0;font-size:13px;color:var(--ink-3)}
 .filters .fnone[hidden]{display:none}
+/* options fill as many columns as fit (each at least 116px; the few longer names wrap to a second line), from 1 up to a cap of 6; count sits right after the name */
+.filters .fopts{--fcol-min:116px;--fcol-gap:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(max(var(--fcol-min),calc((100% - 5 * var(--fcol-gap)) / 6)),1fr));column-gap:var(--fcol-gap);align-content:start}
+.filters .fopts label{display:block;padding:5px 0 5px 20px;text-indent:-20px;min-width:0;line-height:1.35} /* a wrapped name indents under itself, count stays right after it */
+.filters .fopts label span.c{margin-left:6px}
+.filters .fopts label[hidden]{display:none}
+.filters .fopts .fnone{grid-column:1/-1}
 .meta{display:flex;justify-content:flex-start;align-items:center;gap:6px 20px;margin:0 0 8px;color:var(--ink-2);font-size:13px;flex-wrap:wrap}
 .meta label{display:inline-flex;gap:6px;align-items:center}
 .meta label input{margin-left:0}
@@ -179,8 +196,16 @@ table.res .det small.wrap{white-space:normal}
 @container search (max-width:640px){ /* narrow search side: item number, status, line type and UOM stack in one Details column */
   table.res .wd{display:none}
   table.res .nr{display:table-cell}
-  table.res .name{min-width:128px}
+  table.res .name{min-width:0} /* the name wraps instead of running off the panel edge */
+  table.res .name small{font-size:12px}
+  table.res td .thumb{width:60px;height:60px}
   table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* header row hidden on screen, kept for screen readers */
+}
+table.res .ndet{display:none}
+table.res .ndet button{border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@container search (max-width:420px){ /* very narrow: the details move under the name so the whole name fits */
+  table.res .nr{display:none}
+  table.res .ndet{display:block}
 }
 table.res th{background:var(--surface-2);text-align:left;padding:10px 6px;font-weight:600;font-size:14px}
 table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-align:middle}
@@ -195,6 +220,7 @@ table.res tr.part td .name{color:var(--ink-2)}
 .item{display:flex;gap:12px;align-items:center}
 .name{font-size:15px}
 .name .pn{font-weight:700;font-size:16px}
+table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results are smaller so the whole name shows */
 .name mark{background:transparent;color:inherit;font-weight:700;text-decoration:underline;text-decoration-color:var(--ink-3)}
 .name small{display:block;color:var(--ink-3);font-size:13px;margin-top:2px}
 .sku{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -452,33 +478,81 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qtab:focus-visible{outline-offset:2px}
 .backlink{border:0;background:transparent;padding:0;margin:0 0 14px;color:var(--ink-2);text-decoration:underline;font-size:13px}
 .pane.quote:not(.expanded) .qbox:has(#qInfo:not([hidden])){background:#fff} /* the quote information reads on plain white */
-#qInfo{background:#fff;padding:6px 2px 0}
-.pane.quote.expanded #qInfo{border:1px solid var(--line);padding:28px 32px 12px} /* expanded: the quote information sits in a white box the width of the quote column */
-.qi .qihead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
-.qi .qidlbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
-.qi .qid{font-family:var(--serif);font-size:24px;line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}
-.qi .qexp{font-size:13px;color:var(--ink-2);margin-top:4px}
-.qi .qexp b{font-weight:600;color:var(--ink)}
+#qInfo{background:#fff;padding:8px 2px 0}
+.pane.quote.expanded #qInfo{border:1px solid var(--line);padding:32px 36px 0} /* expanded: the quote information sits in a white box the width of the quote column */
 .draftpill{display:inline-flex;align-items:center;gap:8px;background:var(--pill);color:#111;border-radius:999px;padding:6px 14px;font-family:var(--serif);font-size:15px;margin:10px 0 6px}
-.qi .qihead .draftpill{margin:2px 0 0;font-size:14px;padding:5px 12px}
-.qi .qsec{padding:18px 0 6px;border-bottom:1px solid var(--line-2)}
-.qi .qsec:last-child{border-bottom:0}
-.qi h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0 0 10px}
-.qi dl{margin:0;display:grid;grid-template-columns:1fr;gap:0 28px}
-@container quote (min-width:720px){ .qi dl{grid-template-columns:1fr 1fr} }
-.qi .qf{display:grid;grid-template-columns:minmax(120px,42%) 1fr;gap:12px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line-2)}
-.qi .qf:first-child{border-top:0}
-@container quote (min-width:720px){ .qi .qf:nth-child(2){border-top:0} }
-.qi .ql{font-size:13px;color:var(--ink-3);margin:0}
-.qi .qv{font-size:14px;color:var(--ink);font-weight:500;margin:0;min-height:1em;overflow-wrap:anywhere}
-.qi .qv.num{font-variant-numeric:tabular-nums}
-.qi .qnone{margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);color:var(--ink-3);font-size:13px}
-.qi .qdoc{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);margin:0 0 12px}
+.qi{container:qi/inline-size;font-size:14px}
+.qi .qihead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 16px;flex-wrap:wrap}
+.qi .qtitle2{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.2;margin:0}
+.qi .qmeta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px;margin-top:8px;color:var(--ink-2)}
+.qi .qmeta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.qi .qcopy{border:0;background:none;padding:4px;margin-left:2px;color:var(--ink-3);vertical-align:middle;line-height:0;cursor:pointer}
+.qi .qcopy:hover{color:var(--ink)}
+.qi .qstatus{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.qi .qstatus .draftpill{margin:0}
+@container qi (max-width:519px){ .qi .qstatus{flex-direction:row;justify-content:flex-start;align-items:center;gap:12px} }
+.qi .qexp{font-size:13px;color:var(--ink-2);white-space:nowrap}
+.qi .qsave{display:flex;align-items:center;gap:8px;margin:20px 0 0;padding:10px 14px;background:var(--surface);font-size:13px;color:var(--ink-2)}
+.qi .qsave svg{flex:none}
+.qi .qsave.ok{color:var(--ink-2)} .qi .qsave.ok svg,.qi .qsave.ok b{color:var(--ok)}
+.qi .qsave.dirty{background:var(--warn-bg)} .qi .qsave.dirty svg,.qi .qsave.dirty b{color:var(--warn)}
+.qi .qsave b{font-weight:600}
+.qi h3{font-size:16px;font-weight:600;margin:0 0 14px;color:var(--ink)}
+.qi .qsec{padding:24px 0;border-top:1px solid var(--line)}
+.qi .qsec.first{border-top:0;padding-top:24px}
+.qi .qcols{display:grid;grid-template-columns:1fr;gap:24px 40px}
+@container qi (min-width:560px){ .qi .qcols{grid-template-columns:1fr 1fr} }
+.qi .qf{margin:0 0 14px}
+.qi .qf:last-child{margin-bottom:0}
+.qi .ql{font-size:13px;color:var(--ink-3)}
+.qi .qv{font-size:15px;font-weight:600;color:var(--ink);margin-top:2px;overflow-wrap:anywhere}
+.qi .qv .code{font-weight:400;color:var(--ink-3)}
+/* dates: a timeline in date order, today marked; stacks into a list in a narrow panel */
+.qi .tl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:relative}
+.qi .tl li{position:relative;text-align:center;padding-top:26px}
+.qi .tl li::before{content:"";position:absolute;top:8px;left:0;right:0;height:2px;background:var(--line)}
+.qi .tl li:first-child::before{left:50%} .qi .tl li:last-child::before{right:50%}
+.qi .tl li.past::before{background:var(--ink-2)}
+.qi .tl li.edge:not(:last-child)::before{background:linear-gradient(90deg,var(--ink-2) 50%,var(--line) 50%)}
+.qi .tl .dot{position:absolute;top:1px;left:50%;margin-left:-8px;width:16px;height:16px;border-radius:50%;border:2px solid var(--ink-3);background:#fff;box-sizing:border-box;z-index:1}
+.qi .tl .today .dot{border-color:var(--ink)} .qi .tl .today .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--ink)}
+.qi .tl .late .dot{border-color:var(--warn)} .qi .tl .late .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--warn)}
+.qi .tl .tlk{font-size:13px;color:var(--ink-2);padding:0 4px}
+.qi .tl .tld{font-size:15px;font-weight:600;margin-top:4px;white-space:nowrap}
+.qi .tl .tlr{font-size:12px;color:var(--ink-3);margin-top:2px}
+.qi .tl .late .tlr{color:var(--warn);font-weight:600}
+@container qi (max-width:519px){
+  .qi .tl{grid-template-columns:1fr}
+  .qi .tl li{text-align:left;padding:0 0 16px 30px;display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:baseline}
+  .qi .tl li:last-child{padding-bottom:0}
+  .qi .tl li::before,.qi .tl li:first-child::before,.qi .tl li:last-child::before{top:0;bottom:0;left:7px;right:auto;width:2px;height:auto}
+  .qi .tl li:first-child::before{top:8px} .qi .tl li:last-child::before{bottom:auto;height:8px}
+  .qi .tl li.edge:not(:last-child)::before{background:linear-gradient(180deg,var(--ink-2) 8px,var(--line) 8px)}
+  .qi .tl .dot{top:2px;left:0;margin-left:0}
+  .qi .tl .tlk{padding:0;grid-column:1} .qi .tl .tld{margin:0;grid-column:2;text-align:right} .qi .tl .tlr{grid-column:1/-1}
+}
+.qi .qalert{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;margin-top:22px;padding:12px 14px;background:var(--warn-bg);color:var(--ink)}
+.qi .qalert>span{flex:1 1 220px;display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.qi .qalert svg{flex:none;color:var(--warn);margin-top:1px}
+.qi .qalert .btn{background:#fff;color:var(--ink);border:1px solid var(--ink);padding:9px 14px}
+.qi .qalert form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.qi .qalert input[type=date]{height:36px;border:1px solid var(--line);padding:0 8px;font:inherit;background:#fff}
+.qi .qalert form .btn.go{background:var(--ink);color:#fff}
+.qi .qadd{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:9px 14px;border:1px dashed var(--ink-3);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.qi .qadd:hover{border-style:solid}
+.qi .pay{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:baseline}
+.qi .pay .ql{font-size:14px;color:var(--ink-2)}
+.qi .pay .amt{font-size:15px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.qi .pay .amt small{display:block;font-size:12px;font-weight:400;color:var(--ink-3)}
+.qi .pay hr{grid-column:1/-1;border:0;border-top:1px solid var(--line);margin:4px 0}
+.qi .paynote{font-size:12px;color:var(--ink-3);margin:12px 0 0}
+.qi .qdocs{background:var(--surface);margin:0 -18px -14px;padding:22px 18px 24px;border-top:1px solid var(--line)}
+.pane.quote.expanded .qi .qdocs{margin:0 -36px;padding:24px 36px 28px}
+.qi .qdoc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;background:#fff;border:1px solid var(--line)}
 .qi .qdoc svg{flex:none;color:var(--ink-2)}
-.qi .qdoc .qdn{flex:1;min-width:0}
-.qi .qdoc .qdt{font-weight:600;font-size:14px}
-.qi .qdoc .qdm{font-size:12px;color:var(--ink-3)}
-.qi .qdoc .backlink{margin:0;white-space:nowrap}
+.qi .qdoc .qdn{flex:1 1 180px;min-width:0}
+.qi .qdoc .qdt{font-weight:600;font-size:15px}
+.qi .qdoc .qdm{font-size:13px;color:var(--ink-3);margin-top:2px}
 .pdfwrap{background:var(--surface-2);padding:12px}
 .pdfpage{position:relative;overflow:hidden;background:#fff;color:#111;border:1px solid var(--line);padding:18px 18px 10px;margin-bottom:12px;font-size:10px;line-height:1.35}
 .pdfpage:last-child{margin-bottom:0}
@@ -724,11 +798,18 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
     <div class="sec">ADMIN TOOLS</div><a href="#">Import Tools</a>
   </nav>
   <main class="main">
-    <div class="crumb">Projects <span>›</span> Quote <span>›</span> # 6000024967</div>
-    <h1>Edit Quote: 6000024967</h1>
+    <!-- header extras from QOM staging; display only, nothing here is clickable -->
+    <div class="pghead">
+      <div class="crumb"><svg class="crumbicon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1"/><path d="M16 8V4.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5V17a.5.5 0 0 0 .5.5H8"/></svg>Projects <span>›</span> Quote <span>›</span> # 6000024967</div>
+      <div class="pgicons">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Notifications"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M12 3v2"/></svg>
+        <span class="avatar" role="img" aria-label="Signed-in user"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></span>
+      </div>
+    </div>
+    <h1>Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
     <p class="sub">QUALITY FINISHES (USC) · Henry bar and club house</p>
     <div class="tabs">
-      <span>Essential Quote Info</span><span>Header Information</span><span>Shipping Information</span><span>Associations</span><span class="cur">Product Selection</span>
+      <span>Essential Quote Info</span><span>Header Information</span><span>Shipping Information</span><span>Associations</span><span class="cur">Product Selection</span><span>Admin: Calculations</span><span>Communications</span><span class="tabmore" aria-label="More tabs">•••</span>
     </div>
 
     <div class="pane-tabs" id="paneTabs" hidden>
@@ -756,7 +837,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
               <span class="spin sbusy" aria-hidden="true"></span>
               <label class="sr" for="q">Search by product name, collection, finish or item number</label>
-              <input id="q" type="search" placeholder="Search by name, collection, finish or item number" autocomplete="off">
+              <input id="q" type="search" placeholder="Name, collection, finish or item #" autocomplete="off">
               <button type="button" class="clear" id="clearQ" aria-label="Clear search" hidden>✕</button>
             </div>
             <button type="button" class="filterbtn" id="filterBtn" aria-expanded="false" aria-controls="filters" aria-label="Filters" title="Filters"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg><span id="filterCount" class="fcount" aria-hidden="true"></span></button>
@@ -1088,7 +1169,7 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ndet">${hl(p.sku)} · Status ${p.st} · ${esc(p.lt)}${S.price?` · List ${price}`:""} · UOM <button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
       <td class="sku wd">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd">${p.st}</td>
       <td class="wd">${esc(p.lt)}</td>
@@ -1378,6 +1459,7 @@ function renderSend(){
   $("#discardBtn").hidden=!F.dirty;
   // 2. total
   $("#pbTotal").textContent=money(total);
+  if(S.qview==="info"&&!qiEditConv) $("#qInfo").innerHTML=infoHtml();
   $("#pbNote").hidden=F.run; $("#pbNote").textContent=F.done?`incl. freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
   $("#pbProg").hidden=!F.run;
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
@@ -1819,19 +1901,59 @@ document.addEventListener("focusout",e=>{ if(!quiet && e.target.matches?.(".rnam
 const QI={id:"6000024967",expires:"Apr 27, 2028",orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
   consultant:"Alex Rivera",payer:"PAT MORGAN-ELLIS",service:"Standard Shipping (S01)",cost:"Sample Design Center",project:"Henry bar and club house",desc:"Bar and club house fittings and tile",
   entered:"10-30-26",revised:"10-30-26",addr:["12 Sample Street","ANYTOWN MA 01000","United States"],phone:"(555) 010-0100",email:"alex.rivera@example.com"};
-const qfield=(l,v,num)=>`<div class="qf"><dt class="ql">${l}</dt><dd class="qv${num?" num":""}">${esc(v)}</dd></div>`;
-const qsec=(t,body)=>`<section class="qsec"><h3>${t}</h3>${body}</section>`;
-const infoHtml=()=>`<div class="qi">
+const qfield=(l,v)=>`<div class="qf"><div class="ql">${l}</div><div class="qv">${v}</div></div>`;
+const titleCase=t=>t.toLowerCase().replace(/(^|[\s-])\S/g,c=>c.toUpperCase());
+const pDate=t=>{ if(t.includes("/")){ const [m,d,y]=t.split("/").map(Number); return new Date(y,m-1,d); } return new Date(t); };
+const fDate=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const dayDiff=d=>{ const t=new Date(); t.setHours(0,0,0,0); return Math.round((d-t)/864e5); };
+const rel=n=>n===0?"today":n>0?`in ${n} day${n===1?"":"s"}`:`${-n} day${n===-1?"":"s"} ago`;
+var qiEditConv=false; // var: renderSend can run before this line on load
+// deposit: 50% of stocked items and kits, 100% of non-stocked items (mock rule, on the product lines before freight and tax)
+const qDeposit=()=>quoteLines().reduce((a,{l})=>{ const p=CAT.find(x=>x.sku===l.sku); const amt=l.qty*l.unit; return a+(p.kit||p.lt==="Stocked"?amt*.5:amt); },0);
+const infoHtml=()=>{
+  const F=footState(), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx, has=F.hasLines;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const conv=pDate(QI.conv), convLate=dayDiff(conv)<0;
+  const pts=[{k:"Estimated conversion",d:conv,cls:convLate?"late":""},{k:"Today",d:today,cls:"today"},{k:"Requested delivery",d:pDate(QI.delivery),cls:""},{k:"Quote expires",d:pDate(QI.expires),cls:""}]
+    .sort((x,y)=>x.d-y.d||(x.cls==="today"?1:-1));
+  const ti=pts.findIndex(x=>x.cls==="today");
+  const tl=pts.map((x,i)=>{ const n=dayDiff(x.d); const r=x.cls==="today"?"":rel(n);
+    return `<li class="${x.cls}${i<ti?" past":""}${i===ti&&ti>0?" past edge":""}"><span class="dot" aria-hidden="true"></span><div class="tlk">${x.k}</div><div class="tld">${fDate(x.d)}</div>${r?`<div class="tlr">${r}</div>`:""}</li>`; }).join("");
+  const isoConv=`${conv.getFullYear()}-${String(conv.getMonth()+1).padStart(2,"0")}-${String(conv.getDate()).padStart(2,"0")}`;
+  const alertHtml=!convLate?"":`<div class="qalert" role="status"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>The estimated conversion date has passed. Update it to keep your pipeline accurate.</span>${qiEditConv
+    ?`<form id="qiConvForm"><label class="sr" for="qiConv">New estimated conversion date</label><input type="date" id="qiConv" value="${isoConv}" required><button type="submit" class="btn go">Save date</button><button type="button" class="tolink" data-qi="cancelconv">Cancel</button></form>`
+    :`<button type="button" class="btn" data-qi="conv">Change date</button>`}</div>`;
+  const saved=!S.dirty;
+  const svc=QI.service.match(/^(.*?)\s*\((\w+)\)$/)||[0,QI.service,""];
+  return `<div class="qi">
   <div class="qihead">
-    <div><div class="qidlbl">Quote ID</div><div class="qid">${QI.id}</div><div class="qexp">Expires on <b>${QI.expires}</b></div></div>
-    <span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span>
+    <div><h2 class="qtitle2">${esc(titleCase(QI.payer))}</h2>
+      <div class="qmeta"><span>Quote <b>${QI.id}</b><button type="button" class="qcopy" data-qi="copy" aria-label="Copy quote number" title="Copy quote number"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg></button></span><span>Residential, domestic sales order</span></div></div>
+    <div class="qstatus"><span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span><span class="qexp">Expires ${fDate(pDate(QI.expires))}</span></div>
   </div>
-  ${qsec("Essential Quote Info",`<dl>${qfield("Order Type",QI.orderType)}${qfield("Order Subtype",QI.subtype)}${qfield("Requested Delivery Date",QI.delivery,1)}${qfield("Est. Conv. Date",QI.conv,1)}${qfield("Payment Amount",QI.payment,1)}</dl>`)}
-  ${qsec("Header Information",`<dl>${qfield("Sales Consultant 1",QI.consultant)}${qfield("Quote Status","Draft")}${qfield("Payer",QI.payer)}</dl>`)}
-  ${qsec("Shipping Information",`<dl>${qfield("Service Level",QI.service)}${qfield("Cost center",QI.cost)}</dl>`)}
-  ${qsec("Associations",`<p class="qnone">No associated parties yet.</p>`)}
-  ${qsec("Generated documents",`<div class="qdoc"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h7l4 4v12H5z"/><path d="M12 2v4h4M8 11h5M8 14h5"/></svg><div class="qdn"><div class="qdt">Sales Quote</div><div class="qdm">PDF · 2 pages</div></div><button type="button" class="backlink" data-qview="pdf">View PDF preview</button></div>`)}
+  <div class="qsave ${saved?"ok":"dirty"}">${saved?SI.done:SI.dot}<span>${saved?`<b>All changes saved to M3</b> at ${SEND.savedAt}`:`<b>${plural(changeCount(),"unsaved change")}.</b> Save to update M3.`}</span></div>
+  <section class="qsec first" aria-labelledby="qiDates"><h3 id="qiDates">Dates</h3><ol class="tl">${tl}</ol>${alertHtml}</section>
+  <div class="qsec qcols">
+    <section aria-labelledby="qiPeople"><h3 id="qiPeople">People</h3>${qfield("Payer",esc(titleCase(QI.payer)))}${qfield("Sales consultant",esc(QI.consultant))}<div class="qf"><div class="ql">Designer or architect</div><button type="button" class="qadd" data-qi="person"><span aria-hidden="true">+</span> Add person</button></div></section>
+    <section aria-labelledby="qiPay"><h3 id="qiPay">Payment</h3>
+      <div class="pay"><span class="ql">Quote total</span><span class="amt">${has?money(total)+(F.done?"":`<small>before freight and tax</small>`):"—"}</span>
+      <span class="ql">Deposit to convert</span><span class="amt">${has?money(qDeposit()):"—"}</span><hr>
+      <span class="ql">Paid to date</span><span class="amt">${QI.payment}</span></div>
+      <p class="paynote">Deposit is 50% of stocked items and kits, and 100% of non-stocked items.</p></section>
+  </div>
+  <section class="qsec" aria-labelledby="qiFul"><h3 id="qiFul">Fulfillment</h3><div class="qcols">${qfield("Shipping",`${esc(svc[1].replace(/ Shipping$/," shipping"))}${svc[2]?` <span class="code">(${svc[2]})</span>`:""}`)}${qfield("Showroom (cost center)",esc(QI.cost))}</div></section>
+  <section class="qdocs" aria-labelledby="qiDocs"><h3 id="qiDocs">Documents</h3>
+    <div class="qdoc"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h7l4 4v12H5z"/><path d="M12 2v4h4M8 11h5M8 14h5"/></svg><div class="qdn"><div class="qdt">Sales quote PDF</div><div class="qdm">2 pages, made from the ${SEND.savedAt} save</div></div><button type="button" class="btn" data-qview="pdf">Preview PDF</button></div>
+  </section>
 </div>`;
+};
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-qi]"); if(!b) return; const a=b.dataset.qi;
+  if(a==="copy"){ navigator.clipboard?.writeText(QI.id).catch(()=>{}); showToast(`Copied quote number ${QI.id}`,"ok"); }
+  else if(a==="person") showToast("Adding a designer or architect opens the Associations step in QOM (prototype).");
+  else if(a==="conv"||a==="cancelconv"){ qiEditConv=a==="conv"; renderQView(); if(qiEditConv) $("#qiConv")?.focus(); else document.querySelector('[data-qi="conv"]')?.focus(); }
+});
+document.addEventListener("submit",e=>{ if(e.target.id!=="qiConvForm") return; e.preventDefault(); const v=$("#qiConv").value; if(!v) return;
+  const [y,m,d]=v.split("-"); QI.conv=`${m}/${d}/${y}`; qiEditConv=false; renderQView(); showToast(`Estimated conversion date set to ${fDate(pDate(QI.conv))}`,"ok"); });
 // the PDF is built from the live quote, so it shows whatever is in the panel right now
 const pdfHtml=()=>{
   let sub=0; const body=[];
