@@ -924,6 +924,14 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .sp-sec h3:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sp-none{padding:10px 0;font-size:13px;color:var(--muted)}
 .sp-bd .totals small.bdsub{display:block;font-size:12px;margin-top:2px}
+.totals .v.bm{display:flex;align-items:center;justify-content:flex-end;gap:10px;align-self:center}
+.totals .bmbox{display:inline-flex;align-items:center;height:36px;width:104px;border:1px solid var(--control-line);background:var(--bg);padding:0 10px 0 0}
+.totals .bmbox:focus-within{outline:2px solid var(--focus);outline-offset:-1px}
+.totals .bmbox.bad{border-color:var(--warn)}
+.totals .bmbox input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;padding:0 6px 0 10px;font:inherit;font-size:14px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.totals .bmbox span{color:var(--ink-3)}
+.totals .bmerr{color:var(--warn);font-size:13px;text-align:right;white-space:nowrap}
+.totals .bmnote{grid-column:1/-1;margin-top:-4px;font-size:12px;color:var(--ink-3)}
 .spi{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:2px 10px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line-2)}
 .spi:last-child{border-bottom:0}
 .spi .spi-ic{display:flex;padding-top:1px}
@@ -1611,6 +1619,18 @@ const comRow=(r,l,p,id)=>{
     ${l.im?`<span class="imnote">Priced by Item Management. The same-item box never changes this line.</span>`:""}
   </div>`;
 };
+// Total Blended Margin in the full breakdown is editable (as in QOM's Freight & Save panel): typing a margin reprices every line
+// except Item Management lines, all to one line margin, so the quote as a whole lands on the typed figure
+const blendRow=()=>{ const err=S.blendErr, v=err?S.blendDraft:blendedMargin().toFixed(2);
+  return `<label class="lb" for="blendIn">Total blended margin</label><span class="v bm">${err?`<span class="bmerr" id="blendErr">${esc(err)}</span>`:""}<span class="bmbox${err?" bad":""}"><input type="text" inputmode="decimal" id="blendIn" value="${esc(v)}" autocomplete="off" aria-invalid="${!!err}"${err?' aria-describedby="blendErr"':""}><span aria-hidden="true">%</span></span></span><small class="bmnote">Changing it reprices every line except Item Management lines.</small>`; };
+function applyBlend(raw){ const M=parseFloat(String(raw).replace(/[%,\s]/g,""));
+  S.blendErr=!isFinite(M)?"Enter a number":M>99.99?"Max. 99.99":M<0?"Min. 0.00":null; S.blendDraft=raw;
+  if(!S.blendErr){ let Cn=0,Cim=0,Sim=0; const free=[]; S.quote.rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku), c=estCost(p)*l.qty; if(l.im){ Cim+=c; Sim+=l.unit*l.qty; } else { Cn+=c; free.push([l,p]); } }));
+    const Sn=(Cn+Cim)/(1-M/100)-Sim; // what the repriceable lines must add up to
+    if(!free.length||Sn<=0) S.blendErr="Can't reach this with the Item Management lines as priced";
+    else if(Math.abs(M-blendedMargin())>=0.005){ const x=1-Cn/Sn; free.forEach(([l,p])=>{ l.unit=Math.round(estCost(p)/(1-x)*100)/100; }); S.dirty=true; LIKE_UNDO=null; hideCToast();
+      showToast(`✓ ${plural(free.length,"line")} repriced to a ${M.toFixed(2)}% blended margin`,"ok"); } }
+  setTimeout(()=>{ const keep=document.activeElement?.id==="blendIn"; renderQuote(); if(keep){ $("#blendIn")?.focus(); $("#blendIn")?.select(); } },0); }
 // the like-items toast: bottom centre, 7 s, held open while hovered or focused, closes 1 s after leaving; Undo puts the other lines back
 let CT_TIMER=null, CT_HOLD=false;
 const CHECK_ICON='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>';
@@ -1831,7 +1851,7 @@ function renderSend(){
   $("#pbNote").hidden=F.run; $("#pbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
   $("#pbProg").hidden=!F.run; $("#pbar").classList.toggle("empty",!F.hasLines); $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
-  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?`<span class="lb">Total blended margin</span><span class="v">${blendedMargin().toFixed(2)}%</span>`:""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
+  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?blendRow():""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
   const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad; sv.classList.toggle("primary",F.dirty&&!F.bad);
   const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
@@ -1978,7 +1998,7 @@ const QUOTES={
 };
 const RES_QUOTE=structuredClone(S.quote);
 function setView(v){
-  S.view=v; LIKE_UNDO=null; hideCToast(); S.undo=null; S.saved=null; resetSend(); S.scenario="normal"; $("#scenario").value="normal";
+  S.view=v; S.blendErr=null; LIKE_UNDO=null; hideCToast(); S.undo=null; S.saved=null; resetSend(); S.scenario="normal"; $("#scenario").value="normal";
   S.quote= v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE);
   S.room=S.quote.rooms[0].name; S.dirty=false; markSaved();
   QI.subtype= v==="commercial" ? "Commercial Order Domestic" : "Residential Order Domestic";
@@ -2157,6 +2177,7 @@ document.addEventListener("change",e=>{
     if(isFinite(u)&&u>0&&Math.round(u*100)/100!==l.unit){ l.unit=Math.round(u*100)/100; S.dirty=true; if(l.like) syncLike(r,l,mg); }
     rerenderKeepFocus(); return; } // a bad number puts the old one back
   // ticking one copy ticks every copy, and applies this line's current Unit $ to the others straight away
+  if(t.id==="blendIn"){ applyBlend(t.value.trim()); return; }
   if(t.dataset.like){ const [room,sku]=t.dataset.like.split("|"); const r=S.quote.rooms.find(x=>x.name===room), l=r?.lines.find(x=>x.sku===sku); if(!l) return;
     l.like=t.checked; twinsOf(r,l).forEach(x=>x.l.like=t.checked);
     if(t.checked&&syncLike(r,l)) S.dirty=true;
