@@ -133,6 +133,7 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .menu .modes button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
 .menu .modes button:disabled{color:var(--ink-3);cursor:not-allowed}
 .menu .form-err{color:var(--warn);font-size:13px;margin:0;padding:0 12px 10px}
+.menu form .form-err{flex:1 1 100%;padding:0;margin-top:-2px} /* room name error: a full row directly under the name field */
 .menu .cnt{color:var(--ink-3)}
 .menu .act{border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);font-weight:600}
 .menu > .act{background:var(--ink);color:var(--bg)}
@@ -261,7 +262,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 -6px 0 0;text-decoration:none;opacity:.85}
 .roomhdr button.rchev svg{transition:transform .15s}
 .roomhdr button.rchev[aria-expanded="true"] svg{transform:rotate(180deg)}
-.rname-in{font:inherit;font-weight:600;border:1px solid var(--ink);padding:2px 6px;width:min(130px,100%);background:var(--bg);color:var(--ink)}
+.roomhdr .rtype{font-weight:400;color:inherit;opacity:.7} /* room type after the name, greyed on both the grey and the black (active) room bar */
 .rmblock .form-err{color:var(--warn);font-size:13px;margin:6px 0 0;padding:0 10px}
 .dragging{opacity:.4}
 .drop-before{box-shadow:inset 0 3px 0 var(--ink)}
@@ -1005,6 +1006,8 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
     <select id="scenario">
       <option value="normal">Normal</option>
       <option value="fresh" selected>Fresh quote, no lines</option>
+      <option value="loading">Search · Loading (slow search)</option>
+      <option value="error">Search · Error</option>
       <option value="s-unsaved">Footer 1 · Unsaved edits</option>
       <option value="s-saved">Footer 2 · Saved, no freight</option>
       <option value="s-calc">Footer 3 · Calculating freight</option>
@@ -1015,8 +1018,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
   <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
-  <label><input type="checkbox" id="showStock" checked> Stock hint in results (engineering says availability is read with the quote, not per result)</label>
-  <label><input type="checkbox" id="showPrice" checked> Price in results (needs an M3 call per item)</label>
+  <label><input type="checkbox" id="showPrice" autocomplete="off"> Price in results (needs an M3 call per item)</label>
   <label><input type="checkbox" id="conceptRP" autocomplete="off"> Concept: Required parts on add (QOM-2561)</label>
 </div>
 
@@ -1339,6 +1341,8 @@ function crOpen(key){ const [room]=key.split("|"); CR.open=key; renderQuote();
 // a second line of the same item in one room: the prototype keys lines by room and item number, so this twin stands in for it.
 // It never shows in search (alias) and shows the real item number; "same item" checks use same||sku
 CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on Bar", sec:"Wall-mount bar with 1.75 GPM handshower", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:4, price:2110});
+// item master text written in codes (TR = Transit, PB = polished brass), for the PRD lookup "TR PB" (FR-1); price is mock
+CAT.push({sku:"TRTHM-PB", name:"Transit Thermostatic Trim TR PB", sec:"TR PB THERM TRIM LVR", col:"Transit", series:"Modern", cat:"Fittings", fin:"Polished Brass", st:20, stock:5, price:1180});
 // sample product photos saved from waterworks.com (wall-mounted accessories page) into images/; they are dummies, not matched to the mock products.
 // Products without an entry show the plain placeholder, and a missing file falls back to the failed-image state.
 const IMG={
@@ -1364,7 +1368,7 @@ const S = {
   // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
   filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
   fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal", finAll:false, finAllFor:"",
-  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"", lineQ:"", allOpen:false, folded:[],
+  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
@@ -1390,6 +1394,9 @@ function fuzzy(h,t){ // one-character tolerance for words of 5+ letters (FR-10, 
   const words=h.split(/[^a-z0-9]+/);
   return words.some(w=>{ if(Math.abs(w.length-t.length)>1) return false; let d=0,i=0,j=0; while(i<w.length&&j<t.length){ if(w[i]===t[j]){i++;j++;} else {d++; if(d>1) return false; if(w.length>t.length) i++; else if(w.length<t.length) j++; else {i++;j++;} } } return d+(w.length-i)+(t.length-j)<=1; });
 }
+// "Brass", "BRASS" and "Brass " are one filter value: compared ignoring case and extra spaces (NFR-2)
+const normVal=v=>String(v??"").trim().replace(/\s+/g," ").toLowerCase();
+const sameVal=(a,b)=>normVal(a)===normVal(b);
 const FFIELD={cat:"cat",col:"col",fin:"fin",series:"series",lt:"lt",sname:"name"}; // filter → product field (Style Name is the shared product name across finishes)
 const finBypass=()=>S.finAll && S.finAllFor===S.query; // "Show other finishes": same search, every finish, saved finish kept
 // every filter is strict (Surfaces never show under Fittings); `over` swaps in one group's values, for counts.
@@ -1397,7 +1404,7 @@ const finBypass=()=>S.finAll && S.finAllFor===S.query; // "Show other finishes":
 // Category: a ticked category matches all its products; a ticked type matches products of that type.
 function passesWith(p,over){
   for(const k in FFIELD){ const own=over&&(k in over); if(k==="fin"&&!own&&finBypass()) continue;
-    const set=own?over[k]:S.filters[k]; if(set.size && !(k==="cat"?catPass(set,p):set.has(p[FFIELD[k]]))) return false; }
+    const set=own?over[k]:S.filters[k]; if(set.size && !(k==="cat"?catPass(set,p):[...set].some(v=>sameVal(v,p[FFIELD[k]])))) return false; }
   return true;
 }
 function passesFilters(p){ return passesWith(p); }
@@ -1499,8 +1506,11 @@ const PILLS=[["fin","Finish"],["col","Collection"],["cat","Category"],["more","M
 const MORE=[["lt","Line type"]]; // only line type; series, style name, compliance, color and price are left out
 const LT_ORDER=["Stocked","Non-Stocked","Direct Ship","Kit"], LT_LABEL={"Non-Stocked":"Non-stocked","Direct Ship":"Direct ship"};
 const optLabel=(k,o)=>k==="lt"?(LT_LABEL[o]||o):o;
-const catCount=(key,val)=>CAT.reduce((n,p)=>n+(p[key]===val),0); // catalog size, for stable "most used" and family order
-const uniq=(list,key)=>[...new Set(list.map(p=>p[key]))].sort(alpha);
+const catCount=(key,val)=>CAT.reduce((n,p)=>n+sameVal(p[key],val),0); // catalog size, for stable "most used" and family order; spellings combined
+// one option per value, ignoring case and spacing; it shows the spelling most products use
+const uniq=(list,key)=>{ const by=new Map(); list.forEach(p=>{ const k=normVal(p[key]); if(!by.has(k)) by.set(k,new Set()); by.get(k).add(p[key]); });
+  const uses=v=>CAT.reduce((n,p)=>n+(p[key]===v),0);
+  return [...by.values()].map(s=>[...s].sort((a,b)=>uses(b)-uses(a)||alpha(a,b))[0]).sort(alpha); };
 const orList=a=>a.length<3?a.join(" or "):`${a.length} finishes`;
 const ICON_SEARCH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const CHEV='<svg width="10" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>';
@@ -1615,13 +1625,12 @@ function renderResults(){
   cnt.innerHTML=`${applied(list.length)}${pages>1?` · showing ${from+1}–${from+shown.length}`:""}${hiddenDisc?` · ${hiddenDisc} discontinued or in-development hidden`:""} <span class="fr">FR-17</span>`;
   const rows=shown.map(p=>{ // UOM opens a tray with weight, collection and finish, as in QOM staging
     const reason=reasonFor(p); const blocked=!!reason; const canAdd=roomOk && !blocked;
-    const stock = !S.stock ? "" : (p.st!==20 ? "" : (p.stock>0 ? `<span class="tag ok stk">In stock: ${p.stock} in USC</span>` : `<span class="tag note stk">${p.lead?"Lead time "+esc(p.lead):"Not in stock"}</span>`));
     const price = p.price==null ? "—" : money(p.price);
     const accents = p.accents ? `<small>${esc(p.accents)} <span class="fr">FR-11</span></small>` : "";
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}</div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd c-st">${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
@@ -1641,9 +1650,9 @@ function renderRoomMenu(){
   $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div>${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}`;
 }
 const grip=(type,room,sku,label)=>`<button type="button" class="grip" data-grip="${type}" data-groom="${esc(room)}" data-gsku="${esc(sku)}" aria-label="Reorder ${esc(label)}. Drag, or press arrow up or down." title="Drag to reorder">⠿</button>`;
-const roomName=r=>S.editRoom===r.name
-  ? `<input class="rname-in" value="${esc(S.editVal)}" aria-label="Room name" aria-invalid="${!!S.editErr}">`
-  : esc(r.name); // renaming is only in the room's "…" menu; a click on the name opens the room like the rest of the bar
+// room name, then its type in grey unless the name is just the type ("sams kitchen · Kitchen", but "Bar", not "Bar · Bar").
+// Renaming is only in the room's "…" menu; a click on the name opens the room like the rest of the bar
+const roomName=r=>esc(r.name)+(r.type&&r.type.toLowerCase()!==r.name.trim().toLowerCase()?` <span class="rtype">· ${esc(r.type)}</span>`:"");
 // quantity cell: stepper always visible; unit + info icon unless the unit is "each"; the sold-in multiple is helper text, not just a tooltip
 const ICON={
   door:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 18V2h10v16M3 18h14M5 2l6 2v14"/><circle cx="9.3" cy="10.5" r=".6" fill="currentColor"/></svg>`,
@@ -1672,14 +1681,14 @@ const MORE_DOTS='<svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="tru
 const ROOM_MENU=[
   ["dup","Duplicate room",MI('<rect x="8" y="3" width="11" height="14" rx="1"/><path d="M5 7v13a1 1 0 0 0 1 1h10"/>')],
   ["del","Delete room",MI('<path d="M9 3h6M4 6h16"/><rect x="6" y="6" width="12" height="15" rx="1"/><path d="M10 11l4 5M14 11l-4 5"/>')],
-  ["ren","Edit room name",MI('<path d="M4 20l1-5L16 4l4 4L9 19zM14 6l4 4"/>')]
+  ["ren","Rename room",MI('<path d="M4 20l1-5L16 4l4 4L9 19zM14 6l4 4"/>')]
 ];
 const roomMenu=r=>`<div class="lmenu rmenu" role="menu" aria-label="Actions for ${esc(r.name)}">${ROOM_MENU.map(([id,label,icon])=>`<button type="button" role="menuitem" data-ract="${id}" data-rname="${esc(r.name)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
 // a copy goes straight after the original, named "Bar 2", "Bar 3"…; it is a draft until saved, like any other change
 function duplicateRoom(name){
   const rooms=S.quote.rooms, idx=rooms.findIndex(r=>r.name===name); if(idx<0) return;
   const base=name.replace(/ \d+$/,""); let n=2; while(rooms.some(r=>r.name.toLowerCase()===`${base} ${n}`.toLowerCase())) n++;
-  const copy=structuredClone(rooms[idx]); copy.name=`${base} ${n}`; rooms.splice(idx+1,0,copy); S.dirty=true;
+  const copy=structuredClone(rooms[idx]); copy.name=`${base} ${n}`; delete copy.id; rooms.splice(idx+1,0,copy); S.dirty=true; // the copy is a new room, so it gets its own ID
   renderRoomMenu(); renderQuote(); showToast(`✓ Duplicated ${name} as ${copy.name}`,"ok"); document.querySelector(`[data-rmore="${CSS.escape(copy.name)}"]`)?.focus();
 }
 const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
@@ -1694,7 +1703,9 @@ function openRemoveDialog(room,sku){
   $("#rmCancel").focus();
 }
 // the last saved copy of the quote; "Discard changes" goes back to it
-function markSaved(){ S.base=structuredClone(S.quote); SEND.savedAt=nowTime(); }
+// every room gets a stable ID the first time it's needed; renaming keeps it, so unsaved changes compare rooms by ID, not by name
+let ROOM_SEQ=0; const roomId=r=>r.id||(r.id="room"+(++ROOM_SEQ));
+function markSaved(){ S.quote.rooms.forEach(roomId); S.base=structuredClone(S.quote); SEND.savedAt=nowTime(); }
 // opening a room makes it the one you add to; the open room can also be folded shut by hand
 function pickRoom(name){ S.room=name; S.collapsedFor=null; S.folded=S.folded.filter(x=>x!==name); if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
 function toggleRoom(name){ if(S.lineQ.trim()) return; // while filtering, rooms open by whether they have matching lines
@@ -1734,7 +1745,7 @@ function confirmRemove(){
 // mock M3 read: Available to Promise is today when the item is in stock, otherwise today plus the lead time
 const atpDate=p=>{ const d=new Date(); if(!(p.stock>0)){ const w=parseInt((p.lead||"").replace(/\D+/g,""),10)||8; d.setDate(d.getDate()+w*7); } return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
 const COO={Henry:"USA",Easton:"USA",Arrow:"ITA",Candide:"FRA"}; // mock country of origin by collection
-const pdetails=p=>`<div class="pdet"><div><b>Item #:</b> ${esc(p.same||p.sku)}</div><div><b>Quantity:</b> ${(p.stock||0).toLocaleString("en-US")}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> USC</div><div><b>Available to Promise (ATP):</b> ${atpDate(p)}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div></div>`;
+const pdetails=p=>`<div class="pdet"><div><b>Item #:</b> ${esc(p.same||p.sku)}</div><div><b>Stock:</b> ${stockText(p)}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> USC</div><div><b>Available to Promise (ATP):</b> ${atpDate(p)}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div></div>`;
 const SHIP_OPTS=["Standard Shipping (S01)","Expedited (S02)","Second day (S03)"];
 const CAL_ICON='<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 0h1.5v2h5V0H12v2h1.5A1.5 1.5 0 0 1 15 3.5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-10A1.5 1.5 0 0 1 2.5 2H4zM2.5 6v7.5h11V6zm2 1.5h3v3h-3z"/></svg>';
 const dayOf=v=>{ const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((v||"").trim()); return m?new Date(+m[3],+m[1]-1,+m[2]).getTime():NaN; }; // calendar day only, so time of day never matters
@@ -1904,7 +1915,7 @@ function renderQuote(){
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(fm&&!fm.ok(l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
       return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room (hidden while filtering)
   if(rooms.some(r=>r.lines.length)&&!S.lineQ.trim()&&!S.expanded) wrap.insertAdjacentHTML("beforeend",`<button type="button" class="addroomrow" id="addRoomRow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>Add another room</button>`);
@@ -1973,7 +1984,8 @@ const badQty=()=>quoteLines().some(({l})=>l.qty%CAT.find(x=>x.sku===l.sku).mult)
 const lineName=x=>{ const p=CAT.find(c=>c.sku===x.l.sku); return `${p.name} in ${p.fin} · ${x.r.name}`; };
 // how many things differ from the last save: each added, removed or edited line, and each added or removed room
 function changeCount(){ if(!S.dirty) return 0;
-  const map=q=>{ const m=new Map(); (q?.rooms||[]).forEach(r=>{ m.set("room:"+r.name,r.type||""); r.lines.forEach(l=>m.set(r.name+"|"+l.sku,JSON.stringify(l))); }); return m; };
+  // keyed by room ID: a rename (name or type) is one change, and the room's lines don't count as changed
+  const map=q=>{ const m=new Map(); (q?.rooms||[]).forEach(r=>{ const id=roomId(r); m.set("room:"+id,r.name+"|"+(r.type||"")); r.lines.forEach(l=>m.set(id+"|"+l.sku,JSON.stringify(l))); }); return m; };
   const a=map(S.base), b=map(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return Math.max(n,1); }
 // where the panel is pointing: which of the missing lines, counted in quote order
 function focusPos(kind){ const f=SEND.focus; if(!f||f.kind!==kind) return -1; return missingOf(kind).findIndex(x=>x.r.name===f.room&&x.l.sku===f.sku); }
@@ -2187,7 +2199,7 @@ let timer=null, spinTimer=null;
 const PAGE=20; // results per page
 function search(){ // the spinner only appears if a search takes longer than 300 ms, so fast searches don't flash it
   clearTimeout(timer); clearTimeout(spinTimer); S.notice=null; S.page=1;
-  const delay = S.scenario==="loading" ? 3000 : 250;
+  const delay = S.scenario==="loading" ? 1500 : 250; // Scenario "Loading": slow enough for "Searching…" to show
   spinTimer=setTimeout(()=>{ S.loading=true; renderResults(); }, 300);
   timer=setTimeout(()=>{ clearTimeout(spinTimer); S.loading=false; renderFilters(); renderResults();
     if(!S.room && S.query.trim()) showToast("Add room to quote to start adding products","warn"); // searching before a room exists
@@ -2224,11 +2236,13 @@ function showAddedLine(room,sku){
   pane.scrollTo({top,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
   el.classList.add("justadded"); setTimeout(()=>el.classList.remove("justadded"),1600);
 }
-let roomMode="add";
-function openRoomForm(mode,preset){
+let roomMode="add", renameFrom=null; // one form adds a room or renames one (FR-21); renameFrom is the room being renamed
+function openRoomForm(mode,preset,target){
   const menu=$("#roomMenu"); menu.hidden=false; $("#roomBtn").setAttribute("aria-expanded","true");
-  const cur=S.quote.rooms.find(r=>r.name===S.room); roomMode="add"; const ren=false;
-  menu.innerHTML=`<div class="grp">Add room</div><form id="roomForm"><select id="roomType" aria-label="Room type (required)" required><option value="" ${preset?"":"selected"} disabled>Room type (required)</option>${ROOM_TYPES.map(t=>`<option ${t===preset?"selected":""}>${t}</option>`).join("")}</select><input id="roomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="roomHint roomErr"><button type="submit" class="btn">Add room</button><button type="button" class="btn ghost" id="roomCancel">Cancel</button><span class="rfhint" id="roomHint">Leave the name blank to use the room type as the name. <span class="fr">FR-21</span></span></form><p class="form-err" id="roomErr" role="alert" hidden></p>`;
+  const tr=mode==="rename"?S.quote.rooms.find(r=>r.name===target):null; roomMode=tr?"rename":"add"; renameFrom=tr?tr.name:null; const ren=!!tr;
+  if(ren) preset=tr.type; const types=ren&&tr.type&&!ROOM_TYPES.includes(tr.type)?[tr.type,...ROOM_TYPES]:ROOM_TYPES;
+  menu.innerHTML=`<div class="grp">${ren?"Rename room":"Add room"}</div><form id="roomForm" aria-label="${ren?"Rename room":"Add room"}"><select id="roomType" aria-label="Room type (required)" required><option value="" ${preset?"":"selected"} disabled>Room type (required)</option>${types.map(t=>`<option ${t===preset?"selected":""}>${esc(t)}</option>`).join("")}</select><input id="roomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="roomHint roomErr" value="${ren?esc(tr.name):""}"><p class="form-err" id="roomErr" role="alert" hidden></p><button type="submit" class="btn">${ren?"Save":"Add room"}</button><button type="button" class="btn ghost" id="roomCancel">Cancel</button><span class="rfhint" id="roomHint">Leave the name blank to use the room type as the name. <span class="fr">FR-21</span></span></form>`;
+  if(ren){ $("#roomName").focus(); $("#roomName").select(); return; }
   (preset?$("#roomName"):$("#roomType")).focus();
 }
 
@@ -2256,7 +2270,7 @@ document.addEventListener("click",e=>{
   if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
   if(t.dataset.addprod){ startAddProducts(t.dataset.addprod); return; }
   if(t.id==="menuAdd"){ openRoomForm("add"); return; }
-  if(t.id==="roomCancel"){ $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); return; }
+  if(t.id==="roomCancel"){ const back=roomMode==="rename"?renameFrom:null; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); roomMode="add"; renameFrom=null; if(back) focusName(back); return; }
   if(t.dataset.room){ S.room=t.dataset.room; S.collapsedFor=null; S.scenario= S.scenario==="noroom"?"normal":S.scenario; $("#scenario").value=S.scenario; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); renderRoom(); renderResults(); renderQuote(); return; }
   if(t.dataset.newroom){ openRoomForm("add",t.dataset.newroom); return; }
   if(t.dataset.toggleroom){ toggleRoom(t.dataset.toggleroom); return; }
@@ -2273,7 +2287,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.ract){ const name=t.dataset.rname; S.rmenu=null;
     if(t.dataset.ract==="dup"){ duplicateRoom(name); return; }
     if(t.dataset.ract==="del"){ removeRoom(name); return; }
-    renderQuote(); startRename(name); return; }
+    renderQuote(); startRename(name); return; } // "Rename room": the same form as Add room, filled in
   if(t.dataset.more){ S.rmenu=null; S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
@@ -2312,7 +2326,7 @@ document.addEventListener("submit",e=>{ if(e.target.id!=="sideRoomForm") return;
   const type=$("#sideRoomType").value; if(!type) return; let name=$("#sideRoomName").value.trim();
   if(!name){ name=type; let n=2; while(S.quote.rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
   const clash=S.quote.rooms.find(r=>r.name.toLowerCase()===name.toLowerCase());
-  if(clash){ const err=$("#sideRoomErr"); err.textContent=`This quote already has a room called “${clash.name}”. Pick it from the list, or use a different name.`; err.hidden=false; $("#sideRoomName").focus(); return; }
+  if(clash){ const err=$("#sideRoomErr"); err.textContent=`Another room is already called ${clash.name}.`; err.hidden=false; $("#sideRoomName").focus(); return; } // only a typed name can clash; a blank one is numbered above
   S.quote.rooms.push({name,type,lines:[]}); S.room=name; S.collapsedFor=null; S.sideAdd=false; S.dirty=true;
   if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";}
   renderRoom(); renderResults(); renderQuote(); showToast(`${name} added. Add products to it when you're ready.`,"ok");
@@ -2332,12 +2346,14 @@ function startAddProducts(name){
   $("#q").focus(); $("#q").scrollIntoView({block:"nearest"});
 }
 document.addEventListener("submit",e=>{ if(e.target.id!=="roomForm") return; e.preventDefault(); const type=$("#roomType").value; if(!type) return; let name=$("#roomName").value.trim(); const typed=!!name;
-  if(!typed){ name=type; let n=2; while(S.quote.rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
-  const existing=S.quote.rooms.find(r=>r.name===S.room); const renaming=roomMode==="rename"&&existing;
+  const existing=roomMode==="rename"?S.quote.rooms.find(r=>r.name===renameFrom):null; const renaming=!!existing; // rename: the room whose "…" opened the form
+  if(!typed){ name=type; let n=2; while(S.quote.rooms.some(r=>r!==existing&&r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
   const clash=S.quote.rooms.find(r=>r.name.toLowerCase()===name.toLowerCase() && !(renaming&&r===existing));
-  if(clash){ const err=$("#roomErr"); err.textContent=`This quote already has a room called “${clash.name}”. Pick it from the list, or use a different name.`; err.hidden=false; $("#roomName").focus(); return; }
-  if(renaming){ applyRename(existing,name); existing.type=type; } else { S.quote.rooms.push({name,type,lines:[]}); S.room=name; }
-  S.dirty=true; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); });
+  if(clash){ const err=$("#roomErr"); err.textContent=`Another room is already called ${clash.name}.`; err.hidden=false; $("#roomName").focus(); return; } // only a typed name can clash; a blank one is numbered above
+  const changed=!renaming||existing.name!==name||existing.type!==type;
+  if(renaming){ if(existing.name!==name) applyRename(existing,name); existing.type=type; } else { S.quote.rooms.push({name,type,lines:[]}); S.room=name; }
+  roomMode="add"; renameFrom=null;
+  if(changed) S.dirty=true; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderRoomMenu(); renderQuote(); if(renaming) focusName(name); });
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset.f){ const k=t.dataset.f, set=S.filters[k]; t.checked?set.add(t.value):set.delete(t.value); if(k==="fin") S.finAll=false; renderFilters(); search(); return; }
@@ -2374,7 +2390,6 @@ document.addEventListener("change",e=>{
     rerenderKeepFocus(); return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
-  if(t.id==="showStock"){ S.stock=t.checked; renderResults(); return; }
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
   if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult; if(n>0) S.rq[sku]=n; const q=S.rq[sku]??m; t.value=q;
     // updated in place, not re-rendered, so typing a number and then clicking Add still lands on the button
@@ -2496,36 +2511,20 @@ document.addEventListener("keydown",e=>{
   }
   if(hit){ hit.focus(); hit.scrollIntoView({block:"nearest"}); }
 });
-// inline room rename: double-click a room name in the quote, or focus it and press Enter
-let quiet=false; // ignore the blur that fires when our own re-render removes the input
+// room rename: the room's "…" menu opens the Add room form as "Rename room", filled in with its name and type (FR-21)
 function applyRename(r,name){
   const old=r.name, keys=new Set(r.lines.map(l=>l.sku+old));
   S.open=S.open.map(k=>keys.has(k)?k.slice(0,k.length-old.length)+name:k);
   S.kitClosed=S.kitClosed.map(k=>keys.has(k)?k.slice(0,k.length-old.length)+name:k);
   r.name=name; if(S.room===old) S.room=name; if(S.undo&&S.undo.room===old) S.undo.room=name;
 }
-function redrawQuote(){ quiet=true; renderQuote(); quiet=false; }
 function focusName(name){ document.querySelector(`[data-rmore="${CSS.escape(name)}"]`)?.focus(); } // back to the "…" the rename came from
-function startRename(name){
-  if(S.editRoom) finishRename(true,false,true);
-  S.editRoom=name; S.editVal=name; S.editErr=""; redrawQuote();
-  const i=document.querySelector(".rname-in"); if(i){ i.focus(); i.select(); }
+function startRename(name){ // the form sits under "Adding to", so leave full screen or the Quote tab first, as Add products does
+  if(S.expanded) setExpanded(false);
+  if(S.layout==="tabs"&&S.pane!=="search"){ S.pane="search"; renderLayout(); }
+  openRoomForm("rename",null,name); $("#roomBtn").scrollIntoView({block:"nearest"});
 }
-function finishRename(commit,refocus,fromBlur){
-  const old=S.editRoom; if(!old) return;
-  const r=S.quote.rooms.find(x=>x.name===old), name=S.editVal.trim();
-  const clash=S.quote.rooms.find(x=>x!==r&&x.name.toLowerCase()===name.toLowerCase());
-  const err=!commit||name===old ? "" : !name ? "A room needs a name." : clash ? `This quote already has a room called “${clash.name}”.` : "";
-  if(err && !fromBlur){ S.editErr=err; redrawQuote(); const i=document.querySelector(".rname-in"); if(i) i.focus(); return; }
-  S.editRoom=null; S.editErr="";
-  if(commit && !err && name!==old){ applyRename(r,name); S.dirty=true; renderRoom(); renderResults(); renderRoomMenu(); }
-  redrawQuote(); if(refocus) focusName(r.name);
-}
-document.addEventListener("keydown",e=>{
-  if(e.target.matches?.(".rname-in")){ if(e.key==="Enter"){ e.preventDefault(); finishRename(true,true); } else if(e.key==="Escape"){ e.preventDefault(); finishRename(false,true); } }
-});
-document.addEventListener("input",e=>{ if(e.target.matches?.(".rname-in")) S.editVal=e.target.value; if(e.target.dataset?.fq){ S.fq[e.target.dataset.fq]=e.target.value; renderFilters(); } });
-document.addEventListener("focusout",e=>{ if(!quiet && e.target.matches?.(".rname-in")) finishRename(true,false,true); });
+document.addEventListener("input",e=>{ if(e.target.dataset?.fq){ S.fq[e.target.dataset.fq]=e.target.value; renderFilters(); } });
 // ---------- quote panel views: the hamburger swaps the panel for Quote Information or a PDF preview (all values are mock) ----------
 const QI={id:"6000024967",expires:"Apr 27, 2028",orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
   consultant:"Alex Rivera",payer:"PAT MORGAN-ELLIS",service:"Standard Shipping (S01)",cost:"Sample Design Center",project:"Henry bar and club house",desc:"Bar and club house fittings and tile",

@@ -3,11 +3,11 @@
 A clickable, wireframe-level prototype of the Product Selection step in QOM (Waterworks' internal quoting web app). It exists to test layout and search behavior with sales consultants (SCs) before design handoff. It is not production code and is not Angular.
 
 ## Source of truth
-- Requirements: the PRD "Improved Product Search & Results within a Quote" (Google Doc, QOM-2806; design epic QOM-2802, build epic QOM-2499). Requirement IDs (FR-1 to FR-21, NFR-1 to NFR-4) are tagged on screen; tick "Show FR tags" in the blue bar.
+- Requirements: the PRD "Improved Product Search & Results within a Quote" (Google Doc, QOM-2806; design epic QOM-2802, build epic QOM-2499). Requirement IDs (FR-1 to FR-21, NFR-1 to NFR-4) are marked in the code with `<span class="fr">` tags, which are always hidden on screen. `prd-trace.md` maps each requirement to the code.
 - When the PRD and the prototype disagree, the PRD wins. Say so and propose a PRD change rather than silently diverging.
 
 ## File and stack
-- `qom-product-search-prototype.html`: one file, vanilla JS and CSS, no build step, no dependencies except Google Fonts (Libre Caslon Text, Figtree).
+- `qom-product-search-prototype-v2.html`: the current prototype. One file, vanilla JS and CSS, no build step, no dependencies except Google Fonts (Libre Caslon Text, Figtree). `qom-product-search-prototype.html` is v1, kept for reference.
 - Mock data only. Never add real client, quote or pricing data. Do not call QOM or M3.
 - `images/`: eight sample product photos saved from the public waterworks.com wall-mounted accessories page, used as dummy thumbnails (not matched to the mock products). Products with no photo show a grey placeholder; a missing file falls back to the failed-image state.
 - Open it directly in a browser, or serve the folder (`python3 -m http.server`).
@@ -15,18 +15,35 @@ A clickable, wireframe-level prototype of the Product Selection step in QOM (Wat
 ## Before you say it works
 Extract the `<script>` contents and run `node --check` on them. One stray character in a template string breaks the entire script and the page goes inert.
 
-## What is built
-- Three switchable layouts for the Product Selection step: A side by side, B search and quote as tabs with a quote strip, C resizable split.
-- Search: words in any order and case, exact item numbers and old 12-digit JDE codes first, light typo tolerance, matches underlined, service parts hidden by default.
-- Filters (category, finish, collection, series) work before typing, stay set, show as removable chips, and counts use the same filters as the results. They open as a tray from a Filters button (with an active count) over the results, so they never push the products down.
-- States: default prompt with recent items, "keep typing" under three characters, loading, no results with next steps, error with retry. Choose one in the Scenario dropdown.
+## What is built (v2)
+- Layout: search and quote side by side with a drag handle to resize them, plus an expand button for a full-screen quote view. The tabs layout (B) is hidden.
+- Search: runs on Enter. Words match in any order and case. Exact item numbers and old 12-digit JDE codes come first, with light typo tolerance, and matches are underlined. Service parts are ranked below sellable products (and tagged "Service part"), not hidden.
+- Filters: pills for Finish, Collection, Category (with product types beneath) and More filters (line type), each opening a popover over the results. They work before typing, stay set for the quote until cleared, and show as black removable pills with "Clear all". Counts use the same rules as the results. Values that differ only by case or spacing ("Brass", "BRASS") are one option.
+- States: an empty-search prompt, "keep typing" under three characters, loading, no results with next steps, and an error with retry.
 - Can't-add reasons: discontinued (status 80) and in development (status 10) show in results with the reason. Warehouse status and "waiting on a price" only appear when the item is added.
-- Room picker: the quote's own rooms first, one "Add or rename room" action, room type visible.
-- Quote panel: rooms, lines, quantities, per-line shipping, "unsaved changes" marker.
+- Results show no stock or availability. Stock appears on the quote line, labelled with its source ("4 available in USC · as of 11:58 AM").
+- Room picker: the quote's own rooms come first, then "+ Add room", then the standard room types. One form adds or renames a room: "Rename room" in a room's "…" menu opens the Add room form filled in. Type is required and name is optional. The room bar shows the type in grey after the name ("sams kitchen · Kitchen") unless they're the same.
+- Quote panel: rooms, lines, quantities, per-line shipping, "Find in this quote", plus Quote information and PDF preview tabs.
+- Footer bar: save status with an "unsaved changes" marker, Save, Calculate freight, Send to client, and the "Before you send" panel.
+
+## Demo bar (black bar at the top, not part of the design)
+- Layout, and View: Residential or Commercial (commercial-only items and margin pricing appear only in Commercial).
+- Scenario:
+  - Normal: a "faucet" search with Finish: Brass and Category: Fittings.
+  - Fresh quote, no lines: the default on load.
+  - Search · Loading: mock searches take about 1.5 seconds, so "Searching…" shows.
+  - Search · Error: shows the error state with Try again.
+  - Footer 1 · Unsaved edits, Footer 2 · Saved, no freight, Footer 3 · Calculating freight, Footer 4 · Ready to send, Footer 5 · Blocked.
+- Simulate a save that returns an Autospec or Pricing problem.
+- Toggles:
+  - Stock warning examples: on by default.
+  - Show discontinued and in-development: on by default.
+  - Price in results (needs an M3 call per item): off by default.
+  - Concept: Required parts on add (QOM-2561): off by default; `#concept-required-parts` in the URL also turns it on. It offers rough-in valves and often-added parts under a newly added line, using a mock `requiredParts` map.
 
 ## Engineering constraints (from Scott and Imogen, Oct 27 to 30, 2026)
 - Search runs on QOM's product table, not live M3. Cached fields: SKU, name, secondary description (FUDS), collection code, series, color, metal finish, UOM, category, item group, status, region, CHCD, SALE. Old JDE codes are in the table.
-- Price needs an M3 call, so it is off in results by default (toggle in the blue bar).
+- Price needs an M3 call, so it is off in results by default (toggle in the demo bar).
 - ATP and quantity are read in the context of the quote, not per search result. Stock shows on the quote line, not on result rows.
 - Product status is known at search time. Item and warehouse status are known only when the item is added.
 - Styles (CHCD = 2) and non-sales items (SALE = 0) are already excluded. Service parts are item groups starting "SVP".
