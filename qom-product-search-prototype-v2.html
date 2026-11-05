@@ -68,7 +68,7 @@ button{cursor:pointer}
 .tabs .tabmore{margin-left:auto;letter-spacing:.1em;color:var(--ink)}
 h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 .sub{font-family:var(--serif);font-size:17px;color:var(--ink-2);margin:0 0 14px}
-.tabs{display:flex;gap:26px;margin-bottom:14px;overflow-x:auto}
+.tabs{display:flex;gap:26px;margin:14px 0;overflow-x:auto}
 .tabs span{padding:8px 2px;color:var(--ink-2);white-space:nowrap}
 .tabs span.cur{color:var(--ink);font-weight:600;border-bottom:3px solid var(--ink)}
 .qtop{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px}
@@ -356,7 +356,6 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .roomhdr .rmenu button{color:var(--ink);text-decoration:none;font-size:14px;font-weight:400}
 /* room headers: the "Adding to" room is black with an ADDING HERE tag; the others are grey */
 .roomhdr{min-height:48px;height:48px;padding:0 4px 0 2px;margin-top:8px;font-size:15px;background:var(--surface-2);color:var(--ink);border:1px solid var(--hdr-line)}
-.rmblock:has(.line,.empty-quote)+.rmblock>.roomhdr{margin-top:12px} /* a little more air after an open room */
 .qbar:has(#qTools:not([hidden])) ~ #qProducts #rooms>.rmblock:first-child>.roomhdr{margin-top:0} /* the bar already carries the 12px gap */
 .roomhdr>span:first-child{display:flex;align-items:center;gap:4px;min-width:0;white-space:nowrap}
 .roomhdr>span:first-child:not(:has(.grip)){padding-left:18px} /* one room: no drag handle, so the name needs its own left padding */
@@ -447,7 +446,13 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .rmblock .empty-quote b{color:var(--ink);font-weight:600}
 /* no rooms at all: a dark block so the empty quote can't be missed */
 .empty-quote.none{background:var(--ink);color:var(--bg);margin-top:0;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.pane.quote.expanded .empty-quote.none{position:relative;z-index:7} /* sits above the sticky bar so its top edge lines up with the Rooms panel */
+/* full view, no rooms: "Start with a room" */
+.empty-quote.none.xl{padding:40px}
+.empty-quote.none.xl .eqicon{opacity:1;color:#fff}
+.empty-quote.none.xl h3{color:#fff;margin-bottom:8px}
+.empty-quote.none.xl p{color:#d9d9d9;opacity:1;max-width:420px;margin:0 0 20px}
+.empty-quote.none.xl .btn{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 28px;background:#fff;color:#111}
+.empty-quote.none.xl .btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .empty-quote.none .eqicon{display:flex;opacity:.85;margin-bottom:10px}
 .empty-quote.none .eqicon svg{width:30px;height:30px}
 .empty-quote.none h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 6px}
@@ -468,24 +473,27 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qsub{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
 .qright{display:flex;align-items:center;gap:8px;margin-left:auto}
 .qtools{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;min-height:56px}
-.qbar:has(#qTools:not([hidden])){padding-bottom:12px} /* the 12px under the toolbar is part of the pinned bar, so it stays the same when room bars pin on scroll */
+.qbar:has(#qTools:not([hidden])){padding-bottom:8px} /* the 8px under the toolbar is part of the pinned bar, so it stays the same when room bars pin on scroll */
 .qtools[hidden]{display:none}
 .qbar:has(#qTools:not([hidden])) .qright:not(:has(.shipsw:not([hidden]))){display:none} /* no empty wrapped row under the toolbar while the switch is hidden */
 .qtsum{display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
 .qtsum .qtitle{white-space:nowrap}
-.qtcount{margin:0;font-size:15px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
+.qtno{margin:0;font-family:var(--serif);font-weight:400;font-size:20px;color:var(--ink);white-space:nowrap} /* the quote number, always shown in every view and state */
+.qtcount[hidden]{display:none}
+.qtcount{margin:0;font-size:14px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
 .qtact{display:flex;align-items:center;gap:8px 20px;margin-left:auto}
+.qtact>[hidden]{display:none}
 .qtact[hidden]{display:none}
 /* narrow quote panel: the actions drop to their own row and the find box stretches; very narrow, the count goes under the title */
 @container quote (max-width:860px){
   .qtools{flex-wrap:wrap}
-  .qtact{flex:1 1 100%;margin-left:0;flex-wrap:wrap;gap:8px 16px}
-  .qtact .lfilter{flex:1 1 160px;width:auto}
+  .qtact{flex-wrap:wrap;justify-content:flex-end;gap:8px 16px} /* stays on the count's row while it fits; wraps under it only when it doesn't */
 }
 @container quote (max-width:440px){
   .qtsum{flex-wrap:wrap;row-gap:2px}
   .qbar .qtop,.qbar .qseg{min-width:0}
-  .qbar .qtab{flex:1 1 auto;min-width:0;padding:0 8px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qbar .qseg{gap:16px}
+  .qbar .qtab{flex:0 1 auto;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis}
   .roomhdr>span:first-child{flex:1 1 auto;overflow:hidden}
   .roomhdr .hdrend{flex:none}
   .roomhdr .rcount{display:none} /* the line count is on the toolbar; the room name and tag need the room */
@@ -496,22 +504,22 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
 .qtfold{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 2px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}.qtfold:hover{text-decoration:underline}
 .qtfold:disabled{color:var(--ink-3);text-decoration:none;cursor:default}
-/* "+ Add room": outlined, not black, so it reads as the one action that changes the quote without competing with Save */
-.qtfold.qtadd{position:relative;min-height:40px;height:40px;padding:0 14px;border:1px solid color-mix(in srgb,var(--ink-3) 55%,var(--bg));background:var(--bg);text-decoration:none}
-.qtfold.qtadd::before{content:"";position:absolute;inset:-3px -1px} /* 40px to match the find box, 44px to tap */
-.qtfold.qtadd:hover{border-color:var(--ink-2);text-decoration:none}
-.qtfold.qtadd:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.qtfold:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+/* "+ Add another room": a full-width dashed row after the last room, once the quote has products */
+.addroomrow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin-top:8px;padding:0 16px;border:1px dashed color-mix(in srgb,var(--ink-3) 55%,var(--bg));background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
+.addroomrow:hover{border-color:var(--ink-2);background:var(--bg)}
+.addroomrow:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .lnone{background:var(--bg);border:1px dashed var(--ink-3);margin-top:12px;padding:22px 16px;text-align:center;color:var(--ink-2);font-size:14px}
 /* the quote title bar stays at the top of the quote side; room bars pin just below it (--qbar-h is measured in script) */
-.qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
+.qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:4px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
 .qseg{display:inline-flex}
-.qbar .qtop{flex:1 0 100%;order:-1;margin:0}
-.qbar .qseg{flex:1}
-.qbar .qseg .qtab{flex:1 1 auto;white-space:nowrap;padding:0 8px}
-.qtab{background:var(--bg);color:var(--ink-2);border:1px solid var(--line);height:34px;padding:0 12px;font-size:13px}
-.qtab + .qtab{margin-left:-1px}
-.qtab[aria-selected="true"]{position:relative;z-index:1;background:var(--surface);color:var(--ink);font-weight:600;border-color:var(--ink-3)}
-.qtab:focus-visible{outline-offset:2px}
+/* view tabs: underline tabs, the same look as the page tabs (Essential Quote Info, Header Information…) */
+.qbar .qtop{flex:1 0 100%;order:-1;margin:0;height:52px;align-items:stretch;border-bottom:1px solid var(--line)}
+.qbar .qseg{flex:1;gap:26px;min-width:0}
+.qtab{display:flex;align-items:center;flex:none;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 2px 0;font:inherit;color:var(--ink-2);white-space:nowrap;cursor:pointer}
+.qtab:hover{color:var(--ink)}
+.qtab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+.qtab:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .backlink{border:0;background:transparent;padding:0;margin:0 0 14px;color:var(--ink-2);text-decoration:underline;font-size:13px}
 .pane.quote:not(.expanded) .qbox:has(#qInfo:not([hidden])){background:#fff} /* the quote information reads on plain white */
 #qInfo{background:#fff;padding:8px 2px 0}
@@ -621,7 +629,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .pdftbl tr.rm td{background:#f4f4f4;font-weight:700}
 .pdftbl .m{color:#666;font-size:9px}
 .pdftbl tfoot td{border:0;text-align:right;font-weight:700}
-.expandbtn{width:34px;height:34px;flex:none;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0}
+.expandbtn{width:44px;height:44px;flex:none;align-self:center;border:0;border-radius:0;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.expandbtn:hover{background:var(--surface-2)}
+.expandbtn:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .pane.quote.expanded{position:fixed;inset:0;z-index:100;overflow:auto;overscroll-behavior:none;border:0;background:var(--panel-soft);padding:24px max(24px,calc((100vw - 1200px)/2))}
 /* side by side on desktop: each side fills the screen below the page header and scrolls on its own,
    so a long result list never leaves the quote off screen (and the sticky headers and Save bar pin to each side) */
@@ -644,40 +654,45 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   .work[data-layout="split"] #quotePane:not(.expanded) .empty-quote.none{flex:1;justify-content:center}
   .work[data-layout="split"] .pane.quote.expanded{position:fixed;height:auto;padding-right:max(24px,calc((100vw - 1200px)/2))}
 }
-.pane.quote.expanded .roomhdr{top:max(0px,calc(var(--qbar-h,64px) - 64px))}
+.pane.quote.expanded .roomhdr{top:calc(var(--qbar-h,80px) - 16px)} /* room bars pin under the tabs row and the toolbar (sticky offsets count from inside the pane's 68px top padding) */
 /* while the bar has nothing to show (Shipping Details switch hidden), the first room lines up with the top of the Rooms panel on the left */
-.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))){margin-top:-64px;padding-top:64px;padding-bottom:0} /* ends exactly where the rooms start, so nothing peeks out above a pinned room bar */
-.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))) ~ #qProducts #rooms>.rmblock:first-child>.roomhdr{margin-top:0}
-.pane.quote.expanded .qbar{top:-64px;margin-top:-62px;padding-top:62px} /* reaches up under the floating view tabs */
+/* full view: the toolbar pins just under the tabs row; its 16px top padding is the gap under the tabs, so nothing peeks out above it */
+.pane.quote.expanded .qbar,.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))){top:-16px;margin-top:-16px;padding-top:16px;padding-bottom:8px}
+.pane.quote.expanded .lfilter{width:240px;flex-basis:240px}
 .pane.quote.expanded .qfoot{bottom:-24px}
 body.noscroll{overflow:hidden}
 /* full screen: left panel with rooms, totals and save actions; products on the right */
-.pane.quote.expanded .qbox{display:grid;grid-template-columns:300px minmax(0,1fr);column-gap:28px;align-items:start;border:0;padding:0;background:transparent}
+.pane.quote.expanded .qbox{display:grid;grid-template-columns:260px minmax(0,1fr);column-gap:24px;align-items:start;border:0;padding:0;background:transparent}
 .pane.quote.expanded .qbox>:not(.qside){grid-column:2}
 .pane.quote.expanded .qbar{margin-left:0;margin-right:0;padding-left:0;padding-right:0}
 .pane.quote.expanded .qfoot{display:none}
-.qside{grid-column:1;grid-row:1/span 5;position:sticky;top:0;background:var(--bg);border:1px solid var(--panel-line);max-height:calc(100vh - 88px);overflow:auto}
+.qside{grid-column:1;grid-row:1/span 5;position:sticky;top:0;background:var(--bg);border:1px solid var(--hdr-line);max-height:calc(100vh - var(--bar-h,0px) - 92px);overflow:auto}
 .qside[hidden]{display:none}
-.pane.quote.expanded .rmblock{scroll-margin-top:calc(var(--qbar-h,64px) - 12px)} /* a room picked in the left panel lands just under the title bar */
-.qsidet{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--panel-line)}
-.qsidet h3{font-weight:400;font-size:18px;margin:0}
-.qsidet h3 .rcount{color:var(--ink-3);font-size:15px;margin-left:4px}
+.pane.quote.expanded .rmblock{scroll-margin-top:calc(var(--qbar-h,80px) + 52px)} /* a room picked in the left panel lands just under the title bar */
+.qsidet{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:6px 16px;border-bottom:1px solid var(--hdr-line)}
+.qsidet h3{font-weight:600;font-size:15px;margin:0}
+.qsidet h3 .rcount{color:var(--ink-2);font-weight:400}
 .qsidet .tolink{min-height:44px;margin:-12px 0;font-size:14px}
 .sideform{display:flex;flex-direction:column;gap:8px;padding:14px 18px 16px;border-bottom:1px solid var(--panel-line);background:var(--bg)}
 .sideform select,.sideform input{font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink)}
 .sideform .row{display:flex;gap:8px}.sideform .row .btn{flex:1}
 .sideform .hint{margin:0;font-size:12px;color:var(--ink-3)}
 .sideform .form-err{margin:0}
-.empty-quote .addprod{margin-top:10px}
-.siderooms{min-height:120px;border-bottom:1px solid var(--panel-line);background:var(--bg)}
-.sroom{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--panel-line);background:var(--bg);padding:14px 18px;font:inherit;font-size:15px;color:var(--ink);text-align:left}
+.rmblock .empty-quote b{display:block;margin-bottom:4px}
+.empty-quote .addprod{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 2px;font-size:14px;margin-bottom:-12px} /* 44px target without adding visible height */
+.siderooms{background:var(--bg)}
+/* one row per room: name (and ADDING HERE under it) on the left, line count on the right */
+.sroom{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;border:0;border-bottom:1px solid var(--hdr-line);background:var(--bg);padding:8px 16px;font:inherit;font-size:15px;color:var(--ink);text-align:left;cursor:pointer}
+.sroom:last-child{border-bottom:0}
 .sroom:hover{background:var(--surface)}
-.sroom[aria-current="true"]{box-shadow:inset 3px 0 0 var(--ink);font-weight:600}
-.sroom .sricon{display:flex;color:var(--ink-2)}
-.sroom .srn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sroom .srbadge{min-width:26px;height:26px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);font-size:13px;display:flex;align-items:center;justify-content:center;padding:0 6px;font-weight:400}
-.siderooms .snone{color:var(--ink-3);font-size:13px;padding:14px 18px;margin:0}
-.sidesave{display:none}
+.sroom:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.sroom[aria-current="true"]{box-shadow:inset 3px 0 0 var(--ink)}
+.sroom .srn{display:flex;flex-direction:column;flex:1;min-width:0}
+.sroom .srname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sroom[aria-current="true"] .srname{font-weight:600}
+.sroom .srtag{margin-top:2px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.sroom .srcnt{flex:none;font-size:14px;color:var(--ink-3);white-space:nowrap}
+.siderooms .snone{color:var(--ink-2);font-size:14px;padding:16px;margin:0}
 .qside .qend{margin:0;padding:16px 18px 20px}
 .qside .totals{margin:0;width:100%;font-size:13px;gap:8px 12px}
 .qside .totals .big{font-size:18px}
@@ -692,8 +707,13 @@ body.noscroll{overflow:hidden}
 .qtop[hidden]{display:none}
 .tabs .qtop{margin:0 0 0 auto;align-self:center;flex:none}
 /* while the quote is enlarged, its view tabs and the shrink button float over its top right corner */
-body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)/2));z-index:101;margin:0}
-.pane.quote.expanded{padding-top:64px !important}
+/* full view: the tabs row runs across the top of the screen, the same underline tabs as the normal view; content starts 16px below it */
+body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2));right:max(24px,calc((100vw - 1200px)/2));z-index:101;margin:0;background:var(--panel-soft)}
+@media (min-width:1280px){ body.sendopen.noscroll .qtop{right:calc(var(--sp-w) + max(24px,calc((100vw - 1200px)/2)))} }
+.pane.quote.expanded{padding-top:68px !important}
+/* "Exit full view": a borderless text button with the collapse icon before it */
+.pane.quote.expanded .expandbtn{width:auto;gap:8px;padding:0 6px;font:inherit;font-size:14px;font-weight:500;white-space:nowrap}
+.pane.quote.expanded .expandbtn:hover{background:none;text-decoration:underline;text-underline-offset:3px}
 /* the search box and the Filters button share one row; chips and the tray sit below it */
 .filterwrap{position:relative;margin-bottom:12px}
 .resmeta{margin:0 0 8px;color:var(--ink-2);font-size:13px}
@@ -803,12 +823,13 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pbar.stack .pb-br{justify-content:flex-start}
 .pbar.stack .pb-help{text-align:left;white-space:normal}
 @media (max-width:980px){ .pbar{padding-left:16px;padding-right:16px} }
-/* collapse handle: a small tab on the bar's top edge, so it never changes the bar's layout */
+/* collapse handle: a small tab centred on the bar's top edge, so it never changes the bar's layout */
 .pb-tog{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:52px;height:20px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--panel-line);border-bottom:0;background:var(--bg);color:var(--ink-2);cursor:pointer}
 .pb-tog::after{content:"";position:absolute;inset:-12px -4px -4px} /* 44px-ish target without a bigger tab */
 .pb-tog svg{transition:transform .15s}
 .pbar.mini .pb-tog svg{transform:rotate(180deg)}
 .pb-tog:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){ .pb-tog svg{transition:none} }
 /* collapsed: one 36px line. Total, save status, the next step in words, and only the next-step button */
 .pbar.mini{grid-template-columns:auto auto minmax(0,1fr) auto;grid-template-rows:28px;grid-template-areas:"tl ts br tr";row-gap:0;column-gap:20px;padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px))}
 .pbar.mini .pb-bl,.pbar.mini .pb-div,.pbar.mini #pbDiscSep,.pbar.mini .pb-discard{display:none}
@@ -870,8 +891,6 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .lflag .tolink{min-height:44px;margin:-8px 0;font-weight:600}
 #linesEnd{height:1px;margin-top:-1px} /* marks the end of the quote lines (auto-open variant B) */
 /* narrow Selected Products side: the buttons start on the left when they wrap under the totals */
-.qside #sideEnd{padding:16px 18px 20px}
-.qside #sideEnd .sidesave{display:block;width:100%}
 .proto .pbtn{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font-size:13px}
 </style>
 </head>
@@ -923,8 +942,8 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <span class="avatar" role="img" aria-label="Signed-in user"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></span>
       </div>
     </div>
-    <h1>Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
-    <p class="sub">QUALITY FINISHES (USC) · Henry bar and club house</p>
+    <!-- quote title and client line removed; the quote number now sits with the line and room count in the quote panel -->
+    <h1 class="sr">Edit quote 6000024967</h1>
     <div class="tabs">
       <span>Essential Quote Info</span><span>Header Information</span><span>Shipping Information</span><span>Associations</span><span class="cur">Product Selection</span><span>Admin: Calculations</span><span>Communications</span><span class="tabmore" aria-label="More tabs">•••</span>
     </div>
@@ -972,29 +991,28 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
       <section class="pane quote" id="quotePane" aria-label="Quote">
         <div class="qbox">
         <!-- full screen only: rooms, totals and save actions sit in a left panel, as in the QOM staging quote screen -->
-        <aside class="qside" id="qSide" aria-label="Rooms and totals" hidden>
-          <div class="qsidet"><h3 id="sideRoomsH">Rooms</h3><button type="button" class="tolink" id="sideAddBtn" aria-expanded="false" aria-controls="sideRooms">+ Add room</button></div>
+        <nav class="qside" id="qSide" aria-labelledby="sideRoomsH" hidden>
+          <div class="qsidet"><h3 id="sideRoomsH">Rooms</h3><button type="button" class="tolink qtfold" id="sideAddBtn" aria-expanded="false" aria-controls="sideRooms"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg><span>Add room</span></button></div>
           <div class="siderooms" id="sideRooms"></div>
-          <div id="sideEnd"><button type="button" class="btn sidesave" id="sideSave" disabled>Save</button></div>
-        </aside>
+        </nav>
         <div class="qbar">
         <!-- view tabs and the enlarge button sit at the top of the quote panel; in full screen they float top right -->
         <div class="qtop" id="qTop">
         <div class="qseg" role="tablist" aria-label="Quote panel view">
-          <button type="button" class="qtab" role="tab" data-qview="products" aria-selected="true">Products</button>
-          <button type="button" class="qtab" role="tab" data-qview="info" aria-selected="false">Quote information</button>
-          <button type="button" class="qtab" role="tab" data-qview="pdf" aria-selected="false">PDF preview</button>
+          <button type="button" class="qtab" role="tab" id="qtabProducts" aria-controls="qProducts" data-qview="products" aria-selected="true">Products</button>
+          <button type="button" class="qtab" role="tab" id="qtabInfo" aria-controls="qInfo" data-qview="info" aria-selected="false" tabindex="-1">Quote information</button>
+          <button type="button" class="qtab" role="tab" id="qtabPdf" aria-controls="qPdf" data-qview="pdf" aria-selected="false" tabindex="-1">PDF preview</button>
         </div>
-          <button type="button" class="expandbtn" id="expandBtn" aria-pressed="false" aria-label="Enlarge panel to full screen" title="Enlarge"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg></button>
+          <button type="button" class="expandbtn" id="expandBtn" aria-label="Expand quote pane" title="Expand"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg></button>
         </div>
         <!-- title and room/line count hidden for now; remove "hidden" to bring them back -->
         <div class="qhead" hidden><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
         <!-- Products view toolbar: what's on the quote, a filter for long quotes, fold every room -->
         <div class="qtools" id="qTools">
-          <div class="qtsum"><h2 class="qtitle">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
+          <div class="qtsum"><p class="qtno">Quote: 6000024967</p><h2 class="sr">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
-            <button type="button" class="tolink qtfold qtadd" id="toolAddBtn" aria-controls="roomMenu">+ Add room</button>
             <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: filter lines by name, item number or finish" autocomplete="off"></label>
+            <button type="button" class="tolink qtfold" id="toolAddBtn" aria-controls="roomMenu"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg><span>Add room</span></button>
             <button type="button" class="tolink qtfold" id="foldAll"></button>
           </div>
         </div>
@@ -1003,7 +1021,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <label class="shipsw" id="detSwWrap" hidden><span class="shiplbl">Shipping Details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
         </div>
         </div>
-        <div id="qProducts">
+        <div id="qProducts" role="tabpanel" aria-labelledby="qtabProducts">
         <div id="rooms"></div>
         <div class="qfoot">
           <div class="undo" id="undoBar" role="status" hidden></div>
@@ -1011,8 +1029,8 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <div id="linesEnd" aria-hidden="true"></div>
         <div class="sr" id="moveMsg" aria-live="polite"></div>
         </div>
-        <div id="qInfo" hidden></div>
-        <div id="qPdf" hidden></div>
+        <div id="qInfo" role="tabpanel" aria-labelledby="qtabInfo" hidden></div>
+        <div id="qPdf" role="tabpanel" aria-labelledby="qtabPdf" hidden></div>
         </div>
       </section>
     </div>
@@ -1021,7 +1039,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 
 <!-- quote footer: one bar across the page, fixed to the bottom (placeBar keeps it to the page width) -->
 <div class="pbar" id="pbar" role="region" aria-label="Save status, total and next step">
-  <button type="button" class="pb-tog" id="pbTog" aria-expanded="true" aria-label="Collapse the bar" title="Collapse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+  <button type="button" class="pb-tog" id="pbTog" aria-expanded="true" aria-controls="pbar" aria-label="Collapse the bar" title="Collapse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
   <div class="pb-tl"><span class="pb-lbl" id="pbLbl">Estimated total</span><span class="pb-amt" id="pbTotal"></span></div>
   <div class="pb-bl">
     <span class="pb-note" id="pbNote"></span>
@@ -1546,11 +1564,15 @@ function lineMatch(r){
 function renderQTools(rooms){
   const n=rooms.reduce((a,r)=>a+r.lines.length,0), q=S.lineQ.trim();
   const m=q?rooms.reduce((a,r)=>a+(lineMatch(r)?.n||0),0):0;
-  $("#qTools").hidden=S.qview!=="products"||!rooms.length; // a fresh quote with no rooms: no "Selected products" line, the black box sits right under the tabs
-  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:`<b>${n} line${n===1?"":"s"}</b> · ${rooms.length} room${rooms.length===1?"":"s"}`;
-  $("#qtAct").hidden=!rooms.length;
+  const prod=S.qview==="products"; // the bar always shows (it carries the quote number); counts and tools are Products view only
+  $("#qTools").hidden=false;
+  const rc=`${rooms.length} room${rooms.length===1?"":"s"}`;
+  $("#qtCount").innerHTML=!rooms.length?(S.expanded?"No rooms yet":""):q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}`:`No products yet · ${rc}`;
+  $("#qtCount").hidden=!prod||!$("#qtCount").innerHTML;
+  $("#qtAct").hidden=!prod||!rooms.length;
   $("#toolAddBtn").hidden=!!S.expanded; // full screen has its own in the Rooms panel
-  $(".lfilter").hidden=n<2&&!q; // nothing to filter on a quote with one line
+  $(".lfilter").hidden=!n&&!q; // nothing to find on a quote with no lines
+  $("#foldAll").hidden=rooms.length<2; // one room: its own chevron does the job
   const anyOpen=rooms.some(r=>S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name));
   const fb=$("#foldAll"); fb.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${anyOpen?'<path d="M2 6l4-4 4 4M2 10.5l4-4 4 4"/>':'<path d="M2 1.5l4 4 4-4M2 6l4 4 4-4"/>'}</svg><span>${anyOpen?"Collapse all":"Expand all"}</span>`; fb.disabled=!!q; fb.title=q?"Rooms open to show matching lines while you filter":"";
 }
@@ -1561,22 +1583,26 @@ function renderQuote(){
   if(S.collapsedFor && S.collapsedFor!==S.room) S.collapsedFor=null; // only the room you're adding to is open; it can be folded shut by hand
   const rooms=S.quote.rooms; const wrap=$("#rooms"); let sub=0, bad=0;
   rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku); sub+=l.qty*l.unit; if(l.qty%p.mult) bad++; }));
-  if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
+  if(!rooms.length&&S.expanded){ wrap.innerHTML=`<div class="empty-quote none xl"><span class="eqicon">${ICON.door}</span><h3>Start with a room</h3><p>Rooms group the quote the way your client thinks about it. Add one, then search for products to put in it.</p><button type="button" class="btn" id="emptyAdd"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>Add room</button></div>`; }
+  else if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
     const fm=lineMatch(r); if(fm&&!fm.n) return ""; // filtering: rooms with nothing that matches drop out
     const isOpen=fm?true:(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name; // a room the checklist points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(fm&&!fm.ok(l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       return `<div class="line${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
+  // once any room has products, a full-width row at the end adds another room (hidden while filtering)
+  if(rooms.some(r=>r.lines.length)&&!S.lineQ.trim()&&!S.expanded) wrap.insertAdjacentHTML("beforeend",`<button type="button" class="addroomrow" id="addRoomRow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>Add another room</button>`);
   if(rooms.length&&!wrap.innerHTML.trim()) wrap.innerHTML=`<div class="lnone"><b>No lines match “${esc(S.lineQ.trim())}”.</b> Try an item number, product name or finish.<br><button type="button" class="tolink" id="lineClear">Clear filter</button></div>`;
   renderQTools(rooms);
   QSUB=sub; // totals, freight and tax are painted in the pricing bar (renderSend)
   $("#saveMsg").className=S.dirty||bad?"unsaved":"ok-msg"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":S.dirty?"Unsaved changes. Added lines are drafts until you save.":"All changes saved";
   detSwShown();
-  $("#saveBtn").disabled=!S.dirty||bad>0; $("#sideSave").disabled=$("#saveBtn").disabled;
-  $("#sideRoomsH").innerHTML=`Rooms${rooms.length?` <span class="rcount">(${rooms.length})</span>`:""}`;
-  $("#sideRooms").innerHTML=rooms.length?rooms.map(r=>`<button type="button" class="sroom" data-sideroom="${esc(r.name)}" aria-current="${S.room===r.name}"><span class="sricon">${ICON.door}</span><span class="srn">${esc(r.name)}</span><span class="srbadge" aria-label="${r.lines.length} line${r.lines.length===1?"":"s"}">${r.lines.length}</span></button>`).join(""):(S.sideAdd?'':'<p class="snone">No rooms yet.</p>');
+  $("#saveBtn").disabled=!S.dirty||bad>0;
+  $("#sideRoomsH").innerHTML=`Rooms${rooms.length?`<span class="rcount"> · ${rooms.length}</span>`:""}`;
+  $("#sideRooms").innerHTML=rooms.length?rooms.map(r=>{ const cur=S.room===r.name, k=r.lines.length;
+    return `<button type="button" class="sroom" data-sideroom="${esc(r.name)}"${cur?' aria-current="true"':""}><span class="srn"><span class="srname">${esc(r.name)}</span>${cur?'<span class="srtag">Adding here</span>':""}</span><span class="srcnt">${k?`${k} line${k===1?"":"s"}`:"No lines"}</span></button>`; }).join(""):(S.sideAdd?'':'<p class="snone">No rooms yet</p>');
   // full screen: the add-room form opens at the top of the Rooms panel, since the search side (and its room menu) is hidden
   if(S.sideAdd) $("#sideRooms").insertAdjacentHTML("afterbegin",ADD_ROOM_FORM());
   $("#sideAddBtn").setAttribute("aria-expanded",String(!!S.sideAdd)); $("#sideAddBtn").hidden=!!S.sideAdd;
@@ -1810,11 +1836,10 @@ function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b)
   b.classList.add("tight"); $("#pbBr").insertBefore(save,$("#pbHelp"));   // tight: save status moves to row 2, before the helper
   if(left+Math.max(natW(".pb-tr"),sv+16+help)+gap<=room) return;
   b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight"); b.classList.add("stack"); }
-// collapse: remembered per browser; it opens again by itself when a new problem needs fixing
-function setMini(on){ const b=$("#pbar"), t=$("#pbTog"); b.classList.toggle("mini",on); t.setAttribute("aria-expanded",String(!on)); t.setAttribute("aria-label",on?"Expand the bar":"Collapse the bar"); t.title=on?"Expand":"Collapse";
-  try{ localStorage.setItem("qom.barMini",on?"1":"0"); }catch(e){} placeBar(); }
+// collapse: the bar opens full size on every load; it opens again by itself when a new problem needs fixing
+function setMini(on){ const b=$("#pbar"), t=$("#pbTog"); b.classList.toggle("mini",on); t.setAttribute("aria-expanded",String(!on)); t.setAttribute("aria-label",on?"Expand the bar":"Collapse the bar"); t.title=on?"Expand":"Collapse"; placeBar(); }
 $("#pbTog").addEventListener("click",()=>setMini(!$("#pbar").classList.contains("mini")));
-try{ if(localStorage.getItem("qom.barMini")==="1") $("#pbar").classList.add("mini"),$("#pbTog").setAttribute("aria-expanded","false"),$("#pbTog").setAttribute("aria-label","Expand the bar"); }catch(e){}
+try{ localStorage.removeItem("qom.barMini"); }catch(e){} // clear the old remembered setting
 function placeBar(){ fitBar(); const b=$("#pbar"), r=(S.expanded?$("#quotePane"):$(".main")).getBoundingClientRect(), st=document.documentElement.style;
   st.setProperty("--fb-left",Math.round(r.left)+"px"); st.setProperty("--fb-w",Math.round(r.width)+"px"); st.setProperty("--bar-h",b.offsetHeight+"px"); }
 new ResizeObserver(placeBar).observe($(".main")); new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#pbar"));
@@ -1902,7 +1927,7 @@ document.addEventListener("click",e=>{
   if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
   if(t.id==="foldAll"){ const open=t.textContent.trim()==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
   if(t.id==="lineClear"){ S.lineQ=""; $("#lineFilter").value=""; renderQuote(); $("#lineFilter").focus(); return; }
-  if(t.id==="toolAddBtn"){ startAddRoom(); return; } // same form as the "Adding to" menu on the search side
+  if(t.id==="toolAddBtn"||t.id==="addRoomRow"){ startAddRoom(); return; } // same form as the "Adding to" menu on the search side
   if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
   if(t.dataset.addprod){ startAddProducts(t.dataset.addprod); return; }
   if(t.id==="menuAdd"){ openRoomForm("add"); return; }
@@ -1942,8 +1967,7 @@ document.addEventListener("click",e=>{
   if(t.id==="retry"){ S.scenario="normal"; $("#scenario").value="normal"; search(); return; }
   if(t.id==="showDiscLink"){ S.disc=true; $("#showDisc").checked=true; search(); return; }
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
-  if(t.dataset.sideroom){ const n=t.dataset.sideroom; if(S.room!==n) pickRoom(n); else if(S.collapsedFor===n){ S.collapsedFor=null; renderQuote(); } const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
-  if(t.id==="sideSave"){ $("#saveBtn").click(); return; }
+  if(t.dataset.sideroom){ const n=t.dataset.sideroom; const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
   if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; markSaved(); renderQuote(); return; }
   if(t.id==="discardBtn"){ if(S.dirty) openDiscardDialog(); else showToast("No unsaved changes to discard"); return; }
   if(t.id==="undoBtn"&&S.undo?.kind==="room"){ const u=S.undo; S.quote.rooms.splice(Math.min(u.idx,S.quote.rooms.length),0,u.roomObj); if(u.wasActive) S.room=u.room; S.undo=null; renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); return; }
@@ -2228,7 +2252,7 @@ function renderQView(){
   const v=S.qview;
   detSwShown();
   $("#qProducts").hidden=v!=="products"; $("#qSide").hidden=!S.expanded||v!=="products"; $("#qInfo").hidden=v!=="info"; $("#qPdf").hidden=v!=="pdf";
-  $("#qTools").hidden=v!=="products";
+  renderQTools(S.quote.rooms); // the quote number stays; counts and tools follow the view
   $(".qhead .qtitle").textContent={products:"Selected Products",info:"Quote information",pdf:"PDF preview"}[v]; $("#qSub").hidden=v!=="products";
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
   if(v==="info") $("#qInfo").innerHTML=infoHtml();
@@ -2238,18 +2262,17 @@ function setQView(v){ S.qview=v; renderQView(); if(v==="pdf") sendForward(); }
 // enlarge: the quote panel fills the whole screen (content stays readable on very wide screens); Escape or the same button exits
 const EXPAND_ICON={off:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg>`,on:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 1v4H1M11 1v4h4M15 11h-4v4M1 11h4v4"/></svg>`};
 function setExpanded(on){
-  S.expanded=on; const b=$("#expandBtn"); if(!on&&S.sideAdd){ S.sideAdd=false; renderQuote(); } $("#toolAddBtn").hidden=on; // full screen uses the Rooms panel's own "+ Add room"
+  S.expanded=on; const b=$("#expandBtn"); if(!on) S.sideAdd=false; $("#toolAddBtn").hidden=on; // full screen uses the Rooms panel's own "+ Add room"
   $("#quotePane").classList.toggle("expanded",on); document.body.classList.toggle("noscroll",on);
-  // totals and the next step stay in the pricing bar; the left panel keeps a Save button
+  // totals, Save and the next step stay in the pricing bar; the left panel is room navigation only
   $("#qSide").hidden=!on||S.qview!=="products"; // the footer stays across the bottom while enlarged
-  b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label",on?"Exit full screen":"Enlarge panel to full screen"); b.title=on?"Exit full screen":"Enlarge";
-  b.innerHTML=on?EXPAND_ICON.on:EXPAND_ICON.off; placeBar(); fitEmpty();
+  // full view: a text button "Exit full view" at the end of the tabs row; normal view: a 44px icon button
+  if(on){ b.removeAttribute("aria-label"); b.removeAttribute("title"); } else { b.setAttribute("aria-label","Expand quote pane"); b.title="Expand"; }
+  b.innerHTML=on?EXPAND_ICON.on+"<span>Exit full view</span>":EXPAND_ICON.off; renderQuote(); placeBar(); fitEmpty();
 }
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.expanded) setExpanded(false); });
-// expanded with no rooms: the black "No rooms yet" box lines up with the left panel, same top and same height
-function fitEmpty(){ const e=document.querySelector("#quotePane .empty-quote.none"); if(!e) return; e.style.marginTop=e.style.minHeight="";
-  const sd=$("#qSide"); if(!S.expanded||sd.hidden) return; const sr=sd.getBoundingClientRect(), er=e.getBoundingClientRect(); if(!sr.height) return;
-  e.style.marginTop=(parseFloat(getComputedStyle(e).marginTop)+sr.top-er.top)+"px"; e.style.minHeight=sr.height+"px"; }
+// the black "no rooms" box used to be stretched to line up with the Rooms panel; full view now has the toolbar above it, so it keeps its own size
+function fitEmpty(){ const e=document.querySelector("#quotePane .empty-quote.none"); if(e) e.style.marginTop=e.style.minHeight=""; }
 const fitRO=new ResizeObserver(()=>fitEmpty()); fitRO.observe($("#qSide")); fitRO.observe($("#qProducts"));
 // filter tray: opens over the results from the Filters button so it never pushes the products down
 // filter popovers: a click outside closes; Esc closes and puts focus back on the pill
