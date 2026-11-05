@@ -265,6 +265,17 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
   .line .more{grid-column:5;grid-row:2}
   .pane.quote .line .pdet{grid-template-columns:1fr;grid-auto-flow:row}
 }
+@container quote (max-width:440px){ /* very narrow quote panel (divider dragged right): photo, name and menu on one row, then price, then quantity */
+  .line{grid-template-columns:18px 64px minmax(0,1fr) 28px;column-gap:8px;padding:10px 8px}
+  .line .grip{grid-column:1;grid-row:1}
+  .line .thumb{grid-column:2;grid-row:1;width:64px;height:64px}
+  .line .nm{grid-column:3;grid-row:1;min-width:0;overflow-wrap:anywhere}
+  .line .more{grid-column:4;grid-row:1}
+  .line .amt{grid-column:2/-1;grid-row:2;text-align:left}
+  .line .qty{grid-column:2/-1;grid-row:3;justify-self:start}
+  .line .pdet,.line .shiprow,.line .kitbox,.line .rb{grid-column:2/-1}
+  .line .shiprow{grid-template-columns:minmax(0,1fr)}
+}
 .rb{grid-column:3/-1;display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.45;padding:7px 10px;margin-top:2px;border:1px solid transparent}
 .rb svg{flex:none;margin-top:1px}
 .rb.bad{background:var(--warn-bg);color:var(--warn);border-color:#ecc9b8}
@@ -456,6 +467,21 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qtcount{margin:0;font-size:15px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
 .qtact{display:flex;align-items:center;gap:8px 20px;margin-left:auto}
 .qtact[hidden]{display:none}
+/* narrow quote panel: the actions drop to their own row and the find box stretches; very narrow, the count goes under the title */
+@container quote (max-width:860px){
+  .qtools{flex-wrap:wrap}
+  .qtact{flex:1 1 100%;margin-left:0;flex-wrap:wrap;gap:8px 16px}
+  .qtact .lfilter{flex:1 1 160px;width:auto}
+}
+@container quote (max-width:440px){
+  .qtsum{flex-wrap:wrap;row-gap:2px}
+  .qbar .qtop,.qbar .qseg{min-width:0}
+  .qbar .qtab{flex:1 1 auto;min-width:0;padding:0 8px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .roomhdr>span:first-child{flex:1 1 auto;overflow:hidden}
+  .roomhdr .hdrend{flex:none}
+  .roomhdr .rcount{display:none} /* the line count is on the toolbar; the room name and tag need the room */
+  .roomhdr .addtag{margin-left:8px;padding:2px 6px;letter-spacing:.06em;font-size:10.5px}
+}
 .lfilter{display:flex;align-items:center;gap:10px;height:40px;width:220px;min-width:150px;flex:0 1 220px;max-width:100%;padding:0 12px;background:#fff;border:1px solid #d9d9d9;color:var(--ink-3)}
 .lfilter:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
