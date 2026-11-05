@@ -173,9 +173,10 @@ table.res{width:100%;border-collapse:collapse;background:var(--bg)} /* results s
 table.res .name{min-width:200px}
 #searchPane{container:search/inline-size}
 /* results reveal more as the search side widens: under 500px just the name, style number and list price (no header bar);
-   500px+ the table with item number and list price; 640px+ UOM; 820px+ status and line type */
+   500px+ the table with item number, status and list price; 640px+ UOM; 820px+ line type.
+   Status shows at every width, in the compact line when the table is hidden (Kelli, Nov 5: SCs rely on it today) */
 table.res .ncomp{display:none}
-@container search (max-width:819px){ table.res .c-st,table.res .c-lt{display:none} }
+@container search (max-width:819px){ table.res .c-lt{display:none} }
 @container search (max-width:639px){
   table.res .c-uom{display:none}
   table.res .name{min-width:0} /* the name wraps instead of running off the panel edge */
@@ -1432,8 +1433,9 @@ function passesWith(p,over){
   return true;
 }
 function passesFilters(p){ return passesWith(p); }
+const isDisc=p=>p.st===80||p.st===90; // discontinued is item status 80 or 90 (Kelli, Nov 5)
 function visible(p){
-  if(!S.disc && (p.st===80||p.st===10)) return false;
+  if(!S.disc && (isDisc(p)||p.st===10)) return false;
   if(p.cmm && S.view!=="commercial") return false; // CMM item groups are commercial-only
   if(p.alias) return false;
   return true;
@@ -1445,7 +1447,7 @@ function rank(p,q){
   else if(ql && p.style.toLowerCase()===ql) r-=900;                          // every finish of a style next
   else if(ql && p.sku.toLowerCase().startsWith(ql)) r-=500;
   if(p.part) r+=200;                                                         // sellable above parts
-  if(p.st===10||p.st===80) r+=100;                                                      // can't-add below
+  if(p.st===10||isDisc(p)) r+=100;                                                      // can't-add below
   if(ql && p.name.toLowerCase().includes(ql)) r-=50;
   if(S.recent.includes(p.sku)) r-=5;
   return r;
@@ -1463,7 +1465,7 @@ function facetCounts(){ // counts use the SAME filters as the results (NFR-2)
 
 // ---------- rendering ----------
 function reasonFor(p){
-  if(p.st===80) return "Discontinued. Can't be added; look for a replacement.";
+  if(isDisc(p)) return "Discontinued. Can't be added; look for a replacement.";
   if(p.st===10) return "In development. Not sellable yet; ask Product Ops for timing.";
   return null; // warehouse status and price are only known when the item is added (Scott, Oct 30)
 }
@@ -1590,7 +1592,7 @@ function popHtml(k,label){
     if((S.fq.col||"").trim()) body=listBody("col",cols,count,"collections");
     else { const most=[...cols].sort((a,b)=>catCount("col",b)-catCount("col",a)||alpha(a,b)).slice(0,COL_MOST), rest=cols.filter(o=>!most.includes(o));
       body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${most.map(o=>optRow("col",o,count)).join("")}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${rest.map(o=>optRow("col",o,count)).join("")}`; } }
-  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p>`;
+  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?" checked":""}><span>Show discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They show with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5)
   if(k!=="fin"&&groupSel(k).length) foot=`<div class="fpfoot"><span></span><button type="button" class="tolink" data-fclr="${k}">Clear</button></div>`;
   return `<div class="fpop" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
 }
@@ -1627,7 +1629,7 @@ function renderResults(){
     box.innerHTML=`<div class="state"><h3>Keep typing to see results</h3>Three or more characters narrows thousands of items to a useful list. An item number can be entered in full. <span class="fr">FR-18</span></div>`; cnt.textContent=""; return;
   }
   const list=run();
-  const hiddenDisc = CAT.filter(p=>(p.st===80||p.st===10) && !S.disc && passesFilters(p) && (tokens(q).length? matches(p,tokens(q)):true)).length;
+  const hiddenDisc = CAT.filter(p=>(isDisc(p)||p.st===10) && !S.disc && passesFilters(p) && (tokens(q).length? matches(p,tokens(q)):true)).length;
   const finSel=[...S.filters.fin], byp=finBypass();
   const others=finSel.length&&!byp ? CAT.filter(p=>visible(p)&&!passesFilters(p)&&passesWith(p,{fin:new Set()})&&(tokens(q).length?matches(p,tokens(q)):true)).length : 0;
   // results line in plain words: "12 Henry accessories in Nickel", "3 results for “HNTVC” in Nickel or Brass".
@@ -1654,7 +1656,7 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)} · Status ${p.st}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}</div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd c-st">${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
@@ -1784,7 +1786,7 @@ const pdetails=(p,l,hit,id)=>{ const a=atpInfo(p,l), e=estDelivery(p,l), r=dayOf
   const rdd=isNaN(r)?"":e.getTime()<=r?" · meets RDD":" · after RDD";
   const eddTip=dtip(id+"edd","Estimated delivery date",`The earliest date M3 estimates it could deliver ${q} to this customer, using its normal supply route (for ${LINE_WH} lines, a transfer from USR), compared with the requested delivery date${isNaN(r)?"":` (${fmtLong(new Date(r))})`}. Recalculated each time the quote is opened, and not saved${l.cdd?"; it can differ from the confirmed delivery date (CDD) saved on this line":""}.`,`M3: CODZ (Confirmed delivery date), OIS340MI/LstSupplSummary, customer ${MOCK_CUST}, quantity ${q}.`);
   const src=p.srcwh&&p.srcwh!==LINE_WH?`<div><b>Sourcing warehouse:</b> ${esc(p.srcwh)}</div>`:"";
-  return `<div class="pdet"><div><b>Item #:</b> ${findHl(p.same||p.sku,hit)}</div><div class="dtw"><b>Available to Promise (ATP):</b> ${atpVal}${atpTip}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> ${LINE_WH}</div><div class="dtw"><b>Estimated delivery date:</b> ${fmtLong(e)}${rdd}${eddTip}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div>${src}</div>`; };
+  return `<div class="pdet"><div><b>Item #:</b> ${findHl(p.same||p.sku,hit)}</div><div class="dtw"><b>Available to Promise (ATP):</b> ${atpVal}${atpTip}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> ${LINE_WH}</div><div class="dtw"><b>Estimated delivery date:</b> ${fmtLong(e)}${rdd}${eddTip}</div>${S.view==="commercial"?`<div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div>`:""}${src}</div>`; }; // Country of Origin is commercial-only (Kelli, Nov 5)
 const SHIP_OPTS=["Standard Shipping (S01)","Expedited (S02)","Second day (S03)"];
 const CAL_ICON='<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 0h1.5v2h5V0H12v2h1.5A1.5 1.5 0 0 1 15 3.5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-10A1.5 1.5 0 0 1 2.5 2H4zM2.5 6v7.5h11V6zm2 1.5h3v3h-3z"/></svg>';
 const dayOf=v=>{ const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((v||"").trim()); return m?new Date(+m[3],+m[1]-1,+m[2]).getTime():NaN; }; // calendar day only, so time of day never matters
@@ -2477,7 +2479,7 @@ document.addEventListener("change",e=>{
     if(t.checked&&syncLike(r,l)) S.dirty=true;
     rerenderKeepFocus(); return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
-  if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
+  if(t.id==="showDisc"||t.id==="fpDisc"){ S.disc=t.checked; $("#showDisc").checked=t.checked; renderFilters(); search(); return; } // More filters checkbox and the demo bar toggle stay in step
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
   if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult, up=n>0&&n%m!==0; if(n>0&&n!==S.rq[sku]){ S.rq[sku]=up?Math.ceil(n/m)*m:n; up?RROUNDED.add(sku):RROUNDED.delete(sku); } const q=S.rq[sku]??m; t.value=q; // QOM-2961: rounds up to the next multiple
     // updated in place, not re-rendered, so typing a number and then clicking Add still lands on the button
