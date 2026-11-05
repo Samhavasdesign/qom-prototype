@@ -205,6 +205,9 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .tag.ok{background:var(--ok-bg);color:var(--ok)}
 .tag.warn{background:var(--warn-bg);color:var(--warn)}
 .tag.note{background:var(--note-bg);color:var(--note)}
+/* neutral tags under a result's product name: grey text, light outline (orange is kept for warnings) */
+.ntags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag.ntag{margin-top:0;background:transparent;border:1px solid var(--line);color:var(--ink-3);padding:1px 6px}
 .reason{display:block;color:var(--warn);font-size:13px;margin-top:4px}
 .addcell{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
 .addpill{display:inline-flex;align-items:stretch;height:30px;border:1px solid var(--ink-3);border-radius:999px;background:var(--bg);overflow:hidden}
@@ -1246,6 +1249,31 @@ CAT.push(
   {sku:"HNPTR-N",   name:"Henry P-Trap", sec:"1.25 inch, with wall flange", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:12, price:395},
   {sku:"HNSUP-N",   name:"Henry Lavatory Supply Kit", sec:"Two 12 inch supplies with stops", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:8, price:310},
   {sku:"ESTRAY-N",  name:"Easton Countertop Tray", sec:"Rectangular, 10 x 6 inch", col:"Easton", series:"Classic", cat:"Furnishings", fin:"Nickel", st:20, stock:6, price:240});
+// mock products for the requiredParts map below: a wall-mounted lavatory faucet, the rough valves and the parts often added with it.
+// Rough valves have no finish; "Unfinished" follows the existing HNCART mock. Prices are mock.
+CAT.push(
+  {sku:"HNWLAV-N",   name:"Henry Wall Mounted Lavatory Faucet with Lever Handles", sec:"Wall-mount, lever handles", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:5, price:1890},
+  {sku:"HNWLAV-CP",  name:"Henry Wall Mounted Lavatory Faucet with Lever Handles", sec:"Wall-mount, lever handles", col:"Henry", series:"Classic", cat:"Fittings", fin:"Chrome", st:20, stock:7, price:1890},
+  {sku:"HNWLAV-BUN", name:"Henry Wall Mounted Lavatory Faucet with Lever Handles", sec:"Wall-mount, lever handles", col:"Henry", series:"Classic", cat:"Fittings", fin:"Burnished Brass", st:20, stock:0, lead:"about 8 weeks", price:1890},
+  {sku:"HNWLAV-MN",  name:"Henry Wall Mounted Lavatory Faucet with Lever Handles", sec:"Wall-mount, lever handles", col:"Henry", series:"Classic", cat:"Fittings", fin:"Matte Nickel", st:20, stock:3, price:1890},
+  {sku:"HNTRV-12",   style:"HNTRV", name:"Thermostatic Rough Valve 1/2 inch", sec:"Rough-in valve body, 1/2 inch connections", col:"Henry", series:"Classic", cat:"Fittings", fin:"Unfinished", st:20, stock:22, price:640},
+  {sku:"HNTRV-34",   style:"HNTRV", name:"Thermostatic Rough Valve 3/4 inch", sec:"Rough-in valve body, 3/4 inch connections", col:"Henry", series:"Classic", cat:"Fittings", fin:"Unfinished", st:20, stock:9, price:720},
+  {sku:"HNWRV-L",    style:"HNWRV-L", name:"Wall Mounted Lavatory Rough Valve for Lever Handles", sec:"Rough-in valve body", col:"Henry", series:"Classic", cat:"Fittings", fin:"Unfinished", st:20, stock:14, price:415},
+  {sku:"UNPT-N",     name:"Universal Lavatory P-Trap", sec:"1.25 inch, with wall flange", col:"Universal", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:18, price:365},
+  {sku:"UNSK-N",     name:"Universal Lavatory Supply Kit", sec:"Two 12 inch supplies with stops", col:"Universal", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:11, price:290});
+// MOCK DATA: parts a style needs (required) or is often sold with (often), keyed by style, so it applies to any finish.
+// Stand-in until the real mapping source is known (QOM-2561). Drives the "Needs rough-in" tag on result rows.
+// required: each entry is one part the SC must add; when it has more than one option, the SC must choose one (here, a size).
+const requiredParts={
+  HNTVC:{
+    required:[{name:"Thermostatic Rough Valve", choose:"size", options:[{sku:"HNTRV-12", size:'1/2"'},{sku:"HNTRV-34", size:'3/4"'}]}],
+    often:[]
+  },
+  HNWLAV:{
+    required:[{name:"Wall Mounted Lavatory Rough Valve for lever handles", options:[{sku:"HNWRV-L"}]}],
+    often:[{name:"Lavatory P-trap", sku:"UNPT-N"},{name:"Lavatory Supply Kit", sku:"UNSK-N"}]
+  }
+};
 // a second line of the same item in one room: the prototype keys lines by room and item number, so this twin stands in for it.
 // It never shows in search (alias) and shows the real item number; "same item" checks use same||sku
 CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on Bar", sec:"Wall-mount bar with 1.75 GPM handshower", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:4, price:2110});
@@ -1531,7 +1559,7 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd c-st">${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
@@ -1541,6 +1569,11 @@ function renderResults(){
   }).join("");
   box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">UOM</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
 }
+// neutral tags under the product name (grey text, light outline); orange stays for warnings
+const rowTags=p=>{ const t=[];
+  if(p.part||p.col==="Service Parts") t.push(`<span class="tag ntag" title="Item group ${esc(p.ig)}">Service part</span>`);
+  if(requiredParts[p.style]?.required?.length) t.push(`<span class="tag ntag" title="Needs ${esc(requiredParts[p.style].required.map(x=>x.name).join(", "))}">Needs rough-in</span>`);
+  return t.length?`<div class="ntags">${t.join("")}</div>`:""; };
 function renderRoomMenu(){
   const own=S.quote.rooms;
   $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div>${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}`;
