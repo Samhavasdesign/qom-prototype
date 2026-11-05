@@ -794,6 +794,18 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .ffhead small{color:var(--ink-3);font-size:13px}
 .ffhead .ffsel{margin-left:auto;color:var(--ink);font-weight:600}
 .ffam .fopt{padding-left:34px}
+/* category groups: open/close toggle, category checkbox, then its product types indented beneath */
+.cghead{display:flex;align-items:stretch}
+.cghead .fopt{flex:1;min-width:0;padding-left:0}
+.cgtog,.cgsp{flex:none;width:44px;min-height:44px}
+.cgtog{display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.cgtog:hover{background:var(--surface)}
+.cgtog:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.cgtog svg{transform:rotate(-90deg);transition:transform .15s}
+.cgtog[aria-expanded="true"] svg{transform:none}
+.fopt.ftype{padding-left:74px}
+.fopt .ffsel{margin-left:auto;padding-left:8px;font-size:13px;color:var(--ink-2)}
+.fopt .ffsel+.c{margin-left:0}
 .fpnote{margin:4px 14px 8px;font-size:13px;line-height:1.4;color:var(--ink-3)}
 .fpill.ficon{width:44px} /* More filters: the square filter icon, white like the other pills */
 .fpill.ficon>.fpbtn{position:relative;justify-content:center;width:100%;padding:0}
@@ -1224,6 +1236,16 @@ CAT.push(
   {sku:"CMHGGB36-N", name:"Highgate ADA Grab Bar 36 inch", sec:"Wall-mount, 1.25 inch diameter", col:"Highgate", series:"Modern", cat:"Accessories", fin:"Nickel", st:20, stock:30, price:540, ig:"CMM-ACC"}
 );
 CAT.push({sku:"ESLAV-B", name:"Easton Lavatory Faucet with Lever Handles", sec:"8 inch widespread, lever handles", col:"Easton", series:"Classic", cat:"Fittings", fin:"Brass", st:20, stock:14, price:1240});
+// mock items so every product type in the Category filter has at least one product (see CATEGORY_TYPES_MOCK)
+CAT.push(
+  {sku:"HNHK-N",    name:"Henry Single Robe Hook", sec:"Wall-mount", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:16, price:165},
+  {sku:"HNMIR24-N", name:"Henry Framed Mirror 24 inch", sec:"Wall-mount, beveled glass", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:3, price:1890},
+  {sku:"HNKNB-N",   name:"Henry Cabinet Knob", sec:"1.25 inch round", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:40, price:58},
+  {sku:"ESTW-N",    name:"Easton Towel Warmer", sec:"Hardwired, wall-mount", col:"Easton", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:0, lead:"about 8 weeks", price:3450},
+  {sku:"ESGTB18-N", name:"Easton Glass Mounted Towel Bar 18 inch", sec:"Through-glass mount for shower doors", col:"Easton", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:5, price:520},
+  {sku:"HNPTR-N",   name:"Henry P-Trap", sec:"1.25 inch, with wall flange", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:12, price:395},
+  {sku:"HNSUP-N",   name:"Henry Lavatory Supply Kit", sec:"Two 12 inch supplies with stops", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:8, price:310},
+  {sku:"ESTRAY-N",  name:"Easton Countertop Tray", sec:"Rectangular, 10 x 6 inch", col:"Easton", series:"Classic", cat:"Furnishings", fin:"Nickel", st:20, stock:6, price:240});
 // a second line of the same item in one room: the prototype keys lines by room and item number, so this twin stands in for it.
 // It never shows in search (alias) and shows the real item number; "same item" checks use same||sku
 CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on Bar", sec:"Wall-mount bar with 1.75 GPM handshower", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:4, price:2110});
@@ -1248,15 +1270,14 @@ const ROOM_TYPES = ["Bar","Club House","Commercial Model","Commercial Other","Co
 const S = {
   rq:{}, // quantity chosen on a result row before adding, by SKU
   layout:"split", pane:"search", query:"", room:"Bar",
-  filters:{cat:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()}, // fin is added below: it is saved per room
-  roomFin:{}, fpop:null, finMore:false, finOpen:new Set(), finView:"metal", finAll:false, finAllFor:"", finLastRoom:"Bar",
+  // cat holds category names and product type names together (see CATEGORY_TYPES_MOCK). Finish applies to the whole quote:
+  // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
+  filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
+  fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal", finAll:false, finAllFor:"",
   page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"", lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
-// finish is remembered per room for the session: switching the "Adding to" room brings back that room's own finish.
-// A finish picked before any room exists moves to the first room chosen.
-Object.defineProperty(S.filters,"fin",{enumerable:true,get(){ const k=S.room||""; if(k&&!S.roomFin[k]&&S.roomFin[""]?.size){ S.roomFin[k]=S.roomFin[""]; delete S.roomFin[""]; } return S.roomFin[k]||(S.roomFin[k]=new Set()); }});
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1280,11 +1301,13 @@ function fuzzy(h,t){ // one-character tolerance for words of 5+ letters (FR-10, 
   return words.some(w=>{ if(Math.abs(w.length-t.length)>1) return false; let d=0,i=0,j=0; while(i<w.length&&j<t.length){ if(w[i]===t[j]){i++;j++;} else {d++; if(d>1) return false; if(w.length>t.length) i++; else if(w.length<t.length) j++; else {i++;j++;} } } return d+(w.length-i)+(t.length-j)<=1; });
 }
 const FFIELD={cat:"cat",col:"col",fin:"fin",series:"series",lt:"lt",sname:"name"}; // filter → product field (Style Name is the shared product name across finishes)
-const finBypass=()=>S.finAll && S.finAllFor===S.room+"|"+S.query; // "Show other finishes": same search, every finish, saved finish kept
-// every filter is strict (Surfaces never show under Fittings); `over` swaps in one group's values, for counts
+const finBypass=()=>S.finAll && S.finAllFor===S.query; // "Show other finishes": same search, every finish, saved finish kept
+// every filter is strict (Surfaces never show under Fittings); `over` swaps in one group's values, for counts.
+// Within a filter, values combine with OR (Nickel or Brass); across filters, with AND (Henry and Accessories and Nickel).
+// Category: a ticked category matches all its products; a ticked type matches products of that type.
 function passesWith(p,over){
   for(const k in FFIELD){ const own=over&&(k in over); if(k==="fin"&&!own&&finBypass()) continue;
-    const set=own?over[k]:S.filters[k]; if(set.size && !set.has(p[FFIELD[k]])) return false; }
+    const set=own?over[k]:S.filters[k]; if(set.size && !(k==="cat"?catPass(set,p):set.has(p[FFIELD[k]]))) return false; }
   return true;
 }
 function passesFilters(p){ return passesWith(p); }
@@ -1335,7 +1358,45 @@ function hl(text){ // mark ranges on the raw text, then escape, so markup is nev
 }
 // ---------- filter pills and popovers (FR-3, FR-15) ----------
 // category_name codes in the data, shown as words: ACC Accessories, CAB Cabinetry, FIT Fittings, FIX Fixtures, SUR Surfaces
-const CATS=["Accessories","Cabinetry","Fittings","Fixtures","Surfaces"];
+// ---- MOCK category → product type map (Category filter, second level) ----
+// MOCK DATA. The real product types must come from an M3 product type field (to confirm with Scott). Until then the
+// keyword rules (`re`, matched on the product name) stand in for that field. Furnishings is unconfirmed as a category.
+// Fixtures, Surfaces and Cabinetry have no types yet. Type names must stay unique across categories: the filter keeps
+// categories and types in one set. `noun` is [singular, plural] for the results line. `first` types are matched first.
+const CATEGORY_TYPES_MOCK={
+  Fittings:{noun:["fitting","fittings"], types:[
+    {name:"Faucets", noun:["faucet","faucets"], re:/faucet/i},
+    {name:"Shower heads", noun:["shower head","shower heads"], re:/shower head|handshower|shower kit/i},
+    {name:"Shower arms", noun:["shower arm","shower arms"], re:/shower arm/i},
+    {name:"Tub fillers", noun:["tub filler","tub fillers"], re:/tub filler/i},
+    {name:"P-traps", noun:["P-trap","P-traps"], re:/p-trap/i},
+    {name:"Supply kits", noun:["supply kit","supply kits"], re:/supply kit/i},
+    {name:"Spare parts", noun:["spare part","spare parts"], re:/hose only|bracket|cartridge|escutcheon|flush valve/i, first:true}]},
+  Accessories:{noun:["accessory","accessories"], types:[
+    {name:"Wall-mounted accessories", noun:["wall-mounted accessory","wall-mounted accessories"], re:/hook|grab bar|sconce|tissue holder/i},
+    {name:"Mirrors", noun:["mirror","mirrors"], re:/mirror/i},
+    {name:"Knobs and pulls", noun:["knob or pull","knobs and pulls"], re:/knob|\bpull\b/i},
+    {name:"Towel bars", noun:["towel bar","towel bars"], re:/towel bar/i},
+    {name:"Towel warmers", noun:["towel warmer","towel warmers"], re:/towel warmer/i},
+    {name:"Glass-mounted", noun:["glass-mounted accessory","glass-mounted accessories"], re:/glass mounted/i, first:true}]},
+  Furnishings:{noun:["furnishing","furnishings"], types:[ // unconfirmed category
+    {name:"Countertop accessories", noun:["countertop accessory","countertop accessories"], re:/countertop|tray|tumbler|soap dish/i}]},
+  Fixtures:{noun:["fixture","fixtures"], types:[]},
+  Surfaces:{noun:["surface","surfaces"], types:[]},
+  Cabinetry:{noun:["cabinetry","cabinetry"], types:[]}
+};
+const CATS=Object.keys(CATEGORY_TYPES_MOCK).sort(alpha); // categories A–Z, as every filter list; types keep the order above
+const TYPE_INFO={}; CATS.forEach(c=>CATEGORY_TYPES_MOCK[c].types.forEach(t=>{ TYPE_INFO[t.name]={...t,cat:c}; }));
+CAT.forEach(p=>{ const ts=CATEGORY_TYPES_MOCK[p.cat]?.types||[]; const t=ts.find(x=>x.first&&x.re.test(p.name))||ts.find(x=>!x.first&&x.re.test(p.name)); p.ptype=t?t.name:""; }); // stand-in for the M3 field
+const catPass=(set,p)=>set.has(p.cat)||(!!p.ptype&&set.has(p.ptype));
+const catNoun=(v,one)=>(CATEGORY_TYPES_MOCK[v]||TYPE_INFO[v])?.noun[one?0:1]||v.toLowerCase();
+function catTick(c,type,on){ // ticking a category selects all its types; ticking types narrows within it
+  const set=S.filters.cat, names=CATEGORY_TYPES_MOCK[c].types.map(t=>t.name);
+  if(!type){ names.forEach(n=>set.delete(n)); on?set.add(c):set.delete(c); return; }
+  if(on){ set.add(type); if(names.every(n=>set.has(n))){ names.forEach(n=>set.delete(n)); set.add(c); } }
+  else if(set.has(c)){ set.delete(c); names.forEach(n=>{ if(n!==type) set.add(n); }); }
+  else set.delete(type);
+}
 const MOST_USED=["Nickel","Brass","Chrome"]; // shown first in the finish list, when the catalog has them
 const COL_MOST=5; // collections shown under "Most used"
 const TEST_VALUES=new Set(["Product group example","?"]); // test values in the dev data, never shown
@@ -1354,7 +1415,7 @@ const orList=a=>a.length<3?a.join(" or "):`${a.length} finishes`;
 const ICON_SEARCH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const CHEV='<svg width="10" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>';
 function finishPools(){ // finishes that fall in a family; the rest are stone and tile colors, shown for Surfaces or on request
-  const cats=S.filters.cat, fins=uniq(CAT.filter(p=>!cats.size||cats.has(p.cat)),"fin").filter(f=>!isPriceTier(f)&&!TEST_VALUES.has(f));
+  const cats=S.filters.cat, fins=uniq(CAT.filter(p=>!cats.size||catPass(cats,p)),"fin").filter(f=>!isPriceTier(f)&&!TEST_VALUES.has(f));
   return {metal:fins.filter(finFamily), surf:fins.filter(f=>!finFamily(f)), metalOn:!cats.size||[...cats].some(c=>c!=="Surfaces"), surfOn:cats.has("Surfaces"), noCat:!cats.size};
 }
 const groupSel=k=>k==="more"?MORE.reduce((a,[g])=>a.concat([...S.filters[g]]),[]):[...S.filters[k]];
@@ -1365,6 +1426,14 @@ const hit=(k,o)=>o.toLowerCase().includes((S.fq[k]||"").trim().toLowerCase());
 function listBody(k,opts,count,what){ // plain checkbox list; a search box once there are more than 8 options
   const shown=opts.filter(o=>hit(k,o));
   return (opts.length>8?fpSearch(k,what):"")+`<div class="fplist">${shown.map(o=>optRow(k,o,count)).join("")||`<p class="fpnone">No ${what} match</p>`}</div>`;
+}
+function catBody(count){ // each category is a group with its product types beneath; groups open and close, counts on both levels
+  const set=S.filters.cat;
+  return `<div class="fplist">`+CATS.map(c=>{ const types=CATEGORY_TYPES_MOCK[c].types, whole=set.has(c), n=types.filter(t=>set.has(t.name)).length, open=S.catOpen.has(c), cc=count("cat",c);
+    const head=`<label class="fopt${cc?"":" off"}"><input type="checkbox" data-fcat="${esc(c)}"${whole?" checked":""}${n?' data-ind="1"':""}><span>${esc(c)}</span>${n?`<span class="ffsel">${n} of ${types.length}</span>`:""}<span class="c">${cc}</span></label>`;
+    const tog=types.length?`<button type="button" class="cgtog" data-catopen="${esc(c)}" aria-expanded="${open}" aria-label="${open?"Hide":"Show"} ${esc(c)} types">${CHEV}</button>`:'<span class="cgsp" aria-hidden="true"></span>';
+    const rows=open?types.map(t=>{ const tc=count("cat",t.name); return `<label class="fopt ftype${tc?"":" off"}"><input type="checkbox" data-ftype="${esc(t.name)}"${whole||set.has(t.name)?" checked":""}><span>${esc(t.name)}</span><span class="c">${tc}</span></label>`; }).join(""):"";
+    return `<div class="cgrp"><div class="cghead">${tog}${head}</div>${rows}</div>`; }).join("")+`</div>`;
 }
 function finBody(count){
   const {metal,surf,metalOn,surfOn,noCat}=finishPools(), sel=S.filters.fin, q=(S.fq.fin||"").trim();
@@ -1391,8 +1460,8 @@ function finBody(count){
 }
 function popHtml(k,label){
   const {count}=facetCounts(); let body, foot="";
-  if(k==="fin"){ body=finBody(count); foot=`<div class="fpfoot"><span>${S.room?`Saved for ${esc(S.room)}`:"Saved for the room you choose"} <span class="fr">FR-15</span></span>${S.filters.fin.size?'<button type="button" class="tolink" data-fclr="fin">Clear</button>':""}</div>`; }
-  else if(k==="cat") body=listBody("cat",CATS,count,"categories");
+  if(k==="fin"){ body=finBody(count); foot=`<div class="fpfoot"><span>Stays on for this quote <span class="fr">FR-15</span></span>${S.filters.fin.size?'<button type="button" class="tolink" data-fclr="fin">Clear</button>':""}</div>`; }
+  else if(k==="cat") body=catBody(count);
   else if(k==="col"){ const cols=uniq(CAT,"col").filter(o=>!TEST_VALUES.has(o));
     if((S.fq.col||"").trim()) body=listBody("col",cols,count,"collections");
     else { const most=[...cols].sort((a,b)=>catCount("col",b)-catCount("col",a)||alpha(a,b)).slice(0,COL_MOST), rest=cols.filter(o=>!most.includes(o));
@@ -1402,11 +1471,10 @@ function popHtml(k,label){
   return `<div class="fpop" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
 }
 function focusKey(){ const a=document.activeElement; if(!a||!a.closest?.("#fpills")) return null;
-  for(const at of ["f","fq","fpop","fclr","finmore","finview","finfam"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
+  for(const at of ["f","fq","fpop","fclr","finmore","finview","finfam","fcat","ftype","catopen"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
   return a.id?{sel:"#"+a.id}:null; }
 const anyFilterOn=()=>Object.values(S.filters).some(v=>v.size);
 function renderFilters(){
-  if(S.room!==S.finLastRoom){ S.finLastRoom=S.room; S.fpop=S.fpop==="fin"?null:S.fpop; S.finView="metal"; } // a room switch closes the finish popover
   const fk=focusKey();
   $("#fpills").innerHTML=PILLS.map(([k,label])=>{ const on=groupSel(k).length>0, open=S.fpop===k, n=groupSel(k).length;
     if(k==="more") return `<span class="fpill ficon${open?" open":""}"><button type="button" class="fpbtn" data-fpop="more" aria-expanded="${open}" aria-haspopup="dialog"${open?' aria-controls="fpop"':""} aria-label="${n?`More filters, ${n} on`:"More filters"}" title="More filters"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>${n?`<span class="fcount" aria-hidden="true">${n}</span>`:""}</button>${open?popHtml(k,label):""}</span>`; // square icon, as the old Filters button; cleared from its popover
@@ -1414,6 +1482,7 @@ function renderFilters(){
     return `<span class="fpill${black?" on":""}${open?" open":""}"><button type="button" class="fpbtn" data-fpop="${k}" aria-expanded="${open}" aria-haspopup="dialog"${open?' aria-controls="fpop"':""}>${esc(pillText(k,label))}${black?"":CHEV}</button>${black?`<button type="button" class="fpx" data-fclr="${k}" aria-label="Clear ${label.toLowerCase()}">×</button>`:""}${open?popHtml(k,label):""}</span>`; }).join("")
     +(anyFilterOn()?'<button type="button" class="tolink fpclear" data-fclr="all">Clear all</button>':"")
     +'<span class="fr">FR-3</span>';
+  document.querySelectorAll("#fpills [data-ind]").forEach(i=>{ i.indeterminate=true; }); // a category with some of its types ticked
   const pop=$("#fpop"); if(pop){ const w=$(".filterwrap").getBoundingClientRect(); pop.style.maxWidth=w.width+"px"; const r=pop.getBoundingClientRect(); if(r.right>w.right) pop.style.left=Math.round(w.right-r.right)+"px"; }
   if(fk){ const el=document.querySelector("#fpills "+fk.sel); if(el){ el.focus(); if(fk.pos!=null&&el.setSelectionRange) try{ el.setSelectionRange(fk.pos,fk.pos); }catch(_){} } }
 }
@@ -1428,7 +1497,7 @@ function renderResults(){
   if(S.scenario==="error"){ box.innerHTML=`<div class="state err"><h3>Search didn't complete</h3>Products didn't load from QOM. Your quote is unchanged. <button type="button" class="btn ghost" id="retry" style="margin-left:10px">Try again</button> <span class="fr">FR-5</span></div>`; cnt.textContent=""; return; }
   const anyFilter=Object.values(S.filters).some(s=>s.size);
   if(!q && !anyFilter){
-    box.innerHTML=`<div class="state idle" role="status"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><p>Search, or start with a finish</p><span class="isub">Pick a finish once and it stays on for this room, even when you type a style number.</span><span class="fr">FR-16</span></div>`; cnt.textContent=""; return;
+    box.innerHTML=`<div class="state idle" role="status"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><p>Search, or start with a finish</p><span class="isub">Finish stays on for this quote. It still applies when you type a style number.</span><span class="fr">FR-16</span></div>`; cnt.textContent=""; return;
   }
   if(q && q.length<3 && !anyFilter){
     box.innerHTML=`<div class="state"><h3>Keep typing to see results</h3>Three or more characters narrows thousands of items to a useful list. An item number can be entered in full. <span class="fr">FR-18</span></div>`; cnt.textContent=""; return;
@@ -1437,8 +1506,15 @@ function renderResults(){
   const hiddenDisc = CAT.filter(p=>(p.st===80||p.st===10) && !S.disc && passesFilters(p) && (tokens(q).length? matches(p,tokens(q)):true)).length;
   const finSel=[...S.filters.fin], byp=finBypass();
   const others=finSel.length&&!byp ? CAT.filter(p=>visible(p)&&!passesFilters(p)&&passesWith(p,{fin:new Set()})&&(tokens(q).length?matches(p,tokens(q)):true)).length : 0;
-  const applied=n=>{ const rest=["cat","col","series","lt","sname"].flatMap(k=>[...S.filters[k]]);
-    return `${n} result${n===1?"":"s"}${q?` for “${esc(q)}”`:""}${finSel.length?(byp?" in all finishes":` in ${esc(orList(finSel))}`):""}${rest.length?` · ${esc(rest.join(", "))}`:""}`
+  // results line in plain words: "12 Henry accessories in Nickel", "3 results for “HNTVC” in Nickel or Brass".
+  // Values in one filter read as "or"; three or more are counted instead of listed.
+  const applied=n=>{ const one=n===1, few=a=>a.length>0&&a.length<3;
+    const cats=[...S.filters.cat], cols=[...S.filters.col], lts=[...S.filters.lt].map(o=>optLabel("lt",o).toLowerCase()), rest=["series","sname"].flatMap(k=>[...S.filters[k]]);
+    const pre=[few(lts)?lts.join(" or "):"", few(cols)?cols.join(" or "):""].filter(Boolean).join(" ");
+    const home=[...new Set(cats.map(c=>TYPE_INFO[c]?.cat||c))], oneCat=cats.length>2&&home.length===1; // 3+ types of one category: "fittings of 6 types"
+    const noun=few(cats)?cats.map(c=>catNoun(c,one)).join(" or "):oneCat?catNoun(home[0],one):pre?(one?"product":"products"):(one?"result":"results");
+    const tail=(oneCat?` of ${cats.length} types`:cats.length>2?` across ${cats.length} categories and types`:"")+(cols.length>2?` from ${cols.length} collections`:"")+(lts.length>2?` with ${lts.length} line types`:"");
+    return `${n} ${esc(pre?pre+" ":"")}${esc(noun)}${q?` for “${esc(q)}”`:""}${esc(tail)}${finSel.length?(byp?" in all finishes":` in ${esc(orList(finSel))}`):""}${rest.length?` · ${esc(rest.join(", "))}`:""}`
       +(byp?` · <button type="button" class="tolink" id="finOnly">Only ${esc(orList(finSel))}</button>`:others?` · <button type="button" class="tolink" id="finOthers">Show other finishes (${others})</button>`:""); };
   if(!list.length){
     cnt.textContent="";
@@ -2065,9 +2141,10 @@ document.addEventListener("click",e=>{
   if(t.dataset.fpop){ const k=t.dataset.fpop; if(S.fpop===k){ closePop(true); return; } S.fpop=k; renderFilters(); $("#fpop")?.querySelector("input,button")?.focus(); return; }
   if(t.dataset.fclr){ const k=t.dataset.fclr; clearGroup(k); renderFilters(); search(); (k==="all"?$("#q"):document.querySelector(`[data-fpop="${k}"]`))?.focus(); return; }
   if(t.dataset.finfam){ const f=t.dataset.finfam; S.finOpen.has(f)?S.finOpen.delete(f):S.finOpen.add(f); renderFilters(); return; }
+  if(t.dataset.catopen){ const c=t.dataset.catopen; S.catOpen.has(c)?S.catOpen.delete(c):S.catOpen.add(c); renderFilters(); return; }
   if(t.dataset.finmore){ S.finMore=!S.finMore; renderFilters(); return; }
   if(t.dataset.finview){ S.finView=t.dataset.finview; renderFilters(); $("#fpop")?.querySelector(t.dataset.finview==="surf"?".fpback, .fopt input":".fpentry")?.focus(); return; }
-  if(t.id==="finOthers"){ S.finAll=true; S.finAllFor=S.room+"|"+S.query; S.page=1; renderResults(); $("#finOnly")?.focus(); return; }
+  if(t.id==="finOthers"){ S.finAll=true; S.finAllFor=S.query; S.page=1; renderResults(); $("#finOnly")?.focus(); return; }
   if(t.id==="finOnly"){ S.finAll=false; S.page=1; renderResults(); $("#finOthers")?.focus(); return; }
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
@@ -2157,6 +2234,8 @@ document.addEventListener("submit",e=>{ if(e.target.id!=="roomForm") return; e.p
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset.f){ const k=t.dataset.f, set=S.filters[k]; t.checked?set.add(t.value):set.delete(t.value); if(k==="fin") S.finAll=false; renderFilters(); search(); return; }
+  if(t.dataset.fcat){ catTick(t.dataset.fcat,null,t.checked); renderFilters(); search(); return; }
+  if(t.dataset.ftype){ catTick(TYPE_INFO[t.dataset.ftype].cat,t.dataset.ftype,t.checked); renderFilters(); search(); return; }
   if(t.id==="scenario"){ S.undo=null;
     if(S.saved && t.value!=="fresh"){ S.quote=S.saved.quote; S.dirty=S.saved.dirty; S.saved=null; } // leaving "Fresh quote" brings the mock lines back
     S.scenario=t.value; resetSend();
@@ -2165,7 +2244,7 @@ document.addEventListener("change",e=>{
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
     // Fresh: the default search state (nothing typed, no filters). Normal: a search already under way, with a couple of filters on
-    if(t.value==="fresh"||t.value==="normal"){ clearGroup("all"); S.roomFin={}; S.fpop=null; S.page=1; S.query=""; }
+    if(t.value==="fresh"||t.value==="normal"){ clearGroup("all"); S.fpop=null; S.page=1; S.query=""; }
     if(t.value==="normal"){ S.query="faucet"; S.filters.fin.add("Brass"); S.filters.cat.add("Fittings"); }
     if(t.value==="fresh"||t.value==="normal"){ $("#q").value=S.query; $("#clearQ").hidden=!S.query; renderFilters(); }
     markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
@@ -2315,7 +2394,7 @@ function applyRename(r,name){
   const old=r.name, keys=new Set(r.lines.map(l=>l.sku+old));
   S.open=S.open.map(k=>keys.has(k)?k.slice(0,k.length-old.length)+name:k);
   S.kitClosed=S.kitClosed.map(k=>keys.has(k)?k.slice(0,k.length-old.length)+name:k);
-  r.name=name; if(S.roomFin[old]){ S.roomFin[name]=S.roomFin[old]; delete S.roomFin[old]; } if(S.finLastRoom===old) S.finLastRoom=name; if(S.room===old) S.room=name; if(S.undo&&S.undo.room===old) S.undo.room=name;
+  r.name=name; if(S.room===old) S.room=name; if(S.undo&&S.undo.room===old) S.undo.room=name;
 }
 function redrawQuote(){ quiet=true; renderQuote(); quiet=false; }
 function focusName(name){ document.querySelector(`[data-rmore="${CSS.escape(name)}"]`)?.focus(); } // back to the "…" the rename came from
