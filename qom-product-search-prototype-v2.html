@@ -359,7 +359,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .dbtn.cancel{background:#e0e0e0;color:var(--ink);border:1px solid var(--ink)}
 .dbtn.yes{background:var(--ink);color:var(--bg);border:1px solid var(--ink)}
 .dbtn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:210;background:var(--ink);color:var(--bg);padding:10px 16px;font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(var(--bar-h,88px) + 16px);transform:translateX(-50%);z-index:210;background:var(--ink);color:var(--bg);padding:10px 16px;font-size:14px}
 .toast[hidden]{display:none}
 .toast.ok{background:var(--ok);color:#fff;font-weight:500;animation:toastin .15s ease-out} /* quick success after adding a product */
 @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}}
@@ -419,7 +419,8 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .rmblock .empty-quote{background:var(--bg);border:1px dashed var(--ink-3);border-top:0;margin-top:0;padding:22px 16px;color:var(--ink-2);font-size:14px;text-align:center}
 .rmblock .empty-quote b{color:var(--ink);font-weight:600}
 /* no rooms at all: a dark block so the empty quote can't be missed */
-.empty-quote.none{background:var(--ink);color:var(--bg);margin-top:12px;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.empty-quote.none{background:var(--ink);color:var(--bg);margin-top:12px;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pane.quote.expanded .empty-quote.none{position:relative;z-index:7} /* sits above the sticky bar so its top edge lines up with the Rooms panel */
 .empty-quote.none .eqicon{display:flex;opacity:.85;margin-bottom:10px}
 .empty-quote.none .eqicon svg{width:30px;height:30px}
 .empty-quote.none h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 6px}
@@ -450,15 +451,34 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qtab[aria-selected="true"]{position:relative;z-index:1;background:var(--surface);color:var(--ink);font-weight:600;border-color:var(--ink-3)}
 .qtab:focus-visible{outline-offset:2px}
 .backlink{border:0;background:transparent;padding:0;margin:0 0 14px;color:var(--ink-2);text-decoration:underline;font-size:13px}
-.qi .qihead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.qi .qid{font-family:var(--serif);font-size:22px}
-.qi .qexp{font-family:var(--serif);font-size:15px;color:var(--ink-2)}
+.pane.quote:not(.expanded) .qbox:has(#qInfo:not([hidden])){background:#fff} /* the quote information reads on plain white */
+#qInfo{background:#fff;padding:6px 2px 0}
+.pane.quote.expanded #qInfo{border:1px solid var(--line);padding:28px 32px 12px} /* expanded: the quote information sits in a white box the width of the quote column */
+.qi .qihead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.qi .qidlbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.qi .qid{font-family:var(--serif);font-size:24px;line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}
+.qi .qexp{font-size:13px;color:var(--ink-2);margin-top:4px}
+.qi .qexp b{font-weight:600;color:var(--ink)}
 .draftpill{display:inline-flex;align-items:center;gap:8px;background:var(--pill);color:#111;border-radius:999px;padding:6px 14px;font-family:var(--serif);font-size:15px;margin:10px 0 6px}
-.qi h3{font-size:24px;font-weight:600;margin:26px 0 10px}
-.qi .qf{margin:0 0 16px}
-.qi .ql{font-weight:600;font-size:15px}
-.qi .qv{font-size:16px;margin-top:2px;min-height:1em}
-.qi .qnone{font-family:var(--serif);color:var(--ink-3)}
+.qi .qihead .draftpill{margin:2px 0 0;font-size:14px;padding:5px 12px}
+.qi .qsec{padding:18px 0 6px;border-bottom:1px solid var(--line-2)}
+.qi .qsec:last-child{border-bottom:0}
+.qi h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0 0 10px}
+.qi dl{margin:0;display:grid;grid-template-columns:1fr;gap:0 28px}
+@container quote (min-width:720px){ .qi dl{grid-template-columns:1fr 1fr} }
+.qi .qf{display:grid;grid-template-columns:minmax(120px,42%) 1fr;gap:12px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line-2)}
+.qi .qf:first-child{border-top:0}
+@container quote (min-width:720px){ .qi .qf:nth-child(2){border-top:0} }
+.qi .ql{font-size:13px;color:var(--ink-3);margin:0}
+.qi .qv{font-size:14px;color:var(--ink);font-weight:500;margin:0;min-height:1em;overflow-wrap:anywhere}
+.qi .qv.num{font-variant-numeric:tabular-nums}
+.qi .qnone{margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);color:var(--ink-3);font-size:13px}
+.qi .qdoc{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);margin:0 0 12px}
+.qi .qdoc svg{flex:none;color:var(--ink-2)}
+.qi .qdoc .qdn{flex:1;min-width:0}
+.qi .qdoc .qdt{font-weight:600;font-size:14px}
+.qi .qdoc .qdm{font-size:12px;color:var(--ink-3)}
+.qi .qdoc .backlink{margin:0;white-space:nowrap}
 .pdfwrap{background:var(--surface-2);padding:12px}
 .pdfpage{position:relative;overflow:hidden;background:#fff;color:#111;border:1px solid var(--line);padding:18px 18px 10px;margin-bottom:12px;font-size:10px;line-height:1.35}
 .pdfpage:last-child{margin-bottom:0}
@@ -496,7 +516,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* side by side on desktop: each side fills the screen below the page header and scrolls on its own,
    so a long result list never leaves the quote off screen (and the sticky headers and Save bar pin to each side) */
 @media (min-width:981px){
-  .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - 16px));overflow-y:auto;overscroll-behavior:none;padding-right:6px}
+  .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px) - 16px));overflow-y:auto;overscroll-behavior:none;padding-right:6px}
   .work[data-layout="split"] #searchPane{display:flex;flex-direction:column} /* Save bar sits at the bottom even when the results are short */
   .work[data-layout="split"] #searchPane>*{flex-shrink:0}
   .work[data-layout="split"] #searchPane>.sfoot{margin-top:auto}
@@ -510,10 +530,13 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none)>#qProducts,
   .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none) #rooms{flex:1 0 auto;display:flex;flex-direction:column}
   .work[data-layout="split"] #quotePane:not(.expanded) .empty-quote.none{flex:1;justify-content:center}
-  .work[data-layout="split"] .filterwrap .filters{max-height:max(220px,calc(100vh - var(--work-top,0px) - 200px))} /* the tray fits inside the search side */
+  .work[data-layout="split"] .filterwrap .filters{max-height:max(220px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px) - 200px))} /* the tray fits inside the search side */
   .work[data-layout="split"] .pane.quote.expanded{position:fixed;height:auto;padding-right:max(24px,calc((100vw - 1200px)/2))}
 }
-.pane.quote.expanded .roomhdr{top:calc(var(--qbar-h,64px) - 64px)}
+.pane.quote.expanded .roomhdr{top:max(0px,calc(var(--qbar-h,64px) - 64px))}
+/* while the bar has nothing to show (Shipping Details switch hidden), the first room lines up with the top of the Rooms panel on the left */
+.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))){margin-top:-64px;padding-top:64px;padding-bottom:0} /* ends exactly where the rooms start, so nothing peeks out above a pinned room bar */
+.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))) ~ #qProducts #rooms>.rmblock:first-child>.roomhdr{margin-top:0}
 .pane.quote.expanded .qbar{top:-64px;margin-top:-62px;padding-top:62px} /* reaches up under the floating view tabs */
 .pane.quote.expanded .qfoot{bottom:-24px}
 body.noscroll{overflow:hidden}
@@ -578,40 +601,34 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 /* hide the browser's own clear button; the search box has its own */
 #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 
-/* ---------- pricing bar: save status, totals and the next step, pinned to the bottom of the Selected Products side ---------- */
-.pbar{position:fixed;bottom:0;left:var(--qp-left,0px);width:var(--qp-w,100%);z-index:150;margin:0;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;justify-content:space-between;gap:12px 24px;background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 14px -10px rgba(0,0,0,.25)}
-#quotePane .qbox{padding-bottom:calc(14px + var(--bar-h,0px))} /* the last lines can scroll clear of the bar */
-@media (max-width:980px){ body{padding-bottom:var(--bar-h,0px)} }
-.qfoot{bottom:var(--bar-h,0px)} /* the undo message sits just above the bar */
-.sfoot .pb-save{flex-basis:100%}
-.sfoot.fixed{position:fixed;bottom:0;left:var(--sf-left,0px);width:var(--sf-w,100%);z-index:150;margin:0;padding:12px 0 calc(14px + env(safe-area-inset-bottom,0px));align-content:flex-start;border-top:1px solid var(--panel-line);box-shadow:0 -8px 14px -10px rgba(0,0,0,.25)}
-#searchPane:has(> .sfoot.fixed){padding-bottom:var(--bar-h,0px)} /* the last results scroll clear of it */
-.sfoot:not(.fixed){bottom:var(--bar-h,0px)} /* stacked layout: sits above the pricing bar */
-.qside .pb-save{margin-top:12px}
-.pb-acts{margin-left:auto;display:flex;align-items:flex-start;justify-content:flex-end;flex-wrap:wrap;gap:8px 12px}
-.pb-save{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:13px}
-.pb-save .pb-st{display:flex;align-items:flex-start;gap:6px;font-weight:600}
-.pb-save .pb-st svg{flex:none;margin-top:1px}
-.pb-save .ok-msg{color:var(--done)}
-.pb-save .pb-st.dirty{color:var(--warn)}
-.pb-totals{display:flex;align-items:flex-start;gap:10px 24px;margin:0;flex-wrap:wrap}
-.pb-totals div{display:grid;gap:2px}
-.pb-totals dt{font-size:14px;color:var(--ink-2)}
-.pb-totals dd{margin:0;font-size:15px;color:var(--muted)}
-.pb-totals dd.amt{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
-.pb-totals .pb-total{padding-left:24px;border-left:1px solid var(--line);display:grid;grid-template-columns:auto auto;column-gap:10px;align-items:baseline;justify-content:start}
-#pbSubWrap[hidden] ~ .pb-total{padding-left:0;border-left:0} /* no divider when the total stands alone */
-.pb-totals .pb-total dt{grid-column:1/-1}
-/* the note and the Full breakdown link stack beside the amount */
-.pb-totals .pb-total #pbTotal{grid-column:1;grid-row:2/4;align-self:center}
-.pb-totals .pb-total dd.pb-note{grid-column:2;grid-row:2;align-self:end}
-.pb-totals .pb-total dd.pb-bdl{grid-column:2;grid-row:3;align-self:start}
-.pb-totals .pb-total dd{font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-.pb-totals .pb-total dd.pb-bdl{margin-top:1px;font-size:12px;font-weight:400}
-.pb-totals .pb-total dd.pb-note{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;color:var(--muted)}
-.pb-totals .pb-total dd.pb-note.prog{color:var(--prog)}
-.pb-note .spin{width:12px;height:12px;border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
-.pb-bdl .tolink{min-height:44px;margin:-15px 0 -14px;padding:0;font-size:12px;color:var(--ink-2)} /* small link, still a 44px target */
+/* ---------- quote footer: one bar across the page, fixed to the bottom. Save status | total | actions ---------- */
+body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
+.pane.quote.expanded{bottom:var(--bar-h,0px)}
+.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:flex;flex-wrap:wrap;align-items:flex-start;gap:14px 28px;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
+/* 1. save status */
+.pb-save{flex:none;width:220px;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;font-size:13px}
+.pb-st{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.pb-st #pbIc{display:inline-flex}
+.pb-st .ok-msg{color:var(--done)}
+.pb-dot{width:9px;height:9px;border-radius:50%;background:var(--block)}
+.pb-st .unsaved{color:var(--block);font-size:13px}
+.pb-discard{min-height:44px;font-size:13px;font-weight:600}
+/* 2. total */
+.pb-mid{flex:1 1 200px;min-width:0;display:grid;gap:1px;align-content:start}
+.pb-lbl{font-size:13px;color:var(--ink-2)}
+.pb-amt{font-family:var(--serif);font-size:24px;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
+.pb-note{font-size:12px;color:var(--muted)}
+.pb-prog{display:grid;gap:5px;max-width:360px;margin-top:3px;font-size:12px;color:var(--prog)}
+.pb-progbar{display:block;height:3px;border-radius:2px;background:var(--prog-bg);overflow:hidden}
+.pb-progbar i{display:block;width:35%;height:100%;background:var(--prog);animation:pbslide 1.6s ease-in-out infinite}
+@keyframes pbslide{from{transform:translateX(-100%)}to{transform:translateX(290%)}}
+@media (prefers-reduced-motion:reduce){ .pb-progbar i{animation:none;width:100%;opacity:.45} }
+.pb-mid .tolink{justify-self:start;min-height:44px;margin:-12px 0 -14px;padding:0;font-size:12px;color:var(--ink-2)} /* small link, still a 44px target */
+/* 3. actions: Save, Calculate freight, Send to client; they keep their places, only their style changes */
+.pb-acts{flex:0 0 auto;margin-left:auto;display:grid;justify-items:end;gap:6px}
+.pb-btns{display:flex;gap:10px}
+.pb-help{margin:0;min-height:16px;font-size:12px;color:var(--muted);text-align:right}
+@media (max-width:980px){ .pbar{flex-wrap:wrap;padding-left:16px;padding-right:16px} .pb-save{width:auto} .pb-acts{flex-basis:100%;justify-items:start} .pb-help{text-align:left} }
 .sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
 .sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
 .sp-bd h3:focus{outline:none}
@@ -620,16 +637,14 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 .sp-bd .totals .big{font-size:18px}
 .sp-bd .totals .lb{white-space:nowrap}
 .sp-bd .totals .v.nc{color:var(--muted);font-weight:400}
-.pb-act{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:0 20px;white-space:nowrap;border:1px solid var(--ink);background:var(--ink);color:var(--bg);letter-spacing:.14em;font-size:13px;font-weight:600;text-transform:uppercase}
-.pb-act.ghost{background:var(--bg);color:var(--ink)}
-.pb-act.pb-send{width:48px;padding:0} /* icon only; its name comes from aria-label */
-/* not available yet: looks off, but stays focusable so a click can say why (it opens Before you send) */
-.pb-act[aria-disabled="true"]{background:var(--surface-2);border-color:var(--surface-2);color:var(--muted);cursor:not-allowed}
-.pb-fix{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:0 2px;border:0;background:none;color:var(--block);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.pb-act{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;white-space:nowrap;border:1px solid var(--ink);background:var(--bg);color:var(--ink);letter-spacing:.12em;font-size:12px;font-weight:600;text-transform:uppercase}
+.pb-act.primary{background:var(--ink);color:var(--bg)} /* only the next step is black */
+/* grey when it can't be used; Calculate freight and Send stay focusable (aria-disabled) so the helper line and panel can explain */
+.pb-act:disabled,.pb-act[aria-disabled="true"]{background:var(--surface-2);border-color:var(--surface-2);color:var(--muted);cursor:not-allowed;opacity:1}
 .pb-act.run{background:var(--prog-bg);border-color:#c9d6e4;color:var(--prog);cursor:progress}
-.pb-act:disabled{opacity:1}
 .pb-act .spin,.spi .spin{border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
-/* "Before you send": a flyout on the right, above the bar; it doesn't block the quote, so it can stay open while the SC works */
+.pb-fix{min-height:44px;margin:-14px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--block);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+/* "Before you send": a flyout on the right; on wide screens the page makes room for it */
 .spanel{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(var(--sp-w),100vw);display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);box-shadow:-10px 0 24px -16px rgba(0,0,0,.3)}
 .sp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:22px 20px 14px;border-bottom:1px solid var(--line)}
 .sp-head h2{margin:0;font-family:var(--sans);font-size:18px;font-weight:600}
@@ -639,7 +654,14 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 .tone-block{color:var(--block)} .tone-prog{color:var(--prog)} .tone-done{color:var(--done)} .tone-muted{color:var(--muted)}
 .sp-close{flex:none;width:44px;height:44px;margin:-10px -12px 0 0;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0}
 .sp-body{flex:1;min-height:0;overflow-y:auto}
-.sp-list{list-style:none;margin:0;padding:4px 20px 16px}
+.sp-list{list-style:none;margin:0;padding:0}
+.sp-sec{padding:4px 20px 12px}
+.sp-sec+.sp-sec{border-top:1px solid var(--line)}
+.sp-sec h3{margin:14px 0 2px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.sp-sec h3:focus{outline:none}
+.sp-sec h3:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sp-none{padding:10px 0;font-size:13px;color:var(--muted)}
+.sp-bd .totals small.bdsub{display:block;font-size:12px;margin-top:2px}
 .spi{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:2px 10px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line-2)}
 .spi:last-child{border-bottom:0}
 .spi .spi-ic{display:flex;padding-top:1px}
@@ -657,7 +679,6 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 .lflag .tolink{min-height:44px;margin:-8px 0;font-weight:600}
 #linesEnd{height:1px;margin-top:-1px} /* marks the end of the quote lines (auto-open variant B) */
 /* narrow Selected Products side: the buttons start on the left when they wrap under the totals */
-.pbar.narrow .pb-acts{margin-left:0}
 .qside #sideEnd{padding:16px 18px 20px}
 .qside #sideEnd .sidesave{display:block;width:100%}
 .proto .pbtn{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font-size:13px}
@@ -682,13 +703,11 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
     <select id="scenario">
       <option value="normal">Normal</option>
       <option value="fresh" selected>Fresh quote, no lines</option>
-    </select>
-  </label>
-  <label>Send flow
-    <select id="sendDemo">
-      <option value="needs">1 · Needs action</option>
-      <option value="calc">2 · Freight calculating</option>
-      <option value="ready">3 · Ready to send</option>
+      <option value="s-unsaved">Footer 1 · Unsaved edits</option>
+      <option value="s-saved">Footer 2 · Saved, no freight</option>
+      <option value="s-calc">Footer 3 · Calculating freight</option>
+      <option value="s-ready">Footer 4 · Ready to send</option>
+      <option value="s-blocked">Footer 5 · Blocked</option>
     </select>
   </label>
   <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
@@ -750,8 +769,6 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
         <p class="resmeta" id="count"></p>
         <div id="notice" aria-live="assertive"></div>
         <div id="results" aria-live="polite"></div>
-        <!-- save actions live on the search side, as in staging -->
-        <div class="sfoot"><button type="button" class="btn ghost" id="discardBtn">Discard changes</button><button type="button" class="btn" id="saveBtn" disabled>Save</button><div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">All changes saved</span></span></div></div>
       </section>
 
       <div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Resize panels (drag, or use the arrow keys; double-click to reset)" tabindex="0"></div>
@@ -798,22 +815,30 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
   </main>
 </div>
 
-<!-- pricing bar: fixed to the bottom of the screen, as wide as the Selected Products side (placeBar) -->
-<div class="pbar" id="pbar" role="region" aria-label="Quote totals and next step">
-  <dl class="pb-totals">
-    <div id="pbSubWrap"><dt>Subtotal</dt><dd class="amt" id="pbSub"></dd></div>
-    <div class="pb-total"><dt>Estimated total</dt><dd id="pbTotal"></dd><dd class="pb-note" id="pbNote"></dd><dd class="pb-bdl"><button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button></dd></div>
-  </dl>
+<!-- quote footer: one bar across the page, fixed to the bottom (placeBar keeps it to the page width) -->
+<div class="pbar" id="pbar" role="region" aria-label="Save status, total and next step">
+  <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">All changes saved</span></span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
+  <div class="pb-mid">
+    <span class="pb-lbl">Estimated total</span>
+    <span class="pb-amt" id="pbTotal"></span>
+    <span class="pb-note" id="pbNote"></span>
+    <div class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span><span>Calculating freight in M3. This can take a few minutes; you can keep working.</span></div>
+    <button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button>
+  </div>
   <div class="pb-acts">
-    <button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="false" hidden></button>
-    <button type="button" class="pb-act ghost" id="pbFreightBtn">Freight &amp; Save</button>
-    <button type="button" class="pb-act pb-send" id="pbSend" aria-label="Send to client"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg></button>
+    <div class="pb-btns">
+      <button type="button" class="pb-act" id="saveBtn" disabled>Save</button>
+      <button type="button" class="pb-act" id="pbFreightBtn">Calculate freight</button>
+      <button type="button" class="pb-act" id="pbSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client</button>
+    </div>
+    <p class="pb-help" id="pbHelp" aria-live="polite"></p>
   </div>
 </div>
 <aside class="spanel" id="sendPanel" aria-labelledby="spTitle" hidden>
   <div class="sp-head"><div><h2 id="spTitle" tabindex="-1">Before you send</h2><p id="spStatus"></p></div><button type="button" class="sp-close" id="spClose" aria-label="Close Before you send"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
   <div class="sp-body">
-    <ul class="sp-list" id="spList"></ul>
+    <section class="sp-sec" id="spIssuesSec" aria-labelledby="spIssuesTitle"><h3 id="spIssuesTitle" tabindex="-1">Things to fix</h3><ul class="sp-list" id="spIssues"></ul></section>
+    <section class="sp-sec" aria-labelledby="spListTitle"><h3 id="spListTitle">Checklist</h3><ul class="sp-list" id="spList"></ul></section>
     <section class="sp-bd" aria-labelledby="spBdTitle"><h3 id="spBdTitle" tabindex="-1">Full breakdown</h3><div class="totals" id="totals"></div></section>
   </div>
 </aside>
@@ -1132,7 +1157,7 @@ function openRemoveDialog(room,sku){
   $("#rmCancel").focus();
 }
 // the last saved copy of the quote; "Discard changes" goes back to it
-function markSaved(){ S.base=structuredClone(S.quote); }
+function markSaved(){ S.base=structuredClone(S.quote); SEND.savedAt=nowTime(); }
 // opening a room makes it the one you add to; the open room can also be folded shut by hand
 function pickRoom(name){ S.room=name; S.collapsedFor=null; if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
 function toggleRoom(name){ if(S.room===name){ S.collapsedFor=S.collapsedFor===name?null:name; renderQuote(); } else pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus(); }
@@ -1276,106 +1301,126 @@ function renderRoom(){ const b=$("#roomBtn"); $("#roomLabel").textContent=S.room
  }
 function renderAll(){ renderLayout(); renderRoom(); renderChips(); renderFilters(); renderResults(); renderQuote(); }
 
-// ---------- pricing bar and "Before you send" ----------
-// Mock only: the delivery address, autospec, custom pricing and the M3 freight run are all simulated here.
-// Auto-open variants for the SC test come from ?open= in the address: a / button (default: opens only from the bar button), b / first-forward, c / new-blocker.
+// ---------- quote footer and "Before you send" ----------
+// Mock only: delivery address, autospec, custom pricing, stock and the M3 freight run are all simulated here.
+// Auto-open variants for the SC test come from ?open= in the address: a / button (default: opens only from the footer), b / first-forward, c / new-blocker.
 const OPEN_MODES={a:"button",button:"button",b:"first-forward","first-forward":"first-forward",c:"new-blocker","new-blocker":"new-blocker"};
 const nowTime=()=>new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
 const SEND={mode:OPEN_MODES[(new URLSearchParams(location.search).get("open")||"").toLowerCase()]||"button",
-  addr:false, freight:"none", freightAt:null, open:false, forwarded:false, seen:null, focus:null, timer:null, scrolledAt:0};
+  addr:false, freight:"none", freightAt:null, savedAt:nowTime(), open:false, forwarded:false, seen:null, focus:null, timer:null, scrolledAt:0};
 let QSUB=0;
+// mock M3 results: freight 2% of the subtotal, tax 6.8% of subtotal plus freight
+const mockFreight=()=>Math.round(QSUB*2)/100;
+const mockTax=()=>Math.round((QSUB+mockFreight())*6.8)/100;
 const SI={
   block:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 8v5" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1" fill="currentColor" stroke="none"/></svg>`,
   done:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m7.8 12.3 2.8 2.8 5.6-5.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   todo:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/></svg>`,
   prog:`<span class="spin" aria-hidden="true"></span>`,
-  dirty:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v6" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg>`,
-  chev:`<svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 1 6.5 6l-5 5"/></svg>`
+  dot:`<span class="pb-dot" aria-hidden="true"></span>`
 };
 const STATE_SR={block:"Needs fixing",prog:"In progress",todo:"Not started",done:"Done"};
 const quoteLines=()=>S.quote.rooms.flatMap(r=>r.lines.map(l=>({r,l})));
 const specMissing=()=>quoteLines().filter(x=>x.l.spec===false);
 const priceMissing=()=>quoteLines().filter(x=>x.l.cp);
-// stock: the same lines the stock check marks as blocking (discontinued, not enough stock, status unavailable)
-const stockMissing=()=>quoteLines().filter(x=>{ const v=RISK?.by[x.r.name+"|"+x.l.sku]; return v&&(v.level==="blocking"||v.level==="unknown"); });
-const missingOf=k=>k==="spec"?specMissing():k==="stock"?stockMissing():priceMissing();
+// stock: the lines the stock check marks as blocking, split by reason so each gets its own plain-language item
+const stockOf=reason=>quoteLines().filter(x=>{ const v=RISK?.by[x.r.name+"|"+x.l.sku]; return v&&(v.level==="blocking"||v.level==="unknown")&&(!reason||v.reason===reason); });
+const KIND_REASON={disc:"discontinued",short:"stock",unav:"unavailable"};
+const missingOf=k=>k==="spec"?specMissing():k==="price"?priceMissing():stockOf(KIND_REASON[k]);
 const plural=(n,w)=>`${n} ${w}${n===1?"":"s"}`;
 const badQty=()=>quoteLines().some(({l})=>l.qty%CAT.find(x=>x.sku===l.sku).mult);
+const lineName=x=>{ const p=CAT.find(c=>c.sku===x.l.sku); return `${p.name} in ${p.fin} · ${x.r.name}`; };
+// how many things differ from the last save: each added, removed or edited line, and each added or removed room
+function changeCount(){ if(!S.dirty) return 0;
+  const map=q=>{ const m=new Map(); (q?.rooms||[]).forEach(r=>{ m.set("room:"+r.name,r.type||""); r.lines.forEach(l=>m.set(r.name+"|"+l.sku,JSON.stringify(l))); }); return m; };
+  const a=map(S.base), b=map(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return Math.max(n,1); }
 // where the panel is pointing: which of the missing lines, counted in quote order
 function focusPos(kind){ const f=SEND.focus; if(!f||f.kind!==kind) return -1; return missingOf(kind).findIndex(x=>x.r.name===f.room&&x.l.sku===f.sku); }
 function sendItems(){
-  const spec=specMissing(), price=priceMissing(), items=[];
-  // an empty quote can't be priced or sent: say what's missing first, with the action that fixes it
-  if(!S.quote.rooms.length) items.push({id:"lines",st:"block",t:"Rooms and products",d:"Add a room, then products, before freight and tax can run",a:["addRoom","Add room"]});
-  else if(!S.quote.rooms.some(r=>r.lines.length)) items.push({id:"lines",st:"block",t:"Products",d:"Add at least one product before freight and tax can run",a:["addProd","Add products"]});
-  items.push(SEND.addr?{id:"addr",st:"done",t:"Delivery address",d:"Added"}:{id:"addr",st:"block",t:"Delivery address",d:"Needed to calculate freight and tax",a:["addAddr","Add address"]});
-  if(spec.length){ const k=focusPos("spec"); items.push({id:"spec",st:"block",t:`Autospec on ${plural(spec.length,"line")}`,d:k>=0?`Needed to send. Showing ${k+1} of ${spec.length} in the quote`:"Needed to send.",a:["nextSpec","Next line"]}); }
+  const hasLines=quoteLines().length>0, spec=specMissing(), price=priceMissing(), items=[];
+  const blk=hasLines?"block":"todo"; // nothing counts as a thing to fix until the quote has lines
+  if(!S.quote.rooms.length) items.push({id:"lines",st:"todo",t:"Rooms and products",d:"Add a room, then products, before freight can be calculated",a:["addRoom","Add room"]});
+  else if(!hasLines) items.push({id:"lines",st:"todo",t:"Products",d:"Add at least one product before freight can be calculated",a:["addProd","Add products"]});
+  items.push(SEND.addr?{id:"addr",st:"done",t:"Delivery address",d:"Added"}:{id:"addr",st:blk,t:"Delivery address missing",d:"Needed to calculate freight and tax",a:["addAddr","Add address"]});
+  if(spec.length){ const k=focusPos("spec"); items.push({id:"spec",st:blk,t:`Autospec incomplete on ${plural(spec.length,"line")}`,d:k>=0?`Needed to send. Showing ${k+1} of ${spec.length} in the quote`:"Needed to send",a:["nextSpec","Next line"]}); }
   else items.push({id:"spec",st:"done",t:"Autospec",d:"All lines complete"});
-  const stock=stockMissing();
-  if(stock.length){ const k=focusPos("stock"); items.push({id:"stock",st:"block",t:`Stock on ${plural(stock.length,"line")}`,d:k>=0?`Discontinued, short on stock or status unavailable. Showing ${k+1} of ${stock.length} in the quote`:"Discontinued, short on stock or status unavailable. Needed to send.",a:["nextStock","Next line"]}); }
-  else items.push({id:"stock",st:"done",t:"Stock",d:"No discontinued, short or unavailable lines"});
-  const blocked=!SEND.addr||spec.length||stock.length||price.length||!S.quote.rooms.some(r=>r.lines.length);
-  if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes on large quotes."});
-  else if(SEND.freight==="done") items.push({id:"freight",st:"done",t:"Freight and tax",d:`Calculated by M3 · ${SEND.freightAt}`});
-  else if(blocked) items.push({id:"freight",st:"todo",t:"Freight and tax",d:SEND.addr?"Calculated by M3 once the items above are fixed":"Calculated by M3 once the address is in"});
-  else items.push({id:"freight",st:"todo",t:"Freight and tax",d:"Ready to calculate. M3 does freight first, then tax.",a:["calc","Freight & Save"]});
-  if(price.length){ const k=focusPos("price"); items.push({id:"price",st:"block",t:`Custom pricing on ${plural(price.length,"line")}`,d:k>=0?`Waiting on custom pricing. Showing ${k+1} of ${price.length} in the quote`:"Waiting on custom pricing",a:["nextPrice","Next line"]}); }
+  const disc=stockOf("discontinued"), short=stockOf("stock"), unav=stockOf("unavailable");
+  if(disc.length) items.push({id:"disc",st:blk,t:disc.length===1?`1 discontinued item: ${lineName(disc[0])}`:`${disc.length} discontinued items: ${lineName(disc[0])} and ${disc.length-1} more`,d:"Can't be ordered. Replace it with another finish, or remove it.",a:["nextDisc","Replace or remove"]});
+  if(short.length) items.push({id:"short",st:blk,t:`Not enough stock on ${plural(short.length,"line")}`,d:"Reduce the quantity or choose another finish",a:["nextShort","Change quantity"]});
+  if(unav.length) items.push({id:"unav",st:blk,t:`Stock status unavailable on ${plural(unav.length,"line")}`,d:"M3 didn't return a warehouse status for these lines",a:["nextUnav","Show line"]});
+  if(!disc.length&&!short.length&&!unav.length) items.push({id:"stock",st:"done",t:"Stock",d:"No discontinued, short or unavailable lines"});
+  if(price.length){ const k=focusPos("price"); items.push({id:"price",st:blk,t:`Waiting on custom pricing for ${plural(price.length,"line")}`,d:k>=0?`Showing ${k+1} of ${price.length} in the quote`:"Needed to send",a:["nextPrice","Next line"]}); }
   else items.push({id:"price",st:"done",t:"Every line priced",d:"None waiting on custom pricing"});
-  items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:""}
-    :{id:"saved",st:"todo",t:"Unsaved changes",d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Freight & Save"});
+  if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes; you can keep working."});
+  else if(SEND.freight==="done"&&!S.dirty) items.push({id:"freight",st:"done",t:"Freight and tax",d:`Calculated ${SEND.freightAt}`});
+  else items.push({id:"freight",st:blk,t:"Freight not calculated",d:!SEND.addr?"Add the delivery address, then calculate freight":S.dirty?"Saves your changes first, then M3 calculates freight and tax":"M3 calculates freight, then tax. This can take a few minutes.",a:SEND.addr&&hasLines?["calc","Calculate freight"]:null});
+  items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:SEND.savedAt}
+    :{id:"saved",st:"todo",t:plural(changeCount(),"unsaved change"),d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Calculate freight"});
   const rank={block:0,prog:1,todo:2,done:3};
   return items.map((x,i)=>({...x,i})).sort((a,b)=>rank[a.st]-rank[b.st]||a.i-b.i);
 }
-// what the one bar button does next
-function barStep(items){ const n=items.filter(x=>x.st==="block").length;
-  return n?{k:"fix",n}:SEND.freight==="run"?{k:"run"}:SEND.freight==="done"&&!S.dirty?{k:"send"}:{k:"calc"}; }
-function blockerKeys(){ return [...(S.quote.rooms.some(r=>r.lines.length)?[]:["lines"]),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockMissing().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
+function blockerKeys(){ return [...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
+// the footer's state, worked out once: which button is the next step and what the helper line says
+function footState(items=sendItems()){
+  const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight");
+  const dirty=S.dirty, bad=badQty(), run=SEND.freight==="run", done=SEND.freight==="done"&&!dirty;
+  const calcOff=dirty||run||!hasLines||!SEND.addr, canSend=done&&hasLines&&!others.length;
+  const help=!hasLines?"Add products to calculate freight":others.length?null:dirty?(bad?"Fix the quantities marked in the quote to save":"Save your changes to calculate freight"):run?"Send to client unlocks when freight is calculated":!done?"Calculate freight before sending":`Freight calculated ${SEND.freightAt}`;
+  return {hasLines,issues,others,dirty,bad,run,done,calcOff,canSend,help};
+}
+let helpHtml="";
 function renderSend(){
   if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again
-  const items=sendItems(), step=barStep(items), done=SEND.freight==="done";
-  // save status
-  $("#pbIc").innerHTML=S.dirty?SI.dirty:SI.done; $("#pbSt").classList.toggle("dirty",S.dirty);
-  // totals: never a dash; words until M3 has run
-  const fr=SEND.freight==="run"?["Calculating…","prog"]:done?["[Freight]","amt"]:["Not calculated",""];
-  const tx=SEND.freight==="run"?["After freight",""]:done?["[Tax]","amt"]:["Not calculated",""];
-  $("#pbSub").textContent=money(QSUB); $("#pbSubWrap").hidden=S.view==="residential"; // residential: same as the estimated total until freight runs, so only Full breakdown shows it
-  const nt=$("#pbNote"), calcing=SEND.freight==="run"; nt.className="pb-note"+(calcing?" prog":""); // one note says where freight and tax stand
-  nt.innerHTML=calcing?`${SI.prog}Calculating freight and tax…`:done?"Includes freight and tax":"Freight and tax not calculated yet";
-  $("#pbTotal").textContent=done?"[Total]":money(QSUB);
-  const v=(t,nc)=>`<span class="v${nc?" nc":""}">${t}</span>`;
-  $("#totals").innerHTML=`<span class="lb">Additional Charges:</span>${v("None",1)}<span class="lb big">Subtotal:</span><span class="v big">${money(QSUB)}</span><span class="lb">Additional Discount(s):</span>${v(money(0))}<span class="lb">Freight Cost:</span>${v(fr[0],!done)}<span class="lb">Tax:</span>${v(tx[0],!done)}<hr><span></span><span class="lb big">Estimated total:</span><span class="v">${done?"":`<span class="bf">(before freight)</span>`}<span class="big">${done?"[Total]":money(QSUB)}</span></span>`;
-  // actions: what's left to fix (opens the panel), Freight & Save, Send to Client
-  const fx=$("#pbFix"); fx.hidden=step.k!=="fix"; fx.setAttribute("aria-expanded",String(SEND.open)); if(step.k==="fix") fx.innerHTML=`${SI.block}${plural(step.n,"thing")} to fix`;
-  const fb=$("#pbFreightBtn"), run=step.k==="run"; fb.disabled=run; fb.classList.toggle("run",run); fb.innerHTML=run?`${SI.prog} Calculating…`:"Freight &amp; Save";
-  const fbOff=step.k==="fix"; fb.setAttribute("aria-disabled",String(fbOff)); fb.title=fbOff?"Fix the items in Before you send first":"Save the quote, then M3 calculates freight and tax";
-  const sb=$("#pbSend"), sOff=step.k!=="send"; sb.setAttribute("aria-disabled",String(sOff));
-  sb.title=step.k==="fix"?"Send to client · fix the items in Before you send first":step.k==="send"?"Send to client: quote and payment link":"Send to client · run Freight & Save first";
-  // panel
-  const st=step.k==="fix"?[`${plural(step.n,"thing")} to fix${done?"":", then freight and tax"}`,"block"]:step.k==="run"?["Waiting on M3 for freight and tax","prog"]:step.k==="send"?["Ready to send","done"]:["Ready to calculate freight and tax","muted"];
+  const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx;
+  // 1. save status
+  $("#pbIc").innerHTML=F.dirty?SI.dot:SI.done;
+  const sm=$("#saveMsg"); sm.className=F.dirty?"unsaved":"ok-msg"; sm.textContent=F.dirty?plural(changeCount(),"unsaved change"):`All changes saved · ${SEND.savedAt}`;
+  $("#discardBtn").hidden=!F.dirty;
+  // 2. total
+  $("#pbTotal").textContent=money(total);
+  $("#pbNote").hidden=F.run; $("#pbNote").textContent=F.done?`incl. freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
+  $("#pbProg").hidden=!F.run;
+  const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
+  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
+  // 3. actions: same three buttons in the same places; only their style changes
+  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad; sv.classList.toggle("primary",F.dirty&&!F.bad);
+  const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
+  fb.innerHTML=F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight";
+  const sb=$("#pbSend"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
+  const h=F.help!=null?esc(F.help):`<button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="${SEND.open}">${SI.block}${plural(F.issues.length,"thing")} to fix before sending</button>`;
+  if(h!==helpHtml){ $("#pbHelp").innerHTML=h; helpHtml=h; } else $("#pbFix")?.setAttribute("aria-expanded",String(SEND.open)); // rewritten only when it changes, so focus isn't lost
+  // panel: things to fix first (only once the quote has lines), then the rest of the checklist, then the breakdown
+  const st=F.issues.length&&F.hasLines?[`${plural(F.issues.length,"thing")} to fix`,"block"]:F.run?["Calculating freight in M3","prog"]:F.canSend?["Ready to send","done"]:["Nothing to fix","muted"];
   const sp=$("#spStatus"); sp.textContent=st[0]; sp.className="tone-"+st[1];
-  $("#spList").innerHTML=items.map(x=>`<li class="spi ${x.st}"><span class="spi-ic">${SI[x.st]}</span><div class="spi-tx"><b>${x.t}<span class="sr"> · ${STATE_SR[x.st]}</span></b><span>${esc(x.d)}</span></div>${x.a?`<button type="button" class="splink" data-sact="${x.a[0]}">${x.a[1]}</button>`:"<span></span>"}</li>`).join("");
-  $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); placeBar(); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open));
+  const li=x=>`<li class="spi ${x.st}"><span class="spi-ic">${SI[x.st]}</span><div class="spi-tx"><b>${esc(x.t)}<span class="sr"> · ${STATE_SR[x.st]}</span></b><span>${esc(x.d)}</span></div>${x.a?`<button type="button" class="splink" data-sact="${x.a[0]}">${x.a[1]}</button>`:"<span></span>"}</li>`;
+  $("#spIssuesSec").hidden=!F.hasLines;
+  $("#spIssues").innerHTML=F.issues.length?F.issues.map(li).join(""):`<li class="sp-none">Nothing to fix.</li>`;
+  $("#spList").innerHTML=items.filter(x=>x.st!=="block").map(li).join("");
+  $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open)); placeBar();
   // auto-open: B reopens on a new blocker once it has opened by itself; C opens on every new blocker
   const keys=blockerKeys(), prev=SEND.seen; SEND.seen=new Set(keys);
-  if(prev && !SEND.open && keys.some(k=>!prev.has(k)) && (SEND.mode==="new-blocker"||(SEND.mode==="first-forward"&&SEND.forwarded))) openSend(true);
+  if(prev && !SEND.open && F.hasLines && keys.some(k=>!prev.has(k)) && (SEND.mode==="new-blocker"||(SEND.mode==="first-forward"&&SEND.forwarded))) openSend(true,"issues");
 }
-function openSend(auto,to){
-  SEND.open=true; SEND.from=to==="breakdown"?"#bdBtn":to||"#pbFix"; renderSend(); // closing returns focus to whichever control opened it
-  if(to==="breakdown"){ const h=$("#spBdTitle"); h.focus({preventScroll:true}); h.scrollIntoView({block:"start"}); return; }
-  if(auto){ const n=blockerKeys().length?barStep(sendItems()).n:0; $("#sendLive").textContent=`Before you send opened${n?`: ${plural(n,"thing")} to fix`:""}.`; }
-  else $("#spTitle").focus();
+// to: "issues" or "breakdown" (the section it opens at); from: the control focus goes back to when it closes
+function openSend(auto,to,from){
+  SEND.open=true; SEND.from=from||(to==="breakdown"?"#bdBtn":"#pbFix"); renderSend();
+  const h=$(to==="breakdown"?"#spBdTitle":to==="issues"&&!$("#spIssuesSec").hidden?"#spIssuesTitle":"#spTitle");
+  if(auto){ const n=footState().issues.length; $("#sendLive").textContent=`Before you send opened${n?`: ${plural(n,"thing")} to fix`:""}.`; h.scrollIntoView({block:"start"}); return; }
+  h.focus({preventScroll:true}); h.scrollIntoView({block:"start"});
 }
-function closeSend(){ const inside=$("#sendPanel").contains(document.activeElement); SEND.open=false; renderSend(); if(inside) $(SEND.from&&!$(SEND.from).hidden?SEND.from:"#pbSend").focus(); }
+function closeSend(){ const inside=$("#sendPanel").contains(document.activeElement); SEND.open=false; renderSend(); if(inside){ const b=SEND.from&&$(SEND.from); (b&&!b.hidden&&b.offsetParent?b:$("#pbSend")).focus(); } }
 // B: the first time the SC heads for the end (PDF preview, or scrolling to the end of the lines) while something blocks sending
-function sendForward(){ if(SEND.mode!=="first-forward"||SEND.forwarded||SEND.open||!barStep(sendItems()).n) return; SEND.forwarded=true; openSend(true); }
-function resetSend(){ clearTimeout(SEND.timer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null}); const d=$("#sendDemo"); if(d) d.value="needs"; }
-// Freight & Save and Send to Client: a click on one that isn't available yet opens Before you send, so the SC sees why
-function freightAction(){ const step=barStep(sendItems()); if(step.k==="run") return; if(step.k==="fix"){ openSend(false,"#pbFreightBtn"); return; } runFreight(); }
-function sendClient(){ const step=barStep(sendItems());
-  if(step.k==="send"){ showToast("Quote and payment link sent to [Client name] (prototype)."); return; }
-  if(step.k==="fix"){ openSend(false,"#pbSend"); return; }
-  showToast(step.k==="run"?"Freight and tax are still calculating.":"Run Freight & Save first, then send."); }
-// Calculate saves first (as Freight & Save did), then M3 runs freight, then tax
+function sendForward(){ const F=footState(); if(SEND.mode!=="first-forward"||SEND.forwarded||SEND.open||!F.hasLines||!F.others.length) return; SEND.forwarded=true; openSend(true,"issues"); }
+function resetSend(){ clearTimeout(SEND.timer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null}); }
+// Calculate freight and Send to client: when they're grey, a click explains instead of doing nothing
+function freightAction(){ const F=footState(); if(F.run) return;
+  if(F.calcOff){ if(F.others.length) openSend(false,"issues","#pbFreightBtn"); else showToast(F.help||"Calculate freight isn't available yet."); return; }
+  runFreight(); }
+function sendClient(){ const F=footState();
+  if(F.canSend){ showToast("Quote and payment link sent to [Client name] (prototype)."); return; }
+  if(F.others.length){ openSend(false,"issues","#pbSend"); return; }
+  showToast(F.help||"Not ready to send yet."); }
+// Calculate freight saves first if there are unsaved changes, then M3 runs freight, then tax
 function runFreight(){
   S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
   clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent="Freight and tax calculated. Ready to send."; },6000);
@@ -1385,7 +1430,7 @@ function sendAction(a){
   if(a==="calc"){ runFreight(); return; }
   if(a==="addRoom"){ closeSend(); startAddRoom(); return; }
   if(a==="addProd"){ closeSend(); startAddProducts(S.room||S.quote.rooms[0].name); return; }
-  if(a==="nextSpec"||a==="nextPrice"||a==="nextStock") nextLine({nextSpec:"spec",nextPrice:"price",nextStock:"stock"}[a]);
+  const k={nextSpec:"spec",nextPrice:"price",nextDisc:"disc",nextShort:"short",nextUnav:"unav"}[a]; if(k) nextLine(k);
 }
 // Next line: open the line's room, outline the line and scroll it into view; the panel stays open
 function nextLine(kind){
@@ -1398,15 +1443,16 @@ function nextLine(kind){
   el.querySelector(".lflag button")?.focus({preventScroll:true});
 }
 const lineFocus=(r,l)=>{ const f=SEND.focus; return !!f&&f.room===r.name&&f.sku===l.sku&&missingOf(f.kind).some(x=>x.r===r&&x.l===l); };
+const STOCK_FLAG={disc:["Discontinued","replace it with another finish, or remove the line"],short:["Not enough stock","change the quantity or remove the line"],unav:["Status unavailable","M3 didn't return a warehouse status"]};
 const lineFlag=(r,l)=>{ if(!lineFocus(r,l)) return ""; const f=SEND.focus, k=focusPos(f.kind)+1, n=missingOf(f.kind).length, key=esc(r.name)+"|"+esc(l.sku);
-  if(f.kind==="stock") return `<div class="lflag"><span class="lf-b">${SI.block}${riskShort(RISK.by[r.name+"|"+l.sku])}</span><span>· ${k} of ${n} · change the quantity or remove the line</span></div>`;
+  if(STOCK_FLAG[f.kind]) return `<div class="lflag"><span class="lf-b">${SI.block}${STOCK_FLAG[f.kind][0]}</span><span>· ${k} of ${n} · ${STOCK_FLAG[f.kind][1]}</span></div>`;
   return f.kind==="spec"
     ? `<div class="lflag"><span class="lf-b">${SI.block}Autospec incomplete</span><span>· ${k} of ${n}</span><button type="button" class="tolink" data-lfix="spec|${key}">Complete autospec</button></div>`
     : `<div class="lflag"><span class="lf-b">${SI.block}Waiting on custom pricing</span><span>· ${k} of ${n}</span><button type="button" class="tolink" data-lfix="price|${key}">Pricing returned (prototype)</button></div>`; };
 function lineFix(v){ const [kind,room,sku]=v.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(!l) return;
   if(kind==="spec"){ l.spec=true; S.dirty=true; } else delete l.cp;
   renderQuote(); $("#sendLive").textContent=kind==="spec"?"Autospec complete on this line.":"Pricing returned for this line.";
-  const left=missingOf(kind).length; if(left){ nextLine(kind); } else $(barStep(sendItems()).k==="fix"?"#pbFix":"#pbFreightBtn").focus(); }
+  const left=missingOf(kind).length; if(left){ nextLine(kind); } else ($("#pbFix")||$("#pbFreightBtn")).focus(); }
 // prototype: a save that comes back from M3 with a new autospec or pricing problem on one line
 function simSave(kind){
   const x=quoteLines().find(x=>x.r.name===S.room&&(kind==="spec"?x.l.spec!==false:!x.l.cp))||quoteLines().find(x=>kind==="spec"?x.l.spec!==false:!x.l.cp);
@@ -1415,19 +1461,30 @@ function simSave(kind){
   S.dirty=false; S.undo=null; markSaved(); renderQuote();
   const p=CAT.find(c=>c.sku===x.l.sku); showToast(`Saved. M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`);
 }
-// demo states: 1 needs action, 2 freight calculating, 3 ready to send
-function setSendDemo(v){
-  if(S.scenario==="fresh"||!quoteLines().length){ const sc=$("#scenario"); sc.value="normal"; sc.dispatchEvent(new Event("change",{bubbles:true})); }
-  resetSend(); $("#sendDemo").value=v;
-  S.riskDemo=false; applyRiskDemo(false); $("#riskDemo").checked=false; RISK=computeRisk(); // the demo states use only the blockers they describe; tick "Stock warning examples" to add stock problems
-  const lines=quoteLines(); lines.forEach(({l})=>{ delete l.spec; delete l.cp; });
-  if(v==="needs"){ const want=lines.filter(({l})=>l.sku==="HNTVC-N"||l.sku==="ARCH28-FIG"); (want.length===2?want:lines.slice(0,2)).forEach(({l})=>l.spec=false); }
-  else SEND.addr=true;
-  if(v==="calc") SEND.freight="run";
-  if(v==="ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
-  S.dirty=false; S.undo=null; markSaved(); renderQuote();
+// footer states in the Scenario menu (Footer 1 to 5). Every scenario change first clears the mock Blocked line and status.
+const FOOT_SCEN=["s-unsaved","s-saved","s-calc","s-ready","s-blocked"];
+function applySendScenario(v){
+  const tb=CAT.find(p=>p.sku==="HNTWL-DB"); if(tb._w===undefined) tb._w=tb.whst; tb.whst=v==="s-blocked"?80:tb._w; // mock: discontinued only in Blocked
+  S.quote.rooms.forEach(r=>{ r.lines=r.lines.filter(l=>!l.mock); });
+  if(!FOOT_SCEN.includes(v)){ RISK=computeRisk(); markSaved(); return; }
+  resetSend(); SEND.addr=true;
+  S.quote=S.view==="commercial"?QUOTES.commercial():structuredClone(RES_QUOTE); if(!S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
+  S.riskDemo=false; applyRiskDemo(false); $("#riskDemo").checked=false; // only the problems each state describes
+  quoteLines().forEach(({l})=>{ delete l.spec; delete l.cp; });
+  const bar=S.quote.rooms.find(r=>r.name==="Bar")||S.quote.rooms[0];
+  if(v==="s-blocked"&&bar) bar.lines.push({sku:"HNTWL-DB",qty:1,unit:410,rdd:"12/19/2026",mock:true});
+  S.dirty=false; S.undo=null; markSaved();
+  if(v==="s-unsaved"){ // three unsaved edits: two quantities and a requested delivery date
+    const ls=quoteLines(); const a=ls.find(x=>x.l.sku==="HNBAR-N")||ls[0], b=ls.find(x=>x.l.sku==="HNTVC-N")||ls[1], c=ls.find(x=>x.l.sku==="KSTN36-POL")||ls[2];
+    const mult=x=>CAT.find(p=>p.sku===x.l.sku).mult;
+    if(a) a.l.qty+=mult(a); if(b) b.l.rdd="12/22/2026"; if(c) c.l.qty+=mult(c);
+    S.dirty=true;
+  }
+  if(v==="s-calc") SEND.freight="run";
+  if(v==="s-ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
+  RISK=computeRisk();
 }
-// a click anywhere outside closes it; the bar's own buttons and the line notes it points to don't count
+// a click anywhere outside closes it; the footer's own controls and the line notes it points to don't count
 document.addEventListener("click",e=>{ if(SEND.open&&!e.target.closest("#sendPanel,#pbar,.lflag,.dlgwrap")) closeSend(); },true);
 document.addEventListener("keydown",e=>{
   if(e.key!=="Escape") return;
@@ -1438,19 +1495,11 @@ document.addEventListener("keydown",e=>{
 addEventListener("keydown",e=>{ if(["PageDown","End","ArrowDown"," "].includes(e.key)) SEND.scrolledAt=Date.now(); },true);
 document.addEventListener("scroll",()=>{ if(Date.now()-SEND.scrolledAt>1500||S.qview!=="products"||!quoteLines().length) return;
   const m=$("#linesEnd").getBoundingClientRect(), qp=$("#quotePane").getBoundingClientRect(); if(m.top<=Math.min(innerHeight-$("#pbar").offsetHeight,qp.bottom)+2) sendForward(); },true);
-// both bottom bars share one height so their top edges line up across the screen
-function syncBars(){ const a=$("#pbar"), b=$(".sfoot"), fixed=b.classList.contains("fixed"); a.style.minHeight=b.style.minHeight="";
-  const h=Math.max(a.hidden?0:a.offsetHeight, fixed?b.offsetHeight:0); if(fixed) a.style.minHeight=b.style.minHeight=h+"px";
-  document.documentElement.style.setProperty("--bar-h",(a.hidden?0:h)+"px"); }
-new ResizeObserver(syncBars).observe($("#pbar")); new ResizeObserver(syncBars).observe($(".sfoot"));
-// the bar is fixed to the screen but spans only the Selected Products side, so it follows that side's left edge and width
-function placeBar(){ const p=$("#quotePane"), b=$("#pbar"), r=p.getBoundingClientRect(), show=!p.hidden&&r.width>0; b.hidden=!show; if(!show) return;
-  const st=document.documentElement.style; st.setProperty("--qp-left",Math.round(r.left)+"px"); st.setProperty("--qp-w",Math.round(r.width)+"px"); b.classList.toggle("narrow",r.width<=560);
-  // the Save bar does the same on the search side, when the two sides sit next to each other
-  const sp=$("#searchPane"), sr=sp.getBoundingClientRect(), sf=$(".sfoot"), side=!S.expanded&&!sp.hidden&&sr.width>0&&sr.right<=r.left+1;
-  sf.classList.toggle("fixed",side); if(side){ st.setProperty("--sf-left",Math.round(sr.left)+"px"); st.setProperty("--sf-w",Math.round(sr.width)+"px"); }
-  syncBars(); }
-new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#searchPane")); addEventListener("resize",placeBar); addEventListener("scroll",placeBar,{passive:true});
+// the footer is fixed to the screen and spans the page (right of the rail); enlarged, it spans the enlarged quote
+function placeBar(){ const b=$("#pbar"), r=(S.expanded?$("#quotePane"):$(".main")).getBoundingClientRect(), st=document.documentElement.style;
+  st.setProperty("--fb-left",Math.round(r.left)+"px"); st.setProperty("--fb-w",Math.round(r.width)+"px"); st.setProperty("--bar-h",b.offsetHeight+"px"); }
+new ResizeObserver(placeBar).observe($(".main")); new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#pbar"));
+addEventListener("resize",placeBar); addEventListener("scroll",placeBar,{passive:true});
 
 // ---------- views (Residential is the default) ----------
 const QUOTES={
@@ -1554,7 +1603,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
-  if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false); return; }
+  if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false,"issues"); return; }
   if(t.id==="pbFreightBtn"){ freightAction(); return; }
   if(t.id==="pbSend"){ sendClient(); return; }
   if(t.id==="spClose"){ closeSend(); return; }
@@ -1616,9 +1665,8 @@ document.addEventListener("change",e=>{
     if(t.value==="fresh"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote.rooms=[]; S.room=""; }
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
-    markSaved(); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
+    markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
   if(t.id==="view"){ setView(t.value); return; }
-  if(t.id==="sendDemo"){ setSendDemo(t.value); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
   if(t.id==="detToggle"){ S.det=S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
@@ -1771,15 +1819,18 @@ document.addEventListener("focusout",e=>{ if(!quiet && e.target.matches?.(".rnam
 const QI={id:"6000024967",expires:"Apr 27, 2028",orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
   consultant:"Alex Rivera",payer:"PAT MORGAN-ELLIS",service:"Standard Shipping (S01)",cost:"Sample Design Center",project:"Henry bar and club house",desc:"Bar and club house fittings and tile",
   entered:"10-30-26",revised:"10-30-26",addr:["12 Sample Street","ANYTOWN MA 01000","United States"],phone:"(555) 010-0100",email:"alex.rivera@example.com"};
-const qfield=(l,v)=>`<div class="qf"><div class="ql">${l}</div><div class="qv">${esc(v)}</div></div>`;
+const qfield=(l,v,num)=>`<div class="qf"><dt class="ql">${l}</dt><dd class="qv${num?" num":""}">${esc(v)}</dd></div>`;
+const qsec=(t,body)=>`<section class="qsec"><h3>${t}</h3>${body}</section>`;
 const infoHtml=()=>`<div class="qi">
-  <div class="qihead"><span class="qid">Quote ID: ${QI.id}</span><span class="qexp">Expires on: ${QI.expires}</span></div>
-  <span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span>
-  <h3>Essential Quote Info</h3>${qfield("Order Type",QI.orderType)}${qfield("Order Subtype",QI.subtype)}${qfield("Requested Delivery Date",QI.delivery)}${qfield("Est. Conv. Date",QI.conv)}${qfield("Payment Amount",QI.payment)}
-  <h3>Header Information</h3>${qfield("Sales Consultant 1",QI.consultant)}${qfield("Quote Status","Draft")}${qfield("Payer",QI.payer)}
-  <h3>Shipping Information</h3>${qfield("Service Level",QI.service)}${qfield("Cost center",QI.cost)}
-  <h3>Associations</h3><p class="qnone">No associated parties yet.</p>
-  <h3>Generated documents</h3><div class="qf"><div class="ql">Sales Quote</div><div class="qv">2 pages</div><button type="button" class="backlink" data-qview="pdf" style="margin:6px 0 0">View PDF preview</button></div>
+  <div class="qihead">
+    <div><div class="qidlbl">Quote ID</div><div class="qid">${QI.id}</div><div class="qexp">Expires on <b>${QI.expires}</b></div></div>
+    <span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span>
+  </div>
+  ${qsec("Essential Quote Info",`<dl>${qfield("Order Type",QI.orderType)}${qfield("Order Subtype",QI.subtype)}${qfield("Requested Delivery Date",QI.delivery,1)}${qfield("Est. Conv. Date",QI.conv,1)}${qfield("Payment Amount",QI.payment,1)}</dl>`)}
+  ${qsec("Header Information",`<dl>${qfield("Sales Consultant 1",QI.consultant)}${qfield("Quote Status","Draft")}${qfield("Payer",QI.payer)}</dl>`)}
+  ${qsec("Shipping Information",`<dl>${qfield("Service Level",QI.service)}${qfield("Cost center",QI.cost)}</dl>`)}
+  ${qsec("Associations",`<p class="qnone">No associated parties yet.</p>`)}
+  ${qsec("Generated documents",`<div class="qdoc"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h7l4 4v12H5z"/><path d="M12 2v4h4M8 11h5M8 14h5"/></svg><div class="qdn"><div class="qdt">Sales Quote</div><div class="qdm">PDF · 2 pages</div></div><button type="button" class="backlink" data-qview="pdf">View PDF preview</button></div>`)}
 </div>`;
 // the PDF is built from the live quote, so it shows whatever is in the panel right now
 const pdfHtml=()=>{
@@ -1824,11 +1875,16 @@ function setExpanded(on){
   S.expanded=on; const b=$("#expandBtn"); if(!on&&S.sideAdd){ S.sideAdd=false; renderQuote(); }
   $("#quotePane").classList.toggle("expanded",on); document.body.classList.toggle("noscroll",on);
   // totals and the next step stay in the pricing bar; the left panel keeps a Save button
-  $("#qSide").hidden=!on||S.qview!=="products"; (on?$("#sideEnd"):$(".sfoot")).append($("#pbSave")); // the save message follows the visible Save button
+  $("#qSide").hidden=!on||S.qview!=="products"; // the footer stays across the bottom while enlarged
   b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label",on?"Exit full screen":"Enlarge panel to full screen"); b.title=on?"Exit full screen":"Enlarge";
-  b.innerHTML=on?EXPAND_ICON.on:EXPAND_ICON.off; placeBar();
+  b.innerHTML=on?EXPAND_ICON.on:EXPAND_ICON.off; placeBar(); fitEmpty();
 }
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.expanded) setExpanded(false); });
+// expanded with no rooms: the black "No rooms yet" box lines up with the left panel, same top and same height
+function fitEmpty(){ const e=document.querySelector("#quotePane .empty-quote.none"); if(!e) return; e.style.marginTop=e.style.minHeight="";
+  const sd=$("#qSide"); if(!S.expanded||sd.hidden) return; const sr=sd.getBoundingClientRect(), er=e.getBoundingClientRect(); if(!sr.height) return;
+  e.style.marginTop=(parseFloat(getComputedStyle(e).marginTop)+sr.top-er.top)+"px"; e.style.minHeight=sr.height+"px"; }
+const fitRO=new ResizeObserver(()=>fitEmpty()); fitRO.observe($("#qSide")); fitRO.observe($("#qProducts"));
 // filter tray: opens over the results from the Filters button so it never pushes the products down
 function closeFilters(){ $("#filters").hidden=true; $("#filterBtn").setAttribute("aria-expanded","false"); }
 document.addEventListener("click",e=>{ if(!$("#filters").hidden && !e.target.closest(".filterwrap")) closeFilters(); },true);
