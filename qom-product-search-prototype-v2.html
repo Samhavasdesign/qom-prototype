@@ -10,7 +10,7 @@
 :root{
   color-scheme:light;
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--panel:#e7ecf2;--panel-soft:#f1f4f8;--panel-line:#d3dae4;--panel-head:#627186;--surface:#f5f5f5;--surface-2:#ececec;--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
-  --line:#d9d9d9;--line-2:#eeeeee;--rail:#151515;--rail-ink:#ffffff;--rail-muted:#9a9a9a;
+  --line:#d9d9d9;--hdr-line:#e3e3e3;--hdr-count:#555555;--line-2:#eeeeee;--rail:#151515;--rail-ink:#ffffff;--rail-muted:#9a9a9a;
   --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:#5b5b5b;--note-bg:#f1efe9;
   --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:#5F5F5F;--sp-w:320px;
   --pill:#f3d64b;--focus:#1d4ed8;--proto:#e4e4e4;--proto-ink:#111111;
@@ -371,6 +371,24 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .roomhdr.menuopen{z-index:8} /* the open menu sits over the lines and later room bars */
 .rmenu{top:calc(100% + 2px);right:44px;cursor:default}
 .roomhdr .rmenu button{color:var(--ink);text-decoration:none;font-size:14px;font-weight:400}
+/* room headers: the "Adding to" room is black with an ADDING HERE tag; the others are grey */
+.roomhdr{min-height:48px;height:48px;padding:0 4px 0 2px;margin-top:8px;font-size:15px;background:var(--surface-2);color:var(--ink);border:1px solid var(--hdr-line)}
+.rmblock:has(.line,.empty-quote)+.rmblock>.roomhdr{margin-top:12px} /* a little more air after an open room */
+.qbar:has(#qTools:not([hidden])) ~ #qProducts #rooms>.rmblock:first-child>.roomhdr{margin-top:0} /* the bar already carries the 12px gap */
+.roomhdr>span:first-child{display:flex;align-items:center;gap:4px;min-width:0;white-space:nowrap}
+.roomhdr>span:first-child:not(:has(.grip)){padding-left:18px} /* one room: no drag handle, so the name needs its own left padding */
+.roomhdr .rcount{color:var(--hdr-count);opacity:1;margin-left:2px}
+.roomhdr.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.roomhdr.active .rcount{color:#fff;opacity:.75}
+.roomhdr .addtag{margin-left:12px;padding:3px 10px;border:1px solid #fff;font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;line-height:1.4}
+.roomhdr .hdrend{gap:4px}
+.roomhdr .hdrend>button.more+button.rchev,.roomhdr .hdrend>button.more+.rmenu+button.rchev{margin-left:-4px} /* "…" sits close to the chevron; both keep 44px targets */
+.roomhdr button.grip,.roomhdr button.more,.roomhdr button.rchev{min-width:44px;min-height:44px;width:auto;height:44px;margin:0;padding:0;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:0;background:transparent;opacity:1;color:var(--ink)}
+.roomhdr.active button.grip,.roomhdr.active button.more,.roomhdr.active button.rchev{color:#fff}
+.roomhdr button.grip{color:var(--ink-3);font-size:16px}
+.roomhdr button.more{position:relative;padding-left:8px} /* dots follow the circle, which sits toward the chevron */
+.roomhdr button.more svg{box-sizing:border-box;width:24px;height:24px;padding:0 6px;border:1.5px solid currentColor;border-radius:50%;overflow:visible} /* the circle is the dots' own border, so they always share a centre */
+
 .dlgwrap{position:fixed;inset:0;z-index:200;background:rgba(17,17,17,.45);display:flex;align-items:center;justify-content:center;padding:20px}
 .dlgwrap[hidden]{display:none}
 .dlg{background:var(--bg);width:min(560px,100%);padding:36px 32px 32px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3)}
@@ -445,7 +463,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .rmblock .empty-quote{background:var(--bg);border:1px dashed var(--ink-3);border-top:0;margin-top:0;padding:22px 16px;color:var(--ink-2);font-size:14px;text-align:center}
 .rmblock .empty-quote b{color:var(--ink);font-weight:600}
 /* no rooms at all: a dark block so the empty quote can't be missed */
-.empty-quote.none{background:var(--ink);color:var(--bg);margin-top:12px;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.empty-quote.none{background:var(--ink);color:var(--bg);margin-top:0;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .pane.quote.expanded .empty-quote.none{position:relative;z-index:7} /* sits above the sticky bar so its top edge lines up with the Rooms panel */
 .empty-quote.none .eqicon{display:flex;opacity:.85;margin-bottom:10px}
 .empty-quote.none .eqicon svg{width:30px;height:30px}
@@ -466,19 +484,20 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qhead{align-self:flex-start;margin-right:auto}
 .qsub{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
 .qright{display:flex;align-items:center;gap:8px;margin-left:auto}
-.qtools{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.qtools{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;min-height:56px}
+.qbar:has(#qTools:not([hidden])){padding-bottom:12px} /* the 12px under the toolbar is part of the pinned bar, so it stays the same when room bars pin on scroll */
 .qtools[hidden]{display:none}
-.qtsum{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap}
-.qtcount{margin:0;font-size:14px;color:var(--ink-2)}.qtcount b{color:var(--ink);font-weight:600}
-.qtact{display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;margin-left:auto}
+.qbar:has(#qTools:not([hidden])) .qright:not(:has(.shipsw:not([hidden]))){display:none} /* no empty wrapped row under the toolbar while the switch is hidden */
+.qtsum{display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
+.qtsum .qtitle{white-space:nowrap}
+.qtcount{margin:0;font-size:15px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
+.qtact{display:flex;align-items:center;gap:8px 20px;margin-left:auto}
 .qtact[hidden]{display:none}
-.lfilter{display:flex;align-items:center;gap:8px;height:40px;width:240px;max-width:100%;padding:0 12px;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--ink-3)}
+.lfilter{display:flex;align-items:center;gap:10px;height:40px;width:220px;min-width:150px;flex:0 1 220px;max-width:100%;padding:0 12px;background:#fff;border:1px solid #d9d9d9;color:var(--ink-3)}
 .lfilter:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
-.qtfold{min-height:40px;color:var(--ink-2);text-decoration:none;font-weight:500}.qtfold:hover{color:var(--ink);text-decoration:underline}
+.qtfold{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 2px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}.qtfold:hover{text-decoration:underline}
 .qtfold:disabled{color:var(--ink-3);text-decoration:none;cursor:default}
-.qtadd{letter-spacing:0;text-transform:none;font-size:14px;font-weight:600;padding:0 16px;height:40px;border-color:var(--line);border-radius:4px}
-.qtadd:hover{border-color:var(--ink)}
 .lnone{background:var(--bg);border:1px dashed var(--ink-3);margin-top:12px;padding:22px 16px;text-align:center;color:var(--ink-2);font-size:14px}
 /* the quote title bar stays at the top of the quote side; room bars pin just below it (--qbar-h is measured in script) */
 .qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
@@ -694,7 +713,7 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
    note · Full breakdown | helper line ---------- */
 body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pane.quote.expanded{bottom:var(--bar-h,0px)}
-.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:48px 20px;grid-template-areas:"tl tr" "bl br";row-gap:8px;column-gap:24px;align-items:center;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
+.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:48px 20px;grid-template-areas:"tl ts tr" "bl br br";row-gap:8px;column-gap:24px;align-items:center;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
 /* row 1, left: label and amount on one line */
 .pb-tl{grid-area:tl;display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
 .pb-lbl{font-size:13px;color:var(--muted)}
@@ -709,19 +728,31 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 @media (prefers-reduced-motion:reduce){ .pb-progbar i{animation:none;width:100%;opacity:.45} }
 /* row 1, right: save status, divider, buttons */
 .pb-tr{grid-area:tr;display:flex;align-items:center;gap:20px}
-.pb-save{display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+.pb-save{grid-area:ts;display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
 .pb-st{display:inline-flex;align-items:center;gap:8px;font-weight:600}
 .pb-st #pbIc{display:inline-flex}
 .pb-st .ok-msg{color:var(--done);font-size:13px}
 .pb-dot{width:9px;height:9px;border-radius:50%;background:var(--block)}
 .pb-st .unsaved{color:var(--block);font-size:13px}
 .pb-save .pb-sep{color:var(--muted)}
-.pb-discard{min-height:44px;font-size:13px;font-weight:600}
+.pb-discard{min-height:44px;margin:-12px 0;font-size:13px;font-weight:600} /* 44px target that doesn't make its row taller */
 .pb-div{flex:none;width:1px;height:28px;background:var(--line)}
 .pb-btns{display:flex;gap:10px}
 /* row 2, right: one helper line for the next step */
-.pb-help{grid-area:br;margin:0;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
-@media (max-width:980px){ .pbar{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tl" "bl" "tr" "br";padding-left:16px;padding-right:16px} .pb-tr{flex-wrap:wrap} .pb-help{text-align:left;white-space:normal} }
+.pb-br{grid-area:br;display:flex;align-items:center;justify-content:flex-end;gap:16px;min-width:0}
+.pb-help{margin:0;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+/* when it doesn't fit (placeBar measures): "tight" moves the save status down beside the helper; "stack" puts each zone on its own row */
+.pbar.tight{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"tl tr" "bl br"}
+/* empty quote: the second row is only a hint, so it's smaller and the bar is shorter */
+.pbar.empty{grid-template-rows:48px 14px;row-gap:4px}
+.pbar.empty .pb-note,.pbar.empty .pb-help{font-size:11px;line-height:14px}
+.pbar.tight .pb-div{display:none}
+.pbar.stack{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tl" "bl" "ts" "tr" "br";row-gap:6px}
+.pbar.stack .pb-div{display:none}
+.pbar.stack .pb-tr{flex-wrap:wrap}
+.pbar.stack .pb-br{justify-content:flex-start}
+.pbar.stack .pb-help{text-align:left;white-space:normal}
+@media (max-width:980px){ .pbar{padding-left:16px;padding-right:16px} }
 .sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
 .sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
 .sp-bd h3:focus{outline:none}
@@ -895,13 +926,12 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         </div>
         <!-- title and room/line count hidden for now; remove "hidden" to bring them back -->
         <div class="qhead" hidden><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
-        <!-- Products view toolbar: what's on the quote, a filter for long quotes, fold every room, add a room -->
+        <!-- Products view toolbar: what's on the quote, a filter for long quotes, fold every room -->
         <div class="qtools" id="qTools">
           <div class="qtsum"><h2 class="qtitle">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
-            <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Filter lines…" aria-label="Filter lines on this quote by name, item number or finish" autocomplete="off"></label>
+            <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: filter lines by name, item number or finish" autocomplete="off"></label>
             <button type="button" class="tolink qtfold" id="foldAll"></button>
-            <button type="button" class="btn ghost qtadd" id="qtAddRoom">+ Add room</button>
           </div>
         </div>
         <div class="qright">
@@ -933,8 +963,8 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
     <span class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span>Calculating freight in M3. You can keep working.</span>
     <span class="pb-sep" id="pbBdSep" aria-hidden="true">·</span><button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button>
   </div>
+  <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">Saved</span></span><span class="pb-sep" id="pbDiscSep" aria-hidden="true" hidden>·</span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
   <div class="pb-tr">
-    <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">Saved</span></span><span class="pb-sep" id="pbDiscSep" aria-hidden="true" hidden>·</span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
     <span class="pb-div" aria-hidden="true"></span>
     <div class="pb-btns">
       <button type="button" class="pb-act" id="saveBtn" disabled>Save</button>
@@ -942,7 +972,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
       <button type="button" class="pb-act" id="pbSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client</button>
     </div>
   </div>
-  <p class="pb-help" id="pbHelp" aria-live="polite"></p>
+  <div class="pb-br" id="pbBr"><p class="pb-help" id="pbHelp" aria-live="polite"></p></div>
 </div>
 <aside class="spanel" id="sendPanel" aria-labelledby="spTitle" hidden>
   <div class="sp-head"><div><h2 id="spTitle" tabindex="-1">Before you send</h2><p id="spStatus"></p></div><button type="button" class="sp-close" id="spClose" aria-label="Close Before you send"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
@@ -1376,16 +1406,16 @@ function lineMatch(r){
   const hay=l=>{ const p=CAT.find(x=>x.sku===l.sku); return [p.name,p.sku,p.fin,p.col,p.series,r.name,r.type].filter(Boolean).join(" ").toLowerCase(); };
   const ok=l=>w.every(x=>hay(l).includes(x)); return {ok, n:r.lines.filter(ok).length};
 }
-// summary, filter, fold-all and add-room above the rooms (Products view only)
+// summary, filter and fold-all above the rooms (Products view only)
 function renderQTools(rooms){
   const n=rooms.reduce((a,r)=>a+r.lines.length,0), q=S.lineQ.trim();
   const m=q?rooms.reduce((a,r)=>a+(lineMatch(r)?.n||0),0):0;
   $("#qTools").hidden=S.qview!=="products";
-  $("#qtCount").innerHTML=!rooms.length?"No rooms yet":q?`<b>${m}</b> of ${n} line${n===1?"":"s"} match`:`<b>${n}</b> line${n===1?"":"s"} across <b>${rooms.length}</b> room${rooms.length===1?"":"s"}`;
+  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:`<b>${n} line${n===1?"":"s"}</b> · ${rooms.length} room${rooms.length===1?"":"s"}`;
   $("#qtAct").hidden=!rooms.length;
   $(".lfilter").hidden=n<2&&!q; // nothing to filter on a quote with one line
   const anyOpen=rooms.some(r=>S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name));
-  const fb=$("#foldAll"); fb.textContent=anyOpen?"Collapse all":"Expand all"; fb.disabled=!!q; fb.title=q?"Rooms open to show matching lines while you filter":"";
+  const fb=$("#foldAll"); fb.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${anyOpen?'<path d="M2 6l4-4 4 4M2 10.5l4-4 4 4"/>':'<path d="M2 1.5l4 4 4-4M2 6l4 4 4-4"/>'}</svg><span>${anyOpen?"Collapse all":"Expand all"}</span>`; fb.disabled=!!q; fb.title=q?"Rooms open to show matching lines while you filter":"";
 }
 function renderQuote(){
   RISK=computeRisk();
@@ -1398,7 +1428,7 @@ function renderQuote(){
     const isOpen=fm?true:(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name; // a room the checklist points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(fm&&!fm.ok(l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       return `<div class="line${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
-    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span></span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
+    return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
   }).join("");
   if(rooms.length&&!wrap.innerHTML.trim()) wrap.innerHTML=`<div class="lnone"><b>No lines match “${esc(S.lineQ.trim())}”.</b> Try an item number, product name or finish.<br><button type="button" class="tolink" id="lineClear">Clear filter</button></div>`;
   renderQTools(rooms);
@@ -1513,7 +1543,7 @@ function renderSend(){
   if(S.qview==="info"&&!qiEditConv) $("#qInfo").innerHTML=infoHtml();
   $("#pbLbl").textContent=F.done?"Total":"Estimated total";
   $("#pbNote").hidden=F.run; $("#pbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
-  $("#pbProg").hidden=!F.run; $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
+  $("#pbProg").hidden=!F.run; $("#pbar").classList.toggle("empty",!F.hasLines); $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
   $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
@@ -1630,7 +1660,16 @@ addEventListener("keydown",e=>{ if(["PageDown","End","ArrowDown"," "].includes(e
 document.addEventListener("scroll",()=>{ if(Date.now()-SEND.scrolledAt>1500||S.qview!=="products"||!quoteLines().length) return;
   const m=$("#linesEnd").getBoundingClientRect(), qp=$("#quotePane").getBoundingClientRect(); if(m.top<=Math.min(innerHeight-$("#pbar").offsetHeight,qp.bottom)+2) sendForward(); },true);
 // the footer is fixed to the screen and spans the page (right of the rail); enlarged, it spans the enlarged quote
-function placeBar(){ const b=$("#pbar"), r=(S.expanded?$("#quotePane"):$(".main")).getBoundingClientRect(), st=document.documentElement.style;
+// the natural width of a zone (its cell may be wider or narrower than its content)
+const natW=q=>{ const e=$(q), o=e.style.cssText; e.style.width="max-content"; e.style.justifySelf="start"; const v=e.getBoundingClientRect().width; e.style.cssText=o; return v; };
+function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b), room=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), gap=24;
+  if(save.parentElement!==b) b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight","stack");
+  const left=Math.max(natW(".pb-tl"),natW(".pb-bl")), sv=natW("#pbSave"), help=natW("#pbHelp"), tr=natW(".pb-tr");
+  if(left+sv+tr+2*gap<=room && help<=sv+tr+gap) return;                 // full: total | save | buttons
+  b.classList.add("tight"); $("#pbBr").insertBefore(save,$("#pbHelp"));   // tight: save status moves to row 2, before the helper
+  if(left+Math.max(natW(".pb-tr"),sv+16+help)+gap<=room) return;
+  b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight"); b.classList.add("stack"); }
+function placeBar(){ fitBar(); const b=$("#pbar"), r=(S.expanded?$("#quotePane"):$(".main")).getBoundingClientRect(), st=document.documentElement.style;
   st.setProperty("--fb-left",Math.round(r.left)+"px"); st.setProperty("--fb-w",Math.round(r.width)+"px"); st.setProperty("--bar-h",b.offsetHeight+"px"); }
 new ResizeObserver(placeBar).observe($(".main")); new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#pbar"));
 addEventListener("resize",placeBar); addEventListener("scroll",placeBar,{passive:true});
@@ -1711,8 +1750,8 @@ document.addEventListener("click",e=>{
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
-  if(t.id==="emptyAdd"||t.id==="sideAddBtn"||t.id==="qtAddRoom"){ startAddRoom(); return; }
-  if(t.id==="foldAll"){ const open=t.textContent==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
+  if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
+  if(t.id==="foldAll"){ const open=t.textContent.trim()==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
   if(t.id==="lineClear"){ S.lineQ=""; $("#lineFilter").value=""; renderQuote(); $("#lineFilter").focus(); return; }
   if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
   if(t.dataset.addprod){ startAddProducts(t.dataset.addprod); return; }
