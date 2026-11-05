@@ -1907,12 +1907,17 @@ const kitBox=(r,l,p)=>kitClosed(r,l)?"":`<div class="kitbox"><div class="kithead
 const UNIT_SHORT={"square feet":"sq ft"};
 const openTrays=new Set(); // result rows whose UOM tray is open
 const QTY_ERR={k:null,t:0}; // the line whose typed quantity was just rejected
+// QOM-2961: a typed quantity that isn't a whole multiple rounds up to the next one and says so; helper wording follows QOM-2958
+const ROUNDED=new Map(), RROUNDED=new Set(); // quote lines (room|sku → the rounded quantity) and result rows (sku) whose typed quantity was rounded up
+const unitWord=p=>p.uom!=="each"?" "+p.uom:"";
+const soldIn=p=>`Sold in increments of ${p.mult}${unitWord(p)}`;
+const roundedNote=(p,n)=>`Rounded up to ${n}${unitWord(p)}: this item is sold in increments of ${p.mult}${unitWord(p)}.`;
 function setQtyErr(k){ clearTimeout(QTY_ERR.t); QTY_ERR.k=k; if(!k) return;
   QTY_ERR.t=setTimeout(()=>{ QTY_ERR.k=null; const msg=document.querySelector(".qty .help.typed"), cell=msg?.closest(".qty"), inp=cell?.querySelector("[data-qty]"); if(!inp||document.activeElement===inp) return; // still typing: it goes on the next redraw
     const [room,sku]=inp.dataset.qty.split("|"), r=S.quote.rooms.find(x=>x.name===room), l=r?.lines.find(x=>x.sku===sku); if(l) cell.outerHTML=qtyCell(r,l,CAT.find(x=>x.sku===sku),msg.id); },4000); }
 const qtyCell=(r,l,p,id)=>{
-  const m=p.mult, bad=l.qty%m!==0, key=esc(r.name)+"|"+esc(l.sku), unitShown=p.uom!=="each", atMin=l.qty===m;
-  const help=QTY_ERR.k===r.name+"|"+l.sku?`<span class="help err typed" id="${id}" role="alert">Enter a whole number, 1 or more</span>`:bad?`<span class="help err" id="${id}" role="alert">Enter a multiple of ${m}</span>`:(m>1?`<span class="help" id="${id}">Sold in ${m}${unitShown?" "+(UNIT_SHORT[p.uom]||p.uom):"s"}</span>`:"");
+  const m=p.mult, bad=l.qty%m!==0, key=esc(r.name)+"|"+esc(l.sku), atMin=l.qty===m, rounded=!bad&&ROUNDED.get(r.name+"|"+l.sku)===l.qty;
+  const help=QTY_ERR.k===r.name+"|"+l.sku?`<span class="help err typed" id="${id}" role="alert">Enter a whole number, 1 or more</span>`:bad?`<span class="help err" id="${id}" role="alert">Enter a multiple of ${m}</span>`:rounded?`<span class="help" id="${id}" role="status">${esc(roundedNote(p,l.qty))}</span>`:(m>1?`<span class="help" id="${id}">${esc(soldIn(p))}</span>`:""); // "Enter a multiple" is only for a saved quantity that's already wrong: QOM-2961 doesn't change those on load
   const first=atMin
     ? `<button type="button" class="sbtn" data-step="${key}|-1" aria-label="Remove ${esc(p.name)} from the quote" title="Remove from quote">${ICON.trash}</button>`
     : `<button type="button" class="sbtn" data-step="${key}|-1" aria-label="Decrease quantity of ${esc(p.name)}">${ICON.minus}</button>`;
@@ -2271,7 +2276,8 @@ function search(){ // the spinner only appears if a search takes longer than 300
 // result row: type how many, then Add; same typing rules as a quote line
 const addCell=(p,canAdd,blocked)=>{
   const m=p.mult, q=S.rq[p.sku]??m, bad=q%m!==0, k=esc(p.sku), id="rh_"+k, unitShown=p.uom!=="each", dis=canAdd?"":" disabled";
-  const help=!canAdd?"":bad?`<span class="help err" id="${id}" role="alert">Enter a multiple of ${m}</span>`:(m>1?`<span class="help" id="${id}">Sold in ${m}${unitShown?" "+(UNIT_SHORT[p.uom]||p.uom):"s"}</span>`:"");
+  const rounded=RROUNDED.has(p.sku)&&S.rq[p.sku]!=null;
+  const help=!canAdd?"":bad?`<span class="help err" id="${id}" role="alert">Enter a multiple of ${m}</span>`:rounded?`<span class="help" id="${id}" role="status">${esc(roundedNote(p,q))}</span>`:(m>1?`<span class="help" id="${id}">${esc(soldIn(p))}</span>`:"");
   return `<div class="addcell"><div class="addpill${bad&&canAdd?" bad":""}${canAdd?"":" off"}"><input type="number" inputmode="numeric" min="${m}" step="${m}" value="${q}" aria-label="Quantity of ${esc(p.name)} to add${unitShown?" in "+esc(p.uom):""}" ${help?`aria-describedby="${id}" `:""}aria-invalid="${bad}" data-rqty="${k}"${dis}><button type="button" class="add" data-add="${k}"${dis} aria-label="Add ${q} of ${esc(p.name)} in ${esc(p.fin)} to ${esc(S.room||'quote')}" title="${canAdd?'Add to '+esc(S.room):(blocked?'Can’t be added':'Choose a room first')}">${ICON.plus}</button></div>${help}</div>`;
 };
 function addLine(sku){
@@ -2279,8 +2285,9 @@ function addLine(sku){
   const why = p.whst===50 ? (p.wh||"Not stocked in this warehouse")+" (warehouse status "+p.whst+")" : (p.price==null ? "Waiting on a price" : null);
   if(why){ S.notice="Not added: "+p.name+" in "+p.fin+". "+why+". This is only known when the item is added."; renderResults(); return; }
   S.notice=null;
-  const n=S.rq[sku]??p.mult; delete S.rq[sku]; // the row goes back to one sold-in amount after adding
-  const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:S.view==="commercial"?listOf(p):p.price});
+  const n=S.rq[sku]??p.mult, wasRounded=RROUNDED.delete(sku); delete S.rq[sku]; // the row goes back to one sold-in amount after adding
+  const ex=r.lines.find(l=>l.sku===sku); if(wasRounded&&!ex) ROUNDED.set(r.name+"|"+sku,n); // a new line keeps the "Rounded up" note
+  if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:S.view==="commercial"?listOf(p):p.price});
   showToast(ex ? `✓ ${p.name} in ${p.fin}: quantity now ${ex.qty} in ${r.name}` : `✓ Added ${p.name} in ${p.fin} to ${r.name}`, "ok");
   const crN=crMissing(r,r.lines.find(l=>l.sku===sku)).length; if(crN){ CR.open=r.name+"|"+sku; crSay(`${crN} part${crN===1?"":"s"} needed to install ${p.name}`); } // concept QOM-2561: offer the parts under the new line; focus stays in search
   S.collapsedFor=null; S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu(); renderResults();
@@ -2342,7 +2349,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.tray){ const k=t.dataset.tray; openTrays.has(k)?openTrays.delete(k):openTrays.add(k); renderResults(); [...document.querySelectorAll(`[data-tray="${CSS.escape(k)}"]`)].find(b=>b.offsetParent)?.focus(); return; }
   if(t.dataset.kit){ const [room,sku]=t.dataset.kit.split("|"); const key=sku+room; S.kitClosed=S.kitClosed.includes(key)?S.kitClosed.filter(x=>x!==key):[...S.kitClosed,key]; renderQuote(); document.querySelector(`[data-kit="${CSS.escape(t.dataset.kit)}"]`)?.focus(); return; }
   if(t.dataset.step){ const [room,sku,dir]=t.dataset.step.split("|"); const rm=S.quote.rooms.find(r=>r.name===room); const idx=rm.lines.findIndex(x=>x.sku===sku); const l=rm.lines[idx]; const p=CAT.find(x=>x.sku===sku), m=p.mult;
-    if(QTY_ERR.k===room+"|"+sku) setQtyErr(null);
+    if(QTY_ERR.k===room+"|"+sku) setQtyErr(null); ROUNDED.delete(room+"|"+sku);
     if(dir==="-1"&&l.qty===m){ dropLine(rm,idx,p.name); return; } // at the minimum, the minus is a trash can
     l.qty = dir==="1" ? (Math.floor(l.qty/m)+1)*m : Math.max(m,(Math.ceil(l.qty/m)-1)*m); // steps by the sold-in multiple; snaps a typed odd value to the next valid one
     S.dirty=true; renderQuote(); document.querySelector(`[data-step="${CSS.escape(t.dataset.step)}"]`)?.focus(); return; }
@@ -2472,14 +2479,14 @@ document.addEventListener("change",e=>{
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
-  if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult; if(n>0) S.rq[sku]=n; const q=S.rq[sku]??m; t.value=q;
+  if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult, up=n>0&&n%m!==0; if(n>0&&n!==S.rq[sku]){ S.rq[sku]=up?Math.ceil(n/m)*m:n; up?RROUNDED.add(sku):RROUNDED.delete(sku); } const q=S.rq[sku]??m; t.value=q; // QOM-2961: rounds up to the next multiple
     // updated in place, not re-rendered, so typing a number and then clicking Add still lands on the button
     const cell=t.closest(".addcell"), bad=q%m!==0, help=cell.querySelector(".help"); cell.querySelector(".addpill").classList.toggle("bad",bad); t.setAttribute("aria-invalid",String(bad));
-    if(help){ help.classList.toggle("err",bad); help.textContent=bad?`Enter a multiple of ${m}`:`Sold in ${m}${p.uom!=="each"?" "+(UNIT_SHORT[p.uom]||p.uom):"s"}`; } else if(bad) cell.insertAdjacentHTML("beforeend",`<span class="help err" role="alert">Enter a multiple of ${m}</span>`);
+    if(help){ help.classList.toggle("err",bad); if(RROUNDED.has(sku)) help.setAttribute("role","status"); help.textContent=bad?`Enter a multiple of ${m}`:RROUNDED.has(sku)?roundedNote(p,q):soldIn(p); } else if(bad) cell.insertAdjacentHTML("beforeend",`<span class="help err" role="alert">Enter a multiple of ${m}</span>`);
     cell.querySelector(".add").setAttribute("aria-label",`Add ${q} of ${p.name} in ${p.fin} to ${S.room||"quote"}`);
     if(document.activeElement===t) t.select(); return; }
   if(t.dataset.qty){ const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room).lines.find(x=>x.sku===sku); const v=t.value.trim(), ok=/^\d+$/.test(v)&&+v>=1, keep=document.activeElement===t; // Enter keeps the cursor here; tabbing or clicking away does not
-    if(ok && +v!==l.qty){ l.qty=+v; S.dirty=true; } // empty, 0, negative or decimal puts the old number back with a message; the trash button is how a line is removed
+    if(ok&&+v!==l.qty){ const m=CAT.find(x=>x.sku===sku).mult, n=Math.ceil(+v/m)*m; n!==+v?ROUNDED.set(t.dataset.qty,n):ROUNDED.delete(t.dataset.qty); if(n!==l.qty){ l.qty=n; S.dirty=true; } } // QOM-2961: a value that isn't a whole multiple rounds up to the next one, with a note on the line // empty, 0, negative or decimal puts the old number back with a message; the trash button is how a line is removed
     setQtyErr(ok?null:t.dataset.qty);
     renderQuote(); if(keep){ const ni=document.querySelector(`[data-qty="${CSS.escape(t.dataset.qty)}"]`); ni?.focus(); ni?.select(); } }
 });
