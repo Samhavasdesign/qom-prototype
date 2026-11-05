@@ -9,12 +9,17 @@
 <style>
 :root{
   color-scheme:light;
-  --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--panel:#e7ecf2;--panel-soft:#f1f4f8;--panel-line:#d3dae4;--panel-head:#627186;--surface:#f5f5f5;--surface-2:#ececec;--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
-  --line:#d9d9d9;--hdr-line:#e3e3e3;--hdr-count:#555555;--line-2:#eeeeee;--rail:#151515;--rail-ink:#ffffff;--rail-muted:#9a9a9a;
-  --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:#5b5b5b;--note-bg:#f1efe9;
-  --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:#5F5F5F;--sp-w:320px;
-  --pill:#f3d64b;--focus:#1d4ed8;--proto:#e4e4e4;--proto-ink:#111111;
-  --sb-thumb:#b8b8b8;--sb-thumb-hover:#7a7a7a; /* scroll bars: quiet grey thumb, no track */
+  --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--surface:#f5f5f5;--surface-2:#ebebeb;--panel:var(--surface);--panel-soft:var(--surface);--panel-line:var(--line);--panel-head:#d2d2d2; /* rooms you're not adding to: one step darker than the borders */--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
+  --line:#dcdcdc;--line-2:#ebebeb;--hdr-line:var(--line);--hdr-count:var(--ink-2);--rail:var(--ink);--rail-2:#262626;--rail-ink:#ffffff;--rail-muted:var(--control-line);
+  --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:var(--ink-2);--note-bg:#f1efe9;
+  --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:var(--ink-3);--sp-w:320px;
+  --pill:#f3d64b;--focus:#111111;--proto:#e4e4e4;--proto-ink:#111111;
+  /* greys, one ramp: #fff bg · #f5f5f5 surface · #ebebeb surface-2/line-2 · #dcdcdc line · #d2d2d2 panel-head (other rooms) · #949494 control-line · #6f6f6f ink-3 · #4a4a4a ink-2 · #111 ink */
+  --control-line:#949494; /* one border grey for every field, select, pill and outlined control (3:1 on white) */
+  --on-ink:#ffffff; /* text and lines on black */
+  --shadow-pop:0 10px 28px rgba(0,0,0,.16); /* menus and popovers */
+  --shadow-dlg:0 24px 60px rgba(0,0,0,.3); /* dialogs and the image viewer */
+  --sb-thumb:#b8b8b8;--sb-thumb-hover:var(--ink-3); /* scroll bars: quiet grey thumb, no track */
   --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -56,7 +61,7 @@ button{cursor:pointer}
 .rail{background:var(--rail);color:var(--rail-ink);padding:18px 0}
 .rail .mark{font-family:var(--serif);letter-spacing:.32em;font-size:13px;padding:6px 22px 24px}
 .rail a{display:block;color:var(--rail-ink);text-decoration:none;padding:11px 22px;font-size:15px}
-.rail a.cur{background:#262626}
+.rail a.cur{background:var(--rail-2)}
 .rail .sec{color:var(--rail-muted);font-size:12px;letter-spacing:.14em;padding:26px 22px 8px}
 .main{padding:14px 28px 40px;min-width:0}
 .crumb{color:var(--ink-3);font-size:14px;display:flex;gap:10px;align-items:center}
@@ -80,7 +85,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
 
 /* workspace layouts */
 .work{display:grid;gap:22px;align-items:start}
-.work[data-layout="split"]{grid-template-columns:minmax(300px,var(--left,.55fr)) 10px minmax(320px,1fr);gap:6px} /* 6px either side of the 10px handle keeps the old 22px gap */
+.work[data-layout="split"]{grid-template-columns:minmax(300px,var(--left,.55fr)) 10px minmax(320px,1fr);gap:3px} /* 3px either side of the 10px handle: a 16px gap between the panes */
 /* drag handle between the two sides; double-click puts it back */
 .gutter{width:10px;align-self:stretch;cursor:col-resize;display:flex;align-items:center;justify-content:center;touch-action:none}
 .gutter::before{content:"";width:2px;height:48px;background:var(--line);border-radius:2px}
@@ -103,7 +108,7 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .qroom{position:relative;margin-bottom:10px}
 .roomctl{width:100%}
 .roomctl .menu{left:0;right:0;width:auto}
-.qroom .room-btn{height:44px;padding:0 12px;border:1px solid var(--ink-3);border-radius:0;font-family:var(--sans);font-size:15px;color:var(--ink);cursor:pointer}
+.qroom .room-btn{height:44px;padding:0 12px;border:1px solid var(--control-line);border-radius:0;font-family:var(--sans);font-size:15px;color:var(--ink);cursor:pointer}
 .qroom .room-btn:hover{border-color:var(--ink-2)}
 .qroom .room-btn:focus-visible,.qroom .room-btn[aria-expanded="true"]{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .room-btn .rtxt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -112,16 +117,16 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .room-btn.empty #roomLabel{color:var(--ink);font-weight:600}
 .qroom .room-btn.empty{border-color:var(--ink)} /* no room yet: dark text and a 1px dark border, so it reads as the first step */
 /* search controls sit in a tinted header, matching the quote panel */
-.shead{position:sticky;top:0;z-index:6;background:var(--panel-soft);border:1px solid var(--panel-line);padding:14px 16px 2px;margin-bottom:14px} /* stays in view while scrolling results */
+.shead{position:sticky;top:0;z-index:6;background:var(--panel-soft);padding:16px 0 2px;margin-bottom:14px} /* stays in view while scrolling results */
 .room-btn{width:100%;text-align:left;background:var(--bg);border:1px solid var(--line);padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .room-btn.empty{color:var(--ink)}
-.menu{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:var(--bg);border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.14);max-height:360px;overflow:auto}
+.menu{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:var(--bg);border:1px solid var(--line);box-shadow:var(--shadow-pop);max-height:360px;overflow:auto}
 .menu .grp{font-size:12px;color:var(--ink-3);padding:10px 12px 4px;letter-spacing:.06em}
 .menu > button{display:flex;justify-content:space-between;width:100%;text-align:left;background:transparent;border:0;padding:10px 12px}
 .menu > button:hover,.menu > button:focus-visible{background:var(--surface)}
 /* rooms already on the quote are bold, each in its own grey box, so they stand out from the standard room types */
 .menu > button[data-room]{width:calc(100% - 24px);margin:0 12px 6px;background:var(--surface-2);font-weight:600}
-.menu > button[data-room]:hover,.menu > button[data-room]:focus-visible{background:#e0e0e0}
+.menu > button[data-room]:hover,.menu > button[data-room]:focus-visible{background:var(--surface-2)}
 .menu > button[data-room] .cnt{font-weight:400}
 .menu .modes{display:flex;border-bottom:1px solid var(--line-2)}
 .menu .modes button{flex:1;background:transparent;border:0;border-bottom:3px solid transparent;padding:10px 12px;color:var(--ink-2)}
@@ -133,11 +138,11 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .menu > .act{background:var(--ink);color:var(--bg)}
 .menu > .act:hover{background:var(--ink-2)}
 .menu form{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line-2)}
-.menu form input{flex:1 1 100%;min-width:0;border:1px solid var(--line);padding:8px;background:var(--bg)}
-.menu form select{flex:1 1 100%;min-width:0;border:1px solid var(--line);padding:8px;background:var(--bg)}
+.menu form input{flex:1 1 100%;min-width:0;border:1px solid var(--control-line);padding:8px;background:var(--bg)}
+.menu form select{flex:1 1 100%;min-width:0;border:1px solid var(--control-line);padding:8px;background:var(--bg)}
 .menu form .rfhint{flex:1 1 0;min-width:110px;align-self:center;font-size:12px;line-height:1.35;color:var(--ink-3)} /* sits inline to the right of Cancel */
 .search{position:relative;flex:1;min-width:0}
-.search input{width:100%;height:44px;border:1px solid var(--ink-3);border-radius:0;background:var(--bg);padding:0 40px 0 40px;font-family:var(--sans);font-size:15px;color:var(--ink)}
+.search input{width:100%;height:44px;border:1px solid var(--control-line);border-radius:0;background:var(--bg);padding:0 40px 0 40px;font-family:var(--sans);font-size:15px;color:var(--ink)}
 .search input::placeholder{color:var(--ink-3);text-overflow:ellipsis}
 .search input{text-overflow:ellipsis;white-space:nowrap;overflow:hidden} /* long text or placeholder ends in "…" instead of being cut off */
 .search input{padding-left:36px}
@@ -161,7 +166,7 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .meta label input{margin-left:0}
 /* the staging columns don't fit a narrow search side, so the table scrolls sideways there */
 .reswrap{overflow-x:auto}
-table.res{width:100%;border-collapse:collapse}
+table.res{width:100%;border-collapse:collapse;background:var(--bg)} /* results sit on white inside the grey search pane */
 table.res .name{min-width:200px}
 #searchPane{container:search/inline-size}
 /* results reveal more as the search side widens: under 500px just the name, style number and list price (no header bar);
@@ -177,7 +182,7 @@ table.res .ncomp{display:none}
   table.res .wd{display:none}
   table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* header row hidden on screen, kept for screen readers */
   table.res .ncomp{display:block;font-size:12px;color:var(--ink-2);margin-top:3px}
-  table.res .stk,table.res .ktag{display:none}
+  table.res .ktag{display:none} /* stock tags stay: SCs need in/out of stock in the narrow default panel too */
 }
 table.res th{background:var(--surface-2);text-align:left;padding:10px 6px;font-weight:600;font-size:14px}
 table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-align:middle}
@@ -221,7 +226,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .state h3{margin:0 0 6px;font-family:var(--serif);font-weight:400;font-size:20px;color:var(--ink)}
 .state ul{margin:8px 0 0 18px;padding:0}
 .state.prompt{background:var(--surface)}
-.state.idle{border:0;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;text-align:center;color:var(--ink-3)}
+.state.idle{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding-top:32px;text-align:center;color:var(--ink-3)} /* on the pane grey, about 48px under the filter pills */
 .state.idle p{margin:0;font-size:14px;color:var(--ink-2)}
 .state.err{border-color:var(--warn);background:var(--warn-bg);color:var(--ink)}
 .state .recent{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -235,7 +240,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 @media (prefers-reduced-motion:reduce){.spin{animation:none}}
 
 /* quote pane */
-.qbox{border:1px solid var(--panel-line);padding:14px 16px;background:var(--panel-soft)}
+.qbox{background:var(--panel-soft)}
 .roomhdr{position:sticky;top:var(--qbar-h,0px);z-index:4;min-height:52px;display:flex;justify-content:space-between;align-items:center;background:var(--panel-head);color:var(--bg);padding:7px 12px;margin-top:12px;font-weight:600;font-size:14px}
 .roomhdr button{border:0;background:transparent;font-size:12px;color:var(--bg);text-decoration:underline}
 .rcount{font-weight:400}
@@ -267,6 +272,8 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .line .amt{font-variant-numeric:tabular-nums;font-size:14px}
 .line .amt small.each{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
 .pane.quote{container:quote/inline-size}
+/* both panes: one neutral grey, no border, 16px inside (the top 16px is part of each sticky header, so nothing shows above it when it pins) */
+.pane:not(.expanded){background:var(--panel-soft);padding:0 16px 16px}
 @container quote (max-width:600px){ /* narrow quote panel: amounts drop under the product name instead of squeezing it */
   .pane.quote .line{grid-template-columns:18px 104px 72px 1fr 28px;row-gap:2px}
   .pane.quote .line .amt{grid-column:4;text-align:left}
@@ -300,7 +307,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .sendwhy{margin:0;font-size:13px;color:var(--ink-2)}
 .sendmsg{margin:0;font-size:13px;color:var(--warn);background:var(--warn-bg);padding:8px 10px}
 .qty{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
-.qty .stepper{display:inline-flex;align-items:center;height:32px;border:1px solid var(--ink-3);border-radius:999px;background:var(--bg);overflow:hidden}
+.qty .stepper{display:inline-flex;align-items:center;height:32px;border:1px solid var(--control-line);border-radius:999px;background:var(--bg);overflow:hidden}
 .qty .stepper:focus-within{border-color:var(--ink)}
 .qty .stepper.bad{border-color:var(--warn);background:var(--warn-bg)}
 .qty input{width:46px;height:100%;border:0;background:transparent;text-align:center;padding:0;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
@@ -325,7 +332,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .kitbox .kq{font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .line .kitbox .thumb{width:48px;height:48px;font-size:9px}
 .thumb{text-align:center;line-height:1.2}
-.thumb.has-img{background:#f7f7f7;overflow:hidden}
+.thumb.has-img{background:var(--surface);overflow:hidden}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 button.thumb{padding:0;border:0;cursor:zoom-in;font:inherit}
 button.thumb:hover img{opacity:.85}
@@ -333,19 +340,19 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* photo viewer: a click on a product photo opens it full screen */
 .zoomwrap{position:fixed;inset:0;z-index:300;background:rgba(17,17,17,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 24px 24px;cursor:zoom-out}
 .zoomwrap[hidden]{display:none}
-.zoomwrap img{max-width:100%;max-height:calc(100vh - 140px);object-fit:contain;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.4);cursor:default}
-.zoomcap{color:#fff;margin-top:14px;text-align:center;font-size:14px;cursor:default}
+.zoomwrap img{max-width:100%;max-height:calc(100vh - 140px);object-fit:contain;background:var(--bg);box-shadow:var(--shadow-dlg);cursor:default}
+.zoomcap{color:var(--on-ink);margin-top:14px;text-align:center;font-size:14px;cursor:default}
 .zoomcap small{display:block;color:rgba(255,255,255,.7);font-size:12px;margin-top:2px}
-.zoomx{position:absolute;top:14px;right:16px;background:transparent;border:0;color:#fff;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zoomx{position:absolute;top:14px;right:16px;background:transparent;border:0;color:var(--on-ink);width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .zoomx:hover{background:rgba(255,255,255,.12)}
-.zoomx:focus-visible{outline:2px solid #fff}
+.zoomx:focus-visible{outline:2px solid var(--on-ink)}
 .line .nm{font-size:14px}
 .line .nm .pn{display:block;font-weight:700;font-size:16px}
 .line .nm small{display:block;color:var(--ink-3);font-size:12px}
-.line .more{width:18px;height:18px;border:.5px solid #000;border-radius:50%;background:transparent;color:var(--ink);padding:0;display:flex;align-items:center;justify-content:center;align-self:center;justify-self:center}
+.line .more{width:18px;height:18px;border:.5px solid var(--ink);border-radius:50%;background:transparent;color:var(--ink);padding:0;display:flex;align-items:center;justify-content:center;align-self:center;justify-self:center}
 .line .more svg{display:block}
 .line{position:relative}
-.lmenu{position:absolute;right:10px;top:calc(50% + 16px);z-index:40;min-width:230px;background:var(--bg);border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.18);padding:4px 0}
+.lmenu{position:absolute;right:10px;top:calc(50% + 16px);z-index:40;min-width:230px;background:var(--bg);border:1px solid var(--line);box-shadow:var(--shadow-pop);padding:4px 0}
 .lmenu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:transparent;border:0;padding:11px 16px;font-size:14px;color:var(--ink)}
 .lmenu button:hover,.lmenu button:focus-visible{background:var(--surface)}
 .lmenu button:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
@@ -355,41 +362,41 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .rmenu{top:calc(100% + 2px);right:44px;cursor:default}
 .roomhdr .rmenu button{color:var(--ink);text-decoration:none;font-size:14px;font-weight:400}
 /* room headers: the "Adding to" room is black with an ADDING HERE tag; the others are grey */
-.roomhdr{min-height:48px;height:48px;padding:0 4px 0 2px;margin-top:8px;font-size:15px;background:var(--surface-2);color:var(--ink);border:1px solid var(--hdr-line)}
+.roomhdr{min-height:48px;height:48px;padding:0 4px 0 2px;margin-top:8px;font-size:15px;background:var(--panel-head);color:var(--ink);border:1px solid var(--panel-head)} /* other rooms: a darker grey so they stand off the grey pane */
 .qbar:has(#qTools:not([hidden])) ~ #qProducts #rooms>.rmblock:first-child>.roomhdr{margin-top:0} /* the bar already carries the 12px gap */
 .roomhdr>span:first-child{display:flex;align-items:center;gap:4px;min-width:0;white-space:nowrap}
 .roomhdr>span:first-child:not(:has(.grip)){padding-left:18px} /* one room: no drag handle, so the name needs its own left padding */
 .roomhdr .rcount{color:var(--hdr-count);opacity:1;margin-left:2px}
-.roomhdr.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-.roomhdr.active .rcount{color:#fff;opacity:.75}
-.roomhdr .addtag{margin-left:12px;padding:3px 10px;border:1px solid #fff;font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;line-height:1.4}
+.roomhdr.active{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.roomhdr.active .rcount{color:var(--on-ink);opacity:.75}
+.roomhdr .addtag{margin-left:12px;padding:3px 10px;border:1px solid var(--on-ink);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;line-height:1.4}
 .roomhdr .hdrend{gap:4px}
 .roomhdr .hdrend>button.more+button.rchev,.roomhdr .hdrend>button.more+.rmenu+button.rchev{margin-left:-4px} /* "…" sits close to the chevron; both keep 44px targets */
 .roomhdr button.grip,.roomhdr button.more,.roomhdr button.rchev{min-width:44px;min-height:44px;width:auto;height:44px;margin:0;padding:0;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:0;background:transparent;opacity:1;color:var(--ink)}
-.roomhdr.active button.grip,.roomhdr.active button.more,.roomhdr.active button.rchev{color:#fff}
+.roomhdr.active button.grip,.roomhdr.active button.more,.roomhdr.active button.rchev{color:var(--on-ink)}
 .roomhdr button.grip{color:var(--ink-3);font-size:16px}
 .roomhdr button.more{position:relative;padding-left:8px} /* dots follow the circle, which sits toward the chevron */
 .roomhdr button.more svg{box-sizing:border-box;width:24px;height:24px;padding:0 6px;border:1.5px solid currentColor;border-radius:50%;overflow:visible} /* the circle is the dots' own border, so they always share a centre */
 
 .dlgwrap{position:fixed;inset:0;z-index:200;background:rgba(17,17,17,.45);display:flex;align-items:center;justify-content:center;padding:20px}
 .dlgwrap[hidden]{display:none}
-.dlg{background:var(--bg);width:min(560px,100%);padding:36px 32px 32px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3)}
-.dlgicon{width:76px;height:76px;border-radius:50%;background:var(--surface);color:#202428;display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+.dlg{background:var(--bg);width:min(560px,100%);padding:36px 32px 32px;text-align:center;box-shadow:var(--shadow-dlg)}
+.dlgicon{width:76px;height:76px;border-radius:50%;background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
 .dlg h2{font-family:var(--sans);font-weight:400;font-size:22px;margin:0 0 24px}
 .dlgcard{display:flex;align-items:center;gap:20px;text-align:left;background:var(--bg);box-shadow:0 1px 6px rgba(0,0,0,.22);padding:14px 20px;margin:0 auto 28px;max-width:420px;font-size:15px}
 .dlgcard .thumb{width:72px;height:72px;flex:none}
 .dlgcard .pn{font-weight:700;font-size:16px}
 .dlgcard small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
 .dlgbtns{display:flex;gap:16px;justify-content:center}
-.dbtn{flex:1 1 0;max-width:200px;height:50px;border-radius:6px;letter-spacing:.14em;text-transform:uppercase;font-size:13px;font-weight:500}
-.dbtn.cancel{background:#e0e0e0;color:var(--ink);border:1px solid var(--ink)}
+.dbtn{flex:1 1 0;max-width:200px;height:50px;border-radius:0;letter-spacing:.14em;text-transform:uppercase;font-size:13px;font-weight:500}
+.dbtn.cancel{background:var(--bg);color:var(--ink);border:1px solid var(--ink)}
 .dbtn.yes{background:var(--ink);color:var(--bg);border:1px solid var(--ink)}
 .dbtn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .toast{position:fixed;left:50%;bottom:calc(var(--bar-h,88px) + 16px);transform:translateX(-50%);z-index:210;background:var(--ink);color:var(--bg);padding:10px 16px;font-size:14px}
 .toast[hidden]{display:none}
-.toast.ok{background:var(--ok);color:#fff;font-weight:500;animation:toastin .15s ease-out} /* quick success after adding a product */
+.toast.ok{background:var(--ok);color:var(--on-ink);font-weight:500;animation:toastin .15s ease-out} /* quick success after adding a product */
 @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}}
-.toast.warn{background:var(--warn);color:#fff;font-weight:500;animation:toastin .15s ease-out}
+.toast.warn{background:var(--warn);color:var(--on-ink);font-weight:500;animation:toastin .15s ease-out}
 @media (prefers-reduced-motion:reduce){.toast.ok,.toast.warn{animation:none}}
 .shipsw{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer;margin-right:6px;position:relative}
 .shipsw[hidden]{display:none}
@@ -406,7 +413,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .cddnote{display:block;margin-top:4px;font-size:12px;color:var(--ink-3)}
 .cddnote.late{display:inline-block;color:var(--amber);background:var(--amber-bg);padding:3px 8px;font-weight:600}
 .shiprow .sf{position:relative;display:block}
-.shiprow input,.shiprow select{width:100%;height:38px;border:1px solid var(--line);background:var(--bg);padding:0 12px;font:inherit;font-size:13px;color:var(--ink);border-radius:0}
+.shiprow input,.shiprow select{width:100%;height:38px;border:1px solid var(--control-line);background:var(--bg);padding:0 12px;font:inherit;font-size:13px;color:var(--ink);border-radius:0}
 .shiprow input::placeholder{color:var(--ink-3)}
 .shiprow input[readonly]{color:var(--ink-2);cursor:default} /* CDD comes from M3; the SC can't edit it */
 .shiprow select{appearance:none;-webkit-appearance:none;text-overflow:ellipsis;padding-right:30px;background:var(--bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%236f6f6f'/></svg>") no-repeat right 12px center}
@@ -445,14 +452,14 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .rmblock .empty-quote{background:var(--bg);border:1px dashed var(--ink-3);border-top:0;margin-top:0;padding:22px 16px;color:var(--ink-2);font-size:14px;text-align:center}
 .rmblock .empty-quote b{color:var(--ink);font-weight:600}
 /* no rooms at all: a dark block so the empty quote can't be missed */
-.empty-quote.none{background:var(--ink);color:var(--bg);margin-top:0;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.empty-quote.none{background:var(--ink);color:var(--bg);margin-top:0;padding:40px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
 /* full view, no rooms: "Start with a room" */
 .empty-quote.none.xl{padding:40px}
-.empty-quote.none.xl .eqicon{opacity:1;color:#fff}
-.empty-quote.none.xl h3{color:#fff;margin-bottom:8px}
-.empty-quote.none.xl p{color:#d9d9d9;opacity:1;max-width:420px;margin:0 0 20px}
-.empty-quote.none.xl .btn{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 28px;background:#fff;color:#111}
-.empty-quote.none.xl .btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.empty-quote.none.xl .eqicon{opacity:1;color:var(--on-ink)}
+.empty-quote.none.xl h3{color:var(--on-ink);margin-bottom:8px}
+.empty-quote.none.xl p{color:var(--line);opacity:1;max-width:420px;margin:0 0 20px}
+.empty-quote.none.xl .btn{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 28px;background:var(--bg);color:var(--ink)}
+.empty-quote.none.xl .btn:focus-visible{outline:2px solid var(--on-ink);outline-offset:3px}
 .empty-quote.none .eqicon{display:flex;opacity:.85;margin-bottom:10px}
 .empty-quote.none .eqicon svg{width:30px;height:30px}
 .empty-quote.none h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 6px}
@@ -464,7 +471,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
 @media (max-width:980px){
   .app{grid-template-columns:1fr}.rail{display:flex;flex-wrap:wrap;padding:8px 10px;gap:0 4px}.rail .mark{padding:8px 12px}.rail a{padding:8px 10px;font-size:14px}.rail .sec{display:none}
-  .work[data-layout="split"]{grid-template-columns:1fr;gap:22px}.gutter{display:none}  .toprow{grid-template-columns:1fr}
+  .work[data-layout="split"]{grid-template-columns:1fr;gap:16px}.gutter{display:none}  .toprow{grid-template-columns:1fr}
 }
 
 .qtitle{font-family:var(--serif);font-weight:400;font-size:20px;margin:0}
@@ -478,7 +485,6 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qbar:has(#qTools:not([hidden])) .qright:not(:has(.shipsw:not([hidden]))){display:none} /* no empty wrapped row under the toolbar while the switch is hidden */
 .qtsum{display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
 .qtsum .qtitle{white-space:nowrap}
-.qtno{margin:0;font-family:var(--serif);font-weight:400;font-size:20px;color:var(--ink);white-space:nowrap} /* the quote number, always shown in every view and state */
 .qtcount[hidden]{display:none}
 .qtcount{margin:0;font-size:14px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
 .qtact{display:flex;align-items:center;gap:8px 20px;margin-left:auto}
@@ -499,35 +505,35 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   .roomhdr>span:first-child{flex:1 1 auto;overflow:hidden}
   .roomhdr .hdrend{flex:none}
   .roomhdr .rcount{display:none} /* the line count is on the toolbar; the room name and tag need the room */
-  .roomhdr .addtag{margin-left:8px;padding:2px 6px;letter-spacing:.06em;font-size:10.5px}
+  .roomhdr .addtag{margin-left:8px;padding:2px 6px;letter-spacing:.06em;font-size:11px}
 }
-.lfilter{display:flex;align-items:center;gap:10px;height:40px;width:220px;min-width:150px;flex:0 1 220px;max-width:100%;padding:0 12px;background:#fff;border:1px solid #d9d9d9;color:var(--ink-3)}
+.lfilter{display:flex;align-items:center;gap:10px;height:44px;width:220px;min-width:150px;flex:0 1 220px;max-width:100%;padding:0 12px;background:var(--bg);border:1px solid var(--control-line);color:var(--ink-3)}
 .lfilter:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
 .qtfold{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 2px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}.qtfold:hover{text-decoration:underline}
 .qtfold:disabled{color:var(--ink-3);text-decoration:none;cursor:default}
 .qtfold:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* "+ Add another room": a full-width dashed row after the last room, once the quote has products */
-.addroomrow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin-top:8px;padding:0 16px;border:1px dashed color-mix(in srgb,var(--ink-3) 55%,var(--bg));background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
+.addroomrow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin-top:8px;padding:0 16px;border:1px dashed var(--control-line);background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
 .addroomrow:hover{border-color:var(--ink-2);background:var(--bg)}
 .addroomrow:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .lnone{background:var(--bg);border:1px dashed var(--ink-3);margin-top:12px;padding:22px 16px;text-align:center;color:var(--ink-2);font-size:14px}
 /* the quote title bar stays at the top of the quote side; room bars pin just below it (--qbar-h is measured in script) */
-.qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:4px 16px;flex-wrap:wrap;margin:-14px -16px 0;padding:14px 16px 12px}
+.qbar{position:sticky;top:0;z-index:6;background:var(--panel-soft);display:flex;align-items:center;justify-content:space-between;gap:4px 16px;flex-wrap:wrap;margin:0 -16px;padding:16px 16px 12px}
 .qseg{display:inline-flex}
 /* view tabs: underline tabs, the same look as the page tabs (Essential Quote Info, Header Information…) */
-.qbar .qtop{flex:1 0 100%;order:-1;margin:0;height:52px;align-items:stretch;border-bottom:1px solid var(--line)}
-.pane.quote:not(.expanded) .qbar{padding-top:0} /* the view tabs sit right at the top of the quote panel */
+.qbar .qtop{flex:1 0 100%;order:-1;margin:0;height:40px;align-items:stretch;border-bottom:1px solid var(--line)} /* short row so the tabs sit near the top of the panel */
+.pane.quote:not(.expanded) .qbar{padding-top:0} /* the view tabs, starting with Products, sit right at the top of the quote panel */
 .qbar .qseg{flex:1;gap:26px;min-width:0}
 .qtab{display:flex;align-items:center;flex:none;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 2px 0;font:inherit;color:var(--ink-2);white-space:nowrap;cursor:pointer}
 .qtab:hover{color:var(--ink)}
 .qtab[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
 .qtab:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .backlink{border:0;background:transparent;padding:0;margin:0 0 14px;color:var(--ink-2);text-decoration:underline;font-size:13px}
-.pane.quote:not(.expanded) .qbox:has(#qInfo:not([hidden])){background:#fff} /* the quote information reads on plain white */
-#qInfo{background:#fff;padding:8px 2px 0}
+.pane.quote:not(.expanded) .qbox:has(#qInfo:not([hidden])){background:var(--bg)} /* the quote information reads on plain white */
+#qInfo{background:var(--bg);padding:8px 2px 0}
 .pane.quote.expanded #qInfo{border:1px solid var(--line);padding:32px 36px 0} /* expanded: the quote information sits in a white box the width of the quote column */
-.draftpill{display:inline-flex;align-items:center;gap:8px;background:var(--pill);color:#111;border-radius:999px;padding:6px 14px;font-family:var(--serif);font-size:15px;margin:10px 0 6px}
+.draftpill{display:inline-flex;align-items:center;gap:8px;background:var(--pill);color:var(--ink);border-radius:999px;padding:6px 14px;font-family:var(--serif);font-size:15px;margin:10px 0 6px}
 .qi{container:qi/inline-size;font-size:14px}
 .qi .qihead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px 16px;flex-wrap:wrap}
 .qi .qtitle2{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.2;margin:0}
@@ -561,7 +567,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qi .tl li:first-child::before{left:50%} .qi .tl li:last-child::before{right:50%}
 .qi .tl li.past::before{background:var(--ink-2)}
 .qi .tl li.edge:not(:last-child)::before{background:linear-gradient(90deg,var(--ink-2) 50%,var(--line) 50%)}
-.qi .tl .dot{position:absolute;top:1px;left:50%;margin-left:-8px;width:16px;height:16px;border-radius:50%;border:2px solid var(--ink-3);background:#fff;box-sizing:border-box;z-index:1}
+.qi .tl .dot{position:absolute;top:1px;left:50%;margin-left:-8px;width:16px;height:16px;border-radius:50%;border:2px solid var(--ink-3);background:var(--bg);box-sizing:border-box;z-index:1}
 .qi .tl .today .dot{border-color:var(--ink)} .qi .tl .today .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--ink)}
 .qi .tl .late .dot{border-color:var(--warn)} .qi .tl .late .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--warn)}
 .qi .tl .tlk{font-size:13px;color:var(--ink-2);padding:0 4px}
@@ -581,11 +587,11 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qi .qalert{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;margin-top:22px;padding:12px 14px;background:var(--warn-bg);color:var(--ink)}
 .qi .qalert>span{flex:1 1 220px;display:flex;gap:10px;align-items:flex-start;font-size:13px}
 .qi .qalert svg{flex:none;color:var(--warn);margin-top:1px}
-.qi .qalert .btn{background:#fff;color:var(--ink);border:1px solid var(--ink);padding:9px 14px}
+.qi .qalert .btn{background:var(--bg);color:var(--ink);border:1px solid var(--ink);padding:9px 14px}
 .qi .qalert form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.qi .qalert input[type=date]{height:36px;border:1px solid var(--line);padding:0 8px;font:inherit;background:#fff}
-.qi .qalert form .btn.go{background:var(--ink);color:#fff}
-.qi .qadd{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:9px 14px;border:1px dashed var(--ink-3);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.qi .qalert input[type=date]{height:36px;border:1px solid var(--control-line);padding:0 8px;font:inherit;background:var(--bg)}
+.qi .qalert form .btn.go{background:var(--ink);color:var(--on-ink)}
+.qi .qadd{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:9px 14px;border:1px dashed var(--ink-3);background:var(--bg);font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
 .qi .qadd:hover{border-style:solid}
 .qi .pay{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:baseline}
 .qi .pay .ql{font-size:14px;color:var(--ink-2)}
@@ -595,7 +601,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qi .paynote{font-size:12px;color:var(--ink-3);margin:12px 0 0}
 .qi .qdocs{background:var(--surface);margin:0 -18px -14px;padding:22px 18px 24px;border-top:1px solid var(--line)}
 .pane.quote.expanded .qi .qdocs{margin:0 -36px;padding:24px 36px 28px}
-.qi .qdoc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;background:#fff;border:1px solid var(--line)}
+.qi .qdoc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;background:var(--bg);border:1px solid var(--line)}
 .qi .qdoc svg{flex:none;color:var(--ink-2)}
 .qi .qdoc .qdn{flex:1 1 180px;min-width:0}
 .qi .qdoc .qdt{font-weight:600;font-size:15px}
@@ -639,22 +645,16 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* side by side on desktop: each side fills the screen below the page header and scrolls on its own,
    so a long result list never leaves the quote off screen (and the sticky headers and Save bar pin to each side) */
 @media (min-width:981px){
-  .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px)));overflow-y:auto;overscroll-behavior:none;padding-right:6px;scrollbar-gutter:stable} /* space for the scroll bar is kept, so content never shifts when it appears */
+  .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px)));overflow-y:auto;overscroll-behavior:none;padding-right:16px;scrollbar-gutter:stable} /* space for the scroll bar is kept, so content never shifts when it appears */
   .main:has(>.work[data-layout="split"]){padding-bottom:0} /* both panels run down to the pricing bar, with no strip of page between */
   .app:has(.work[data-layout="split"]){min-height:0} /* the panels already fill the window; the old minimum assumed a shorter top bar and added extra scroll */
   .work[data-layout="split"] #searchPane{display:flex;flex-direction:column} /* Save bar sits at the bottom even when the results are short */
   .work[data-layout="split"] #searchPane>*{flex-shrink:0}
   .work[data-layout="split"] #searchPane>.sfoot{margin-top:auto}
   /* Empty states fill their side down to the bottom instead of stopping short */
-  .work[data-layout="split"] #searchPane>#results:has(>.state.idle){flex:1 0 auto;display:flex;flex-direction:column}
-  .work[data-layout="split"] #searchPane>#results>.state.idle{flex:1}
   .work[data-layout="split"] #searchPane>#results:has(>.state.idle)+.sfoot{margin-top:14px}
   .work[data-layout="split"] #quotePane:not(.expanded){display:flex;flex-direction:column}
   .work[data-layout="split"] #quotePane:not(.expanded)>.qbox{flex:1 0 auto}
-  .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none){display:flex;flex-direction:column}
-  .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none)>#qProducts,
-  .work[data-layout="split"] #quotePane:not(.expanded) .qbox:has(.empty-quote.none) #rooms{flex:1 0 auto;display:flex;flex-direction:column}
-  .work[data-layout="split"] #quotePane:not(.expanded) .empty-quote.none{flex:1;justify-content:center}
   .work[data-layout="split"] .pane.quote.expanded{position:fixed;height:auto;padding-right:max(24px,calc((100vw - 1200px)/2))}
 }
 .pane.quote.expanded .roomhdr{top:calc(var(--qbar-h,80px) - 16px)} /* room bars pin under the tabs row and the toolbar (sticky offsets count from inside the pane's 68px top padding) */
@@ -677,7 +677,7 @@ body.noscroll{overflow:hidden}
 .qsidet h3 .rcount{color:var(--ink-2);font-weight:400}
 .qsidet .tolink{min-height:44px;margin:-12px 0;font-size:14px}
 .sideform{display:flex;flex-direction:column;gap:8px;padding:14px 18px 16px;border-bottom:1px solid var(--panel-line);background:var(--bg)}
-.sideform select,.sideform input{font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink)}
+.sideform select,.sideform input{font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--control-line);border-radius:0;background:var(--bg);color:var(--ink)}
 .sideform .row{display:flex;gap:8px}.sideform .row .btn{flex:1}
 .sideform .hint{margin:0;font-size:12px;color:var(--ink-3)}
 .sideform .form-err{margin:0}
@@ -693,7 +693,7 @@ body.noscroll{overflow:hidden}
 .sroom .srn{display:flex;flex-direction:column;flex:1;min-width:0}
 .sroom .srname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sroom[aria-current="true"] .srname{font-weight:600}
-.sroom .srtag{margin-top:2px;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.sroom .srtag{margin-top:2px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .sroom .srcnt{flex:none;font-size:14px;color:var(--ink-3);white-space:nowrap}
 .siderooms .snone{color:var(--ink-2);font-size:14px;padding:16px;margin:0}
 .qside .qend{margin:0;padding:16px 18px 20px}
@@ -724,7 +724,7 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .resmeta .tolink{min-height:44px;margin:-14px 0;padding:0 2px} /* small inline link, still a 44px target */
 /* filter pills: one row under the search, wrapping if needed; each opens a popover anchored to it (no Apply: results update live) */
 .fpills{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
-.fpill{position:relative;display:inline-flex;align-items:stretch;height:44px;border:1px solid color-mix(in srgb,var(--ink-3) 55%,var(--bg));background:var(--bg);color:var(--ink)}
+.fpill{position:relative;display:inline-flex;align-items:stretch;height:44px;border:1px solid var(--control-line);background:var(--bg);color:var(--ink)}
 .fpill:hover{border-color:var(--ink-2)}
 .fpill.open{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .fpill.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
@@ -751,11 +751,12 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fpill.ficon>.fpbtn{position:relative;justify-content:center;width:100%;padding:0}
 .fpill.ficon>.fpbtn:focus-visible{outline-color:var(--ink);outline-offset:2px}
 .fcount{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--ink);color:var(--bg);border:1px solid var(--bg);font-size:11px;font-weight:600;line-height:16px;text-align:center}
-.fpop{position:absolute;left:0;top:calc(100% + 4px);z-index:40;display:flex;flex-direction:column;width:320px;max-width:calc(100vw - 32px);max-height:min(70vh,520px);background:var(--bg);color:var(--ink);border:1px solid var(--ink);box-shadow:0 10px 28px rgba(0,0,0,.16);font-weight:400;white-space:normal;text-align:left;cursor:auto}
+.fpop{position:absolute;left:0;top:calc(100% + 4px);z-index:40;display:flex;flex-direction:column;width:320px;max-width:calc(100vw - 32px);max-height:min(70vh,520px);background:var(--bg);color:var(--ink);border:1px solid var(--ink);box-shadow:var(--shadow-pop);font-weight:400;white-space:normal;text-align:left;cursor:auto}
 .fpop .fpbody{overflow:auto;padding:12px 0 6px}
 .fpsrch{position:relative;margin:0 14px 6px}
 .fpsrch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
-.fpsrch input{width:100%;height:44px;padding:0 10px 0 34px;border:1px solid var(--ink-3);border-radius:0;background:var(--bg);font:inherit;font-size:14px;color:var(--ink)}
+.fpsrch input{width:100%;height:44px;padding:0 10px 0 34px;border:1px solid var(--control-line);border-radius:0;background:var(--bg);font:inherit;font-size:14px;color:var(--ink)}
+.shiprow input:focus,.shiprow select:focus,.menu form input:focus,.menu form select:focus,.sideform input:focus,.sideform select:focus,.qi .qalert input[type=date]:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .fpsrch input:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .fpgrp{margin:0;padding:10px 14px 2px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .fpsep{margin:6px 14px;border:0;border-top:1px solid var(--line-2)}
@@ -854,10 +855,10 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pb-act{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;white-space:nowrap;border:1px solid var(--ink);background:var(--bg);color:var(--ink);letter-spacing:.1em;font-size:12px;font-weight:600;text-transform:uppercase}
 .pb-act.primary{background:var(--ink);color:var(--bg)} /* the next step: filled black; available but not next: white, black outline */
 /* disabled: white with a light outline and grey text (#6b6b6b is 5.3:1 on white); Calculate freight and Send stay focusable (aria-disabled) */
-.pb-act:disabled,.pb-act[aria-disabled="true"]{background:var(--bg);border-color:#d9d9d9;color:#6b6b6b;cursor:not-allowed;opacity:1}
+.pb-act:disabled,.pb-act[aria-disabled="true"]{background:var(--bg);border-color:var(--line);color:var(--ink-3);cursor:not-allowed;opacity:1}
 .pb-act.run{cursor:progress}
-.pb-act .spin{border-color:#d9d9d9;border-top-color:#6b6b6b;margin:0}
-.spi .spin{border-color:#c9d6e4;border-top-color:var(--prog);margin:0}
+.pb-act .spin{border-color:var(--line);border-top-color:var(--ink-3);margin:0}
+.spi .spin{border-color:var(--line);border-top-color:var(--prog);margin:0}
 .pb-fix{min-height:44px;margin:-12px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--block);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 /* "Before you send": a flyout on the right; on wide screens the page makes room for it */
 .spanel{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(var(--sp-w),100vw);display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);box-shadow:-10px 0 24px -16px rgba(0,0,0,.3)}
@@ -872,7 +873,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .sp-list{list-style:none;margin:0;padding:0}
 .sp-sec{padding:4px 20px 12px}
 .sp-sec+.sp-sec{border-top:1px solid var(--line)}
-.sp-sec h3{margin:14px 0 2px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.sp-sec h3{margin:14px 0 2px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
 .sp-sec h3:focus{outline:none}
 .sp-sec h3:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sp-none{padding:10px 0;font-size:13px;color:var(--muted)}
@@ -880,7 +881,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .spi{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:2px 10px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line-2)}
 .spi:last-child{border-bottom:0}
 .spi .spi-ic{display:flex;padding-top:1px}
-.spi.block .spi-ic{color:var(--block)} .spi.prog .spi-ic{color:var(--prog)} .spi.todo .spi-ic{color:#8a8a8a} .spi.done .spi-ic{color:var(--done)}
+.spi.block .spi-ic{color:var(--block)} .spi.prog .spi-ic{color:var(--prog)} .spi.todo .spi-ic{color:var(--control-line)} .spi.done .spi-ic{color:var(--done)}
 .spi b{display:block;font-size:14px;font-weight:600}
 .spi.prog b{color:var(--prog)}
 .spi .spi-tx span{display:block;color:var(--muted);font-size:13px;margin-top:1px}
@@ -1012,7 +1013,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <div class="qhead" hidden><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
         <!-- Products view toolbar: what's on the quote, a filter for long quotes, fold every room -->
         <div class="qtools" id="qTools">
-          <div class="qtsum"><p class="qtno">Quote: 6000024967</p><h2 class="sr">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
+          <div class="qtsum"><h2 class="sr">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
             <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: filter lines by name, item number or finish" autocomplete="off"></label>
             <button type="button" class="tolink qtfold" id="toolAddBtn" aria-controls="roomMenu"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg><span>Add room</span></button>
@@ -1567,12 +1568,12 @@ function lineMatch(r){
 function renderQTools(rooms){
   const n=rooms.reduce((a,r)=>a+r.lines.length,0), q=S.lineQ.trim();
   const m=q?rooms.reduce((a,r)=>a+(lineMatch(r)?.n||0),0):0;
-  const prod=S.qview==="products"; // the bar always shows (it carries the quote number); counts and tools are Products view only
-  $("#qTools").hidden=false;
+  const prod=S.qview==="products"; // counts and tools are Products view only
   const rc=`${rooms.length} room${rooms.length===1?"":"s"}`;
-  $("#qtCount").innerHTML=!rooms.length?(S.expanded?"No rooms yet":""):q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}`:`No products yet · ${rc}`;
+  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}`:`No products yet · ${rc}`;
   $("#qtCount").hidden=!prod||!$("#qtCount").innerHTML;
   $("#qtAct").hidden=!prod||!rooms.length;
+  $("#qTools").hidden=$("#qtCount").hidden&&$("#qtAct").hidden; // nothing to show (another view): no blank strip under the tabs
   $("#toolAddBtn").hidden=!!S.expanded; // full screen has its own in the Rooms panel
   $(".lfilter").hidden=!n&&!q; // nothing to find on a quote with no lines
   $("#foldAll").hidden=rooms.length<2; // one room: its own chevron does the job
