@@ -458,6 +458,12 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .shipsw input:focus-visible + .swtrack{outline:2px solid var(--ink);outline-offset:2px}
 .line .pdet{grid-column:3/-1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,max-content));justify-content:start;grid-template-rows:auto auto;grid-auto-flow:column;gap:2px 22px;font-size:12px;line-height:1.5;color:var(--ink-2);margin-top:2px}
 .line .pdet b{font-weight:600;color:var(--ink)}
+.line .pdet .dtw{position:relative;display:flex;align-items:center;gap:2px}
+.line .pdet .dinfo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin:-4px 0;padding:0;border:0;background:none;color:var(--ink-3);cursor:pointer}
+.line .pdet .dinfo:hover,.line .pdet .dinfo:focus-visible{color:var(--ink)}
+.dtip{position:absolute;left:0;top:100%;z-index:8;display:none;width:340px;max-width:80vw;flex-direction:column;gap:6px;background:var(--bg);border:1px solid var(--control-line);box-shadow:var(--shadow-pop);padding:12px 14px;font-size:13px;line-height:1.45;color:var(--ink);white-space:normal}
+.dtip .dm3{color:var(--ink-2);font-size:12px}
+.line .pdet .dtw:hover .dtip,.line .pdet .dinfo:focus-visible+.dtip{display:flex}
 .line .shiprow{grid-column:3/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 10px;margin-top:2px;align-items:start}
 .line .shiprow.solo{grid-template-columns:1fr}
 .cddnote{display:block;margin-top:4px;font-size:12px;color:var(--ink-3)}
@@ -1022,6 +1028,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
   <label>Scenario
     <select id="scenario">
       <option value="normal">Normal</option>
+      <option value="qom2926">QOM-2926 · ATP, delivery date and sourcing warehouse</option>
       <option value="fresh" selected>Fresh quote, no lines</option>
       <option value="loading">Search · Loading (slow search)</option>
       <option value="error">Search · Error</option>
@@ -1280,7 +1287,7 @@ CAT.push(
 CAT.push({sku:"ESLAV-B", name:"Easton Lavatory Faucet with Lever Handles", sec:"8 inch widespread, lever handles", col:"Easton", series:"Classic", cat:"Fittings", fin:"Brass", st:20, stock:14, price:1240});
 // mock items so every product type in the Category filter has at least one product (see CATEGORY_TYPES_MOCK)
 CAT.push(
-  {sku:"HNHK-N",    name:"Henry Single Robe Hook", sec:"Wall-mount", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:16, price:165},
+  {sku:"HNHK-N",    name:"Henry Single Robe Hook", sec:"Wall-mount", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:16, price:165, srcwh:"USR"}, // srcwh: M3 ships it from another warehouse (SWHL), so "Sourcing warehouse" shows (QOM-2926)
   {sku:"HNMIR24-N", name:"Henry Framed Mirror 24 inch", sec:"Wall-mount, beveled glass", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:3, price:1890},
   {sku:"HNKNB-N",   name:"Henry Cabinet Knob", sec:"1.25 inch round", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:40, price:58},
   {sku:"ESTW-N",    name:"Easton Towel Warmer", sec:"Hardwired, wall-mount", col:"Easton", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:0, lead:"about 8 weeks", price:3450},
@@ -1683,9 +1690,7 @@ const thumbHtml=p=>p.noimg ? FAILED_THUMB
   : p.img ? `<button type="button" class="thumb has-img" data-zoom="${esc(p.sku)}" title="Enlarge photo" aria-label="Enlarge photo of ${esc(p.name)} in ${esc(p.fin)}"><img src="${esc(p.img)}" alt="" onerror="this.parentNode.outerHTML=FAILED_THUMB"></button>`
   : `<div class="thumb" aria-hidden="true">no image</div>`;
 // kit line: a toggle under the name, and the components listed underneath (quantities follow the kit quantity)
-const LOADED=new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); // mock "as of" time: when the quote's availability was read
-const stockText=(p,withTime=true)=>{ const when=withTime?` · as of ${LOADED}`:"";
-  return p.stock>0 ? `${p.stock} available in USC${when}` : p.lead ? `Out of stock in USC · lead time ${esc(p.lead)}${when}` : `Out of stock in USC${when}`; };
+const stockText=p=> p.stock>0 ? `${p.stock} available in USC` : p.lead ? `Out of stock in USC · lead time ${esc(p.lead)}` : `Out of stock in USC`; // kit component rows only
 const MI=(d)=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MENU_ITEMS=[
   ["join","Join Product",MI('<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>')],
@@ -1759,10 +1764,27 @@ function confirmRemove(){
   closeRemoveDialog(false);
   if(idx<0) return; dropLine(rm,idx,p.name);
 }
-// mock M3 read: Available to Promise is today when the item is in stock, otherwise today plus the lead time
-const atpDate=p=>{ const d=new Date(); if(!(p.stock>0)){ const w=parseInt((p.lead||"").replace(/\D+/g,""),10)||8; d.setDate(d.getDate()+w*7); } return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
+// mock M3 availability (QOM-2926): read each time the quote opens, never saved. In stock: ATP is the stock quantity today.
+// Out of stock with a lead time: the line's quantity from today plus the lead time (atpFromDate). Estimated delivery adds a mock week of transit.
+const MOCK_CUST="40000000"; // mock customer number for the tooltip's inputs line, not a real account
+const LINE_WH="USC";
+const fmtLong=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const leadWeeks=p=>parseInt((p.lead||"").replace(/\D+/g,""),10)||8;
+const atpInfo=(p,l)=>{ if(p.stock>0) return {qty:p.stock,from:null};
+  if(!p.lead) return {qty:0,from:null};
+  const d=new Date(); d.setDate(d.getDate()+leadWeeks(p)*7); return {qty:l.qty,from:d}; };
+const estDelivery=(p,l)=>{ const d=new Date(); if(!((p.stock||0)>=l.qty)) d.setDate(d.getDate()+leadWeeks(p)*7); d.setDate(d.getDate()+7); d.setHours(0,0,0,0); return d; };
+const dtip=(id,label,plain,m3)=>`<button type="button" class="dinfo" aria-label="About ${label}" aria-describedby="${id}">${INFO_ICON}</button><span class="dtip" id="${id}" role="tooltip"><span>${plain}</span><span class="dm3">${m3}</span></span>`;
 const COO={Henry:"USA",Easton:"USA",Arrow:"ITA",Candide:"FRA"}; // mock country of origin by collection
-const pdetails=(p,hit)=>`<div class="pdet"><div><b>Item #:</b> ${findHl(p.same||p.sku,hit)}</div><div><b>Stock:</b> ${stockText(p)}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> USC</div><div><b>Available to Promise (ATP):</b> ${atpDate(p)}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div></div>`;
+const pdetails=(p,l,hit,id)=>{ const a=atpInfo(p,l), e=estDelivery(p,l), r=dayOf(l.rdd), q=l.qty.toLocaleString("en-US");
+  const atpVal=a.from?`${a.qty.toLocaleString("en-US")} from ${fmtLong(a.from)}`:a.qty.toLocaleString("en-US");
+  const atpTip=a.from
+    ? dtip(id+"atp","Available to Promise",`The quantity M3 can promise for ${LINE_WH} from ${fmtLong(a.from)}, not today. Recalculated each time the quote is opened, and not saved.`,`M3: AVTP ${a.qty.toLocaleString("en-US")} (Available-to-promise - cumulative), dated AVDT ${fmtLong(a.from)}, OIS340MI/LstSupplSummary, customer ${MOCK_CUST}, quantity ${q}.`)
+    : dtip(id+"atp","Available to Promise",`The quantity M3 can promise for ${LINE_WH} today. Recalculated each time the quote is opened, and not saved.`,`M3: AVTP (Available-to-promise - cumulative), OIS340MI/LstSupplSummary, customer ${MOCK_CUST}, quantity ${q}.`);
+  const rdd=isNaN(r)?"":e.getTime()<=r?" · meets RDD":" · after RDD";
+  const eddTip=dtip(id+"edd","Estimated delivery date",`The earliest date M3 estimates it could deliver ${q} to this customer, using its normal supply route (for ${LINE_WH} lines, a transfer from USR), compared with the requested delivery date${isNaN(r)?"":` (${fmtLong(new Date(r))})`}. Recalculated each time the quote is opened, and not saved${l.cdd?"; it can differ from the confirmed delivery date (CDD) saved on this line":""}.`,`M3: CODZ (Confirmed delivery date), OIS340MI/LstSupplSummary, customer ${MOCK_CUST}, quantity ${q}.`);
+  const src=p.srcwh&&p.srcwh!==LINE_WH?`<div><b>Sourcing warehouse:</b> ${esc(p.srcwh)}</div>`:"";
+  return `<div class="pdet"><div><b>Item #:</b> ${findHl(p.same||p.sku,hit)}</div><div class="dtw"><b>Available to Promise (ATP):</b> ${atpVal}${atpTip}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> ${LINE_WH}</div><div class="dtw"><b>Estimated delivery date:</b> ${fmtLong(e)}${rdd}${eddTip}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div>${src}</div>`; };
 const SHIP_OPTS=["Standard Shipping (S01)","Expedited (S02)","Second day (S03)"];
 const CAL_ICON='<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 0h1.5v2h5V0H12v2h1.5A1.5 1.5 0 0 1 15 3.5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-10A1.5 1.5 0 0 1 2.5 2H4zM2.5 6v7.5h11V6zm2 1.5h3v3h-3z"/></svg>';
 const dayOf=v=>{ const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((v||"").trim()); return m?new Date(+m[3],+m[1]-1,+m[2]).getTime():NaN; }; // calendar day only, so time of day never matters
@@ -1881,7 +1903,7 @@ const riskBanner=(res,p)=>{ if(!res||res.level==="ok") return "";
   else if(res.reason==="useup") msg=`<b>Limited stock.</b> This item may not be restocked.`;
   else msg=`<b>Stock status unavailable.</b> This line can't be sent until its status is confirmed.`;
   return `<div class="rb ${cls}">${res.level==="unknown"?RI.unk:RI.bad}<span>${msg}</span></div>`; };
-const kitBox=(r,l,p)=>kitClosed(r,l)?"":`<div class="kitbox"><div class="kithead">Included in this kit</div>${p.kit.map(c=>{const cp=CAT.find(x=>x.sku===c.sku); const part=(RISK&&RISK.by[r.name+"|"+l.sku].kit||[]).find(x=>x.cp.sku===cp.sku); return `<div class="kitrow2${part?" "+({blocking:"kbad",risk:"krisk",unknown:"kunk"})[part.level]:""}">${thumbHtml(cp)}<span class="kq">×${c.qty*l.qty}</span><span>${esc(cp.name)} in ${esc(cp.fin)}${part?`<span class="ktag">${riskShort(part)}</span>`:""}<small>${esc(cp.sku)} · ${stockText(cp,false)}</small></span></div>`;}).join("")}</div>`;
+const kitBox=(r,l,p)=>kitClosed(r,l)?"":`<div class="kitbox"><div class="kithead">Included in this kit</div>${p.kit.map(c=>{const cp=CAT.find(x=>x.sku===c.sku); const part=(RISK&&RISK.by[r.name+"|"+l.sku].kit||[]).find(x=>x.cp.sku===cp.sku); return `<div class="kitrow2${part?" "+({blocking:"kbad",risk:"krisk",unknown:"kunk"})[part.level]:""}">${thumbHtml(cp)}<span class="kq">×${c.qty*l.qty}</span><span>${esc(cp.name)} in ${esc(cp.fin)}${part?`<span class="ktag">${riskShort(part)}</span>`:""}<small>${esc(cp.sku)} · ${stockText(cp)}</small></span></div>`;}).join("")}</div>`;
 const UNIT_SHORT={"square feet":"sq ft"};
 const openTrays=new Set(); // result rows whose UOM tray is open
 const QTY_ERR={k:null,t:0}; // the line whose typed quantity was just rejected
@@ -1952,7 +1974,7 @@ function renderQuote(){
     const isOpen=(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
-      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${esc(p.fin)}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,isFindHit(r.name,l.sku)):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
+      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${esc(p.fin)}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room
@@ -2163,6 +2185,10 @@ const FOOT_SCEN=["s-unsaved","s-saved","s-calc","s-ready","s-blocked"];
 function applySendScenario(v){
   const tb=CAT.find(p=>p.sku==="HNTWL-DB"); if(tb._w===undefined) tb._w=tb.whst; tb.whst=v==="s-blocked"?80:tb._w; // mock: discontinued only in Blocked
   S.quote.rooms.forEach(r=>{ r.lines=r.lines.filter(l=>!l.mock); });
+  if(v==="qom2926"){ // QOM-2926 examples in Bar: in stock (HNBAR-N), sourcing warehouse USR, and "<qty> from <date>" · after RDD
+    const b=S.quote.rooms.find(r=>r.name==="Bar")||S.quote.rooms[0];
+    if(b){ b.lines.push({sku:"HNHK-N",qty:2,unit:165,rdd:"12/19/2026",mock:true},{sku:"HNKIT-DB",qty:2,unit:3480,rdd:"12/19/2026",mock:true}); S.folded=S.folded.filter(x=>x!==b.name); }
+    S.det=S.ship=true; $("#detToggle").checked=true; }
   if(!FOOT_SCEN.includes(v)){ RISK=computeRisk(); markSaved(); return; }
   resetSend(); SEND.addr=true;
   S.quote=S.view==="commercial"?QUOTES.commercial():structuredClone(RES_QUOTE); if(!S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";

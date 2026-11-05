@@ -21,7 +21,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 - Filters: pills for Finish, Collection, Category (with product types beneath) and More filters (line type), each opening a popover over the results. They work before typing, stay set for the quote until cleared, and show as black removable pills with "Clear all". Counts use the same rules as the results. Values that differ only by case or spacing ("Brass", "BRASS") are one option.
 - States: an empty-search prompt, "keep typing" under three characters, loading, no results with next steps, and an error with retry.
 - Can't-add reasons: discontinued (status 80) and in development (status 10) show in results with the reason. Warehouse status and "waiting on a price" only appear when the item is added.
-- Results show no stock or availability. Stock appears on the quote line, labelled with its source ("4 available in USC · as of 11:58 AM").
+- Results show no stock or availability. Availability appears on the quote line, worded as QOM-2926 will build it: "Available to Promise (ATP): 4" (or "9 from Feb 15, 2027" when only available later), "Estimated delivery date: Nov 12, 2026 · meets RDD" (or "· after RDD"), and "Sourcing warehouse: <code>" only when it differs from the line's warehouse (mock: Henry Single Robe Hook, HNHK-N, ships from USR). ATP and the date each have a two-layer tooltip: a plain sentence, then an "M3:" line (AVTP, CODZ, OIS340MI/LstSupplSummary, mock customer and quantity). No "as of" time.
 - Room picker: the quote's own rooms come first, then "+ Add room", then the standard room types. One form adds or renames a room: "Rename room" in a room's "…" menu opens the Add room form filled in. Type is required and name is optional. The room bar shows the type in grey after the name ("sams kitchen · Kitchen") unless they're the same.
 - Quote panel: rooms, lines, quantities, per-line shipping, "Find in this quote", plus Quote information and PDF preview tabs.
 - Footer bar: save status with an "unsaved changes" marker, Save, Calculate freight, Send to client, and the "Before you send" panel.
@@ -30,6 +30,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 - Layout, and View: Residential or Commercial (commercial-only items and margin pricing appear only in Commercial).
 - Scenario:
   - Normal: a "faucet" search with Finish: Brass and Category: Fittings.
+  - QOM-2926 · ATP, delivery date and sourcing warehouse: adds two lines to Bar, so it shows ATP in stock, "2 from <date>" · after RDD (HNKIT-DB) and "Sourcing warehouse: USR" (HNHK-N). The lines go when you pick another scenario.
   - Fresh quote, no lines: the default on load.
   - Search · Loading: mock searches take about 1.5 seconds, so "Searching…" shows.
   - Search · Error: shows the error state with Try again.
