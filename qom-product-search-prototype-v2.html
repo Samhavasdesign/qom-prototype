@@ -967,6 +967,23 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 #linesEnd{height:1px;margin-top:-1px} /* marks the end of the quote lines (auto-open variant B) */
 /* narrow Selected Products side: the buttons start on the left when they wrap under the totals */
 .proto .pbtn{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font-size:13px}
+/* Concept QOM-2561: required parts on add. Only drawn while the demo toggle is on. */
+.rpp{background:var(--surface);border:1px solid var(--panel-line);border-top:0;padding:8px 12px 10px 40px;font-size:14px}
+.rpp-lbl{margin:0 0 2px;font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.rpp h4{margin:8px 0 2px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.rpp-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;min-height:48px}
+.rpp-nm{flex:1 1 180px;min-width:0}
+.rpp-size{display:inline-flex;border:1px solid var(--control-line)}
+.rpp-size button{min-width:52px;min-height:44px;padding:0 10px;border:0;background:var(--bg);color:var(--ink);font:inherit;font-size:13px}
+.rpp-size button+button{border-left:1px solid var(--control-line)}
+.rpp-size button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+.rpp-add{min-height:44px;min-width:64px;padding:0 14px;border:1px solid var(--ink);background:var(--bg);color:var(--ink);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.rpp-add:disabled{border-color:var(--line);color:var(--ink-3);cursor:not-allowed}
+.rpp-done{min-width:64px;font-size:13px;color:var(--ink-3);text-align:center}
+.rpp .tolink,.rpn .tolink{min-height:44px;padding:0 2px}
+.rpn{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--panel-line);border-top:0;padding:0 12px 0 40px;font-size:13px;color:var(--ink-2)}
+.rpn svg,.spi.warn .spi-ic{color:var(--ink-2)}
+.pb-chk{min-height:44px;margin:-12px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--ink-2);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -1000,6 +1017,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
   <label><input type="checkbox" id="showStock" checked> Stock hint in results (engineering says availability is read with the quote, not per result)</label>
   <label><input type="checkbox" id="showPrice" checked> Price in results (needs an M3 call per item)</label>
+  <label><input type="checkbox" id="conceptRP" autocomplete="off"> Concept: Required parts on add (QOM-2561)</label>
 </div>
 
 <div class="app">
@@ -1136,11 +1154,13 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
   <div class="sp-head"><div><h2 id="spTitle" tabindex="-1">Before you send</h2><p id="spStatus"></p></div><button type="button" class="sp-close" id="spClose" aria-label="Close Before you send"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
   <div class="sp-body">
     <section class="sp-sec" id="spIssuesSec" aria-labelledby="spIssuesTitle"><h3 id="spIssuesTitle" tabindex="-1">Things to fix</h3><ul class="sp-list" id="spIssues"></ul></section>
+    <section class="sp-sec" id="spCheckSec" aria-labelledby="spCheckTitle" hidden><h3 id="spCheckTitle" tabindex="-1">To check</h3><ul class="sp-list" id="spCheck"></ul></section>
     <section class="sp-sec" aria-labelledby="spListTitle"><h3 id="spListTitle">Checklist</h3><ul class="sp-list" id="spList"></ul></section>
     <section class="sp-bd" aria-labelledby="spBdTitle"><h3 id="spBdTitle" tabindex="-1">Full breakdown</h3><div class="totals" id="totals"></div></section>
   </div>
 </aside>
 <div class="sr" id="sendLive" aria-live="polite"></div>
+<div class="sr" id="crLive" aria-live="polite"></div>
 
 <script>
 // ---------- mock catalog (no QOM or M3 calls) ----------
@@ -1274,6 +1294,48 @@ const requiredParts={
     often:[{name:"Lavatory P-trap", sku:"UNPT-N"},{name:"Lavatory Supply Kit", sku:"UNSK-N"}]
   }
 };
+// ---- CONCEPT (QOM-2561), mock data: offer required parts as soon as a line is added. Off unless the demo toggle (or #concept-required-parts) is on ----
+const CR={on:/(^#|&)concept-required-parts(&|$)/.test(location.hash), open:null /* "room|sku" of the line whose panel is open */, size:{} /* "room|sku|i" -> chosen option sku */};
+const crHash=on=>{ const h=location.hash.replace(/^#/,"").split("&").filter(x=>x&&x!=="concept-required-parts"); if(on) h.push("concept-required-parts"); try{ history.replaceState(null,"",location.pathname+location.search+(h.length?"#"+h.join("&"):"")); }catch(_){ /* a sandboxed preview can't change its address; the toggle still works */ } };
+const crMap=p=>CR.on&&requiredParts[p.style]?.required?.length?requiredParts[p.style]:null;
+const crPartsOf=m=>[...m.required.flatMap(x=>x.options.map(o=>o.sku)),...(m.often||[]).map(o=>o.sku)];
+// "for:" label: derived at run time from the map, never stored. The parent is the nearest line above in the same room that lists this part
+const crParentLine=(r,l)=>{ if(!CR.on) return null; const i=r.lines.indexOf(l);
+  for(let j=i-1;j>=0;j--){ const m=crMap(CAT.find(x=>x.sku===r.lines[j].sku)); if(m&&crPartsOf(m).includes(l.sku)) return r.lines[j]; } return null; };
+const crFor=(r,l)=>{ const pl=crParentLine(r,l); return pl?`<small class="rpfor">for: ${esc(CAT.find(x=>x.sku===pl.sku).name)}</small>`:""; };
+// required parts still short for one line, counted across the whole quote: a part placed under its parent counts for that parent first;
+// any other quantity (loose lines, or more than the parent needs) is shared out to parents in quote order
+const crMissing=(r,l)=>{ if(!CR.on) return []; const parents=[], pool={};
+  S.quote.rooms.forEach(x=>x.lines.forEach(y=>{ const m=crMap(CAT.find(z=>z.sku===y.sku)); if(m) parents.push({l:y,m,got:m.required.map(()=>0)}); }));
+  S.quote.rooms.forEach(x=>x.lines.forEach(y=>{ const pl=crParentLine(x,y), P=pl&&parents.find(z=>z.l===pl); let left=y.qty;
+    if(P) P.m.required.forEach((q,i)=>{ if(left>0&&q.options.some(o=>o.sku===y.sku)){ const t=Math.min(left,P.l.qty-P.got[i]); if(t>0){ P.got[i]+=t; left-=t; } } });
+    if(left>0) pool[y.sku]=(pool[y.sku]||0)+left; }));
+  parents.forEach(P=>P.m.required.forEach((q,i)=>q.options.forEach(o=>{ const t=Math.min(pool[o.sku]||0,P.l.qty-P.got[i]); if(t>0){ P.got[i]+=t; pool[o.sku]-=t; } })));
+  const me=parents.find(z=>z.l===l); return me?me.m.required.map((x,i)=>({...x,i})).filter(x=>me.got[x.i]<l.qty):[]; };
+// lines with required parts still missing whose panel isn't open: each is one "to check" warning (never a blocker)
+const crWarn=()=>CR.on?quoteLines().filter(({r,l})=>CR.open!==r.name+"|"+l.sku&&crMissing(r,l).length):[];
+const crSay=t=>{ const el=$("#crLive"); el.textContent=""; setTimeout(()=>{ el.textContent=t; },30); };
+// under a line: the open panel, or one line saying the rough-in wasn't added
+const crAfter=(r,l,p)=>{ const miss=crMissing(r,l); if(!miss.length) return ""; const key=r.name+"|"+l.sku, k=esc(key);
+  if(CR.open!==key) return `<div class="rpn">${INFO_ICON}<span>Rough-in not added ·</span><button type="button" class="tolink" data-cropen="${k}" aria-label="Add rough-in for ${esc(p.name)}">Add</button></div>`;
+  const m=requiredParts[p.style];
+  const req=miss.map(x=>{ const multi=x.options.length>1, ch=CR.size[key+"|"+x.i];
+    return `<div class="rpp-row"><span class="rpp-nm">${esc(x.name)}</span>${multi?`<span class="rpp-size" role="group" aria-label="Size of ${esc(x.name)}">${x.options.map(o=>`<button type="button" data-crsize="${k}|${x.i}|${esc(o.sku)}" aria-pressed="${ch===o.sku}">${esc(o.size)}</button>`).join("")}</span>`:""}<button type="button" class="rpp-add" data-cradd="${k}|${x.i}"${multi&&!ch?" disabled":""} aria-label="Add ${esc(x.name)}${multi?(ch?" "+esc(x.options.find(o=>o.sku===ch).size):", choose a size first"):""}">Add</button></div>`; }).join("");
+  const oft=(m.often||[]).map((o,j)=>{ const has=r.lines.some(y=>y.sku===o.sku);
+    return `<div class="rpp-row"><span class="rpp-nm">${esc(o.name)}</span>${has?`<span class="rpp-done">✓ Added</span>`:`<button type="button" class="rpp-add" data-croft="${k}|${j}" aria-label="Add ${esc(o.name)}">Add</button>`}</div>`; }).join("");
+  return `<div class="rpp" role="group" aria-label="Parts for ${esc(p.name)}"><p class="rpp-lbl">Concept · QOM-2561 · Mock data</p><h4>Needed to install</h4>${req}${oft?`<h4>Often added</h4>${oft}`:""}<button type="button" class="tolink" data-crskip="${k}">Skip</button></div>`; };
+// add a part in the parent's room, at the parent's quantity, directly below the parent (after any parts already added for it)
+function crAdd(key,sku){ const [room,psku]=key.split("|"), r=S.quote.rooms.find(x=>x.name===room); if(!r) return; const pi=r.lines.findIndex(x=>x.sku===psku); if(pi<0) return;
+  const pl=r.lines[pi], pp=CAT.find(x=>x.sku===psku), cp=CAT.find(x=>x.sku===sku), ex=r.lines.find(x=>x.sku===sku);
+  if(ex) ex.qty+=pl.qty;
+  else { let at=pi+1; while(at<r.lines.length&&crParentLine(r,r.lines[at])===pl) at++; r.lines.splice(at,0,{sku,qty:pl.qty,unit:S.view==="commercial"?listOf(cp):cp.price}); }
+  S.dirty=true; const left=crMissing(r,pl).length; if(!left) CR.open=null;
+  renderQuote();
+  crSay(`Added ${cp.name}${left?`. ${left} more part${left===1?"":"s"} needed`:`. Every part needed to install ${pp.name} is on the quote`}.`);
+  const nxt=document.querySelector(".rpp .rpp-add:not(:disabled), .rpp .rpp-size button")||document.querySelector(`.line[data-lroom="${CSS.escape(room)}"][data-lsku="${CSS.escape(sku)}"] .more`); nxt?.focus();
+}
+function crOpen(key){ const [room]=key.split("|"); CR.open=key; renderQuote();
+  const p=document.querySelector(".rpp"); if(!p) return; p.scrollIntoView({block:"nearest"}); p.querySelector("button:not(:disabled)")?.focus(); }
 // a second line of the same item in one room: the prototype keys lines by room and item number, so this twin stands in for it.
 // It never shows in search (alias) and shows the real item number; "same item" checks use same||sku
 CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on Bar", sec:"Wall-mount bar with 1.75 GPM handshower", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:4, price:2110});
@@ -1572,7 +1634,7 @@ function renderResults(){
 // neutral tags under the product name (grey text, light outline); orange stays for warnings
 const rowTags=p=>{ const t=[];
   if(p.part||p.col==="Service Parts") t.push(`<span class="tag ntag" title="Item group ${esc(p.ig)}">Service part</span>`);
-  if(requiredParts[p.style]?.required?.length) t.push(`<span class="tag ntag" title="Needs ${esc(requiredParts[p.style].required.map(x=>x.name).join(", "))}">Needs rough-in</span>`);
+  if(crMap(p)) t.push(`<span class="tag ntag" title="Needs ${esc(requiredParts[p.style].required.map(x=>x.name).join(", "))}">Needs rough-in</span>`);
   return t.length?`<div class="ntags">${t.join("")}</div>`:""; };
 function renderRoomMenu(){
   const own=S.quote.rooms;
@@ -1838,10 +1900,10 @@ function renderQuote(){
   else if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
     const fm=lineMatch(r); if(fm&&!fm.n) return ""; // filtering: rooms with nothing that matches drop out
-    const isOpen=fm?true:(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name; // a room the checklist points into opens too
+    const isOpen=fm?true:(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(fm&&!fm.ok(l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
-      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
+      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room (hidden while filtering)
@@ -1968,7 +2030,9 @@ function renderSend(){
   const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
   fb.innerHTML=F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight";
   const sb=$("#pbSend"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
-  const h=F.help!=null?esc(F.help):`<button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="${SEND.open}">${SI.block}${plural(F.issues.length,"thing")} to fix before sending</button>`;
+  const W=F.hasLines?crWarn():[]; // concept QOM-2561: warnings ("to check") never block sending; always empty with the toggle off
+  const chk=W.length?`<span aria-hidden="true"> · </span><button type="button" class="pb-chk" id="pbChk" aria-controls="sendPanel">${INFO_ICON}${W.length} to check</button>`:"";
+  const h=F.help!=null?esc(F.help)+chk:`<button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="${SEND.open}">${SI.block}${plural(F.issues.length,"thing")} to fix${chk?"":" before sending"}</button>${chk}`;
   if(h!==helpHtml){ $("#pbHelp").innerHTML=h; helpHtml=h; } else $("#pbFix")?.setAttribute("aria-expanded",String(SEND.open)); // rewritten only when it changes, so focus isn't lost
   // panel: things to fix first (only once the quote has lines), then the rest of the checklist, then the breakdown
   const st=F.issues.length&&F.hasLines?[`${plural(F.issues.length,"thing")} to fix`,"block"]:F.run?["Calculating freight in M3","prog"]:F.canSend?["Ready to send","done"]:["Nothing to fix","muted"];
@@ -1976,6 +2040,8 @@ function renderSend(){
   const li=x=>`<li class="spi ${x.st}"><span class="spi-ic">${SI[x.st]}</span><div class="spi-tx"><b>${esc(x.t)}<span class="sr"> · ${STATE_SR[x.st]}</span></b><span>${esc(x.d)}</span></div>${x.a?`<button type="button" class="splink" data-sact="${x.a[0]}">${x.a[1]}</button>`:"<span></span>"}</li>`;
   $("#spIssuesSec").hidden=!F.hasLines;
   $("#spIssues").innerHTML=F.issues.length?F.issues.map(li).join(""):`<li class="sp-none">Nothing to fix.</li>`;
+  $("#spCheckSec").hidden=!W.length;
+  $("#spCheck").innerHTML=W.map(({r,l})=>{ const p=CAT.find(x=>x.sku===l.sku); return `<li class="spi warn"><span class="spi-ic">${INFO_ICON}</span><div class="spi-tx"><b>Rough-in not added: ${esc(p.name)} in ${esc(p.fin)} · ${esc(r.name)}<span class="sr"> · To check</span></b><span>Doesn't block sending. Concept · mock data</span></div><button type="button" class="splink" data-cropen="${esc(r.name+"|"+l.sku)}">Add rough-in</button></li>`; }).join("");
   $("#spList").innerHTML=items.filter(x=>x.st!=="block").map(li).join("");
   $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open)); placeBar();
   // auto-open: B reopens on a new blocker once it has opened by itself; C opens on every new blocker
@@ -1986,7 +2052,7 @@ function renderSend(){
 // to: "issues" or "breakdown" (the section it opens at); from: the control focus goes back to when it closes
 function openSend(auto,to,from){
   SEND.open=true; SEND.from=from||(to==="breakdown"?"#bdBtn":"#pbFix"); renderSend();
-  const h=$(to==="breakdown"?"#spBdTitle":to==="issues"&&!$("#spIssuesSec").hidden?"#spIssuesTitle":"#spTitle");
+  const h=$(to==="breakdown"?"#spBdTitle":to==="check"&&!$("#spCheckSec").hidden?"#spCheckTitle":to==="issues"&&!$("#spIssuesSec").hidden?"#spIssuesTitle":"#spTitle");
   if(auto){ const n=footState().issues.length; $("#sendLive").textContent=`Before you send opened${n?`: ${plural(n,"thing")} to fix`:""}.`; h.scrollIntoView({block:"start"}); return; }
   h.focus({preventScroll:true}); h.scrollIntoView({block:"start"});
 }
@@ -2141,6 +2207,7 @@ function addLine(sku){
   const n=S.rq[sku]??p.mult; delete S.rq[sku]; // the row goes back to one sold-in amount after adding
   const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:S.view==="commercial"?listOf(p):p.price});
   showToast(ex ? `✓ ${p.name} in ${p.fin}: quantity now ${ex.qty} in ${r.name}` : `✓ Added ${p.name} in ${p.fin} to ${r.name}`, "ok");
+  const crN=crMissing(r,r.lines.find(l=>l.sku===sku)).length; if(crN){ CR.open=r.name+"|"+sku; crSay(`${crN} part${crN===1?"":"s"} needed to install ${p.name}`); } // concept QOM-2561: offer the parts under the new line; focus stays in search
   S.collapsedFor=null; S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu(); renderResults();
   const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; btn.focus({preventScroll:true}); setTimeout(()=>{btn.innerHTML=ICON.plus;},900); }
   showAddedLine(r.name,sku); // after the focus, which would otherwise cut the smooth scroll short
@@ -2212,6 +2279,13 @@ document.addEventListener("click",e=>{
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
   if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false,"issues"); return; }
+  if(t.id==="pbChk"){ openSend(false,"check","#pbChk"); return; }
+  // concept QOM-2561: the required-parts panel
+  if(t.dataset.crsize){ const a=t.dataset.crsize.split("|"); CR.size[a[0]+"|"+a[1]+"|"+a[2]]=a[3]; renderQuote(); document.querySelector(`[data-crsize="${CSS.escape(t.dataset.crsize)}"]`)?.focus(); return; }
+  if(t.dataset.cradd){ const a=t.dataset.cradd.split("|"), key=a[0]+"|"+a[1], p=CAT.find(x=>x.sku===a[1]), x=requiredParts[p.style].required[+a[2]]; const sku=x.options.length>1?CR.size[key+"|"+a[2]]:x.options[0].sku; if(sku) crAdd(key,sku); return; }
+  if(t.dataset.croft){ const a=t.dataset.croft.split("|"), p=CAT.find(x=>x.sku===a[1]); crAdd(a[0]+"|"+a[1],requiredParts[p.style].often[+a[2]].sku); return; }
+  if(t.dataset.crskip){ const key=t.dataset.crskip, p=CAT.find(x=>x.sku===key.split("|")[1]); CR.open=null; renderQuote(); crSay(`Rough-in not added for ${p.name}. Listed under To check.`); document.querySelector(`.rpn [data-cropen="${CSS.escape(key)}"]`)?.focus(); return; }
+  if(t.dataset.cropen){ crOpen(t.dataset.cropen); return; }
   if(t.id==="pbFreightBtn"){ freightAction(); return; }
   if(t.id==="pbSend"){ sendClient(); return; }
   if(t.id==="spClose"){ closeSend(); return; }
@@ -2282,6 +2356,7 @@ document.addEventListener("change",e=>{
     if(t.value==="fresh"||t.value==="normal"){ $("#q").value=S.query; $("#clearQ").hidden=!S.query; renderFilters(); }
     markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
   if(t.id==="view"){ setView(t.value); return; }
+  if(t.id==="conceptRP"){ CR.on=t.checked; CR.open=null; CR.size={}; crHash(CR.on); renderQuote(); renderResults(); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
   if(t.id==="detToggle"){ S.det=S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
@@ -2567,6 +2642,8 @@ document.addEventListener("click",e=>{ if(S.fpop && e.target.isConnected && !e.t
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.fpop){ e.preventDefault(); closePop(true); } });
 renderQView();
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
+$("#conceptRP").checked=CR.on; // concept QOM-2561 starts from the address: #concept-required-parts turns it on
+addEventListener("hashchange",()=>{ const on=/(^#|&)concept-required-parts(&|$)/.test(location.hash); if(on===CR.on) return; CR.on=on; CR.open=null; $("#conceptRP").checked=on; renderQuote(); renderResults(); });
 renderRoomMenu(); renderAll();
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
 // panes fill the space below the page header; re-measure when anything above them changes height
