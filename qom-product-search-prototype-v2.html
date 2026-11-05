@@ -68,6 +68,8 @@ button{cursor:pointer}
 .pghead{display:flex;justify-content:space-between;align-items:center;gap:16px}
 .crumbicon{color:var(--ink-2);margin-right:6px}
 .pgicons{display:flex;align-items:center;gap:22px;color:var(--ink)}
+.pghead .crumb{min-width:0;flex-wrap:wrap;row-gap:2px}.pgicons{flex:none} /* on a phone the breadcrumb wraps so the bell and avatar stay on screen */
+@media (max-width:480px){ .pgicons{gap:14px} }
 .avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-2);color:var(--ink-3);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .infor{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:6px;height:24px;padding:0 4px;background:#d21e2b;color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:-.01em;line-height:1}
 .tabs .tabmore{margin-left:auto;letter-spacing:.1em;color:var(--ink)}
@@ -888,6 +890,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pbar.stack{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tl" "bl" "ts" "tr" "br";row-gap:6px}
 .pbar.stack .pb-div{display:none}
 .pbar.stack .pb-tr{flex-wrap:wrap}
+.pbar.stack .pb-btns{flex-wrap:wrap;min-width:0} /* on a phone the buttons wrap instead of running off the right edge */
 .pbar.stack .pb-br{justify-content:flex-start}
 .pbar.stack .pb-help{text-align:left;white-space:normal}
 @media (max-width:980px){ .pbar{padding-left:16px;padding-right:16px} }
@@ -2155,7 +2158,7 @@ document.addEventListener("keydown",e=>{
 addEventListener("keydown",e=>{ if(["PageDown","End","ArrowDown"," "].includes(e.key)) SEND.scrolledAt=Date.now(); },true);
 document.addEventListener("scroll",()=>{ if(Date.now()-SEND.scrolledAt>1500||S.qview!=="products"||!quoteLines().length) return;
   const m=$("#linesEnd").getBoundingClientRect(), qp=$("#quotePane").getBoundingClientRect(); if(m.top<=Math.min(innerHeight-$("#pbar").offsetHeight,qp.bottom)+2) sendForward(); },true);
-// the footer is fixed to the screen and spans the page (right of the rail); enlarged, it spans the enlarged quote
+// the footer is fixed to the screen and spans the whole window, in front of the rail; enlarged, it spans the enlarged quote
 // the natural width of a zone (its cell may be wider or narrower than its content)
 const natW=q=>{ const e=$(q), o=e.style.cssText; e.style.width="max-content"; e.style.justifySelf="start"; const v=e.getBoundingClientRect().width; e.style.cssText=o; return v; };
 function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b), room=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), gap=24;
@@ -2170,7 +2173,7 @@ function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b)
 function setMini(on){ const b=$("#pbar"), t=$("#pbTog"); b.classList.toggle("mini",on); t.setAttribute("aria-expanded",String(!on)); t.setAttribute("aria-label",on?"Expand the bar":"Collapse the bar"); t.title=on?"Expand":"Collapse"; placeBar(); }
 $("#pbTog").addEventListener("click",()=>setMini(!$("#pbar").classList.contains("mini")));
 try{ localStorage.removeItem("qom.barMini"); }catch(e){} // clear the old remembered setting
-function placeBar(){ fitBar(); const b=$("#pbar"), r=(S.expanded?$("#quotePane"):$(".main")).getBoundingClientRect(), st=document.documentElement.style;
+function placeBar(){ fitBar(); const b=$("#pbar"), st=document.documentElement.style, r=S.expanded?$("#quotePane").getBoundingClientRect():{left:0,width:document.documentElement.clientWidth}; // full width, over the rail, at every screen size
   st.setProperty("--fb-left",Math.round(r.left)+"px"); st.setProperty("--fb-w",Math.round(r.width)+"px"); st.setProperty("--bar-h",b.offsetHeight+"px"); }
 new ResizeObserver(placeBar).observe($(".main")); new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#pbar"));
 addEventListener("resize",placeBar); addEventListener("scroll",placeBar,{passive:true});
