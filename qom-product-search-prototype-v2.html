@@ -71,9 +71,9 @@ button{cursor:pointer}
 .avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-2);color:var(--ink-3);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .infor{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:6px;height:24px;padding:0 4px;background:#d21e2b;color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:-.01em;line-height:1}
 .tabs .tabmore{margin-left:auto;letter-spacing:.1em;color:var(--ink)}
-h1{font-family:var(--serif);font-weight:400;font-size:30px;margin:10px 0 2px}
-.sub{font-family:var(--serif);font-size:17px;color:var(--ink-2);margin:0 0 14px}
-.tabs{display:flex;gap:26px;margin:14px 0;overflow-x:auto}
+h1{font-family:var(--serif);font-weight:400;font-size:24px;margin:10px 0 2px}
+.sub{font-family:var(--serif);font-size:15px;color:var(--ink-2);margin:0 0 14px}
+.tabs{display:flex;gap:26px;margin-bottom:14px;overflow-x:auto}
 .tabs span{padding:8px 2px;color:var(--ink-2);white-space:nowrap}
 .tabs span.cur{color:var(--ink);font-weight:600;border-bottom:3px solid var(--ink)}
 .qtop{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px}
@@ -267,7 +267,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .line{background:var(--bg);border:1px solid var(--panel-line);border-top:0;margin-top:0;padding:10px 12px}
 .line .amt{text-align:right}
 .line.justadded{animation:justadded 1.6s ease-out}
-@keyframes justadded{from{background:var(--amber-bg)}}
+@keyframes justadded{from{background:var(--ok-bg)}} /* pale green, like the "added" toast; amber means a warning here */
 @media (prefers-reduced-motion:reduce){.line.justadded{animation:none;outline:2px solid var(--ink);outline-offset:-2px}}
 .line .amt{font-variant-numeric:tabular-nums;font-size:14px}
 .line .amt small.each{display:block;color:var(--ink-3);font-size:12px;margin-top:1px}
@@ -398,6 +398,48 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}}
 .toast.warn{background:var(--warn);color:var(--on-ink);font-weight:500;animation:toastin .15s ease-out}
 @media (prefers-reduced-motion:reduce){.toast.ok,.toast.warn{animation:none}}
+/* ---- commercial line pricing: List $ · Unit $ · Line $ · Margin % under the product, like-items box under Unit $ ---- */
+.line.com{grid-template-columns:18px 104px 72px 1fr 28px}
+.line .cpx{grid-column:3/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 12px;align-items:start;margin:6px 0 4px}
+.cpx .cl{display:block;font-size:12px;color:var(--ink-3);margin-bottom:3px}
+.cpx .cv{display:flex;align-items:center;height:38px;font-size:14px;font-variant-numeric:tabular-nums}
+.cpx .cv.low{color:var(--amber);font-weight:600}
+.cpx input.low{border-color:var(--amber);color:var(--amber);font-weight:600}
+.cpx .cv.im{font-weight:600;color:var(--ink-2)}
+.cpx input[type=text]{width:100%;height:38px;border:1px solid var(--control-line);padding:0 10px;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;border-radius:0;background:var(--bg);color:var(--ink)}
+.cpx .mg{position:relative;grid-row:span 2}
+.cpx .dm{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--ink-2)}
+.cpx .cinfo{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;margin:-6px 0;padding:0;border:0;background:none;color:var(--ink-3);cursor:pointer}
+.cpx .cinfo:hover,.cpx .cinfo[aria-expanded=true]{color:var(--ink)}
+.cpx .mlow{display:block;font-size:12px;color:var(--amber);font-weight:600}
+.costpop{position:absolute;right:0;top:calc(100% + 4px);z-index:8;display:grid;grid-template-columns:auto auto;gap:6px 22px;background:var(--bg);border:1px solid var(--control-line);box-shadow:var(--shadow-pop);padding:12px 14px;font-size:13px;white-space:nowrap}
+.costpop>:nth-child(even){text-align:right;font-variant-numeric:tabular-nums}
+.cpx .like{grid-column:2/4;grid-row:2;display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--ink-2);line-height:1.4;cursor:pointer;padding:2px 0}
+.cpx .like input{margin:0;width:16px;height:16px;accent-color:var(--ink);flex:none}
+.cpx .imnote{grid-column:2/4;grid-row:2;font-size:12px;color:var(--ink-3)}
+.line.com .shiprow{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:8px}
+@container quote (max-width:600px){
+  .pane.quote .line.com .more{grid-row:1}
+  .pane.quote .line .cpx{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pane.quote .cpx .mg{grid-row:auto}
+  .pane.quote .cpx .like,.pane.quote .cpx .imnote{grid-column:1/-1;grid-row:auto}
+  .pane.quote .line.com .shiprow{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@container quote (max-width:440px){ .pane.quote .line .cpx{grid-column:2/-1} }
+/* like-items toast: bottom centre so it is seen wherever the edited line is */
+.ctoast{position:fixed;left:50%;bottom:calc(var(--bar-h,88px) + 16px);transform:translateX(-50%);z-index:211;width:600px;max-width:calc(100vw - 32px);display:flex;align-items:flex-start;gap:12px;background:#2D6A4F;color:#fff;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,.15);font-size:14px;animation:toastin .15s ease-out}
+.ctoast[hidden]{display:none}
+.ctoast .ctic{flex:none;width:24px;height:24px;border-radius:50%;background:#1B4332;display:flex;align-items:center;justify-content:center}
+.ctoast .ctx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ctoast .ctx b{font-weight:500}
+.ctoast .ctn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;opacity:.9}
+.ctoast .cts{font-size:13px}
+.ctoast .ctundo{flex:none;align-self:center;height:36px;padding:0 16px;border:0;background:#111;color:#fff;font:inherit;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.ctoast .ctx-x{flex:none;align-self:center;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:0;background:none;color:#fff;cursor:pointer;transition:color .15s}
+.ctoast .ctx-x:hover{color:#bdbdbd}
+.ctoast button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.ctoast{animation:none}}
+
 .shipsw{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer;margin-right:6px;position:relative}
 .shipsw[hidden]{display:none}
 .shipsw input{position:absolute;opacity:0;width:1px;height:1px}
@@ -657,7 +699,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   .work[data-layout="split"] #quotePane:not(.expanded)>.qbox{flex:1 0 auto}
   .work[data-layout="split"] .pane.quote.expanded{position:fixed;height:auto;padding-right:max(24px,calc((100vw - 1200px)/2))}
 }
-.pane.quote.expanded .roomhdr{top:calc(var(--qbar-h,80px) - 16px)} /* room bars pin under the tabs row and the toolbar (sticky offsets count from inside the pane's 68px top padding) */
+.pane.quote.expanded .roomhdr{top:calc(var(--qbar-h,80px) - 28px)} /* room bars pin under the tabs row and the toolbar (sticky offsets count from inside the pane's 68px top padding) */
 /* while the bar has nothing to show (Shipping Details switch hidden), the first room lines up with the top of the Rooms panel on the left */
 /* full view: the toolbar pins just under the tabs row; its 16px top padding is the gap under the tabs, so nothing peeks out above it */
 .pane.quote.expanded .qbar,.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))){top:-16px;margin-top:-16px;padding-top:16px;padding-bottom:8px}
@@ -668,6 +710,8 @@ body.noscroll{overflow:hidden}
 .pane.quote.expanded .qbox{display:grid;grid-template-columns:260px minmax(0,1fr);column-gap:24px;align-items:start;border:0;padding:0;background:transparent}
 .pane.quote.expanded .qbox>:not(.qside){grid-column:2}
 .pane.quote.expanded .qbar{margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+.pane.quote.expanded .qbar,.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))){top:-28px} /* pins flush under the fixed view tabs, so no strip of the page shows between them */
+.pane.quote.expanded .qbar:not(:has(#qTools:not([hidden]))):not(:has(.shipsw:not([hidden]))){padding-top:0;padding-bottom:0;background:transparent} /* PDF preview and Quote information: nothing to show, so no empty grey bar over the page */
 .pane.quote.expanded .qfoot{display:none}
 .qside{grid-column:1;grid-row:1/span 5;position:sticky;top:0;background:var(--bg);border:1px solid var(--hdr-line);max-height:calc(100vh - var(--bar-h,0px) - 92px);overflow:auto}
 .qside[hidden]{display:none}
@@ -719,7 +763,7 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .pane.quote.expanded .expandbtn:hover{background:none;text-decoration:underline;text-underline-offset:3px}
 /* the search box and the Filters button share one row; chips and the tray sit below it */
 .filterwrap{position:relative;margin-bottom:12px}
-.resmeta{margin:0 0 8px;color:var(--ink-2);font-size:13px}
+.resmeta{margin:0;padding:12px 12px 10px;background:var(--bg);color:var(--ink-2);font-size:13px} /* the count sits on the same white as the results, as their top row */
 .resmeta:empty{display:none}
 .resmeta .tolink{min-height:44px;margin:-14px 0;padding:0 2px} /* small inline link, still a 44px target */
 /* filter pills: one row under the search, wrapping if needed; each opens a popover anchored to it (no Apply: results update live) */
@@ -946,8 +990,8 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <span class="avatar" role="img" aria-label="Signed-in user"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></span>
       </div>
     </div>
-    <!-- quote title and client line removed; the quote number now sits with the line and room count in the quote panel -->
-    <h1 class="sr">Edit quote 6000024967</h1>
+    <h1>Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
+    <p class="sub">QUALITY FINISHES (USC) - Henry bar and club house</p>
     <div class="tabs">
       <span>Essential Quote Info</span><span>Header Information</span><span>Shipping Information</span><span>Associations</span><span class="cur">Product Selection</span><span>Admin: Calculations</span><span>Communications</span><span class="tabmore" aria-label="More tabs">•••</span>
     </div>
@@ -1161,6 +1205,16 @@ CAT.push(
   {sku:"HNSHW-KIT-N", name:"Henry Shower Kit", sec:"Thermostatic valve trim, 8 inch shower arm and 10 inch rain shower head", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:6, price:2390, kit:[{sku:"HNTVC-N",qty:1},{sku:"HGARM-N",qty:1},{sku:"UNRSH10-N",qty:1}]},
   {sku:"HNBRK-KIT-C", name:"Henry Bar Bracket and Cartridge Kit", sec:"Two left end brackets and a thermostatic cartridge", col:"Henry", series:"Classic", cat:"Fittings", fin:"Chrome", st:20, stock:4, price:280, kit:[{sku:"011948-C",qty:2},{sku:"HNCART",qty:1}]}
 );
+// commercial-only products (item groups starting CMM): only commercial quotes (USC/UKC) see them, in results and in filter counts
+CAT.push(
+  {sku:"CMHNMET-N", name:"Henry Commercial Metering Lavatory Faucet", sec:"Deck mount, push metering, 0.5 GPM", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:24, price:1240, ig:"CMM-FIT"},
+  {sku:"CMUNFV-CP", name:"Universal Commercial Flush Valve", sec:"Exposed, 1.28 GPF, top spud", col:"Universal", series:"Classic", cat:"Fittings", fin:"Chrome", st:20, stock:18, price:860, ig:"CMM-FIT"},
+  {sku:"CMHGGB36-N", name:"Highgate ADA Grab Bar 36 inch", sec:"Wall-mount, 1.25 inch diameter", col:"Highgate", series:"Modern", cat:"Accessories", fin:"Nickel", st:20, stock:30, price:540, ig:"CMM-ACC"}
+);
+CAT.push({sku:"ESLAV-B", name:"Easton Lavatory Faucet with Lever Handles", sec:"8 inch widespread, lever handles", col:"Easton", series:"Classic", cat:"Fittings", fin:"Brass", st:20, stock:14, price:1240});
+// a second line of the same item in one room: the prototype keys lines by room and item number, so this twin stands in for it.
+// It never shows in search (alias) and shows the real item number; "same item" checks use same||sku
+CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on Bar", sec:"Wall-mount bar with 1.75 GPM handshower", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:4, price:2110});
 // sample product photos saved from waterworks.com (wall-mounted accessories page) into images/; they are dummies, not matched to the mock products.
 // Products without an entry show the plain placeholder, and a missing file falls back to the failed-image state.
 const IMG={
@@ -1171,7 +1225,7 @@ const IMG={
 };
 // uom (unit of measure, default "each") and mult (sold-in multiple, default 1) are cached QOM fields
 const SAMPLE_PHOTOS=["easton-24-towel-bar","henry-single-hook","easton-18-towel-bar","easton-24-glass-towel-bar-rosette","easton-18-glass-towel-bar","easton-10-guest-bar","easton-10-guest-bar-pearl","easton-24-towel-bar-rosette"];
-CAT.forEach((p,i)=>{p.img="images/"+(IMG[p.sku]||SAMPLE_PHOTOS[i%SAMPLE_PHOTOS.length])+".jpg"; p.uom=p.uom||"each"; p.style=p.style||p.sku.replace(/-[^-]+$/,""); /* style = item number without its finish code */ p.mult=p.mult||1; p.whst=p.whst||20; p.ig=p.part?"SVP-01":(p.cat==="Surfaces"?"FG-SUR":"FG-FIT"); p.part=p.ig.startsWith("SVP"); p.noimg=["HNBAR-DB","HGLAV-N","ARTF-N","KSTN36-POL","HNKIT-N"].includes(p.sku);
+CAT.forEach((p,i)=>{p.img="images/"+(IMG[p.sku]||SAMPLE_PHOTOS[i%SAMPLE_PHOTOS.length])+".jpg"; p.uom=p.uom||"each"; p.style=p.style||p.sku.replace(/-[^-]+$/,""); /* style = item number without its finish code */ p.mult=p.mult||1; p.whst=p.whst||20; p.ig=p.ig||(p.part?"SVP-01":(p.cat==="Surfaces"?"FG-SUR":"FG-FIT")); p.part=p.ig.startsWith("SVP"); p.cmm=p.ig.startsWith("CMM"); p.noimg=["HNBAR-DB","HGLAV-N","ARTF-N","KSTN36-POL","HNKIT-N"].includes(p.sku);
   // mock M3 item fields shown in results: UOM code, line type and shipping weight
   p.uomCode={each:"EA","square feet":"SF"}[p.uom]||p.uom.toUpperCase(); p.lt=p.lt||(p.kit?"Kit":(p.part||p.wh)?"Non-Stocked":"Stocked"); p.wt=(([...p.sku].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%4000)/1000+0.2).toFixed(4);});
 // every filter list is alphabetical, ignoring case, with numbers sorted as numbers
@@ -1224,6 +1278,8 @@ function passesWith(p,over){
 function passesFilters(p){ return passesWith(p); }
 function visible(p){
   if(!S.disc && (p.st===80||p.st===10)) return false;
+  if(p.cmm && S.view!=="commercial") return false; // CMM item groups are commercial-only
+  if(p.alias) return false;
   return true;
 }
 function rank(p,q){
@@ -1387,7 +1443,7 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd c-st">${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
@@ -1495,7 +1551,7 @@ function confirmRemove(){
 // mock M3 read: Available to Promise is today when the item is in stock, otherwise today plus the lead time
 const atpDate=p=>{ const d=new Date(); if(!(p.stock>0)){ const w=parseInt((p.lead||"").replace(/\D+/g,""),10)||8; d.setDate(d.getDate()+w*7); } return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); };
 const COO={Henry:"USA",Easton:"USA",Arrow:"ITA",Candide:"FRA"}; // mock country of origin by collection
-const pdetails=p=>`<div class="pdet"><div><b>Item #:</b> ${esc(p.sku)}</div><div><b>Quantity:</b> ${(p.stock||0).toLocaleString("en-US")}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> USC</div><div><b>Available to Promise (ATP):</b> ${atpDate(p)}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div></div>`;
+const pdetails=p=>`<div class="pdet"><div><b>Item #:</b> ${esc(p.same||p.sku)}</div><div><b>Quantity:</b> ${(p.stock||0).toLocaleString("en-US")}</div><div><b>Warehouse Status:</b> ${p.whst==null?"—":p.whst}</div><div><b>Warehouse:</b> USC</div><div><b>Available to Promise (ATP):</b> ${atpDate(p)}</div><div><b>Country of Origin:</b> ${esc(COO[p.col]||"PRT")}</div></div>`;
 const SHIP_OPTS=["Standard Shipping (S01)","Expedited (S02)","Second day (S03)"];
 const CAL_ICON='<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 0h1.5v2h5V0H12v2h1.5A1.5 1.5 0 0 1 15 3.5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-10A1.5 1.5 0 0 1 2.5 2H4zM2.5 6v7.5h11V6zm2 1.5h3v3h-3z"/></svg>';
 const dayOf=v=>{ const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((v||"").trim()); return m?new Date(+m[3],+m[1]-1,+m[2]).getTime():NaN; }; // calendar day only, so time of day never matters
@@ -1508,9 +1564,67 @@ const cddNote=(r,l,inField)=>{ if(!l.cdd||(inField&&!cddLate(l))) return `<span 
   return cddLate(l)
     ? `<span class="cddnote late" data-cddnote="${esc(r.name)}|${esc(l.sku)}" title="We can't deliver by the requested date for this quantity.">⚠ Confirmed: ${esc(fmtDay(l.cdd))} · Later than requested</span>`
     : `<span class="cddnote" data-cddnote="${esc(r.name)}|${esc(l.sku)}">Confirmed: ${esc(fmtDay(l.cdd))}</span>`; };
-const shipRow=(r,l)=>{ if(S.view!=="residential") return ""; if(!S.ship) return cddLate(l)?`<div class="shiprow solo">${cddNote(r,l)}</div>`:"";
+// ---- commercial pricing (USC/UKC): cost data comes back from M3 when the item is added, never in search results ----
+// margin = (unit - estimated cost) / unit; estimated cost = average cost + 12% overhead (the real one also adds royalty and other charges)
+// default margin = margin at list price. Lines priced by Item Management (l.im) show "IM" and are never changed by the like-items box.
+const OVERHEAD=0.12;
+const itemOf=p=>p.same||p.sku; // "same item": same item number (same SKU and finish)
+const COM_LIST={"HNBAR-N":950}; // commercial list price where it differs from the mock catalogue price
+const EST_COST={"HNBAR-N":380,"ESLAV-B":520,"HNWS29":3823.23}; // estimated unit cost (after overhead)
+const listOf=p=>COM_LIST[itemOf(p)]??p.price;
+const estCost=p=>EST_COST[itemOf(p)]??Math.round(listOf(p)*(0.18+([...itemOf(p)].reduce((a,c)=>a+c.charCodeAt(0),0)%13)/100)*(1+OVERHEAD)*100)/100;
+const avgCost=p=>Math.round(estCost(p)/(1+OVERHEAD)*100)/100;
+const marginOf=(unit,p)=>unit>0?(unit-estCost(p))/unit*100:0;
+const defMargin=p=>marginOf(listOf(p),p);
+const blendedMargin=()=>{ let s=0,c=0; S.quote.rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku); s+=l.unit*l.qty; c+=estCost(p)*l.qty; })); return s?(s-c)/s*100:0; };
+const num2=n=>n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+// every other line of the same item on the quote, with its room
+const twinsOf=(r,l)=>{ const it=itemOf(CAT.find(x=>x.sku===l.sku)), out=[]; S.quote.rooms.forEach(x=>x.lines.forEach(y=>{ if(y!==l&&itemOf(CAT.find(z=>z.sku===y.sku))===it) out.push({r:x,l:y}); })); return out; };
+const roomsWord=n=>`${n} other room${n===1?"":"s"}`;
+const likeLabel=(r,l)=>{ const tw=twinsOf(r,l); if(!tw.length) return "";
+  const here=tw.some(x=>x.r===r), rooms=new Set(tw.filter(x=>x.r!==r).map(x=>x.r.name)).size;
+  return "Apply this price and margin to the same item "+(!rooms?"elsewhere in this room":here?`in this room and ${roomsWord(rooms)}`:`in ${roomsWord(rooms)}`); };
+// apply l's unit price to its twins; remembers each twin's price before the first change so Undo can put it back
+let LIKE_UNDO=null; // {item, src: the edited line, before: Map(other line -> its unit price before)}
+// mode "price": the other lines get this unit price. mode "margin" (m = the typed margin): each other line is priced from its own cost to hit that margin
+const unitFor=(p,m)=>Math.round(estCost(p)/(1-m/100)*100)/100;
+const syncLike=(r,l,m)=>{ const it=itemOf(CAT.find(x=>x.sku===l.sku)), changed=[], skipped=[];
+  if(!LIKE_UNDO||LIKE_UNDO.src!==l) LIKE_UNDO={item:it,src:l,before:new Map()}; // repeated edits on one line share one Undo; editing another line starts a new one
+  twinsOf(r,l).forEach(({r:x,l:y})=>{ y.like=true; if(y.im){ if(!skipped.includes(x.name)) skipped.push(x.name); return; }
+    const u=m!=null?unitFor(CAT.find(z=>z.sku===y.sku),m):l.unit;
+    if(y.unit!==u){ if(!LIKE_UNDO.before.has(y)) LIKE_UNDO.before.set(y,y.unit); y.unit=u; changed.push(x.name); } });
+  if(changed.length||skipped.length) likeToast(r,l,[...new Set(changed)],skipped,m); return changed.length; };
+const INFO_ICON='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.6"/><path d="M8 7.2v4.2M8 4.8v.1"/></svg>';
+const costPop=p=>`<div class="costpop" role="note" aria-label="Cost behind the margin"><span>Average cost:</span><span>${money(avgCost(p))}</span><span>+${OVERHEAD*100}% overhead:</span><span>${money(estCost(p)-avgCost(p))}</span><b>Estimated cost:</b><b>${money(estCost(p))}</b></div>`;
+const comRow=(r,l,p,id)=>{
+  const key=esc(r.name)+"|"+esc(l.sku), ck=r.name+"|"+l.sku, m=marginOf(l.unit,p), d=defMargin(p), low=m<d-0.005, lab=likeLabel(r,l), open=S.costOpen===ck;
+  const box=(cp,v,lbl)=>`<input type="text" inputmode="decimal" id="${id}${cp}" data-cp="${cp}" data-key="${key}" value="${v}" autocomplete="off"${cp==="margin"&&low?' class="low"':""} aria-label="${lbl} for ${esc(p.name)}">`;
+  const im='<span class="cv im" title="Priced by Item Management">IM</span>';
+  return `<div class="cpx" role="group" aria-label="Pricing for ${esc(p.name)}">
+    <div class="cf"><span class="cl">List $</span><span class="cv">${num2(listOf(p))}</span></div>
+    <div class="cf"><label class="cl" for="${id}unit">Unit $</label>${l.im?im:box("unit",l.unit.toFixed(2),"Unit price")}</div>
+    <div class="cf"><label class="cl" for="${id}line">Line $</label>${l.im?im:box("line",(l.unit*l.qty).toFixed(2),"Line price")}</div>
+    <div class="cf mg">${l.im?'<span class="cl">Margin %</span><span class="cv">—</span>':`<label class="cl" for="${id}margin">Margin %</label>${box("margin",m.toFixed(2),"Margin")}`}<span class="dm">Default: ${d.toFixed(2)}<button type="button" class="cinfo" data-cost="${key}" aria-expanded="${open}" aria-label="Show the cost behind the margin">${INFO_ICON}</button></span>${low&&!l.im?`<span class="mlow">Below default</span>`:""}${open?costPop(p):""}</div>
+    ${lab&&!l.im?`<label class="like"><input type="checkbox" data-like="${key}"${l.like?" checked":""}><span>${lab}</span></label>`:""}
+    ${l.im?`<span class="imnote">Priced by Item Management. The same-item box never changes this line.</span>`:""}
+  </div>`;
+};
+// the like-items toast: bottom centre, 7 s, held open while hovered or focused, closes 1 s after leaving; Undo puts the other lines back
+let CT_TIMER=null, CT_HOLD=false;
+const CHECK_ICON='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>';
+function likeToast(r,l,changed,skipped,m){ const p=CAT.find(x=>x.sku===l.sku), others=changed.filter(n=>n!==r.name), total=new Set([r.name,...changed]).size;
+  const what=m!=null?`${m.toFixed(2)}% margin`:money(l.unit);
+  const title=!changed.length?`${what} not applied to any other line`:total>2?`${what} applied in ${roomsWord(others.length)}`:others.length?`${what} applied in ${esc(r.name)} and ${esc(others[0])}`:`${what} applied to the same item in ${esc(r.name)}`;
+  const t=$("#ctoast"); t.innerHTML=`<span class="ctic">${CHECK_ICON}</span><div class="ctx"><b>${title}</b><span class="ctn" title="${esc(p.name)} in ${esc(p.fin)}">${esc(p.name)} in ${esc(p.fin)}</span>${skipped.map(n=>`<span class="cts">${esc(n)} not changed: priced by Item Management</span>`).join("")}</div>${changed.length?'<button type="button" class="ctundo" id="ctUndo">Undo</button>':""}<button type="button" class="ctx-x" id="ctClose" aria-label="Close message"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
+  t.hidden=false; ctArm(7000); }
+function ctArm(ms){ clearTimeout(CT_TIMER); if(!CT_HOLD) CT_TIMER=setTimeout(hideCToast,ms); }
+function hideCToast(){ clearTimeout(CT_TIMER); const t=$("#ctoast"); if(!t) return; if(t.contains(document.activeElement)) document.activeElement.blur(); t.hidden=true; CT_HOLD=false; }
+function undoLike(){ if(!LIKE_UNDO) return; LIKE_UNDO.before.forEach((u,y)=>{ y.unit=u; });
+  S.quote.rooms.forEach(x=>x.lines.forEach(y=>{ if(itemOf(CAT.find(z=>z.sku===y.sku))===LIKE_UNDO.item) y.like=false; })); // the prices differ again, so the box is unticked
+  LIKE_UNDO=null; hideCToast(); S.dirty=true; renderQuote(); showToast("Other lines put back to their previous prices","ok"); }
+const shipRow=(r,l)=>{ if(S.view!=="residential"&&S.view!=="commercial") return ""; if(!S.ship) return cddLate(l)?`<div class="shiprow solo">${cddNote(r,l)}</div>`:"";
   const key=esc(r.name)+"|"+esc(l.sku);
-  return `<div class="shiprow" role="group" aria-label="Shipping details for ${esc(l.sku)}"><span class="sf"><input type="text" data-sf="rdd" data-key="${key}" placeholder="RDD" aria-label="Requested delivery date (RDD)" value="${esc(l.rdd||"")}" autocomplete="off"><button type="button" class="cal" data-cal="${key}" aria-label="Pick requested delivery date">${CAL_ICON}</button><input class="hdate" type="date" tabindex="-1" aria-hidden="true" data-hdate="${key}"></span><span class="sf"><input type="text" readonly placeholder="CDD" aria-label="Confirmed delivery date (CDD), set by M3" title="Confirmed delivery date, set by M3" value="${l.cdd?esc(l.cdd.replace(/\b0(\d)/g,"$1")):""}">${cddNote(r,l,true)}</span><span class="sf"><select data-sf="ship" data-key="${key}" aria-label="Shipping service level">${SHIP_OPTS.map(o=>`<option${(l.ship||SHIP_OPTS[0])===o?" selected":""}>${o}</option>`).join("")}</select></span></div>`; };
+  return `<div class="shiprow" role="group" aria-label="Shipping details for ${esc(l.sku)}"><span class="sf"><input type="text" data-sf="rdd" data-key="${key}" placeholder="RDD" aria-label="Requested delivery date (RDD)" value="${esc(l.rdd||"")}" autocomplete="off"><button type="button" class="cal" data-cal="${key}" aria-label="Pick requested delivery date">${CAL_ICON}</button><input class="hdate" type="date" tabindex="-1" aria-hidden="true" data-hdate="${key}"></span><span class="sf"><input type="text" readonly placeholder="CDD" aria-label="Confirmed delivery date (CDD), set by M3" title="Confirmed delivery date, set by M3" value="${l.cdd?esc(l.cdd.replace(/\b0(\d)/g,"$1")):""}">${cddNote(r,l,true)}</span><span class="sf"><select data-sf="ship" data-key="${key}" aria-label="Shipping service level">${SHIP_OPTS.map(o=>`<option${(l.ship||SHIP_OPTS[0])===o?" selected":""}>${o}</option>`).join("")}</select></span>${S.view==="commercial"?`<span class="sf"><input type="text" data-sf="plumb" data-key="${key}" placeholder="Enter plumbing code" aria-label="Plumbing code" value="${esc(l.plumb||"")}" autocomplete="off"></span><span class="sf"><input type="text" data-sf="dcode" data-key="${key}" placeholder="Enter discount code" aria-label="Discount code" value="${esc(l.dcode||"")}" autocomplete="off"></span>`:""}</div>`; };
 const kitClosed=(r,l)=>S.kitClosed.includes(l.sku+r.name);
 const kitToggle=(r,l,p)=>`<small class="kitrow"><span class="tag note">Kit</span> <button type="button" class="kit-toggle" data-kit="${esc(r.name)}|${esc(l.sku)}" aria-expanded="${!kitClosed(r,l)}">${p.kit.length} products · ${kitClosed(r,l)?"Show":"Hide"} contents</button></small>`;
 // ---- stock warnings: Warehouse Status from M3 against stock across the whole quote (rules after QOM-2475 / QOM-2476) ----
@@ -1570,7 +1684,7 @@ function renderQTools(rooms){
   const m=q?rooms.reduce((a,r)=>a+(lineMatch(r)?.n||0),0):0;
   const prod=S.qview==="products"; // counts and tools are Products view only
   const rc=`${rooms.length} room${rooms.length===1?"":"s"}`;
-  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}`:`No products yet · ${rc}`;
+  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}${S.view==="commercial"?` · Total blended margin <b>${blendedMargin().toFixed(2)}%</b>`:""}`:`No products yet · ${rc}`;
   $("#qtCount").hidden=!prod||!$("#qtCount").innerHTML;
   $("#qtAct").hidden=!prod||!rooms.length;
   $("#qTools").hidden=$("#qtCount").hidden&&$("#qtAct").hidden; // nothing to show (another view): no blank strip under the tabs
@@ -1593,7 +1707,8 @@ function renderQuote(){
     const fm=lineMatch(r); if(fm&&!fm.n) return ""; // filtering: rooms with nothing that matches drop out
     const isOpen=fm?true:(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name; // a room the checklist points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(fm&&!fm.ok(l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
-      return `<div class="line${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
+      const com=S.view==="commercial";
+      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${esc(p.name)} in ${esc(p.fin)}</span>${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room (hidden while filtering)
@@ -1714,7 +1829,7 @@ function renderSend(){
   $("#pbNote").hidden=F.run; $("#pbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
   $("#pbProg").hidden=!F.run; $("#pbar").classList.toggle("empty",!F.hasLines); $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
-  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
+  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?`<span class="lb">Total blended margin</span><span class="v">${blendedMargin().toFixed(2)}%</span>`:""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
   const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad; sv.classList.toggle("primary",F.dirty&&!F.bad);
   const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
@@ -1852,11 +1967,16 @@ addEventListener("resize",placeBar); addEventListener("scroll",placeBar,{passive
 // ---------- views (Residential is the default) ----------
 const QUOTES={
   residential:()=>structuredClone(S.quote),
-  commercial:()=>({rooms:[{name:"Lobby Restroom",type:"Lobby",lines:[{sku:"HNWS29",qty:4,unit:15996},{sku:"HNBAR-N",qty:4,unit:2110}]},{name:"Guest Rooms",type:"Hotel Guestroom",lines:[{sku:"KSTN36-POL",qty:400,unit:48},{sku:"ARCH28-FIG",qty:150,unit:31}]}]})
+  // every line starts at its list price. Henry: twice in Bar and once in Club House. Easton: four rooms, Lobby priced by Item Management (skipped)
+  commercial:()=>({rooms:[
+    {name:"Bar",type:"Bar",lines:[{sku:"HNBAR-N",qty:2,unit:950},{sku:"HNBAR-N~2",qty:1,unit:950},{sku:"ESLAV-B",qty:1,unit:1240},{sku:"HNWS29",qty:1,unit:15996,rdd:"10/31/2026",cdd:"05/08/2027"}]},
+    {name:"Club House",type:"Club House",lines:[{sku:"HNBAR-N",qty:4,unit:950},{sku:"ESLAV-B",qty:2,unit:1240},{sku:"CMHNMET-N",qty:4,unit:1240}]},
+    {name:"Lobby",type:"Lobby",lines:[{sku:"ESLAV-B",qty:3,unit:1240,im:true},{sku:"CMHGGB36-N",qty:6,unit:540}]},
+    {name:"Primary Suite",type:"Primary Bath",lines:[{sku:"ESLAV-B",qty:2,unit:1240}]}]})
 };
 const RES_QUOTE=structuredClone(S.quote);
 function setView(v){
-  S.view=v; S.undo=null; S.saved=null; resetSend(); S.scenario="normal"; $("#scenario").value="normal";
+  S.view=v; LIKE_UNDO=null; hideCToast(); S.undo=null; S.saved=null; resetSend(); S.scenario="normal"; $("#scenario").value="normal";
   S.quote= v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE);
   S.room=S.quote.rooms[0].name; S.dirty=false; markSaved();
   QI.subtype= v==="commercial" ? "Commercial Order Domestic" : "Residential Order Domestic";
@@ -1886,7 +2006,7 @@ function addLine(sku){
   if(why){ S.notice="Not added: "+p.name+" in "+p.fin+". "+why+". This is only known when the item is added."; renderResults(); return; }
   S.notice=null;
   const n=S.rq[sku]??p.mult; delete S.rq[sku]; // the row goes back to one sold-in amount after adding
-  const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:p.price});
+  const ex=r.lines.find(l=>l.sku===sku); if(ex) ex.qty+=n; else r.lines.push({sku,qty:n,unit:S.view==="commercial"?listOf(p):p.price});
   showToast(ex ? `✓ ${p.name} in ${p.fin}: quantity now ${ex.qty} in ${r.name}` : `✓ Added ${p.name} in ${p.fin} to ${r.name}`, "ok");
   S.collapsedFor=null; S.dirty=true; S.recent=[sku,...S.recent.filter(x=>x!==sku)].slice(0,4); renderQuote(); renderRoomMenu(); renderResults();
   const btn=document.querySelector(`[data-add="${CSS.escape(sku)}"]`); if(btn){ btn.textContent="✓"; btn.focus({preventScroll:true}); setTimeout(()=>{btn.innerHTML=ICON.plus;},900); }
@@ -1972,7 +2092,8 @@ document.addEventListener("click",e=>{
   if(t.id==="showDiscLink"){ S.disc=true; $("#showDisc").checked=true; search(); return; }
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
   if(t.dataset.sideroom){ const n=t.dataset.sideroom; const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
-  if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; markSaved(); renderQuote(); return; }
+  if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); // after saving there is no Undo
+    renderQuote(); return; }
   if(t.id==="discardBtn"){ if(S.dirty) openDiscardDialog(); else showToast("No unsaved changes to discard"); return; }
   if(t.id==="undoBtn"&&S.undo?.kind==="room"){ const u=S.undo; S.quote.rooms.splice(Math.min(u.idx,S.quote.rooms.length),0,u.roomObj); if(u.wasActive) S.room=u.room; S.undo=null; renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); return; }
   if(t.id==="undoBtn"){ const u=S.undo; const rm=u&&S.quote.rooms.find(r=>r.name===u.room); if(rm) rm.lines.splice(Math.min(u.idx,rm.lines.length),0,u.line); S.undo=null; renderQuote(); renderRoomMenu(); return; }
@@ -2018,11 +2139,26 @@ document.addEventListener("change",e=>{
     if(t.value==="fresh"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote.rooms=[]; S.room=""; }
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
+    // Fresh: the default search state (nothing typed, no filters). Normal: a search already under way, with a couple of filters on
+    if(t.value==="fresh"||t.value==="normal"){ clearGroup("all"); S.roomFin={}; S.fpop=null; S.page=1; S.query=""; }
+    if(t.value==="normal"){ S.query="faucet"; S.filters.fin.add("Brass"); S.filters.cat.add("Fittings"); }
+    if(t.value==="fresh"||t.value==="normal"){ $("#q").value=S.query; $("#clearQ").hidden=!S.query; renderFilters(); }
     markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu(); renderQuote(); search(); return; }
   if(t.id==="view"){ setView(t.value); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
   if(t.id==="detToggle"){ S.det=S.ship=t.checked; renderQuote(); return; }
   if(t.dataset.hdate){ const [room,sku]=t.dataset.hdate.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l&&t.value){ const [y,m,d]=t.value.split("-"); l.rdd=`${m}/${d}/${y}`; shipDirty(); renderQuote(); } return; }
+  // commercial pricing: Unit $, Line $ (/ quantity) and Margin % (cost / (1 - margin)) all set the unit price
+  if(t.dataset.cp){ const [room,sku]=t.dataset.key.split("|"); const r=S.quote.rooms.find(x=>x.name===room), l=r?.lines.find(x=>x.sku===sku); if(!l) return;
+    const v=parseFloat(t.value.replace(/[$,%\s]/g,"")), cp=t.dataset.cp, mg=cp==="margin"&&v<100?v:null; // a margin of 100% or more has no price
+    const u=cp==="line"?v/l.qty:cp==="margin"?(mg==null?NaN:estCost(CAT.find(x=>x.sku===sku))/(1-mg/100)):v;
+    if(isFinite(u)&&u>0&&Math.round(u*100)/100!==l.unit){ l.unit=Math.round(u*100)/100; S.dirty=true; if(l.like) syncLike(r,l,mg); }
+    rerenderKeepFocus(); return; } // a bad number puts the old one back
+  // ticking one copy ticks every copy, and applies this line's current Unit $ to the others straight away
+  if(t.dataset.like){ const [room,sku]=t.dataset.like.split("|"); const r=S.quote.rooms.find(x=>x.name===room), l=r?.lines.find(x=>x.sku===sku); if(!l) return;
+    l.like=t.checked; twinsOf(r,l).forEach(x=>x.l.like=t.checked);
+    if(t.checked&&syncLike(r,l)) S.dirty=true;
+    rerenderKeepFocus(); return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
   if(t.id==="showDisc"){ S.disc=t.checked; search(); return; }
   if(t.id==="showStock"){ S.stock=t.checked; renderResults(); return; }
@@ -2038,7 +2174,22 @@ document.addEventListener("change",e=>{
     renderQuote(); if(keep){ const ni=document.querySelector(`[data-qty="${CSS.escape(t.dataset.qty)}"]`); ni?.focus(); ni?.select(); } }
 });
 // quantity box: select on focus so a new number replaces the old one, Escape puts the saved number back
-document.addEventListener("focusin",e=>{ if(e.target.dataset?.qty||e.target.dataset?.rqty) e.target.select(); });
+document.addEventListener("focusin",e=>{ if(e.target.dataset?.qty||e.target.dataset?.rqty||e.target.dataset?.cp) e.target.select(); });
+// redraw the quote after the browser has moved focus (Tab, click), then put focus back on the same field in the new markup
+function rerenderKeepFocus(){ setTimeout(()=>{ const a=document.activeElement, d=a?.dataset||{}; const k=["cp","sf","like","cost","qty"].find(x=>d[x]!=null);
+  const sel=k==="like"||k==="cost"||k==="qty"?`[data-${k}="${CSS.escape(d[k])}"]`:k?`[data-${k}="${CSS.escape(d[k])}"][data-key="${CSS.escape(d.key)}"]`:null;
+  renderQuote(); if(sel){ const n=document.querySelector(sel); n?.focus({preventScroll:true}); if(n?.dataset.cp) n.select(); } },0); }
+document.addEventListener("click",e=>{ if(e.target.closest("#ctUndo")) undoLike(); else if(e.target.closest("#ctClose")) hideCToast(); });
+["mouseenter","focusin"].forEach(ev=>document.addEventListener(ev,e=>{ if(e.target.closest?.("#ctoast")){ CT_HOLD=true; clearTimeout(CT_TIMER); } },true));
+["mouseleave","focusout"].forEach(ev=>document.addEventListener(ev,e=>{ const t=$("#ctoast"); if(e.target!==t&&!(ev==="focusout"&&t?.contains(e.target))) return;
+  if(ev==="focusout"&&t.contains(e.relatedTarget)) return; if(ev==="mouseleave"&&t.contains(document.activeElement)) return; CT_HOLD=false; if(!t.hidden) ctArm(1000); },true));
+// the ⓘ beside Default margin opens the cost behind it; any other click or Escape closes it
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-cost]");
+  if(b){ const k=b.dataset.cost; S.costOpen=S.costOpen===k?null:k; renderQuote(); document.querySelector(`[data-cost="${CSS.escape(k)}"]`)?.focus(); return; }
+  if(S.costOpen&&!e.target.closest(".costpop")) closeCostPop(); });
+// closing removes just the popover (no redraw), so the click that closed it still lands on what was clicked
+function closeCostPop(){ S.costOpen=null; document.querySelectorAll(".costpop").forEach(x=>x.remove()); document.querySelectorAll('[data-cost][aria-expanded="true"]').forEach(x=>x.setAttribute("aria-expanded","false")); }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&S.costOpen){ const k=S.costOpen; closeCostPop(); document.querySelector(`[data-cost="${CSS.escape(k)}"]`)?.focus(); } });
 document.addEventListener("keydown",e=>{ const t=e.target; if(t.dataset?.rqty&&e.key==="Enter"){ e.preventDefault(); t.dispatchEvent(new Event("change",{bubbles:true})); if(!t.disabled){ const sku=t.dataset.rqty; addLine(sku); const ni=document.querySelector(`[data-rqty="${CSS.escape(sku)}"]`); ni?.focus(); ni?.select(); } return; } if(t.dataset?.rqty&&e.key==="Escape"){ const p=CAT.find(x=>x.sku===t.dataset.rqty); t.value=S.rq[p.sku]??p.mult; t.select(); e.stopPropagation(); return; } if(!t.dataset?.qty||e.key!=="Escape") return; const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(l){ t.value=l.qty; t.select(); e.stopPropagation(); } },true);
 $("#q").addEventListener("input",e=>{ $("#clearQ").hidden=!e.target.value; });
 $("#q").addEventListener("keydown",e=>{
@@ -2285,7 +2436,6 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.fpop){ e.preve
 renderQView();
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
 renderRoomMenu(); renderAll();
-S.query="faucet"; $("#q").value=S.query; $("#clearQ").hidden=false; // opens on a "faucet" search so results show right away; clear it to see the empty state
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
 // panes fill the space below the page header; re-measure when anything above them changes height
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
@@ -2306,5 +2456,6 @@ const qbarEl=$(".qbar"); new ResizeObserver(()=>document.documentElement.style.s
 <div class="dlgwrap" id="rmDialog" hidden></div>
 <div class="zoomwrap" id="zoomView" role="dialog" aria-modal="true" aria-label="Product photo" hidden><button type="button" class="zoomx" id="zoomClose" aria-label="Close photo"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2"/></svg></button><img id="zoomImg" alt=""><div class="zoomcap" id="zoomCap"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="ctoast" id="ctoast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
