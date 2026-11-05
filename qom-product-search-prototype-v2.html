@@ -14,6 +14,7 @@
   --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:#5b5b5b;--note-bg:#f1efe9;
   --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:#5F5F5F;--sp-w:320px;
   --pill:#f3d64b;--focus:#1d4ed8;--proto:#e4e4e4;--proto-ink:#111111;
+  --sb-thumb:#b8b8b8;--sb-thumb-hover:#7a7a7a; /* scroll bars: quiet grey thumb, no track */
   --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -21,6 +22,17 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 [hidden]{display:none !important}
 html{overscroll-behavior:none} /* no rubber-band bounce at the ends of a scroll */
+/* scroll bars: one thin, quiet style everywhere (page, both panels, menus, popovers) instead of the system's thick grey bars.
+   Standard properties first; the -webkit- rules are only for browsers without them (older Safari). */
+*{scrollbar-width:thin;scrollbar-color:var(--sb-thumb) transparent}
+*:hover{scrollbar-color:var(--sb-thumb-hover) transparent} /* darker while the pointer is over the area, so it is easy to find and grab */
+@supports not (scrollbar-color:auto){
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--sb-thumb);border:3px solid transparent;border-radius:999px;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--sb-thumb-hover);background-clip:padding-box}
+  ::-webkit-scrollbar-corner{background:transparent}
+}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.4}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -152,23 +164,20 @@ body.col-resizing{cursor:col-resize;user-select:none}
 table.res{width:100%;border-collapse:collapse}
 table.res .name{min-width:200px}
 #searchPane{container:search/inline-size}
-table.res .nr{display:none}
-table.res .det small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px;white-space:nowrap}
-table.res .det small.uom{color:var(--ink)}
-table.res .det small.wrap{white-space:normal}
-@container search (max-width:640px){ /* narrow search side: item number, status, line type and UOM stack in one Details column */
-  table.res .wd{display:none}
-  table.res .nr{display:table-cell}
+/* results reveal more as the search side widens: under 500px just the name, style number and list price (no header bar);
+   500px+ the table with item number and list price; 640px+ UOM; 820px+ status and line type */
+table.res .ncomp{display:none}
+@container search (max-width:819px){ table.res .c-st,table.res .c-lt{display:none} }
+@container search (max-width:639px){
+  table.res .c-uom{display:none}
   table.res .name{min-width:0} /* the name wraps instead of running off the panel edge */
-  table.res .name small{font-size:12px}
   table.res td .thumb{width:60px;height:60px}
-  table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* header row hidden on screen, kept for screen readers */
 }
-table.res .ndet{display:none}
-table.res .ndet button{border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-@container search (max-width:420px){ /* very narrow: the details move under the name so the whole name fits */
-  table.res .nr{display:none}
-  table.res .ndet{display:block}
+@container search (max-width:499px){
+  table.res .wd{display:none}
+  table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* header row hidden on screen, kept for screen readers */
+  table.res .ncomp{display:block;font-size:12px;color:var(--ink-2);margin-top:3px}
+  table.res .stk,table.res .ktag{display:none}
 }
 table.res th{background:var(--surface-2);text-align:left;padding:10px 6px;font-weight:600;font-size:14px}
 table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-align:middle}
@@ -617,7 +626,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* side by side on desktop: each side fills the screen below the page header and scrolls on its own,
    so a long result list never leaves the quote off screen (and the sticky headers and Save bar pin to each side) */
 @media (min-width:981px){
-  .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px)));overflow-y:auto;overscroll-behavior:none;padding-right:6px}
+  .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px)));overflow-y:auto;overscroll-behavior:none;padding-right:6px;scrollbar-gutter:stable} /* space for the scroll bar is kept, so content never shifts when it appears */
   .main:has(>.work[data-layout="split"]){padding-bottom:0} /* both panels run down to the pricing bar, with no strip of page between */
   .app:has(.work[data-layout="split"]){min-height:0} /* the panels already fill the window; the old minimum assumed a shorter top bar and added extra scroll */
   .work[data-layout="split"] #searchPane{display:flex;flex-direction:column} /* Save bar sits at the bottom even when the results are short */
@@ -659,7 +668,6 @@ body.noscroll{overflow:hidden}
 .sideform .row{display:flex;gap:8px}.sideform .row .btn{flex:1}
 .sideform .hint{margin:0;font-size:12px;color:var(--ink-3)}
 .sideform .form-err{margin:0}
-#rooms>.sideform{margin-bottom:12px;border:1px solid var(--panel-line)} /* opened from the toolbar's "+ Add room", above the first room */
 .empty-quote .addprod{margin-top:10px}
 .siderooms{min-height:120px;border-bottom:1px solid var(--panel-line);background:var(--bg)}
 .sroom{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--panel-line);background:var(--bg);padding:14px 18px;font:inherit;font-size:15px;color:var(--ink);text-align:left}
@@ -704,6 +712,18 @@ body.noscroll .qtop{position:fixed;top:16px;right:max(24px,calc((100vw - 1200px)
 .fpx{min-width:40px;padding:0 10px 0 6px;border:0;background:transparent;color:inherit;font-size:16px;line-height:1;cursor:pointer}
 .fpbtn:focus-visible,.fpx:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fpill.on .fpbtn:focus-visible,.fpill.on .fpx:focus-visible{outline-color:var(--bg);outline-offset:-4px}
+/* Clear all sits at the end of the pill row */
+.fpclear{min-height:44px;padding:0 4px;font-size:14px}
+/* finish families: a collapsible row each, closed by default */
+.ffhead{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.ffhead:hover{background:var(--surface)}
+.ffhead:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.ffhead svg{flex:none;transform:rotate(-90deg);transition:transform .15s}
+.ffhead[aria-expanded="true"] svg{transform:none}
+.ffhead small{color:var(--ink-3);font-size:13px}
+.ffhead .ffsel{margin-left:auto;color:var(--ink);font-weight:600}
+.ffam .fopt{padding-left:34px}
+.fpnote{margin:4px 14px 8px;font-size:13px;line-height:1.4;color:var(--ink-3)}
 .fpill.ficon{width:44px} /* More filters: the square filter icon, white like the other pills */
 .fpill.ficon>.fpbtn{position:relative;justify-content:center;width:100%;padding:0}
 .fpill.ficon>.fpbtn:focus-visible{outline-color:var(--ink);outline-offset:2px}
@@ -783,6 +803,22 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pbar.stack .pb-br{justify-content:flex-start}
 .pbar.stack .pb-help{text-align:left;white-space:normal}
 @media (max-width:980px){ .pbar{padding-left:16px;padding-right:16px} }
+/* collapse handle: a small tab on the bar's top edge, so it never changes the bar's layout */
+.pb-tog{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:52px;height:20px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--panel-line);border-bottom:0;background:var(--bg);color:var(--ink-2);cursor:pointer}
+.pb-tog::after{content:"";position:absolute;inset:-12px -4px -4px} /* 44px-ish target without a bigger tab */
+.pb-tog svg{transition:transform .15s}
+.pbar.mini .pb-tog svg{transform:rotate(180deg)}
+.pb-tog:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* collapsed: one 36px line. Total, save status, the next step in words, and only the next-step button */
+.pbar.mini{grid-template-columns:auto auto minmax(0,1fr) auto;grid-template-rows:28px;grid-template-areas:"tl ts br tr";row-gap:0;column-gap:20px;padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px))}
+.pbar.mini .pb-bl,.pbar.mini .pb-div,.pbar.mini #pbDiscSep,.pbar.mini .pb-discard{display:none}
+.pbar.mini .pb-lbl{font-size:12px}
+.pbar.mini .pb-amt{font-size:18px}
+.pbar.mini .pb-save,.pbar.mini .pb-st .ok-msg,.pbar.mini .pb-st .unsaved{font-size:12px}
+.pbar.mini .pb-help{overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.pbar.mini .pb-act:not(.primary):not(.run){display:none}
+.pbar.mini .pb-act{position:relative;min-height:28px;padding:0 12px;font-size:11px}
+.pbar.mini .pb-act::after{content:"";position:absolute;inset:-8px 0} /* still a 44px target */
 .sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
 .sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
 .sp-bd h3:focus{outline:none}
@@ -957,7 +993,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <div class="qtools" id="qTools">
           <div class="qtsum"><h2 class="qtitle">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
-            <button type="button" class="tolink qtfold qtadd" id="toolAddBtn" aria-expanded="false" aria-controls="rooms">+ Add room</button>
+            <button type="button" class="tolink qtfold qtadd" id="toolAddBtn" aria-controls="roomMenu">+ Add room</button>
             <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: filter lines by name, item number or finish" autocomplete="off"></label>
             <button type="button" class="tolink qtfold" id="foldAll"></button>
           </div>
@@ -985,6 +1021,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 
 <!-- quote footer: one bar across the page, fixed to the bottom (placeBar keeps it to the page width) -->
 <div class="pbar" id="pbar" role="region" aria-label="Save status, total and next step">
+  <button type="button" class="pb-tog" id="pbTog" aria-expanded="true" aria-label="Collapse the bar" title="Collapse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
   <div class="pb-tl"><span class="pb-lbl" id="pbLbl">Estimated total</span><span class="pb-amt" id="pbTotal"></span></div>
   <div class="pb-bl">
     <span class="pb-note" id="pbNote"></span>
@@ -1039,10 +1076,11 @@ const CAT = [
   {sku:"ARCH28-FIG",name:"Architectonics 2 x 8 Tile", sec:"Ceramic, Fig", col:"Architectonics", series:"Ceramic", cat:"Surfaces", fin:"Fig", st:20, stock:0, lead:"about 8 weeks", price:31, uom:"square feet", mult:5},
   {sku:"ARCHBN-FIG",name:"Architectonics Bullnose Trim", sec:"Ceramic, Fig", col:"Architectonics", series:"Ceramic", cat:"Surfaces", fin:"Fig", st:20, stock:60, price:22, mult:5},
   {sku:"HNWS29",    name:"Henry Metal Round Single Two Leg Washstand", sec:"29 x 20 x 31.75 inch with MRLVCU sink", col:"Henry", series:"Classic", cat:"Fixtures", fin:"Dark Nickel", st:20, stock:2, price:15996},
-  {sku:"FLSCN-AB",  name:"Flyte Sconce", sec:"Single arm, frosted glass", col:"Flyte", series:"Lighting", cat:"Lighting", fin:"Antique Brass", st:20, stock:7, price:1150},
+  {sku:"FLSCN-AB",  name:"Flyte Sconce", sec:"Single arm, frosted glass", col:"Flyte", series:"Lighting", cat:"Accessories", fin:"Antique Brass", st:20, stock:7, price:1150},
   {sku:"HNTWL-N",   name:"Henry Towel Bar 24 inch", sec:"Wall-mount", col:"Henry", series:"Classic", cat:"Accessories", fin:"Nickel", st:20, stock:11, price:410},
   {sku:"HNTWL-DB",  name:"Henry Towel Bar 24 inch", sec:"Wall-mount", col:"Henry", series:"Classic", cat:"Accessories", fin:"Dark Brass", st:20, whst:50, stock:0, price:410, wh:"Not stocked in USC"},
 ];
+CAT.push({sku:"HNVAN36-N", name:"Henry Single Vanity 36 inch", sec:"White oak, with nickel legs and pulls", col:"Henry", series:"Classic", cat:"Cabinetry", fin:"Nickel", st:20, stock:0, lead:"about 16 weeks", price:8450, lt:"Direct Ship"});
 CAT.push({sku:"HGBID-N", name:"Highgate Bidet Faucet", sec:"Deck mount, lever handle", col:"Highgate", series:"Modern", cat:"Fittings", fin:"Nickel", st:20, stock:5, price:null});
 // more faucets in the brass family, so a "faucet" + "brass" demo returns several results (mixed stock, one lead time, one discontinued)
 CAT.push(
@@ -1113,7 +1151,7 @@ const IMG={
 const SAMPLE_PHOTOS=["easton-24-towel-bar","henry-single-hook","easton-18-towel-bar","easton-24-glass-towel-bar-rosette","easton-18-glass-towel-bar","easton-10-guest-bar","easton-10-guest-bar-pearl","easton-24-towel-bar-rosette"];
 CAT.forEach((p,i)=>{p.img="images/"+(IMG[p.sku]||SAMPLE_PHOTOS[i%SAMPLE_PHOTOS.length])+".jpg"; p.uom=p.uom||"each"; p.style=p.style||p.sku.replace(/-[^-]+$/,""); /* style = item number without its finish code */ p.mult=p.mult||1; p.whst=p.whst||20; p.ig=p.part?"SVP-01":(p.cat==="Surfaces"?"FG-SUR":"FG-FIT"); p.part=p.ig.startsWith("SVP"); p.noimg=["HNBAR-DB","HGLAV-N","ARTF-N","KSTN36-POL","HNKIT-N"].includes(p.sku);
   // mock M3 item fields shown in results: UOM code, line type and shipping weight
-  p.uomCode={each:"EA","square feet":"SF"}[p.uom]||p.uom.toUpperCase(); p.lt=(p.part||p.wh)?"Non-Stocked":"Stocked"; p.wt=(([...p.sku].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%4000)/1000+0.2).toFixed(4);});
+  p.uomCode={each:"EA","square feet":"SF"}[p.uom]||p.uom.toUpperCase(); p.lt=p.lt||(p.kit?"Kit":(p.part||p.wh)?"Non-Stocked":"Stocked"); p.wt=(([...p.sku].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%4000)/1000+0.2).toFixed(4);});
 // every filter list is alphabetical, ignoring case, with numbers sorted as numbers
 const alpha=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true});
 const ROOM_TYPES = ["Bar","Club House","Commercial Model","Commercial Other","Commercial Parts","Fitness","Hotel ADA Guestroom","Hotel Guestroom","Hotel Suites","Kitchen","Lobby","Misc","Parts","Powder Bath","Primary Bath","Product Support","Public Area ADA","Public Areas","Restaurant","Secondary Bath","Secondary Kitchen","Store Display Use Only","Utility","Website Order"];
@@ -1123,7 +1161,7 @@ const S = {
   rq:{}, // quantity chosen on a result row before adding, by SKU
   layout:"split", pane:"search", query:"", room:"Bar",
   filters:{cat:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()}, // fin is added below: it is saved per room
-  roomFin:{}, fpop:null, finMore:false, finView:"metal", finAll:false, finAllFor:"", finLastRoom:"Bar",
+  roomFin:{}, fpop:null, finMore:false, finOpen:new Set(), finView:"metal", finAll:false, finAllFor:"", finLastRoom:"Bar",
   page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:true, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, editRoom:null, editVal:"", editErr:"", lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
@@ -1206,22 +1244,32 @@ function hl(text){ // mark ranges on the raw text, then escape, so markup is nev
   return out;
 }
 // ---------- filter pills and popovers (FR-3, FR-15) ----------
-const CATS=["Accessories","Fittings","Fixtures","Lighting","Surfaces"];
-const MOST_USED=["Unlacquered Brass","Nickel","Chrome"]; // shown first in the finish list, when the catalog has them
-const FIN_SHOW=6; // finish options shown before "Show n more"
+// category_name codes in the data, shown as words: ACC Accessories, CAB Cabinetry, FIT Fittings, FIX Fixtures, SUR Surfaces
+const CATS=["Accessories","Cabinetry","Fittings","Fixtures","Surfaces"];
+const MOST_USED=["Nickel","Brass","Chrome"]; // shown first in the finish list, when the catalog has them
+const COL_MOST=5; // collections shown under "Most used"
+const TEST_VALUES=new Set(["Product group example","?"]); // test values in the dev data, never shown
+const isPriceTier=f=>/^stone group\s*\d/i.test(f); // "Stone Group 1–4" are price tiers, not finishes
+// finish families: keyword rule, case-insensitive, first match wins. A finish that matches none is a stone or tile color.
+const FIN_FAMILIES=[["Nickel",/nick/i],["Brass",/brass/i],["Chrome",/chrom/i],["Gold",/gold/i],["Copper",/copper/i],["Black",/black/i],["Bronze",/bronze/i],["Stainless steel",/stainless|steel/i],["Champagne",/champagne/i],["Unfinished",/unfinish/i],["White",/white/i]];
+const finFamily=f=>(FIN_FAMILIES.find(([,re])=>re.test(f))||[null])[0];
+const FAM_SHOW=4; // families shown before "Show n more families"
 const PILLS=[["fin","Finish"],["col","Collection"],["cat","Category"],["more","More filters"]];
-const MORE=[["lt","Line Type"],["series","Series"],["sname","Style Name"]];
+const MORE=[["lt","Line type"]]; // only line type; series, style name, compliance, color and price are left out
+const LT_ORDER=["Stocked","Non-Stocked","Direct Ship","Kit"], LT_LABEL={"Non-Stocked":"Non-stocked","Direct Ship":"Direct ship"};
+const optLabel=(k,o)=>k==="lt"?(LT_LABEL[o]||o):o;
+const catCount=(key,val)=>CAT.reduce((n,p)=>n+(p[key]===val),0); // catalog size, for stable "most used" and family order
 const uniq=(list,key)=>[...new Set(list.map(p=>p[key]))].sort(alpha);
 const orList=a=>a.length<3?a.join(" or "):`${a.length} finishes`;
 const ICON_SEARCH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const CHEV='<svg width="10" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>';
-function finishPools(){ // metal finishes for fittings and accessories (everything but Surfaces); stone and tile colors for Surfaces
-  const cats=S.filters.cat, metalCats=cats.size?[...cats].filter(c=>c!=="Surfaces"):CATS.filter(c=>c!=="Surfaces");
-  return {metal:uniq(CAT.filter(p=>metalCats.includes(p.cat)),"fin"), surf:uniq(CAT.filter(p=>p.cat==="Surfaces"),"fin"), metalOn:!cats.size||metalCats.length>0, surfOn:cats.has("Surfaces"), noCat:!cats.size};
+function finishPools(){ // finishes that fall in a family; the rest are stone and tile colors, shown for Surfaces or on request
+  const cats=S.filters.cat, fins=uniq(CAT.filter(p=>!cats.size||cats.has(p.cat)),"fin").filter(f=>!isPriceTier(f)&&!TEST_VALUES.has(f));
+  return {metal:fins.filter(finFamily), surf:fins.filter(f=>!finFamily(f)), metalOn:!cats.size||[...cats].some(c=>c!=="Surfaces"), surfOn:cats.has("Surfaces"), noCat:!cats.size};
 }
 const groupSel=k=>k==="more"?MORE.reduce((a,[g])=>a.concat([...S.filters[g]]),[]):[...S.filters[k]];
-function pillText(k,label){ const v=groupSel(k); if(!v.length) return label; if(k==="more") return `${label} · ${v.length}`; return v.length===1?`${label}: ${v[0]}`:`${label} · ${v.length}`; }
-function optRow(k,o,count){ const c=count(k,o); return `<label class="fopt${c?"":" off"}"><input type="checkbox" data-f="${k}" value="${esc(o)}" ${S.filters[k].has(o)?"checked":""}><span>${esc(o)}</span><span class="c">${c}</span></label>`; }
+function pillText(k,label){ const v=groupSel(k); if(!v.length) return label; return v.length===1?`${label}: ${optLabel(k==="more"?"lt":k,v[0])}`:`${label} · ${v.length}`; }
+function optRow(k,o,count){ const c=count(k,o); return `<label class="fopt${c?"":" off"}"><input type="checkbox" data-f="${k}" value="${esc(o)}" ${S.filters[k].has(o)?"checked":""}><span>${esc(optLabel(k,o))}</span><span class="c">${c}</span></label>`; }
 const fpSearch=(k,what)=>`<div class="fpsrch">${ICON_SEARCH}<input type="search" data-fq="${k}" placeholder="Search ${what}" aria-label="Search ${what}" value="${esc(S.fq[k])}" autocomplete="off"></div>`;
 const hit=(k,o)=>o.toLowerCase().includes((S.fq[k]||"").trim().toLowerCase());
 function listBody(k,opts,count,what){ // plain checkbox list; a search box once there are more than 8 options
@@ -1236,13 +1284,17 @@ function finBody(count){
   let out=all.length>8?fpSearch("fin","finishes"):"";
   if(q){ const m=all.filter(o=>hit("fin",o)); return out+(m.map(o=>optRow("fin",o,count)).join("")||'<p class="fpnone">No finishes match</p>'); }
   if(view==="surf") return out+(noCat?'<button type="button" class="fpback" data-finview="metal">‹ Metal finishes</button>':"")+`<p class="fpgrp">Stone and tile colors</p>${surf.map(o=>optRow("fin",o,count)).join("")}`;
-  const most=MOST_USED.filter(o=>metal.includes(o)), rest=metal.filter(o=>!most.includes(o));
-  const room=Math.max(0,FIN_SHOW-most.length), hidden=rest.slice(room);
-  const more=S.finMore||hidden.some(o=>sel.has(o)); // never hide a ticked finish
-  const restShown=more?rest:rest.slice(0,room);
+  const most=MOST_USED.filter(o=>metal.includes(o));
   if(most.length) out+=`<p class="fpgrp">Most used</p>${most.map(o=>optRow("fin",o,count)).join("")}<hr class="fpsep">`;
-  out+=`<p class="fpgrp">All metal finishes, A–Z</p>${restShown.map(o=>optRow("fin",o,count)).join("")}`;
-  if(hidden.length&&!hidden.some(o=>sel.has(o))) out+=`<button type="button" class="fpmore" data-finmore="1" aria-expanded="${more}">${more?"Show fewer":`Show ${hidden.length} more`}</button>`;
+  // families, largest first; each closed until opened, finishes inside by count
+  const byCount=(a,b)=>catCount("fin",b)-catCount("fin",a)||alpha(a,b);
+  const fams=FIN_FAMILIES.map(([name])=>({name,fins:metal.filter(f=>finFamily(f)===name).sort(byCount)})).filter(f=>f.fins.length)
+    .map(f=>({...f,size:f.fins.reduce((n,o)=>n+catCount("fin",o),0)})).sort((a,b)=>b.size-a.size);
+  const hiddenFams=fams.slice(FAM_SHOW).filter(f=>!f.fins.some(o=>sel.has(o))); // a family with a ticked finish never hides
+  const shownFams=S.finMore?fams:fams.filter(f=>!hiddenFams.includes(f));
+  if(fams.length) out+=`<p class="fpgrp">By family</p>`+shownFams.map(f=>{ const open=S.finOpen.has(f.name), n=f.fins.filter(o=>sel.has(o)).length;
+    return `<div class="ffam"><button type="button" class="ffhead" data-finfam="${esc(f.name)}" aria-expanded="${open}">${CHEV}<span>${esc(f.name)} <small>· ${f.fins.length} finish${f.fins.length===1?"":"es"}</small></span>${n?`<span class="ffsel">${n} selected</span>`:""}</button>${open?f.fins.map(o=>optRow("fin",o,count)).join(""):""}</div>`; }).join("");
+  if(hiddenFams.length) out+=`<button type="button" class="fpmore" data-finmore="1" aria-expanded="${S.finMore}">${S.finMore?"Show fewer families":`Show ${hiddenFams.length} more famil${hiddenFams.length===1?"y":"ies"}`}</button>`;
   if(surfOn) out+=`<hr class="fpsep"><p class="fpgrp">Stone and tile colors</p>${surf.map(o=>optRow("fin",o,count)).join("")}`;
   else if(noCat&&surf.length) out+=`<button type="button" class="fpentry" data-finview="surf"><span>Stone and tile colors</span><small>for Surfaces ›</small></button>`;
   return out;
@@ -1251,14 +1303,18 @@ function popHtml(k,label){
   const {count}=facetCounts(); let body, foot="";
   if(k==="fin"){ body=finBody(count); foot=`<div class="fpfoot"><span>${S.room?`Saved for ${esc(S.room)}`:"Saved for the room you choose"} <span class="fr">FR-15</span></span>${S.filters.fin.size?'<button type="button" class="tolink" data-fclr="fin">Clear</button>':""}</div>`; }
   else if(k==="cat") body=listBody("cat",CATS,count,"categories");
-  else if(k==="col") body=listBody("col",uniq(CAT,"col"),count,"collections");
-  else body=MORE.map(([g,l],i)=>`${i?'<hr class="fpsep">':""}<p class="fpgrp">${l}</p>${listBody(g,uniq(CAT,FFIELD[g]),count,l.toLowerCase()+"s")}`).join("");
+  else if(k==="col"){ const cols=uniq(CAT,"col").filter(o=>!TEST_VALUES.has(o));
+    if((S.fq.col||"").trim()) body=listBody("col",cols,count,"collections");
+    else { const most=[...cols].sort((a,b)=>catCount("col",b)-catCount("col",a)||alpha(a,b)).slice(0,COL_MOST), rest=cols.filter(o=>!most.includes(o));
+      body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${most.map(o=>optRow("col",o,count)).join("")}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${rest.map(o=>optRow("col",o,count)).join("")}`; } }
+  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p>`;
   if(k!=="fin"&&groupSel(k).length) foot=`<div class="fpfoot"><span></span><button type="button" class="tolink" data-fclr="${k}">Clear</button></div>`;
   return `<div class="fpop" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
 }
 function focusKey(){ const a=document.activeElement; if(!a||!a.closest?.("#fpills")) return null;
-  for(const at of ["f","fq","fpop","fclr","finmore","finview"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
+  for(const at of ["f","fq","fpop","fclr","finmore","finview","finfam"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
   return a.id?{sel:"#"+a.id}:null; }
+const anyFilterOn=()=>Object.values(S.filters).some(v=>v.size);
 function renderFilters(){
   if(S.room!==S.finLastRoom){ S.finLastRoom=S.room; S.fpop=S.fpop==="fin"?null:S.fpop; S.finView="metal"; } // a room switch closes the finish popover
   const fk=focusKey();
@@ -1266,12 +1322,13 @@ function renderFilters(){
     if(k==="more") return `<span class="fpill ficon${open?" open":""}"><button type="button" class="fpbtn" data-fpop="more" aria-expanded="${open}" aria-haspopup="dialog"${open?' aria-controls="fpop"':""} aria-label="${n?`More filters, ${n} on`:"More filters"}" title="More filters"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>${n?`<span class="fcount" aria-hidden="true">${n}</span>`:""}</button>${open?popHtml(k,label):""}</span>`; // square icon, as the old Filters button; cleared from its popover
     const black=on&&!open; // while its popover is open the pill shows as the open control, not the chip
     return `<span class="fpill${black?" on":""}${open?" open":""}"><button type="button" class="fpbtn" data-fpop="${k}" aria-expanded="${open}" aria-haspopup="dialog"${open?' aria-controls="fpop"':""}>${esc(pillText(k,label))}${black?"":CHEV}</button>${black?`<button type="button" class="fpx" data-fclr="${k}" aria-label="Clear ${label.toLowerCase()}">×</button>`:""}${open?popHtml(k,label):""}</span>`; }).join("")
+    +(anyFilterOn()?'<button type="button" class="tolink fpclear" data-fclr="all">Clear all</button>':"")
     +'<span class="fr">FR-3</span>';
   const pop=$("#fpop"); if(pop){ const w=$(".filterwrap").getBoundingClientRect(); pop.style.maxWidth=w.width+"px"; const r=pop.getBoundingClientRect(); if(r.right>w.right) pop.style.left=Math.round(w.right-r.right)+"px"; }
   if(fk){ const el=document.querySelector("#fpills "+fk.sel); if(el){ el.focus(); if(fk.pos!=null&&el.setSelectionRange) try{ el.setSelectionRange(fk.pos,fk.pos); }catch(_){} } }
 }
 function closePop(refocus){ const k=S.fpop; if(!k) return; S.fpop=null; renderFilters(); if(refocus) document.querySelector(`[data-fpop="${k}"]`)?.focus(); }
-function clearGroup(k){ (k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; }); if(k==="fin") S.finAll=false; }
+function clearGroup(k){ (k==="all"?Object.keys(S.filters):k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; }); if(k==="fin"||k==="all") S.finAll=false; }
 function renderResults(){
   const q=S.query.trim(); const box=$("#results"); const cnt=$("#count");
   $(".search").classList.toggle("busy",!!S.loading); $("#q").setAttribute("aria-busy",String(!!S.loading));
@@ -1302,22 +1359,21 @@ function renderResults(){
   cnt.innerHTML=`${applied(list.length)}${pages>1?` · showing ${from+1}–${from+shown.length}`:""}${hiddenDisc?` · ${hiddenDisc} discontinued or in-development hidden`:""} <span class="fr">FR-17</span>`;
   const rows=shown.map(p=>{ // UOM opens a tray with weight, collection and finish, as in QOM staging
     const reason=reasonFor(p); const blocked=!!reason; const canAdd=roomOk && !blocked;
-    const stock = !S.stock ? "" : (p.st!==20 ? "" : (p.stock>0 ? `<span class="tag ok">In stock: ${p.stock} in USC</span>` : `<span class="tag note">${p.lead?"Lead time "+esc(p.lead):"Not in stock"}</span>`));
+    const stock = !S.stock ? "" : (p.st!==20 ? "" : (p.stock>0 ? `<span class="tag ok stk">In stock: ${p.stock} in USC</span>` : `<span class="tag note stk">${p.lead?"Lead time "+esc(p.lead):"Not in stock"}</span>`));
     const price = p.price==null ? "—" : money(p.price);
     const accents = p.accents ? `<small>${esc(p.accents)} <span class="fr">FR-11</span></small>` : "";
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ndet">${hl(p.sku)} · Status ${p.st} · ${esc(p.lt)}${S.price?` · List ${price}`:""} · UOM <button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
-      <td class="sku wd">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
-      <td class="num wd">${p.st}</td>
-      <td class="wd">${esc(p.lt)}</td>
-      <td class="nr det"><span class="sku">${hl(p.sku)}</span>${p.style!==p.sku?`<small>Style ${hl(p.style)}</small>`:""}<small class="wrap">Status ${p.st} · ${esc(p.lt)}</small>${S.price?`<small class="uom">List ${price}</small>`:""}<small class="uom">UOM <button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></small></td>
-      <td class="uom wd"><button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></td>
-      ${S.price?`<td class="sku wd">${price}</td>`:""}
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${p.part?` <span class="tag note" title="Item group ${esc(p.ig)}">Service part · ${esc(p.ig)}</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}${stock?'<div>'+stock+'</div>':''}</div></td>
+      <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
+      <td class="num wd c-st">${p.st}</td>
+      <td class="wd c-lt">${esc(p.lt)}</td>
+      <td class="uom wd c-uom"><button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></td>
+      ${S.price?`<td class="sku wd c-price">${price}</td>`:""}
     </tr>${openTrays.has(p.sku)?`<tr class="tray" id="tray-${esc(p.sku)}"><td colspan="2"></td><td colspan="10">Weight: ${p.wt}<br>Collection Name: ${esc(p.col)}<br>${p.cat==="Surfaces"?"Color":"Metal Finish"}: ${esc(p.fin)}</td></tr>`:""}`;
   }).join("");
-  box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd">Item Number</th><th scope="col" class="wd">Status</th><th scope="col" class="wd">Line Type</th><th scope="col" class="nr">Details</th><th scope="col" class="wd">UOM</th>${S.price?'<th scope="col" class="wd">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
+  box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">UOM</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
 }
 function renderRoomMenu(){
   const own=S.quote.rooms;
@@ -1493,12 +1549,12 @@ function renderQTools(rooms){
   $("#qTools").hidden=S.qview!=="products"||!rooms.length; // a fresh quote with no rooms: no "Selected products" line, the black box sits right under the tabs
   $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:`<b>${n} line${n===1?"":"s"}</b> · ${rooms.length} room${rooms.length===1?"":"s"}`;
   $("#qtAct").hidden=!rooms.length;
-  const ta=$("#toolAddBtn"); ta.hidden=!!S.expanded||!!S.toolAdd; ta.setAttribute("aria-expanded",String(!!S.toolAdd)); // full screen has its own in the Rooms panel
+  $("#toolAddBtn").hidden=!!S.expanded; // full screen has its own in the Rooms panel
   $(".lfilter").hidden=n<2&&!q; // nothing to filter on a quote with one line
   const anyOpen=rooms.some(r=>S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name));
   const fb=$("#foldAll"); fb.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${anyOpen?'<path d="M2 6l4-4 4 4M2 10.5l4-4 4 4"/>':'<path d="M2 1.5l4 4 4-4M2 6l4 4 4-4"/>'}</svg><span>${anyOpen?"Collapse all":"Expand all"}</span>`; fb.disabled=!!q; fb.title=q?"Rooms open to show matching lines while you filter":"";
 }
-// add-room form: at the top of the Rooms panel in full screen, or at the top of the rooms list from the toolbar's "+ Add room"
+// add-room form at the top of the Rooms panel in full screen
 const ADD_ROOM_FORM=()=>`<form class="sideform" id="sideRoomForm" aria-label="Add room"><select id="sideRoomType" aria-label="Room type (required)" required><option value="" selected disabled>Room type (required)</option>${ROOM_TYPES.map(t=>`<option>${t}</option>`).join("")}</select><input id="sideRoomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="sideRoomErr"><p class="form-err" id="sideRoomErr" role="alert" hidden></p><div class="row"><button type="submit" class="btn">Add room</button><button type="button" class="btn ghost" id="sideRoomCancel">Cancel</button></div><p class="hint">Leave the name blank to use the room type. <span class="fr">FR-21</span></p></form>`;
 function renderQuote(){
   RISK=computeRisk();
@@ -1514,7 +1570,6 @@ function renderQuote(){
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${fm&&fm.n<r.lines.length?`${fm.n} of ${r.lines.length} lines`:`${r.lines.length} line${r.lines.length===1?"":"s"}`}</span>${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${S.editRoom===r.name&&S.editErr?`<p class="form-err" role="alert">${esc(S.editErr)}</p>`:""}${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet.</b> Search for products to add them here.<br><button type="button" class="btn addprod" data-addprod="${esc(r.name)}">Add products to ${esc(r.name)}</button></div>`)}</div>`;
   }).join("");
   if(rooms.length&&!wrap.innerHTML.trim()) wrap.innerHTML=`<div class="lnone"><b>No lines match “${esc(S.lineQ.trim())}”.</b> Try an item number, product name or finish.<br><button type="button" class="tolink" id="lineClear">Clear filter</button></div>`;
-  if(S.toolAdd&&!S.expanded&&rooms.length) wrap.insertAdjacentHTML("afterbegin",ADD_ROOM_FORM());
   renderQTools(rooms);
   QSUB=sub; // totals, freight and tax are painted in the pricing bar (renderSend)
   $("#saveMsg").className=S.dirty||bad?"unsaved":"ok-msg"; $("#saveMsg").textContent=bad?"Fix the quantities marked above before saving.":S.dirty?"Unsaved changes. Added lines are drafts until you save.":"All changes saved";
@@ -1647,6 +1702,7 @@ function renderSend(){
   $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open)); placeBar();
   // auto-open: B reopens on a new blocker once it has opened by itself; C opens on every new blocker
   const keys=blockerKeys(), prev=SEND.seen; SEND.seen=new Set(keys);
+  if(prev && F.hasLines && $("#pbar").classList.contains("mini") && keys.some(k=>!prev.has(k))) setMini(false); // a new problem: show the full bar
   if(prev && !SEND.open && F.hasLines && keys.some(k=>!prev.has(k)) && (SEND.mode==="new-blocker"||(SEND.mode==="first-forward"&&SEND.forwarded))) openSend(true,"issues");
 }
 // to: "issues" or "breakdown" (the section it opens at); from: the control focus goes back to when it closes
@@ -1748,11 +1804,17 @@ document.addEventListener("scroll",()=>{ if(Date.now()-SEND.scrolledAt>1500||S.q
 const natW=q=>{ const e=$(q), o=e.style.cssText; e.style.width="max-content"; e.style.justifySelf="start"; const v=e.getBoundingClientRect().width; e.style.cssText=o; return v; };
 function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b), room=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), gap=24;
   if(save.parentElement!==b) b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight","stack");
+  if(b.classList.contains("mini")) return; // one line; the helper truncates instead
   const left=Math.max(natW(".pb-tl"),natW(".pb-bl")), sv=natW("#pbSave"), help=natW("#pbHelp"), tr=natW(".pb-tr");
   if(left+sv+tr+2*gap<=room && help<=sv+tr+gap) return;                 // full: total | save | buttons
   b.classList.add("tight"); $("#pbBr").insertBefore(save,$("#pbHelp"));   // tight: save status moves to row 2, before the helper
   if(left+Math.max(natW(".pb-tr"),sv+16+help)+gap<=room) return;
   b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight"); b.classList.add("stack"); }
+// collapse: remembered per browser; it opens again by itself when a new problem needs fixing
+function setMini(on){ const b=$("#pbar"), t=$("#pbTog"); b.classList.toggle("mini",on); t.setAttribute("aria-expanded",String(!on)); t.setAttribute("aria-label",on?"Expand the bar":"Collapse the bar"); t.title=on?"Expand":"Collapse";
+  try{ localStorage.setItem("qom.barMini",on?"1":"0"); }catch(e){} placeBar(); }
+$("#pbTog").addEventListener("click",()=>setMini(!$("#pbar").classList.contains("mini")));
+try{ if(localStorage.getItem("qom.barMini")==="1") $("#pbar").classList.add("mini"),$("#pbTog").setAttribute("aria-expanded","false"),$("#pbTog").setAttribute("aria-label","Expand the bar"); }catch(e){}
 function placeBar(){ fitBar(); const b=$("#pbar"), r=(S.expanded?$("#quotePane"):$(".main")).getBoundingClientRect(), st=document.documentElement.style;
   st.setProperty("--fb-left",Math.round(r.left)+"px"); st.setProperty("--fb-w",Math.round(r.width)+"px"); st.setProperty("--bar-h",b.offsetHeight+"px"); }
 new ResizeObserver(placeBar).observe($(".main")); new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#pbar"));
@@ -1828,7 +1890,8 @@ document.addEventListener("click",e=>{
   if(t.id==="expandBtn"){ setExpanded(!S.expanded); return; }
   if(t.dataset.qview){ setQView(t.dataset.qview); document.querySelector('.qtab[aria-selected="true"]')?.focus(); return; }
   if(t.dataset.fpop){ const k=t.dataset.fpop; if(S.fpop===k){ closePop(true); return; } S.fpop=k; renderFilters(); $("#fpop")?.querySelector("input,button")?.focus(); return; }
-  if(t.dataset.fclr){ const k=t.dataset.fclr; clearGroup(k); renderFilters(); search(); (document.querySelector(`[data-fpop="${k}"]`))?.focus(); return; }
+  if(t.dataset.fclr){ const k=t.dataset.fclr; clearGroup(k); renderFilters(); search(); (k==="all"?$("#q"):document.querySelector(`[data-fpop="${k}"]`))?.focus(); return; }
+  if(t.dataset.finfam){ const f=t.dataset.finfam; S.finOpen.has(f)?S.finOpen.delete(f):S.finOpen.add(f); renderFilters(); return; }
   if(t.dataset.finmore){ S.finMore=!S.finMore; renderFilters(); return; }
   if(t.dataset.finview){ S.finView=t.dataset.finview; renderFilters(); $("#fpop")?.querySelector(t.dataset.finview==="surf"?".fpback, .fopt input":".fpentry")?.focus(); return; }
   if(t.id==="finOthers"){ S.finAll=true; S.finAllFor=S.room+"|"+S.query; S.page=1; renderResults(); $("#finOnly")?.focus(); return; }
@@ -1839,8 +1902,8 @@ document.addEventListener("click",e=>{
   if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
   if(t.id==="foldAll"){ const open=t.textContent.trim()==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
   if(t.id==="lineClear"){ S.lineQ=""; $("#lineFilter").value=""; renderQuote(); $("#lineFilter").focus(); return; }
-  if(t.id==="toolAddBtn"){ S.toolAdd=true; renderQuote(); $("#sideRoomType")?.focus(); return; }
-  if(t.id==="sideRoomCancel"){ const fromTool=S.toolAdd; S.sideAdd=false; S.toolAdd=false; renderQuote(); $(fromTool?"#toolAddBtn":"#sideAddBtn").focus(); return; }
+  if(t.id==="toolAddBtn"){ startAddRoom(); return; } // same form as the "Adding to" menu on the search side
+  if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
   if(t.dataset.addprod){ startAddProducts(t.dataset.addprod); return; }
   if(t.id==="menuAdd"){ openRoomForm("add"); return; }
   if(t.id==="roomCancel"){ $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); return; }
@@ -1892,11 +1955,10 @@ document.addEventListener("submit",e=>{ if(e.target.id!=="sideRoomForm") return;
   if(!name){ name=type; let n=2; while(S.quote.rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
   const clash=S.quote.rooms.find(r=>r.name.toLowerCase()===name.toLowerCase());
   if(clash){ const err=$("#sideRoomErr"); err.textContent=`This quote already has a room called “${clash.name}”. Pick it from the list, or use a different name.`; err.hidden=false; $("#sideRoomName").focus(); return; }
-  S.quote.rooms.push({name,type,lines:[]}); S.room=name; S.collapsedFor=null; S.sideAdd=false; S.toolAdd=false; S.dirty=true;
+  S.quote.rooms.push({name,type,lines:[]}); S.room=name; S.collapsedFor=null; S.sideAdd=false; S.dirty=true;
   if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";}
   renderRoom(); renderResults(); renderQuote(); showToast(`${name} added. Add products to it when you're ready.`,"ok");
   const blk=document.querySelector(`.rmblock[data-rm="${CSS.escape(name)}"]`); blk?.scrollIntoView({block:"start"}); blk?.querySelector("[data-addprod]")?.focus(); });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&S.toolAdd&&e.target.closest?.("#sideRoomForm")){ e.stopPropagation(); $("#sideRoomCancel").click(); } },true);
 document.addEventListener("input",e=>{ if(e.target.id!=="lineFilter") return; S.lineQ=e.target.value; renderQuote(); });
 document.addEventListener("keydown",e=>{ if(e.target.id==="lineFilter"&&e.key==="Escape"&&e.target.value){ e.target.value=""; S.lineQ=""; renderQuote(); } });
 // Add room from anywhere: full screen uses the Rooms panel form; otherwise the search side's room menu (switching to it on layout B's Quote tab)
@@ -2176,7 +2238,7 @@ function setQView(v){ S.qview=v; renderQView(); if(v==="pdf") sendForward(); }
 // enlarge: the quote panel fills the whole screen (content stays readable on very wide screens); Escape or the same button exits
 const EXPAND_ICON={off:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg>`,on:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 1v4H1M11 1v4h4M15 11h-4v4M1 11h4v4"/></svg>`};
 function setExpanded(on){
-  S.expanded=on; const b=$("#expandBtn"); if(!on&&S.sideAdd){ S.sideAdd=false; renderQuote(); } if(S.toolAdd){ S.toolAdd=false; renderQuote(); } $("#toolAddBtn").hidden=on; // full screen uses the Rooms panel's own "+ Add room"
+  S.expanded=on; const b=$("#expandBtn"); if(!on&&S.sideAdd){ S.sideAdd=false; renderQuote(); } $("#toolAddBtn").hidden=on; // full screen uses the Rooms panel's own "+ Add room"
   $("#quotePane").classList.toggle("expanded",on); document.body.classList.toggle("noscroll",on);
   // totals and the next step stay in the pricing bar; the left panel keeps a Save button
   $("#qSide").hidden=!on||S.qview!=="products"; // the footer stays across the bottom while enlarged
