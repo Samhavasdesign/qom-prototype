@@ -531,6 +531,8 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qtsum .qtitle{white-space:nowrap}
 .qtcount[hidden]{display:none}
 .qtcount{margin:0;font-size:14px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
+.qtcount .bmlink{min-height:44px;margin:-14px 0;padding:0 2px;border:0;background:none;font:inherit;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;cursor:pointer} /* small inline link, still a 44px target */
+.qtcount .bmlink:hover{text-decoration-style:solid}
 .qtact{display:flex;align-items:center;gap:8px 20px;margin-left:auto}
 .qtact>[hidden]{display:none}
 .qtact[hidden]{display:none}
@@ -1706,7 +1708,7 @@ function renderQTools(rooms){
   const m=q?rooms.reduce((a,r)=>a+(lineMatch(r)?.n||0),0):0;
   const prod=S.qview==="products"; // counts and tools are Products view only
   const rc=`${rooms.length} room${rooms.length===1?"":"s"}`;
-  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}${S.view==="commercial"?` · Total blended margin <b>${blendedMargin().toFixed(2)}%</b>`:""}`:`No products yet · ${rc}`;
+  $("#qtCount").innerHTML=!rooms.length?"":q?`<b>${m} of ${n} line${n===1?"":"s"}</b> match`:n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}${S.view==="commercial"?` · Total blended margin <button type="button" class="bmlink" id="bmLink" aria-label="Total blended margin ${blendedMargin().toFixed(2)}%. Edit it in the full breakdown" title="Edit in the full breakdown">${blendedMargin().toFixed(2)}%</button>`:""}`:`No products yet · ${rc}`;
   $("#qtCount").hidden=!prod||!$("#qtCount").innerHTML;
   $("#qtAct").hidden=!prod||!rooms.length;
   $("#qTools").hidden=$("#qtCount").hidden&&$("#qtAct").hidden; // nothing to show (another view): no blank strip under the tabs
@@ -2105,7 +2107,8 @@ document.addEventListener("click",e=>{
   if(t.id==="spClose"){ closeSend(); return; }
   if(t.dataset.sact){ sendAction(t.dataset.sact); return; }
   if(t.dataset.lfix){ lineFix(t.dataset.lfix); return; }
-  if(t.id==="bdBtn"){ openSend(false,"breakdown"); return; } // Full breakdown opens the side panel at its breakdown section
+  if(t.id==="bdBtn"){ openSend(false,"breakdown"); return; }
+  if(t.id==="bmLink"){ openSend(false,"breakdown","#bmLink"); const i=$("#blendIn"); if(i){ i.focus({preventScroll:true}); i.select(); i.scrollIntoView({block:"center"}); } return; } // the margin above the rooms opens the breakdown with its input ready to type in // Full breakdown opens the side panel at its breakdown section
   if(t.id==="simSpec"||t.id==="simPrice"){ simSave(t.id==="simSpec"?"spec":"price"); return; }
   if(t.id==="rmCancel"){ closeRemoveDialog(); return; }
   if(t.id==="rmYes"){ confirmRemove(); return; }
