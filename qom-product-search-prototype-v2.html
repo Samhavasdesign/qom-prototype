@@ -263,6 +263,15 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .roomhdr .grip:hover{opacity:1}
 .grip{border:0;background:transparent;color:var(--ink-3);cursor:grab;padding:0 2px;font-size:16px;line-height:1;text-decoration:none}
 .grip:hover{color:var(--ink)}
+/* line move stack: up arrow, handle, down arrow (50px), centred on the 32px quantity stepper, which sits 20px down so it's centred on the 72px photo */
+.line .lmove{display:flex;flex-direction:column;align-items:center;align-self:start;margin-top:11px}
+.line .lmove:empty{margin:0}
+.lmv{width:18px;height:16px;border:0;border-radius:3px;background:transparent;color:var(--ink-3);padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lmv:hover:not(:disabled){color:var(--ink);background:var(--surface-2)}
+.lmv:disabled{color:var(--line);cursor:default}
+.lmv:focus-visible{outline:2px solid var(--ink);outline-offset:0}
+.line .lmove .grip{height:18px;display:flex;align-items:center;justify-content:center}
+.line>.qty{align-self:start;margin-top:20px}
 .roomhdr .grip{font-size:15px;text-decoration:none}
 .roomhdr{cursor:pointer}
 .roomhdr .rwarn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;font-size:12px;font-weight:600;background:var(--warn-bg);color:var(--warn)}
@@ -296,7 +305,8 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 }
 @container quote (max-width:440px){ /* very narrow quote panel (divider dragged right): photo, name and menu on one row, then price, then quantity */
   .pane.quote .line{grid-template-columns:18px 64px minmax(0,1fr) 28px;column-gap:8px;padding:10px 8px}
-  .pane.quote .line .grip{grid-column:1;grid-row:1}
+  .pane.quote .line .lmove{grid-column:1;grid-row:3;margin-top:-9px} /* beside the stepper, which drops to its own row here */
+  .pane.quote .line>.qty{margin-top:0}
   .pane.quote .line>.thumb{grid-column:2;grid-row:1;width:64px;height:64px} /* only the line photo, not the smaller kit photos */
   .pane.quote .line .nm{grid-column:3;grid-row:1;min-width:0;overflow-wrap:anywhere}
   .pane.quote .line .more{grid-column:4;grid-row:1}
@@ -1733,6 +1743,12 @@ function renderRoomMenu(){
   const own=S.quote.rooms;
   $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div>${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}`;
 }
+// a line's move controls: an up arrow, the drag handle and a down arrow, stacked, so one click moves the line one place (Nick, Nov 5).
+// The arrows are greyed out at the top and bottom of the room; the stack is centred on the quantity stepper.
+const ARR_UP='<svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5l4-4 4 4"/></svg>';
+const ARR_DN='<svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg>';
+const lineMove=(r,l,p)=>{ const n=r.lines.length, i=r.lines.indexOf(l); if(n<2) return '<span class="lmove"></span>'; const k=esc(r.name)+"|"+esc(l.sku);
+  return `<div class="lmove"><button type="button" class="lmv" data-lmove="up" data-key="${k}" aria-label="Move ${esc(p.name)} up"${i===0?" disabled":""}>${ARR_UP}</button>${grip("line",r.name,l.sku,p.name)}<button type="button" class="lmv" data-lmove="down" data-key="${k}" aria-label="Move ${esc(p.name)} down"${i===n-1?" disabled":""}>${ARR_DN}</button></div>`; };
 const grip=(type,room,sku,label)=>`<button type="button" class="grip" data-grip="${type}" data-groom="${esc(room)}" data-gsku="${esc(sku)}" aria-label="Reorder ${esc(label)}. Drag, or press arrow up or down." title="Drag to reorder">⠿</button>`;
 // room name, then its type in grey unless the name is just the type ("sams kitchen · Kitchen", but "Bar", not "Bar · Bar").
 // Renaming is only in the room's "…" menu; a click on the name opens the room like the rest of the bar
@@ -2059,7 +2075,7 @@ function renderQuote(){
     const isOpen=(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
-      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}${findCur(r,l)?" findcur":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button><button type="button" class="ldel" data-ldel="${esc(r.name)}|${esc(l.sku)}" aria-label="Remove ${esc(p.name)} from the quote" title="Remove from quote">${ICON.trash}</button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
+      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}${findCur(r,l)?" findcur":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${lineMove(r,l,p)}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button><button type="button" class="ldel" data-ldel="${esc(r.name)}|${esc(l.sku)}" aria-label="Remove ${esc(p.name)} from the quote" title="Remove from quote">${ICON.trash}</button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span>${(m=>m?`<span class="rfind">· ${m} match${m===1?"":"es"}</span>`:"")(S.lineQ.trim()?roomHitLines(r.name):0)}${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room
@@ -2860,6 +2876,10 @@ const qbarEl=$(".qbar"); new ResizeObserver(()=>document.documentElement.style.s
   g.addEventListener("keydown",e=>{ if(e.key==="ArrowLeft"){e.preventDefault();set(cur()-.1);} if(e.key==="ArrowRight"){e.preventDefault();set(cur()+.1);} });
   g.addEventListener("dblclick",()=>w.style.removeProperty("--left"));
 })();
+// up and down arrows beside a line's handle: one click moves it one place; focus stays on the arrow (or the handle at the top or bottom of the room)
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-lmove]"); if(!b||b.disabled) return; e.preventDefault(); const [room,sku]=b.dataset.key.split("|"), dir=b.dataset.lmove;
+  moveLine(room,sku,dir==="up"?-1:1); const sel=`[data-key="${CSS.escape(b.dataset.key)}"]`, again=document.querySelector(`.lmv[data-lmove="${dir}"]${sel}`);
+  (again&&!again.disabled?again:document.querySelector(`.grip[data-grip="line"][data-groom="${CSS.escape(room)}"][data-gsku="${CSS.escape(sku)}"]`))?.focus(); });
 </script>
 <div class="dlgwrap" id="rmDialog" hidden></div>
 <div class="zoomwrap" id="zoomView" role="dialog" aria-modal="true" aria-label="Product photo" hidden><button type="button" class="zoomx" id="zoomClose" aria-label="Close photo"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2"/></svg></button><img id="zoomImg" alt=""><div class="zoomcap" id="zoomCap"></div></div>
