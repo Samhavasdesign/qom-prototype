@@ -136,6 +136,13 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .menu > button[data-room]{width:calc(100% - 24px);margin:0 12px 6px;background:var(--surface-2);font-weight:600}
 .menu > button[data-room]:hover,.menu > button[data-room]:focus-visible{background:var(--surface-2)}
 .menu > button[data-room] .cnt{font-weight:400}
+/* standard room types: two columns filled top to bottom (A–Z reads down), long names cut off with "…" and shown in full on hover; one column when the dropdown is narrow */
+.menu{container-type:inline-size}
+.menu .rtcols{columns:2;column-gap:0;padding-bottom:4px}
+.menu .rtcols button{display:block;width:100%;min-width:0;break-inside:avoid;text-align:left;background:transparent;border:0;padding:10px 12px}
+.menu .rtcols button span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu .rtcols button:hover,.menu .rtcols button:focus-visible{background:var(--surface)}
+@container (max-width:279px){ .menu .rtcols{columns:1} }
 .menu .modes{display:flex;border-bottom:1px solid var(--line-2)}
 .menu .modes button{flex:1;background:transparent;border:0;border-bottom:3px solid transparent;padding:10px 12px;color:var(--ink-2)}
 .menu .modes button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
@@ -1839,7 +1846,7 @@ const rowTags=p=>{ const t=[];
   return t.length?`<div class="ntags">${t.join("")}</div>`:""; };
 function renderRoomMenu(){
   const own=S.quote.rooms;
-  $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div>${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}`;
+  $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div><div class="rtcols">${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}" title="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}</div>`; // two columns, filled top to bottom; long names truncate, full name on hover
 }
 // a line's move controls: an up arrow, the drag handle and a down arrow, stacked, so one click moves the line one place (Nick, Nov 5).
 // The arrows are greyed out at the top and bottom of the room; the stack is centred on the quantity stepper.

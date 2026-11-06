@@ -136,6 +136,13 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .menu > button[data-room]{width:calc(100% - 24px);margin:0 12px 6px;background:var(--surface-2);font-weight:600}
 .menu > button[data-room]:hover,.menu > button[data-room]:focus-visible{background:var(--surface-2)}
 .menu > button[data-room] .cnt{font-weight:400}
+/* standard room types: two columns filled top to bottom (A–Z reads down), long names cut off with "…" and shown in full on hover; one column when the dropdown is narrow */
+.menu{container-type:inline-size}
+.menu .rtcols{columns:2;column-gap:0;padding-bottom:4px}
+.menu .rtcols button{display:block;width:100%;min-width:0;break-inside:avoid;text-align:left;background:transparent;border:0;padding:10px 12px}
+.menu .rtcols button span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu .rtcols button:hover,.menu .rtcols button:focus-visible{background:var(--surface)}
+@container (max-width:279px){ .menu .rtcols{columns:1} }
 .menu .modes{display:flex;border-bottom:1px solid var(--line-2)}
 .menu .modes button{flex:1;background:transparent;border:0;border-bottom:3px solid transparent;padding:10px 12px;color:var(--ink-2)}
 .menu .modes button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
@@ -913,7 +920,7 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fpill.ficon>.fpbtn:focus-visible{outline-color:var(--ink);outline-offset:2px}
 .fcount{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--ink);color:var(--bg);border:1px solid var(--bg);font-size:11px;font-weight:600;line-height:16px;text-align:center}
 .fpop{position:absolute;left:0;top:calc(100% + 4px);z-index:40;display:flex;flex-direction:column;width:320px;max-width:calc(100vw - 32px);max-height:min(70vh,520px);background:var(--bg);color:var(--ink);border:1px solid var(--ink);box-shadow:var(--shadow-pop);font-weight:400;white-space:normal;text-align:left;cursor:auto}
-.shead:has(.fpop){z-index:9} /* an open filter popover sits over the quote's pinned tabs bar and room bars when the panels are stacked */
+.shead:has(.fpop),.shead:has(#roomMenu:not([hidden])){z-index:9} /* an open filter popover or "Adding to" menu sits over the quote's pinned tabs bar and room bars when the panels are stacked */
 .fpop .fpbody{overflow:auto;padding:12px 0 6px}
 .fpop.up{top:auto;bottom:calc(100% + 4px)} /* opens upward when there is more room above the pill than below it */
 .fpsrch{position:relative;margin:0 14px 6px}
@@ -1730,6 +1737,11 @@ function renderFilters(){
 // otherwise it opens upward if there's more room above. The direction is chosen once per opening, so ticking boxes or typing in its search doesn't make it jump.
 // Neither side tall enough: the list scrolls inside it (never shorter than 180px), and on open the page first scrolls the pill up (see the pill click handler).
 let popDir=null; // {k, up}
+// the "Adding to" dropdown runs as far down as there's room: it stops 12px above the footer bar (or the bottom of the scrolling search side), never touching or under it
+function fitRoomMenu(){ const m=$("#roomMenu"); if(!m||m.hidden) return; let bottom=innerHeight; const fb=$(".pbar"); if(fb&&fb.getClientRects().length){ const t=fb.getBoundingClientRect().top; if(t>0) bottom=Math.min(bottom,t); }
+  for(let a=m.parentElement;a&&a!==document.body;a=a.parentElement){ const o=getComputedStyle(a).overflowY; if(o==="auto"||o==="scroll"){ bottom=Math.min(bottom,a.getBoundingClientRect().bottom); break; } }
+  m.style.maxHeight=Math.max(160,Math.floor(bottom-m.getBoundingClientRect().top-12))+"px"; }
+addEventListener("resize",()=>fitRoomMenu()); addEventListener("scroll",()=>fitRoomMenu(),true);
 function popRoom(pop){ const pill=pop.parentElement.getBoundingClientRect(); let bottom=innerHeight, top=0; const fb=$(".pbar"); if(fb&&fb.getClientRects().length){ const t=fb.getBoundingClientRect().top; if(t>0) bottom=Math.min(bottom,t); }
   for(let a=pop.parentElement.parentElement;a&&a!==document.body;a=a.parentElement){ const o=getComputedStyle(a).overflowY; if(o==="auto"||o==="scroll"||o==="hidden"){ const r=a.getBoundingClientRect(); bottom=Math.min(bottom,r.bottom); top=Math.max(top,r.top); break; } }
   return {below:Math.floor(bottom-pill.bottom-4-12), above:Math.floor(pill.top-top-4-12), hidden:pill.bottom>bottom||pill.top<top}; }
@@ -1800,7 +1812,7 @@ const rowTags=p=>{ const t=[];
   return t.length?`<div class="ntags">${t.join("")}</div>`:""; };
 function renderRoomMenu(){
   const own=S.quote.rooms;
-  $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div>${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}`;
+  $("#roomMenu").innerHTML=`<div class="grp">Rooms on this quote</div>${own.length?own.map(r=>`<button type="button" data-room="${esc(r.name)}"><span>${esc(r.name)}</span><span class="cnt">${r.lines.length} line${r.lines.length===1?'':'s'}</span></button>`).join(""):'<button type="button" disabled><span style="color:var(--ink-3)">None yet</span></button>'}<button type="button" class="act" id="menuAdd"><span>+ Add room</span></button><div class="grp">Standard room types</div><div class="rtcols">${ROOM_TYPES.filter(t=>t!=="Other"&&!own.some(r=>r.name===t)).map(t=>`<button type="button" data-newroom="${esc(t)}" title="${esc(t)}"><span>${esc(t)}</span></button>`).join("")}</div>`; // two columns, filled top to bottom; long names truncate, full name on hover
 }
 // a line's move controls: an up arrow, the drag handle and a down arrow, stacked, so one click moves the line one place (Nick, Nov 5).
 // The arrows are greyed out at the top and bottom of the room; the stack is centred on the quantity stepper.
@@ -2485,7 +2497,7 @@ function showAddedLine(room,sku){
 }
 let roomMode="add", renameFrom=null; // one form adds a room or renames one (FR-21); renameFrom is the room being renamed
 function openRoomForm(mode,preset,target){
-  const menu=$("#roomMenu"); menu.hidden=false; $("#roomBtn").setAttribute("aria-expanded","true");
+  const menu=$("#roomMenu"); menu.hidden=false; fitRoomMenu(); $("#roomBtn").setAttribute("aria-expanded","true");
   const tr=mode==="rename"?S.quote.rooms.find(r=>r.name===target):null; roomMode=tr?"rename":"add"; renameFrom=tr?tr.name:null; const ren=!!tr;
   if(ren) preset=tr.type; const types=ren&&tr.type&&!ROOM_TYPES.includes(tr.type)?[tr.type,...ROOM_TYPES]:ROOM_TYPES;
   menu.innerHTML=`<div class="grp">${ren?"Rename room":"Add room"}</div><form id="roomForm" aria-label="${ren?"Rename room":"Add room"}"><select id="roomType" aria-label="Room type (required)" required><option value="" ${preset?"":"selected"} disabled>Room type (required)</option>${types.map(t=>`<option ${t===preset?"selected":""}>${esc(t)}</option>`).join("")}</select><input id="roomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="roomHint roomErr" value="${ren?esc(tr.name):""}"><p class="form-err" id="roomErr" role="alert" hidden></p><button type="submit" class="btn">${ren?"Save":"Add room"}</button><button type="button" class="btn ghost" id="roomCancel">Cancel</button><span class="rfhint" id="roomHint">Leave the name blank to use the room type as the name. <span class="fr">FR-21</span></span></form>`;
@@ -2505,7 +2517,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.catopen){ const c=t.dataset.catopen; S.catOpen.has(c)?S.catOpen.delete(c):S.catOpen.add(c); renderFilters(); return; }
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
-  if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
+  if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; if(open) fitRoomMenu(); t.setAttribute("aria-expanded",String(open)); return; }
   if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
   if(t.id==="foldAll"){ const open=t.textContent.trim()==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
   if(t.id==="toolAddBtn"||t.id==="addRoomRow"){ startAddRoom(); return; } // same form as the "Adding to" menu on the search side
