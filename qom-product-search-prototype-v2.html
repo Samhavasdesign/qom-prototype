@@ -193,7 +193,11 @@ table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-ali
 table.res tr.blocked td{color:var(--ink-3)}
 table.res td.num{white-space:nowrap}
 table.res .sty{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
-table.res .uom button{border:0;background:none;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+/* Details on every row, at every width: opens the tray with unit, weight, collection and finish (it used to open only from the unit column, which hides under 640px) */
+table.res .rdet{display:flex;align-items:center;gap:6px;margin-top:6px;padding:2px 0;border:0;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer}
+table.res .rdet:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+table.res .rdet svg{transition:transform .15s}
+table.res .rdet[aria-expanded="true"] svg{transform:rotate(180deg)}
 table.res tr.has-tray td{border-bottom:0}
 table.res tr.tray td{background:var(--surface);padding:8px 6px;font-size:14px;line-height:1.5}
 table.res tr.part td .name{color:var(--ink-2)}
@@ -587,6 +591,10 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* Find in this quote: "2 of 5", previous / next and clear sit inside the field once there's something typed */
 .lfilter.on{min-width:min(340px,100%);padding-right:0}
 .lfilter [hidden]{display:none}
+.fonly{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);white-space:nowrap;cursor:pointer}
+.fonly[hidden]{display:none}
+.fonly input{width:16px;height:16px;margin:0;accent-color:var(--ink);cursor:inherit}
+.fonly.off{color:var(--ink-3);cursor:default}
 .lfilter input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none} /* our own clear button instead */
 .lfilter .findn{flex:none;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 .lfilter .fbtn{flex:none;width:44px;height:44px;margin:-1px 0;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);padding:0}
@@ -1156,6 +1164,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
           <div class="qtsum"><h2 class="sr">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
             <label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: product name, item number or room" autocomplete="off"><span class="findn" id="findCount" aria-live="polite" hidden></span><button type="button" class="fbtn" id="findClear" aria-label="Clear find" hidden><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></label>
+            <label class="fonly" id="findOnlyWrap" hidden><input type="checkbox" id="findOnlyChk" autocomplete="off"><span>Only show matching lines</span></label>
             <button type="button" class="tolink qtfold" id="toolAddBtn" aria-controls="roomMenu"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg><span>Add room</span></button>
             <button type="button" class="tolink qtfold" id="foldAll"></button>
           </div>
@@ -1694,15 +1703,15 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${stockTag(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)} · Status ${p.st}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${stockTag(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)} · Status ${p.st}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}<button type="button" class="rdet" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}">Details<span class="sr"> for ${esc(p.name)} in ${esc(p.fin)}</span>${CHEV}</button></div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd c-st">${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
-      <td class="uom wd c-uom"><button type="button" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}" title="${openTrays.has(p.sku)?"Hide":"Show"} weight, collection and finish">${esc(p.uomCode)}</button></td>
+      <td class="uom wd c-uom">${esc(unitLabel(p))}</td>
       ${S.price?`<td class="sku wd c-price">${price}</td>`:""}
-    </tr>${openTrays.has(p.sku)?`<tr class="tray" id="tray-${esc(p.sku)}"><td colspan="2"></td><td colspan="10">Weight: ${p.wt}<br>Collection Name: ${esc(p.col)}<br>${p.cat==="Surfaces"?"Color":"Metal Finish"}: ${esc(p.fin)}</td></tr>`:""}`;
+    </tr>${openTrays.has(p.sku)?`<tr class="tray" id="tray-${esc(p.sku)}"><td colspan="2"></td><td colspan="10">Unit: ${esc(unitLabel(p))}<br>Weight: ${p.wt}<br>Collection Name: ${esc(p.col)}<br>${p.cat==="Surfaces"?"Color":"Metal Finish"}: ${esc(p.fin)}</td></tr>`:""}`;
   }).join("");
-  box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">UOM</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
+  box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">Unit</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
 }
 // stock hint on sellable result rows (status 20), labelled with the warehouse it comes from; discontinued and in-development rows show their reason instead
 const stockTag=p=> !S.stock||p.st!==20 ? "" : (p.stock>0 ? ` <span class="tag ok stk">In stock: ${p.stock} in USC</span>` : ` <span class="tag note stk">${p.lead?"Out of stock in USC · lead time "+esc(p.lead):"Out of stock in USC"}</span>`)+'<span class="fr">FR-8</span>';
@@ -1947,6 +1956,7 @@ const riskBanner=(res,p)=>{ if(!res||res.level==="ok") return "";
   return `<div class="rb ${cls}">${res.level==="unknown"?RI.unk:RI.bad}<span>${msg}</span></div>`; };
 const kitBox=(r,l,p)=>kitClosed(r,l)?"":`<div class="kitbox"><div class="kithead">Included in this kit</div>${p.kit.map(c=>{const cp=CAT.find(x=>x.sku===c.sku); const part=(RISK&&RISK.by[r.name+"|"+l.sku].kit||[]).find(x=>x.cp.sku===cp.sku); return `<div class="kitrow2${part?" "+({blocking:"kbad",risk:"krisk",unknown:"kunk"})[part.level]:""}">${thumbHtml(cp)}<span class="kq">×${c.qty*l.qty}</span><span>${esc(cp.name)} in ${esc(cp.fin)}${part?`<span class="ktag">${riskShort(part)}</span>`:""}<small>${esc(cp.sku)} · ${stockText(cp)}</small></span></div>`;}).join("")}</div>`;
 const UNIT_SHORT={"square feet":"sq ft"};
+const unitLabel=p=>p.uom==="each"?"each":(UNIT_SHORT[p.uom]||p.uom); // plain words on result rows ("each", "sq ft"), not M3's codes (EA, SF) (Nick, Nov 5)
 const openTrays=new Set(); // result rows whose UOM tray is open
 const QTY_ERR={k:null,t:0}; // the line whose typed quantity was just rejected
 // QOM-2961: a typed quantity that isn't a whole multiple rounds up to the next one and says so; helper wording follows QOM-2958
@@ -1969,7 +1979,7 @@ const qtyCell=(r,l,p,id)=>{
 const SHOW_DET_SWITCH=false; // the Shipping Details switch is hidden for now; set to true to bring it back
 const detSwShown=()=>{ $("#detSwWrap").hidden=!SHOW_DET_SWITCH||S.qview!=="products"||!S.quote.rooms.some(r=>r.lines.length); };
 // "Find in this quote" (long quotes run to 100 lines): goes to the best match, marks every match and counts them, in the box and on each room bar.
-// Nothing is hidden unless the SC picks "Show only matches", and then the count line says so ("Showing 14 of 100 lines · Show all lines").
+// Matches are counted in lines. Nothing is hidden unless the SC ticks "Only show matching lines" beside the box; the count line then says "Showing 21 matching lines of 100".
 // Enter goes to the next best match and Shift+Enter back; there are no arrow buttons. S.lineQ is the applied search (after a pause or Enter).
 // A match is a room whose name has every word, or a line whose product name (with its finish, as shown: "… in Nickel") or item number has at least one word
 // and, together with its room name, all of them (any order, any case). Words match at the start of a word ("bar" finds "on Bar",
@@ -1991,16 +2001,19 @@ function findStops(){ const w=findWords(), out=[]; if(!w.length) return out; con
 const isFindHit=(room,sku)=>FIND.stops.some(s=>s.room===room&&(sku===undefined||s.sku===sku)); // no sku: anything in the room
 const roomHitLines=room=>FIND.stops.filter(s=>s.room===room&&s.sku).length; // matching lines in a room, for its bar and the Rooms list
 const roomNameHit=room=>FIND.stops.some(s=>s.room===room&&!s.sku);
-const findOnly=()=>!!S.findOnly&&FIND.stops.length>0; // "Show only matches" applies only while there are matches
-// lines shown under "Show only matches": the matching lines, or every line of a room whose name matches
-const findShows=(r,l)=>!findOnly()||roomNameHit(r.name)||isFindHit(r.name,l.sku);
+const findLines=()=>FIND.stops.filter(s=>s.sku).length; // matches are counted in lines, so the box, the room bars and "Showing 21 of 100 lines" all agree
+const findOnly=()=>!!S.findOnly&&findLines()>0; // "Only show matching lines" applies only while some line matches
+// lines shown under "Only show matching lines": exactly the matching lines (a room whose name matches doesn't bring all its lines)
+const findShows=(r,l)=>!findOnly()||isFindHit(r.name,l.sku);
 function findHl(text,on,id){ text=String(text); const w=findWords(); if(!on||!w.length) return esc(text); // same marking as hl() in the results; id: item numbers mark from the start only
   const lower=text.toLowerCase(), m=new Array(text.length).fill(false);
   w.forEach(t=>{ if(id){ if(lower.startsWith(t)) m.fill(true,0,t.length); return; } for(let i=lower.indexOf(t); i!==-1; i=lower.indexOf(t,i+1)) if(wordAt(lower,i)) m.fill(true,i,i+t.length); });
   let out="", i=0; while(i<text.length){ let j=i; while(j<text.length&&m[j]===m[i]) j++; out+=m[i]?"<mark>"+esc(text.slice(i,j))+"</mark>":esc(text.slice(i,j)); i=j; } return out; }
 function renderFindCount(){ const on=!!S.lineQ.trim(), n=FIND.stops.length, typed=!!$("#lineFilter").value;
   $(".lfilter").classList.toggle("on",on||typed); $("#findCount").hidden=!on; $("#findClear").hidden=!typed&&!on;
-  $("#findCount").textContent=!on?"":n?`${n} match${n===1?"":"es"}`:"No matches"; } // a count only, no "2 of 14" and no arrows
+  const ln=findLines(); // lines only; a room whose name matches is marked and can be gone to, but isn't counted
+  $("#findCount").textContent=!on?"":ln?`${ln} match${ln===1?"":"es"}`:n?"Room only":"No matches";
+  $("#findOnlyWrap").hidden=!on; $("#findOnlyChk").checked=findOnly(); $("#findOnlyChk").disabled=!ln; $("#findOnlyWrap").classList.toggle("off",!ln); } // a count only, no "2 of 14" and no arrows
 // scrolling: the quote scrolls the page, its own pane (layout C) or the full view; the title bar and room bars pin over it
 const scrollerOf=el=>{ for(let n=el.parentElement;n&&n!==document.body;n=n.parentElement){ const o=getComputedStyle(n).overflowY; if((o==="auto"||o==="scroll")&&n.scrollHeight>n.clientHeight) return n; } return window; };
 function pinnedBottom(el){ let b=$(".qbar").getBoundingClientRect().bottom; const h=el.classList.contains("line")?el.closest(".rmblock")?.querySelector(".roomhdr"):null;
@@ -2011,9 +2024,9 @@ function renderQTools(rooms){
   const n=rooms.reduce((a,r)=>a+r.lines.length,0), q=S.lineQ.trim();
   const prod=S.qview==="products"; // counts and tools are Products view only
   const rc=`${rooms.length} room${rooms.length===1?"":"s"}`;
-  const fm=q?FIND.stops.length:0, shown=findOnly()?rooms.reduce((a,r)=>a+r.lines.filter(l=>isFindHit(r.name)&&findShows(r,l)).length,0):0;
-  $("#qtCount").innerHTML=!rooms.length?"":findOnly()?`<b>Showing ${shown} of ${n} line${n===1?"":"s"}</b> · <button type="button" class="tolink" id="findAll">Show all lines</button>`
-    :n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}${fm>1?` · <button type="button" class="tolink" id="findOnlyBtn">Show only matches</button>`:""}${S.view==="commercial"?` · Total blended margin <button type="button" class="bmlink" id="bmLink" aria-label="Total blended margin ${blendedMargin().toFixed(2)}%. Edit it in the full breakdown" title="Edit in the full breakdown">${blendedMargin().toFixed(2)}%</button>`:""}`:`No products yet · ${rc}`;
+  const shown=findOnly()?findLines():0;
+  $("#qtCount").innerHTML=!rooms.length?"":findOnly()?`<b>Showing ${shown} matching line${shown===1?"":"s"} of ${n}</b>`
+    :n?`<b>${n} line${n===1?"":"s"}</b> · ${rc}${S.view==="commercial"?` · Total blended margin <button type="button" class="bmlink" id="bmLink" aria-label="Total blended margin ${blendedMargin().toFixed(2)}%. Edit it in the full breakdown" title="Edit in the full breakdown">${blendedMargin().toFixed(2)}%</button>`:""}`:`No products yet · ${rc}`;
   $("#qtCount").hidden=!prod||!$("#qtCount").innerHTML;
   $("#qtAct").hidden=!prod||!rooms.length;
   $("#qTools").hidden=$("#qtCount").hidden&&$("#qtAct").hidden; // nothing to show (another view): no blank strip under the tabs
@@ -2035,7 +2048,7 @@ function renderQuote(){
   if(!rooms.length&&S.expanded){ wrap.innerHTML=`<div class="empty-quote none xl"><span class="eqicon">${ICON.door}</span><h3>Start with a room</h3><p>Rooms group the quote the way your client thinks about it. Add one, then search for products to put in it.</p><button type="button" class="btn" id="emptyAdd"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>Add room</button></div>`; }
   else if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
-    if(findOnly()&&!isFindHit(r.name)) return ""; // "Show only matches": rooms with nothing matching are left out (the count line says so)
+    if(findOnly()&&!roomHitLines(r.name)) return ""; // "Only show matching lines": rooms with no matching line are left out (the count line says so)
     const isOpen=findOnly()||(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(!findShows(r,l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
@@ -2485,9 +2498,9 @@ document.addEventListener("keydown",e=>{ if(e.target.id!=="lineFilter") return;
   if(e.key==="Enter"){ e.preventDefault(); stepFind(e.shiftKey?-1:1); return; }
   if(e.key==="Escape"&&(e.target.value||S.lineQ)){ e.preventDefault(); e.stopImmediatePropagation(); clearFind(); } }); // first Esc clears the find, not full view
 document.addEventListener("click",e=>{ const b=e.target.closest("#findClear"); if(!b) return; e.preventDefault(); clearFind(); $("#lineFilter").focus(); });
-// "Show only matches" folds away every line and room that doesn't match; "Show all lines" brings them back. Focus moves to the other link.
-document.addEventListener("click",e=>{ const b=e.target.closest("#findOnlyBtn,#findAll"); if(!b) return; e.preventDefault(); S.findOnly=b.id==="findOnlyBtn"; renderQuote();
-  ($(S.findOnly?"#findAll":"#findOnlyBtn")||$("#lineFilter")).focus(); $("#qtCount").scrollIntoView({block:"nearest"}); });
+// "Only show matching lines": a checkbox beside the find box that keeps its place and its label; ticked, lines and rooms that don't match fold away
+// and the count line says "Showing 21 matching lines of 100", the same number as the box. It shows while a find is applied and is disabled when nothing matches.
+document.addEventListener("change",e=>{ if(e.target.id!=="findOnlyChk") return; S.findOnly=e.target.checked; renderQuote(); $("#findOnlyChk").focus(); $("#qtCount").scrollIntoView({block:"nearest"}); });
 // Add room from anywhere: full screen uses the Rooms panel form; otherwise the search side's room menu (switching to it on layout B's Quote tab)
 function startAddRoom(){
   if(S.expanded){ S.sideAdd=true; S.qview="products"; renderQView(); renderQuote(); $("#sideRoomType").focus(); return; }
@@ -2527,7 +2540,7 @@ document.addEventListener("change",e=>{
     if(t.value==="normal"){ S.query="faucet"; S.filters.fin.add("Brass"); S.filters.cat.add("Fittings"); }
     if(t.value==="fresh"||t.value==="normal"){ $("#q").value=S.query; $("#clearQ").hidden=!S.query; renderFilters(); }
     markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu();
-    $("#lineFilter").value=t.value==="long"?"bar":""; S.lineQ=$("#lineFilter").value; S.findOnly=false; FIND.i=-1; // the U-04 demo opens with "bar" found (22 matches in 9 rooms); other scenarios start with no find
+    $("#lineFilter").value=t.value==="long"?"bar":""; S.lineQ=$("#lineFilter").value; S.findOnly=false; FIND.i=-1; // the U-04 demo opens with "bar" found (21 matching lines in 9 rooms); other scenarios start with no find
     renderQuote(); search(); if(t.value==="long") applyFind(); return; }
   if(t.id==="view"){ setView(t.value); return; }
   if(t.id==="conceptRP"){ CR.on=t.checked; CR.open=null; CR.size={}; crHash(CR.on); renderQuote(); renderResults(); return; }
