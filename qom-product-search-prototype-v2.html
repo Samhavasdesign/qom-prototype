@@ -864,15 +864,37 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fpill.on .fpbtn:focus-visible,.fpill.on .fpx:focus-visible{outline-color:var(--bg);outline-offset:-4px}
 /* Clear all sits at the end of the pill row */
 .fpclear{min-height:44px;padding:0 4px;font-size:14px}
-/* finish families: a collapsible row each, closed by default */
-.ffhead{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
-.ffhead:hover{background:var(--surface)}
-.ffhead:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
-.ffhead svg{flex:none;transform:rotate(-90deg);transition:transform .15s}
-.ffhead[aria-expanded="true"] svg{transform:none}
-.ffhead small{color:var(--ink-3);font-size:13px}
-.ffhead .ffsel{margin-left:auto;color:var(--ink);font-weight:600}
-.ffam .fopt{padding-left:34px}
+/* Finish: two panes. Groups on the left (Most used, families, Stone and tile colors), the chosen group's finishes on the right.
+   Under 440px wide the groups become one row of chips above the list. */
+.fpop .fpbody:has(.fsplit){display:flex;flex-direction:column;overflow:hidden;padding-bottom:0} /* each pane scrolls on its own, so the groups stay in view on a short screen */
+.fsplit{flex:1;min-height:0;display:grid;grid-template-columns:184px minmax(0,1fr);border-top:1px solid var(--line-2);margin-top:6px}
+.fnav,.fpanel{overflow-y:auto;overscroll-behavior:contain}
+.fnav{display:flex;flex-direction:column;padding:6px 0;border-right:1px solid var(--line-2);background:var(--surface)}
+.fntab{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px 6px 14px;border:0;border-left:3px solid transparent;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.fntab span:first-child{flex:1;min-width:0}
+.fntab small{display:block;color:var(--ink-3);font-size:12px}
+.fntab:hover{background:var(--surface-2)}
+.fntab[aria-pressed="true"]{border-left-color:var(--ink);background:var(--bg);font-weight:600}
+.fntab:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.fnsel{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;line-height:20px;text-align:center}
+.fnsep{margin:6px 14px;border:0;border-top:1px solid var(--line-2)}
+.fpanel{min-width:0;padding-bottom:4px}
+/* option lists: two columns in a wide tray, one in a narrow one */
+.fpop.wide{width:560px;container-type:inline-size}
+.fgrid{columns:2;column-gap:0} /* fills down the first column, then the second, so A–Z reads down */
+.fgrid .fopt{break-inside:avoid;min-width:0}
+.fgrid .fopt span:not(.c){min-width:0;overflow-wrap:anywhere}
+@container (max-width:439px){
+  .fgrid{columns:1}
+  .fsplit{display:flex;flex-direction:column}
+  .fnav{flex:none}
+  .fpanel{flex:1;min-height:0}
+  .fnav{overflow-y:hidden;flex-direction:row;gap:6px;overflow-x:auto;padding:8px 14px;border-right:0;border-bottom:1px solid var(--line-2)}
+  .fntab{flex:none;min-height:36px;padding:4px 12px;border:1px solid var(--control-line);white-space:nowrap}
+  .fntab small,.fnsep{display:none}
+  .fntab[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+  .fntab[aria-pressed="true"] .fnsel{background:var(--bg);color:var(--ink)}
+}
 /* category groups: open/close toggle, category checkbox, then its product types indented beneath */
 .cghead{display:flex;align-items:stretch}
 .cghead .fopt{flex:1;min-width:0;padding-left:0}
@@ -908,12 +930,6 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fopt .c{margin-left:auto;padding-left:8px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .fopt.off{color:var(--ink-3)}
 .fpnone{margin:0;padding:12px 14px;font-size:13px;color:var(--ink-3)}
-.fpmore{display:block;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.fpentry{display:flex;align-items:center;justify-content:space-between;gap:8px;width:calc(100% - 28px);min-height:44px;margin:6px 14px;padding:0 12px;border:0;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
-.fpentry:hover{background:var(--surface-2)}
-.fpentry small{color:var(--ink-3);font-size:13px}
-.fpback{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
-.fpmore:focus-visible,.fpentry:focus-visible,.fpback:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .fpfoot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;padding:0 14px;border-top:1px solid var(--line-2);font-size:13px;color:var(--ink-2)}
 .fpfoot .tolink{min-height:44px}
 .fplist{max-height:220px;overflow:auto} /* a long list (Style Name) scrolls inside its own section */
@@ -1069,6 +1085,50 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .rpn{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--panel-line);border-top:0;padding:0 12px 0 40px;font-size:13px;color:var(--ink-2)}
 .rpn svg,.spi.warn .spi-ic{color:var(--ink-2)}
 .pb-chk{min-height:44px;margin:-12px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--ink-2);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+/* ---------- the other quote tabs (same as v3) (Essential Quote Info, Header Information, Shipping Information, Associations), mocked from QOM staging.
+   A two-column form on the left, the Preview drawer on the right. No Save or Discard here: the footer bar is the only Save. ---------- */
+.tabs a.ptab.cur{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+body.ptab-other #work,body.ptab-other #paneTabs,body.ptab-other #quoteStrip{display:none !important}
+.ptview{container:ptv/inline-size;padding-top:10px}
+.ptgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,1fr);gap:40px;align-items:start}
+@container ptv (max-width:960px){ .ptgrid{grid-template-columns:minmax(0,1fr)} } /* narrow (or the panel is open): the Preview goes under the form */
+.ptform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 40px;align-content:start}
+@container ptv (max-width:560px){ .ptform{grid-template-columns:minmax(0,1fr)} .pf-addwrap{padding-top:0} }
+.pf{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pf.wide{grid-column:1/-1}
+.pf-l{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:22px;font-size:15px;color:var(--ink)}
+.pf-l label{display:inline-flex;align-items:center;gap:6px}
+.pf-l .pf-i{display:inline-flex;color:var(--ink-3)}
+.pf-chk{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;cursor:pointer}
+.pf-chk input{width:20px;height:20px;margin:0;accent-color:var(--ink)}
+.pf-box{position:relative;display:flex;align-items:stretch;height:56px;border:1px solid var(--line);background:var(--bg)}
+.pf-box:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.pf-box input,.pf-box select{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;padding:0 18px;font-size:15px;letter-spacing:.02em;color:var(--ink);text-overflow:ellipsis}
+.pf-box input::placeholder{color:var(--ink-3)}
+.pf-box select{appearance:none;-webkit-appearance:none;padding-right:44px;cursor:pointer}
+.pf-box select.ph{color:var(--ink-3)}
+.pf-box .pf-caret{position:absolute;right:18px;top:50%;margin-top:-3px;pointer-events:none;color:var(--ink-2)}
+.pf-ic{flex:none;width:44px;display:flex;align-items:center;justify-content:center;border:0;background:none;padding:0;color:var(--ink);cursor:pointer}
+.pf-ic.clr{width:40px;margin-right:-10px;padding-left:6px}
+.pf-box .pf-ic.clr + input{padding-left:10px}
+.pf-go{flex:none;width:56px;margin:-1px -1px -1px 0;border:0;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pf-go:hover{background:var(--ink-2)}
+.pf-go:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.pf-hint{font-size:12px;color:var(--ink-2)}
+.pf-count{align-self:flex-end;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pf-add{height:56px;display:flex;align-items:center;justify-content:center;gap:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
+.pf-addwrap{display:flex;flex-direction:column;gap:6px;padding-top:30px}
+.pf-menu{top:calc(100% + 2px)}
+/* the Preview drawer, as on staging: its own tabs, then the preview card */
+.ptprev{min-width:0;display:flex;flex-direction:column}
+.ptseg{display:flex;justify-content:flex-end;gap:26px;height:44px;border-bottom:1px solid var(--line)} /* same look as the quote panel's view tabs (.qtab) */
+.ptseg span{display:flex;align-items:center;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 2px 0;color:var(--ink-2);white-space:nowrap}
+.ptseg span.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+.ptcard{border:1px solid var(--line);border-top:0;padding:20px 22px;min-height:420px}
+.ptcard h2{display:flex;align-items:center;gap:16px;margin:0 0 14px;font-family:var(--sans);font-weight:400;font-size:26px}
+.ptcard .ptid{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
+.ptcard .ptid b{font-family:var(--serif);font-weight:400;font-size:22px}
+.ptcard .ptid span{font-size:14px;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1129,8 +1189,19 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
     <h1>Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
     <p class="sub">QUALITY FINISHES (USC) - Henry bar and club house</p>
     <div class="tabs">
-      <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><span class="cur">Product Selection</span><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><span class="tabmore" aria-label="More tabs">•••</span>
+      <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><a href="#" class="ptab cur" data-ptab="4" aria-current="page">Product Selection</a><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><span class="tabmore" aria-label="More tabs">•••</span>
     </div>
+
+    <!-- Essential Quote Info, Header Information, Shipping Information and Associations, mocked from QOM staging (renderPTab fills it) -->
+    <div class="ptview" id="ptView" hidden><div class="ptgrid">
+      <form class="ptform" id="ptForm" autocomplete="off" onsubmit="return false"></form>
+      <aside class="ptprev" aria-label="Preview">
+        <div class="ptseg" aria-hidden="true"><span>PDF Preview</span><span>Quote Information</span><span class="on">Selected Products</span></div>
+        <div class="ptcard"><h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>Preview</h2>
+          <div class="ptid"><b>Quote ID: 6000024967</b><span id="ptExp"></span></div>
+          <span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span></div>
+      </aside>
+    </div></div>
 
     <div class="pane-tabs" id="paneTabs" hidden>
       <button type="button" role="tab" aria-selected="true" data-pane="search">Find products</button>
@@ -1456,7 +1527,7 @@ const S = {
   // cat holds category names and product type names together (see CATEGORY_TYPES_MOCK). Finish applies to the whole quote:
   // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
   filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
-  fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal",
+  fpop:null, finTab:null, catOpen:new Set(),
   page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
@@ -1590,7 +1661,6 @@ const isPriceTier=f=>/^stone group\s*\d/i.test(f); // "Stone Group 1–4" are pr
 // finish families: keyword rule, case-insensitive, first match wins. A finish that matches none is a stone or tile color.
 const FIN_FAMILIES=[["Nickel",/nick/i],["Brass",/brass/i],["Chrome",/chrom/i],["Gold",/gold/i],["Copper",/copper/i],["Black",/black/i],["Bronze",/bronze/i],["Stainless steel",/stainless|steel/i],["Champagne",/champagne/i],["Unfinished",/unfinish/i],["White",/white/i]];
 const finFamily=f=>(FIN_FAMILIES.find(([,re])=>re.test(f))||[null])[0];
-const FAM_SHOW=4; // families shown before "Show n more families"
 const PILLS=[["fin","Finish"],["col","Collection"],["cat","Category"],["more","More filters"]];
 const MORE=[["lt","Line type"]]; // only line type; series, style name, compliance, color and price are left out
 const LT_ORDER=["Stocked","Non-Stocked","Direct Ship","Kit"], LT_LABEL={"Non-Stocked":"Non-stocked","Direct Ship":"Direct ship"};
@@ -1612,10 +1682,6 @@ function pillText(k,label){ const v=groupSel(k); if(!v.length) return label; ret
 function optRow(k,o,count){ const c=count(k,o); return `<label class="fopt${c?"":" off"}"><input type="checkbox" data-f="${k}" value="${esc(o)}" ${S.filters[k].has(o)?"checked":""}><span>${esc(optLabel(k,o))}</span><span class="c">${c}</span></label>`; }
 const fpSearch=(k,what)=>`<div class="fpsrch">${ICON_SEARCH}<input type="search" data-fq="${k}" placeholder="Search ${what}" aria-label="Search ${what}" value="${esc(S.fq[k])}" autocomplete="off"></div>`;
 const hit=(k,o)=>o.toLowerCase().includes((S.fq[k]||"").trim().toLowerCase());
-function listBody(k,opts,count,what){ // plain checkbox list; a search box once there are more than 8 options
-  const shown=opts.filter(o=>hit(k,o));
-  return (opts.length>8?fpSearch(k,what):"")+`<div class="fplist">${shown.map(o=>optRow(k,o,count)).join("")||`<p class="fpnone">No ${what} match</p>`}</div>`;
-}
 function catBody(count){ // each category is a group with its product types beneath; groups open and close, counts on both levels
   const set=S.filters.cat;
   return `<div class="fplist">`+CATS.map(c=>{ const types=CATEGORY_TYPES_MOCK[c].types, whole=set.has(c), n=types.filter(t=>set.has(t.name)).length, open=S.catOpen.has(c), cc=count("cat",c);
@@ -1626,41 +1692,39 @@ function catBody(count){ // each category is a group with its product types bene
 }
 function finBody(count){
   const {metal,surf,metalOn,surfOn,noCat}=finishPools(), sel=S.filters.fin, q=(S.fq.fin||"").trim();
-  if(!metalOn||(!surfOn&&!noCat)) S.finView="metal";
-  const view=metalOn?(noCat?S.finView:"metal"):"surf";
-  const all=[...(metalOn?metal:[]),...(surfOn||noCat?surf:[])];
-  let out=all.length>8?fpSearch("fin","finishes"):"";
-  if(q){ const m=all.filter(o=>hit("fin",o)); return out+(m.map(o=>optRow("fin",o,count)).join("")||'<p class="fpnone">No finishes match</p>'); }
-  if(view==="surf") return out+(noCat?'<button type="button" class="fpback" data-finview="metal">‹ Metal finishes</button>':"")+`<p class="fpgrp">Stone and tile colors</p>${surf.map(o=>optRow("fin",o,count)).join("")}`;
-  const most=MOST_USED.filter(o=>metal.includes(o));
-  if(most.length) out+=`<p class="fpgrp">Most used</p>${most.map(o=>optRow("fin",o,count)).join("")}<hr class="fpsep">`;
-  // families, largest first; each closed until opened, finishes inside by count
+  // two panes, so the tray never becomes one long scroll: groups on the left (Most used, each family, Stone and tile colors), the chosen group's finishes on the right
+  const showSurf=surfOn||(noCat&&surf.length>0), all=[...(metalOn?metal:[]),...(showSurf?surf:[])];
+  const grid=list=>`<div class="fgrid">${list.map(o=>optRow("fin",o,count)).join("")}</div>`;
+  let out=all.length>8?fpSearch("fin",showSurf&&surf.length?"finishes and colors":"finishes"):""; // typing "Bloomsbury" narrows the list (Josh)
+  if(q){ const m=all.filter(o=>hit("fin",o)); return out+(m.length?grid(m):'<p class="fpnone">No finishes match</p>'); }
+  if(!metalOn) return out+`<p class="fpgrp">Stone and tile colors, A–Z</p>${grid(surf)}`; // Surfaces only: no groups needed
   const byCount=(a,b)=>catCount("fin",b)-catCount("fin",a)||alpha(a,b);
-  const fams=FIN_FAMILIES.map(([name])=>({name,fins:metal.filter(f=>finFamily(f)===name).sort(byCount)})).filter(f=>f.fins.length)
-    .map(f=>({...f,size:f.fins.reduce((n,o)=>n+catCount("fin",o),0)})).sort((a,b)=>b.size-a.size);
-  const hiddenFams=fams.slice(FAM_SHOW).filter(f=>!f.fins.some(o=>sel.has(o))); // a family with a ticked finish never hides
-  const shownFams=S.finMore?fams:fams.filter(f=>!hiddenFams.includes(f));
-  if(fams.length) out+=`<p class="fpgrp">By family</p>`+shownFams.map(f=>{ const open=S.finOpen.has(f.name), n=f.fins.filter(o=>sel.has(o)).length;
-    return `<div class="ffam"><button type="button" class="ffhead" data-finfam="${esc(f.name)}" aria-expanded="${open}">${CHEV}<span>${esc(f.name)} <small>· ${f.fins.length} finish${f.fins.length===1?"":"es"}</small></span>${n?`<span class="ffsel">${n} selected</span>`:""}</button>${open?f.fins.map(o=>optRow("fin",o,count)).join(""):""}</div>`; }).join("");
-  if(hiddenFams.length) out+=`<button type="button" class="fpmore" data-finmore="1" aria-expanded="${S.finMore}">${S.finMore?"Show fewer families":`Show ${hiddenFams.length} more famil${hiddenFams.length===1?"y":"ies"}`}</button>`;
-  if(surfOn) out+=`<hr class="fpsep"><p class="fpgrp">Stone and tile colors</p>${surf.map(o=>optRow("fin",o,count)).join("")}`;
-  else if(noCat&&surf.length) out+=`<button type="button" class="fpentry" data-finview="surf"><span>Stone and tile colors</span><small>for Surfaces ›</small></button>`;
-  return out;
+  const fams=FIN_FAMILIES.map(([name])=>({id:name,name,fins:metal.filter(f=>finFamily(f)===name).sort(byCount)})).filter(f=>f.fins.length)
+    .map(f=>({...f,size:f.fins.reduce((n,o)=>n+catCount("fin",o),0)})).sort((a,b)=>b.size-a.size); // families, largest first; finishes inside by count
+  const odd=metal.filter(f=>!finFamily(f)).sort(byCount); // metal finishes no family rule covers stay findable, last
+  if(odd.length) fams.push({id:"Other finishes",name:"Other finishes",fins:odd});
+  const most=MOST_USED.filter(o=>metal.includes(o));
+  const tabs=[...(most.length?[{id:"most",name:"Most used",fins:most}]:[]),...fams,...(showSurf?[{id:"surf",name:"Stone and tile colors",sub:"for Surfaces",head:"Stone and tile colors, A–Z",fins:surf}]:[])];
+  const cur=tabs.find(t=>t.id===S.finTab)||tabs[0];
+  const nav=tabs.map(t=>{ const n=t.fins.filter(o=>sel.has(o)).length, on=t===cur;
+    return `${t.id==="surf"||(t.id!=="most"&&t===fams[0])?'<hr class="fnsep">':""}<button type="button" class="fntab" data-finfam="${esc(t.id)}" aria-pressed="${on}"${n?` aria-label="${esc(t.name)}, ${n} selected"`:""}><span>${esc(t.name)}${t.sub?`<small>${t.sub}</small>`:""}</span>${n?`<span class="fnsel" aria-hidden="true">${n}</span>`:""}</button>`; }).join("");
+  return out+`<div class="fsplit"><div class="fnav" role="group" aria-label="Finish groups">${nav}</div><div class="fpanel" role="group" aria-label="${esc(cur.name)}"><p class="fpgrp">${esc(cur.head||cur.name)}</p>${cur.fins.map(o=>optRow("fin",o,count)).join("")}</div></div>`;
 }
 function popHtml(k,label){
   const {count}=facetCounts(); let body, foot="";
-  if(k==="fin"){ body=finBody(count); foot=`<div class="fpfoot"><span>Stays on for this quote <span class="fr">FR-15</span></span>${S.filters.fin.size?'<button type="button" class="tolink" data-fclr="fin">Clear</button>':""}</div>`; }
+  if(k==="fin"){ body=finBody(count); if(S.filters.fin.size) foot=`<div class="fpfoot"><span><span class="fr">FR-15</span></span><button type="button" class="tolink" data-fclr="fin">Clear</button></div>`; } // footer only for Clear, as the other trays (the "Stays on for this quote" note was removed, Sam, Nov 6)
   else if(k==="cat") body=catBody(count);
   else if(k==="col"){ const cols=uniq(CAT,"col").filter(o=>!TEST_VALUES.has(o));
-    if((S.fq.col||"").trim()) body=listBody("col",cols,count,"collections");
+    const grid=list=>`<div class="fgrid">${list.map(o=>optRow("col",o,count)).join("")}</div>`; // two columns when the tray is wide enough
+    if((S.fq.col||"").trim()){ const m=cols.filter(o=>hit("col",o)); body=fpSearch("col","collections")+(m.length?grid(m):'<p class="fpnone">No collections match</p>'); }
     else { const most=[...cols].sort((a,b)=>catCount("col",b)-catCount("col",a)||alpha(a,b)).slice(0,COL_MOST), rest=cols.filter(o=>!most.includes(o));
-      body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${most.map(o=>optRow("col",o,count)).join("")}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${rest.map(o=>optRow("col",o,count)).join("")}`; } }
-  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?"":" checked"}><span>Hide discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They're shown by default, with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5): unticked by default like every other filter, so ticking it narrows the results
+      body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${grid(most)}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${grid(rest)}`; } }
+  else body=`<p class="fpgrp">Line type</p><div class="fgrid">${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}</div><p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?"":" checked"}><span>Hide discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They're shown by default, with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5): unticked by default like every other filter, so ticking it narrows the results
   if(k!=="fin"&&(groupSel(k).length||(k==="more"&&!S.disc))) foot=`<div class="fpfoot"><span></span><button type="button" class="tolink" data-fclr="${k}">Clear</button></div>`;
-  return `<div class="fpop" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
+  return `<div class="fpop${k==="cat"?"":" wide"}" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
 }
 function focusKey(){ const a=document.activeElement; if(!a||!a.closest?.("#fpills")) return null;
-  for(const at of ["f","fq","fpop","fclr","finmore","finview","finfam","fcat","ftype","catopen"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
+  for(const at of ["f","fq","fpop","fclr","finfam","fcat","ftype","catopen"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
   return a.id?{sel:"#"+a.id}:null; }
 const anyFilterOn=()=>Object.values(S.filters).some(v=>v.size)||!S.disc; // hiding discontinued items counts as a filter, so Clear all appears
 function renderFilters(){
@@ -1820,7 +1884,8 @@ function openRemoveDialog(room,sku,ret){ // every way of removing a line asks fi
 // the last saved copy of the quote; "Discard changes" goes back to it
 // every room gets a stable ID the first time it's needed; renaming keeps it, so unsaved changes compare rooms by ID, not by name
 let ROOM_SEQ=0; const roomId=r=>r.id||(r.id="room"+(++ROOM_SEQ));
-function markSaved(){ S.quote.rooms.forEach(roomId); S.base=structuredClone(S.quote); SEND.savedAt=nowTime(); }
+function markSaved(){ S.quote.rooms.forEach(roomId); S.base=structuredClone(S.quote); SEND.savedAt=nowTime(); if(TF){ syncAddr(); TF_BASE={...TF}; } }
+var TF=null, TF_BASE=null; // v3: the mocked tabs' fields (set further down); var so markSaved can run first
 // opening a room makes it the one you add to; the open room can also be folded shut by hand
 function pickRoom(name){ S.room=name; S.collapsedFor=null; S.folded=S.folded.filter(x=>x!==name); if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderQuote(); }
 function toggleRoom(name){
@@ -1836,6 +1901,7 @@ function openDiscardDialog(){
 function discardChanges(){
   S.quote=structuredClone(S.base||S.quote); S.dirty=false; S.undo=null; S.lmenu=null; S.open=[];
   if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
+  if(TF_BASE){ TF={...TF_BASE}; SEND.addr=!!TF.addr; renderPTab(); } // the tab fields go back too
   renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); showToast("Changes discarded");
 }
 // removes a line; taking out a room's last item removes the room as well, and Undo brings both back
@@ -2161,7 +2227,9 @@ const lineName=x=>{ const p=CAT.find(c=>c.sku===x.l.sku); return `${p.name} in $
 function changeCount(){ if(!S.dirty) return 0;
   // keyed by room ID: a rename (name or type) is one change, and the room's lines don't count as changed
   const map=q=>{ const m=new Map(); (q?.rooms||[]).forEach(r=>{ const id=roomId(r); m.set("room:"+id,r.name+"|"+(r.type||"")); r.lines.forEach(l=>m.set(id+"|"+l.sku,JSON.stringify(l))); }); return m; };
-  const a=map(S.base), b=map(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return Math.max(n,1); }
+  const a=map(S.base), b=map(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; });
+  if(TF&&TF_BASE) Object.keys(TF).forEach(k=>{ if(TF[k]!==TF_BASE[k]) n++; }); // edited fields on the other tabs
+  return Math.max(n,1); }
 // where the panel is pointing: which of the missing lines, counted in quote order
 function focusPos(kind){ const f=SEND.focus; if(!f||f.kind!==kind) return -1; return missingOf(kind).findIndex(x=>x.r.name===f.room&&x.l.sku===f.sku); }
 function sendItems(){
@@ -2261,7 +2329,7 @@ function runFreight(){
   clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent="Freight and tax calculated. Ready to send."; },6000);
 }
 function sendAction(a){
-  if(a==="addAddr"){ SEND.addr=true; renderSend(); showToast("Delivery address added (prototype). In QOM this is entered under Shipping Information.","ok"); return; }
+  if(a==="addAddr"){ setPTab(2); const f=$("#pf-addr"); f?.focus(); f?.scrollIntoView({block:"center"}); return; } // goes to Shipping Information, Delivery Address
   if(a==="calc"){ runFreight(); return; }
   if(a==="addRoom"){ closeSend(); startAddRoom(); return; }
   if(a==="addProd"){ closeSend(); startAddProducts(S.room||S.quote.rooms[0].name); return; }
@@ -2325,7 +2393,7 @@ function applySendScenario(v){
 }
 // a click anywhere outside closes it; the footer's own controls and the line notes it points to don't count
 document.addEventListener("click",e=>{ if(e.target.closest?.("a.ptab")) e.preventDefault(); },true); // page tabs that aren't built: hover only
-document.addEventListener("click",e=>{ if(SEND.open&&!e.target.closest("#sendPanel,#pbar,.lflag,.dlgwrap")) closeSend(); },true);
+document.addEventListener("click",e=>{ if(SEND.open&&!e.target.closest("#sendPanel,#pbar,.lflag,.dlgwrap,a.ptab[data-ptab],#ptView")) closeSend(); },true); // v3: page tabs and the mocked tab forms (where Add address sends you) keep it open
 document.addEventListener("keydown",e=>{
   if(e.key!=="Escape") return;
   if(SEND.open&&$("#sendPanel").contains(document.activeElement)){ closeSend(); e.stopPropagation(); }
@@ -2446,10 +2514,8 @@ document.addEventListener("click",e=>{
   if(t.dataset.qview){ setQView(t.dataset.qview); document.querySelector('.qtab[aria-selected="true"]')?.focus(); return; }
   if(t.dataset.fpop){ const k=t.dataset.fpop; if(S.fpop===k){ closePop(true); return; } S.fpop=k; popDir=null; renderFilters(); const fp=$("#fpop"); if(fp&&fitPop(fp,true)<300){ document.querySelector(`[data-fpop="${k}"]`)?.scrollIntoView({block:"start"}); fitPop(fp,true); } fp?.querySelector("input,button")?.focus({preventScroll:true}); return; }
   if(t.dataset.fclr){ const k=t.dataset.fclr; clearGroup(k); renderFilters(); search(); (k==="all"?$("#q"):document.querySelector(`[data-fpop="${k}"]`))?.focus(); return; }
-  if(t.dataset.finfam){ const f=t.dataset.finfam; S.finOpen.has(f)?S.finOpen.delete(f):S.finOpen.add(f); renderFilters(); return; }
+  if(t.dataset.finfam){ S.finTab=t.dataset.finfam; renderFilters(); return; } // Finish: show that group's finishes in the right pane
   if(t.dataset.catopen){ const c=t.dataset.catopen; S.catOpen.has(c)?S.catOpen.delete(c):S.catOpen.add(c); renderFilters(); return; }
-  if(t.dataset.finmore){ S.finMore=!S.finMore; renderFilters(); return; }
-  if(t.dataset.finview){ S.finView=t.dataset.finview; renderFilters(); $("#fpop")?.querySelector(t.dataset.finview==="surf"?".fpback, .fopt input":".fpentry")?.focus(); return; }
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
@@ -2872,6 +2938,84 @@ const fitRO=new ResizeObserver(()=>fitEmpty()); fitRO.observe($("#qSide")); fitR
 // filter popovers: a click outside closes; Esc closes and puts focus back on the pill
 document.addEventListener("click",e=>{ if(S.fpop && e.target.isConnected && !e.target.closest(".fpill")) closePop(false); },true);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.fpop){ e.preventDefault(); closePop(true); } });
+// ---------- the other quote tabs (same as v3), mocked from QOM staging so the bar can be seen on every tab ----------
+// Fields are mock values for this quote (QUALITY FINISHES). Editing any of them marks the quote unsaved; Discard in the bar reverts them.
+const PT_ADDRS=["12 Sample Street, Anytown MA 01000","QUALITY FINISHES warehouse, 400 Example Avenue, Anytown MA 01002"];
+const PT_CUST="10000418 - QUALITY FINISHES";
+TF={cust:PT_CUST,spec:"Dana Whitfield · Whitfield Design Studio",otype:S.view==="commercial"?"Commercial":"Residential",osub:"US Domestic",rdd:QI.delivery,conv:QI.conv,
+  sc:QI.consultant,proj:QI.project,payer:PT_CUST,same:"yes",status:"",resp:QI.consultant,exp:"04/27/2028",desc:"Henry bar and club house",
+  addr:"",po:"",svc:QI.service,cost:QI.cost,acc:"",
+  shipto:"",billto:"Pat Morgan-Ellis · pat.morgan-ellis@example.com",aspec:"Dana Whitfield · Whitfield Design Studio",p2:"",p3:"",p4:"",p5:"",p6:""};
+function syncAddr(){ if(!TF) return; if(SEND.addr&&!TF.addr) TF.addr=PT_ADDRS[0]; if(!SEND.addr) TF.addr=""; } // the address field and the "Delivery address missing" blocker agree
+syncAddr(); TF_BASE={...TF};
+const PI={
+  go:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>`,
+  clr:`<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m8.5 8.5 7 7m0-7-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
+  cal:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke-linecap="round"/><rect x="7" y="12.5" width="4" height="4" fill="currentColor" stroke="none"/></svg>`,
+  caret:`<svg class="pf-caret" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" fill="currentColor"/></svg>`,
+  info:`<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.6"/><path d="M8 7.2v4.2M8 4.8v.1"/></svg>`
+};
+// one field: kind is text, lookup (black search button), clook (lookup with a clear ×), select, or date (clear × and calendar)
+function pf(k,label,kind,o={}){
+  const id="pf-"+k, v=TF[k]??"", req=o.req?" *":"", ph=esc(o.ph||"");
+  const lbl=`<div class="pf-l"><label for="${id}">${esc(label)}${req}${o.info?`<span class="pf-i" title="The customer this quote is for">${PI.info}</span>`:""}</label>${o.extra||""}</div>`;
+  const inp=`<input id="${id}" data-tf="${k}" value="${esc(v)}" placeholder="${ph}"${o.req?' aria-required="true"':""}${o.max?` maxlength="${o.max}"`:""}>`;
+  const clr=`<button type="button" class="pf-ic clr" data-tfclr="${k}" aria-label="Clear ${esc(label)}">${PI.clr}</button>`;
+  let box;
+  if(kind==="select"){ const opts=o.opts.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("");
+    box=`<div class="pf-box"><select id="${id}" data-tf="${k}" class="${v?"":"ph"}"${o.req?' aria-required="true"':""}><option value=""${v?"":" selected"} disabled hidden>${ph}</option>${opts}</select>${PI.caret}</div>`; }
+  else if(kind==="date") box=`<div class="pf-box">${v?clr:""}${inp}<button type="button" class="pf-ic" data-tfcal="${k}" aria-label="Choose ${esc(label)}">${PI.cal}</button></div>`;
+  else if(kind==="lookup"||kind==="clook") box=`<div class="pf-box">${kind==="clook"&&v?clr:""}${inp}<button type="button" class="pf-go" data-tfgo="${k}" aria-label="Search ${esc(label)}">${PI.go}</button>${k==="addr"?`<div class="menu pf-menu" id="addrMenu" hidden></div>`:""}</div>`;
+  else box=`<div class="pf-box">${inp}</div>`;
+  return `<div class="pf${o.wide?" wide":""}">${lbl}${box}${o.after||""}</div>`;
+}
+const PT_FORMS={
+  0:()=>pf("cust","Customer","clook",{req:1,info:1})+pf("spec","Primary Specifier Contact","lookup",{req:1,ph:"Search by client, then contact"})
+    +pf("otype","Order Type","select",{req:1,opts:["Residential","Commercial"],ph:"Select an Order Type"})+pf("osub","Order Subtype","select",{req:1,opts:["US Domestic","International"],ph:"Select an Order Subtype"})
+    +pf("rdd","Requested Delivery Date","date",{req:1,ph:"MM/DD/YYYY"})+pf("conv","Est. Conv. Date","date",{req:1,ph:"MM/DD/YYYY"}),
+  1:()=>pf("sc","Sales Consultant","clook",{req:1,ph:"Choose a Sales Consultant"})
+    +`<div class="pf pf-addwrap"><button type="button" class="pf-add" data-tfadd="sc"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13"/></svg>Add sales consultant</button><span class="pf-hint">You can add up to three (3) consultants</span></div>`
+    +pf("proj","Project (Optional)","clook",{ph:"Choose a Project"})+`<div class="pf" aria-hidden="true"></div>`
+    +pf("payer",'Payer ("Bill To")',"clook",{req:1,ph:"Choose a Payer",extra:`<label class="pf-chk"><input type="checkbox" data-tf="same"${TF.same==="yes"?" checked":""}>Same as Customer</label>`})
+    +pf("status","Status","select",{req:1,opts:["Open","Quoted","Pending client approval"],ph:"Select a Status"})
+    +pf("resp","Responsible","clook",{req:1,ph:"Choose a Responsible"})+pf("exp","Expiration Date","date",{req:1,ph:"MM/DD/YYYY"})
+    +pf("desc","Quote Description","text",{req:1,wide:1,max:30,ph:"Enter Quote Description",after:`<span class="pf-count" id="descCount" aria-live="polite">${TF.desc.length}/30</span>`}),
+  2:()=>pf("addr","Delivery Address","lookup",{req:1,ph:"Choose a Delivery Address"})+pf("po","Customer PO Number","text",{ph:"Enter a Customer PO Number"})
+    +pf("svc","Service Level","select",{req:1,opts:["Standard Shipping (S01)","Expedited Shipping (S02)","White Glove Delivery (S05)"],ph:"Select a Service Level"})
+    +pf("cost","Cost Center","select",{req:1,opts:[QI.cost,"Sample Trade Showroom"],ph:"Select a Cost Center"})
+    +pf("acc","Accessorial Terms","select",{opts:["Liftgate","Inside delivery","Appointment required"],ph:"Select accessorial terms"}),
+  3:()=>[["shipto",'Delivery Contact ("Ship To")',1],["billto",'Payer Contact ("Bill To")',1],["aspec","Primary Specifier Contact",1],["p2","Associated Party 2"],["p3","Associated Party 3"],["p4","Associated Party 4"],["p5","Associated Party 5"],["p6","Associated Party 6"]]
+    .map(([k,l,r])=>pf(k,l,"lookup",{req:r,ph:"Search by name or email"})).join("")
+};
+const PT_NAMES=["Essential Quote Info","Header Information","Shipping Information","Associations"];
+S.ptab=4; // 4 is Product Selection
+function renderPTab(){ if(S.ptab===4) return; syncAddr(); $("#ptForm").innerHTML=PT_FORMS[S.ptab](); $("#ptForm").setAttribute("aria-label",PT_NAMES[S.ptab]); $("#ptExp").textContent="Expires on: "+fDate(pDate(QI.expires)); }
+// switching tabs happens on the same page; the bar, a collapsed bar and an open panel all stay as they are
+function setPTab(n){ if(n===S.ptab){ renderPTab(); return; }
+  if(n!==4&&S.expanded) setExpanded(false);
+  S.ptab=n; document.querySelectorAll("a.ptab[data-ptab]").forEach(a=>{ const on=+a.dataset.ptab===n; a.classList.toggle("cur",on); on?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"); });
+  document.body.classList.toggle("ptab-other",n!==4); $("#ptView").hidden=n===4; renderPTab(); placeBar(); if(n===4) fitPanes(); scrollTo(0,0); }
+document.addEventListener("click",e=>{ const a=e.target.closest("a.ptab[data-ptab]"); if(!a) return; e.preventDefault(); setPTab(+a.dataset.ptab); });
+// any edit marks the quote unsaved (counted in the bar), without re-rendering the form, so focus stays where you're typing
+function tfSet(k,v){ TF[k]=v; S.dirty=true; renderSend(); }
+$("#ptForm").addEventListener("input",e=>{ const k=e.target.dataset.tf; if(!k) return;
+  if(e.target.type==="checkbox") return;
+  tfSet(k,e.target.value); if(k==="desc") $("#descCount").textContent=e.target.value.length+"/30";
+  if(e.target.tagName==="SELECT") e.target.classList.toggle("ph",!e.target.value);
+  if(k==="addr"&&!e.target.value&&SEND.addr){ SEND.addr=false; renderSend(); } });
+$("#ptForm").addEventListener("change",e=>{ if(e.target.type==="checkbox"&&e.target.dataset.tf){ tfSet(e.target.dataset.tf,e.target.checked?"yes":"no"); if(e.target.checked&&TF.payer!==TF.cust){ TF.payer=TF.cust; renderPTab(); } } });
+function pickAddr(i){ TF.addr=PT_ADDRS[i]; S.dirty=true; SEND.addr=true; renderPTab(); renderSend(); $("#pf-addr").focus(); $("#sendLive").textContent="Delivery address chosen."; }
+function addrMenu(open){ const m=$("#addrMenu"); if(!m) return; m.hidden=!open; $("#pf-addr").setAttribute("aria-expanded",String(open));
+  if(open){ m.innerHTML=`<div class="grp">ADDRESSES ON FILE FOR QUALITY FINISHES</div>`+PT_ADDRS.map((a,i)=>`<button type="button" data-addr="${i}">${esc(a)}</button>`).join(""); m.querySelector("button").focus(); } }
+$("#ptForm").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.addr){ pickAddr(+b.dataset.addr); return; }
+  if(b.dataset.tfgo==="addr"){ addrMenu($("#addrMenu").hidden); return; }
+  if(b.dataset.tfgo) { showToast("The QOM lookup opens here (not built in the prototype)."); return; }
+  if(b.dataset.tfclr){ const k=b.dataset.tfclr; tfSet(k,""); renderPTab(); $("#pf-"+k).focus(); return; }
+  if(b.dataset.tfcal){ showToast("The date picker opens here (not built in the prototype)."); return; }
+  if(b.dataset.tfadd){ showToast("Adds a second sales consultant (not built in the prototype)."); } });
+$("#ptForm").addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id==="pf-addr"){ e.preventDefault(); addrMenu(true); } if(e.key==="Escape"&&!$("#addrMenu")?.hidden){ addrMenu(false); $("#pf-addr").focus(); } });
+document.addEventListener("click",e=>{ const m=$("#addrMenu"); if(m&&!m.hidden&&!e.target.closest("#addrMenu,[data-tfgo='addr']")) addrMenu(false); });
 renderQView();
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
 $("#conceptRP").checked=CR.on; // concept QOM-2561 starts from the address: #concept-required-parts turns it on

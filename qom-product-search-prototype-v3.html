@@ -864,15 +864,37 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fpill.on .fpbtn:focus-visible,.fpill.on .fpx:focus-visible{outline-color:var(--bg);outline-offset:-4px}
 /* Clear all sits at the end of the pill row */
 .fpclear{min-height:44px;padding:0 4px;font-size:14px}
-/* finish families: a collapsible row each, closed by default */
-.ffhead{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
-.ffhead:hover{background:var(--surface)}
-.ffhead:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
-.ffhead svg{flex:none;transform:rotate(-90deg);transition:transform .15s}
-.ffhead[aria-expanded="true"] svg{transform:none}
-.ffhead small{color:var(--ink-3);font-size:13px}
-.ffhead .ffsel{margin-left:auto;color:var(--ink);font-weight:600}
-.ffam .fopt{padding-left:34px}
+/* Finish: two panes. Groups on the left (Most used, families, Stone and tile colors), the chosen group's finishes on the right.
+   Under 440px wide the groups become one row of chips above the list. */
+.fpop .fpbody:has(.fsplit){display:flex;flex-direction:column;overflow:hidden;padding-bottom:0} /* each pane scrolls on its own, so the groups stay in view on a short screen */
+.fsplit{flex:1;min-height:0;display:grid;grid-template-columns:184px minmax(0,1fr);border-top:1px solid var(--line-2);margin-top:6px}
+.fnav,.fpanel{overflow-y:auto;overscroll-behavior:contain}
+.fnav{display:flex;flex-direction:column;padding:6px 0;border-right:1px solid var(--line-2);background:var(--surface)}
+.fntab{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px 6px 14px;border:0;border-left:3px solid transparent;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.fntab span:first-child{flex:1;min-width:0}
+.fntab small{display:block;color:var(--ink-3);font-size:12px}
+.fntab:hover{background:var(--surface-2)}
+.fntab[aria-pressed="true"]{border-left-color:var(--ink);background:var(--bg);font-weight:600}
+.fntab:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.fnsel{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;line-height:20px;text-align:center}
+.fnsep{margin:6px 14px;border:0;border-top:1px solid var(--line-2)}
+.fpanel{min-width:0;padding-bottom:4px}
+/* option lists: two columns in a wide tray, one in a narrow one */
+.fpop.wide{width:560px;container-type:inline-size}
+.fgrid{columns:2;column-gap:0} /* fills down the first column, then the second, so A–Z reads down */
+.fgrid .fopt{break-inside:avoid;min-width:0}
+.fgrid .fopt span:not(.c){min-width:0;overflow-wrap:anywhere}
+@container (max-width:439px){
+  .fgrid{columns:1}
+  .fsplit{display:flex;flex-direction:column}
+  .fnav{flex:none}
+  .fpanel{flex:1;min-height:0}
+  .fnav{overflow-y:hidden;flex-direction:row;gap:6px;overflow-x:auto;padding:8px 14px;border-right:0;border-bottom:1px solid var(--line-2)}
+  .fntab{flex:none;min-height:36px;padding:4px 12px;border:1px solid var(--control-line);white-space:nowrap}
+  .fntab small,.fnsep{display:none}
+  .fntab[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+  .fntab[aria-pressed="true"] .fnsel{background:var(--bg);color:var(--ink)}
+}
 /* category groups: open/close toggle, category checkbox, then its product types indented beneath */
 .cghead{display:flex;align-items:stretch}
 .cghead .fopt{flex:1;min-width:0;padding-left:0}
@@ -908,12 +930,6 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fopt .c{margin-left:auto;padding-left:8px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .fopt.off{color:var(--ink-3)}
 .fpnone{margin:0;padding:12px 14px;font-size:13px;color:var(--ink-3)}
-.fpmore{display:block;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.fpentry{display:flex;align-items:center;justify-content:space-between;gap:8px;width:calc(100% - 28px);min-height:44px;margin:6px 14px;padding:0 12px;border:0;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
-.fpentry:hover{background:var(--surface-2)}
-.fpentry small{color:var(--ink-3);font-size:13px}
-.fpback{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
-.fpmore:focus-visible,.fpentry:focus-visible,.fpback:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .fpfoot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;padding:0 14px;border-top:1px solid var(--line-2);font-size:13px;color:var(--ink-2)}
 .fpfoot .tolink{min-height:44px}
 .fplist{max-height:220px;overflow:auto} /* a long list (Style Name) scrolls inside its own section */
@@ -1520,6 +1536,11 @@ function crOpen(key){ const [room]=key.split("|"); CR.open=key; renderQuote();
 CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on Bar", sec:"Wall-mount bar with 1.75 GPM handshower", col:"Henry", series:"Classic", cat:"Fittings", fin:"Nickel", st:20, stock:4, price:2110});
 // item master text written in codes (TR = Transit, PB = polished brass), for the PRD lookup "TR PB" (FR-1); price is mock
 CAT.push({sku:"TRTHM-PB", name:"Transit Thermostatic Trim TR PB", sec:"TR PB THERM TRIM LVR", col:"Transit", series:"Modern", cat:"Fittings", fin:"Polished Brass", st:20, stock:5, price:1180});
+// Architectonics 3 x 6 tile in a spread of colors, listed in the jumbled order SCs see today (Josh's interview), so the A–Z
+// "Stone and tile colors" list and typing a color to narrow it can be tried. Mock stock and prices.
+CAT.push(...[["CHR","Charcoal",40],["ASH","Ashen",0],["CLW","Clearwater",120],["AQU","Aqua",60],["ANG","Angelica",0],["SND","Sandcastle",30],["BLM","Bloomsbury",80],
+  ["TAU","Taupe",50],["JAD","Jade",20],["IND","Indigo",0],["DLP","Delphine",90],["CED","Cedar",10],["FLX","Flax",70],["HAZ","Hazel",40]]
+  .map(([c,n,s])=>({sku:"ARCH36-"+c, name:"Architectonics 3 x 6 Tile", sec:"Ceramic, "+n, col:"Architectonics", series:"Ceramic", cat:"Surfaces", fin:n, st:20, stock:s, ...(s?{}:{lead:"about 6 weeks"}), price:28, uom:"square feet", mult:10})));
 // sample product photos saved from waterworks.com (wall-mounted accessories page) into images/; they are dummies, not matched to the mock products.
 // Products without an entry show the plain placeholder, and a missing file falls back to the failed-image state.
 const IMG={
@@ -1544,7 +1565,7 @@ const S = {
   // cat holds category names and product type names together (see CATEGORY_TYPES_MOCK). Finish applies to the whole quote:
   // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
   filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
-  fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal",
+  fpop:null, finTab:null, catOpen:new Set(),
   page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
@@ -1678,7 +1699,6 @@ const isPriceTier=f=>/^stone group\s*\d/i.test(f); // "Stone Group 1–4" are pr
 // finish families: keyword rule, case-insensitive, first match wins. A finish that matches none is a stone or tile color.
 const FIN_FAMILIES=[["Nickel",/nick/i],["Brass",/brass/i],["Chrome",/chrom/i],["Gold",/gold/i],["Copper",/copper/i],["Black",/black/i],["Bronze",/bronze/i],["Stainless steel",/stainless|steel/i],["Champagne",/champagne/i],["Unfinished",/unfinish/i],["White",/white/i]];
 const finFamily=f=>(FIN_FAMILIES.find(([,re])=>re.test(f))||[null])[0];
-const FAM_SHOW=4; // families shown before "Show n more families"
 const PILLS=[["fin","Finish"],["col","Collection"],["cat","Category"],["more","More filters"]];
 const MORE=[["lt","Line type"]]; // only line type; series, style name, compliance, color and price are left out
 const LT_ORDER=["Stocked","Non-Stocked","Direct Ship","Kit"], LT_LABEL={"Non-Stocked":"Non-stocked","Direct Ship":"Direct ship"};
@@ -1691,19 +1711,16 @@ const uniq=(list,key)=>{ const by=new Map(); list.forEach(p=>{ const k=normVal(p
 const orList=a=>a.length<3?a.join(" or "):`${a.length} finishes`;
 const ICON_SEARCH='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const CHEV='<svg width="10" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>';
-function finishPools(){ // finishes that fall in a family; the rest are stone and tile colors, shown for Surfaces or on request
-  const cats=S.filters.cat, fins=uniq(CAT.filter(p=>!cats.size||catPass(cats,p)),"fin").filter(f=>!isPriceTier(f)&&!TEST_VALUES.has(f));
-  return {metal:fins.filter(finFamily), surf:fins.filter(f=>!finFamily(f)), metalOn:!cats.size||[...cats].some(c=>c!=="Surfaces"), surfOn:cats.has("Surfaces"), noCat:!cats.size};
+function finishPools(){ // split by M3's category, not by the finish's name: a Surfaces product's finish is a stone or tile color, every other product's is a metal finish (Kelli, Josh, Nov 6)
+  const cats=S.filters.cat, pool=CAT.filter(p=>!cats.size||catPass(cats,p)), ok=f=>!isPriceTier(f)&&!TEST_VALUES.has(f);
+  const metal=uniq(pool.filter(p=>p.cat!=="Surfaces"),"fin").filter(ok), surf=uniq(pool.filter(p=>p.cat==="Surfaces"),"fin").filter(ok); // uniq sorts A–Z
+  return {metal, surf, metalOn:!cats.size||[...cats].some(c=>c!=="Surfaces"), surfOn:cats.has("Surfaces"), noCat:!cats.size};
 }
 const groupSel=k=>k==="more"?MORE.reduce((a,[g])=>a.concat([...S.filters[g]]),[]):[...S.filters[k]];
 function pillText(k,label){ const v=groupSel(k); if(!v.length) return label; return v.length===1?`${label}: ${optLabel(k==="more"?"lt":k,v[0])}`:`${label} · ${v.length}`; }
 function optRow(k,o,count){ const c=count(k,o); return `<label class="fopt${c?"":" off"}"><input type="checkbox" data-f="${k}" value="${esc(o)}" ${S.filters[k].has(o)?"checked":""}><span>${esc(optLabel(k,o))}</span><span class="c">${c}</span></label>`; }
 const fpSearch=(k,what)=>`<div class="fpsrch">${ICON_SEARCH}<input type="search" data-fq="${k}" placeholder="Search ${what}" aria-label="Search ${what}" value="${esc(S.fq[k])}" autocomplete="off"></div>`;
 const hit=(k,o)=>o.toLowerCase().includes((S.fq[k]||"").trim().toLowerCase());
-function listBody(k,opts,count,what){ // plain checkbox list; a search box once there are more than 8 options
-  const shown=opts.filter(o=>hit(k,o));
-  return (opts.length>8?fpSearch(k,what):"")+`<div class="fplist">${shown.map(o=>optRow(k,o,count)).join("")||`<p class="fpnone">No ${what} match</p>`}</div>`;
-}
 function catBody(count){ // each category is a group with its product types beneath; groups open and close, counts on both levels
   const set=S.filters.cat;
   return `<div class="fplist">`+CATS.map(c=>{ const types=CATEGORY_TYPES_MOCK[c].types, whole=set.has(c), n=types.filter(t=>set.has(t.name)).length, open=S.catOpen.has(c), cc=count("cat",c);
@@ -1714,41 +1731,39 @@ function catBody(count){ // each category is a group with its product types bene
 }
 function finBody(count){
   const {metal,surf,metalOn,surfOn,noCat}=finishPools(), sel=S.filters.fin, q=(S.fq.fin||"").trim();
-  if(!metalOn||(!surfOn&&!noCat)) S.finView="metal";
-  const view=metalOn?(noCat?S.finView:"metal"):"surf";
-  const all=[...(metalOn?metal:[]),...(surfOn||noCat?surf:[])];
-  let out=all.length>8?fpSearch("fin","finishes"):"";
-  if(q){ const m=all.filter(o=>hit("fin",o)); return out+(m.map(o=>optRow("fin",o,count)).join("")||'<p class="fpnone">No finishes match</p>'); }
-  if(view==="surf") return out+(noCat?'<button type="button" class="fpback" data-finview="metal">‹ Metal finishes</button>':"")+`<p class="fpgrp">Stone and tile colors</p>${surf.map(o=>optRow("fin",o,count)).join("")}`;
-  const most=MOST_USED.filter(o=>metal.includes(o));
-  if(most.length) out+=`<p class="fpgrp">Most used</p>${most.map(o=>optRow("fin",o,count)).join("")}<hr class="fpsep">`;
-  // families, largest first; each closed until opened, finishes inside by count
+  // two panes, so the tray never becomes one long scroll: groups on the left (Most used, each family, Stone and tile colors), the chosen group's finishes on the right
+  const showSurf=surfOn||(noCat&&surf.length>0), all=[...(metalOn?metal:[]),...(showSurf?surf:[])];
+  const grid=list=>`<div class="fgrid">${list.map(o=>optRow("fin",o,count)).join("")}</div>`;
+  let out=all.length>8?fpSearch("fin",showSurf&&surf.length?"finishes and colors":"finishes"):""; // typing "Bloomsbury" narrows the list (Josh)
+  if(q){ const m=all.filter(o=>hit("fin",o)); return out+(m.length?grid(m):'<p class="fpnone">No finishes match</p>'); }
+  if(!metalOn) return out+`<p class="fpgrp">Stone and tile colors, A–Z</p>${grid(surf)}`; // Surfaces only: no groups needed
   const byCount=(a,b)=>catCount("fin",b)-catCount("fin",a)||alpha(a,b);
-  const fams=FIN_FAMILIES.map(([name])=>({name,fins:metal.filter(f=>finFamily(f)===name).sort(byCount)})).filter(f=>f.fins.length)
-    .map(f=>({...f,size:f.fins.reduce((n,o)=>n+catCount("fin",o),0)})).sort((a,b)=>b.size-a.size);
-  const hiddenFams=fams.slice(FAM_SHOW).filter(f=>!f.fins.some(o=>sel.has(o))); // a family with a ticked finish never hides
-  const shownFams=S.finMore?fams:fams.filter(f=>!hiddenFams.includes(f));
-  if(fams.length) out+=`<p class="fpgrp">By family</p>`+shownFams.map(f=>{ const open=S.finOpen.has(f.name), n=f.fins.filter(o=>sel.has(o)).length;
-    return `<div class="ffam"><button type="button" class="ffhead" data-finfam="${esc(f.name)}" aria-expanded="${open}">${CHEV}<span>${esc(f.name)} <small>· ${f.fins.length} finish${f.fins.length===1?"":"es"}</small></span>${n?`<span class="ffsel">${n} selected</span>`:""}</button>${open?f.fins.map(o=>optRow("fin",o,count)).join(""):""}</div>`; }).join("");
-  if(hiddenFams.length) out+=`<button type="button" class="fpmore" data-finmore="1" aria-expanded="${S.finMore}">${S.finMore?"Show fewer families":`Show ${hiddenFams.length} more famil${hiddenFams.length===1?"y":"ies"}`}</button>`;
-  if(surfOn) out+=`<hr class="fpsep"><p class="fpgrp">Stone and tile colors</p>${surf.map(o=>optRow("fin",o,count)).join("")}`;
-  else if(noCat&&surf.length) out+=`<button type="button" class="fpentry" data-finview="surf"><span>Stone and tile colors</span><small>for Surfaces ›</small></button>`;
-  return out;
+  const fams=FIN_FAMILIES.map(([name])=>({id:name,name,fins:metal.filter(f=>finFamily(f)===name).sort(byCount)})).filter(f=>f.fins.length)
+    .map(f=>({...f,size:f.fins.reduce((n,o)=>n+catCount("fin",o),0)})).sort((a,b)=>b.size-a.size); // families, largest first; finishes inside by count
+  const odd=metal.filter(f=>!finFamily(f)).sort(byCount); // metal finishes no family rule covers stay findable, last
+  if(odd.length) fams.push({id:"Other finishes",name:"Other finishes",fins:odd});
+  const most=MOST_USED.filter(o=>metal.includes(o));
+  const tabs=[...(most.length?[{id:"most",name:"Most used",fins:most}]:[]),...fams,...(showSurf?[{id:"surf",name:"Stone and tile colors",sub:"for Surfaces",head:"Stone and tile colors, A–Z",fins:surf}]:[])];
+  const cur=tabs.find(t=>t.id===S.finTab)||tabs[0];
+  const nav=tabs.map(t=>{ const n=t.fins.filter(o=>sel.has(o)).length, on=t===cur;
+    return `${t.id==="surf"||(t.id!=="most"&&t===fams[0])?'<hr class="fnsep">':""}<button type="button" class="fntab" data-finfam="${esc(t.id)}" aria-pressed="${on}"${n?` aria-label="${esc(t.name)}, ${n} selected"`:""}><span>${esc(t.name)}${t.sub?`<small>${t.sub}</small>`:""}</span>${n?`<span class="fnsel" aria-hidden="true">${n}</span>`:""}</button>`; }).join("");
+  return out+`<div class="fsplit"><div class="fnav" role="group" aria-label="Finish groups">${nav}</div><div class="fpanel" role="group" aria-label="${esc(cur.name)}"><p class="fpgrp">${esc(cur.head||cur.name)}</p>${cur.fins.map(o=>optRow("fin",o,count)).join("")}</div></div>`;
 }
 function popHtml(k,label){
   const {count}=facetCounts(); let body, foot="";
-  if(k==="fin"){ body=finBody(count); foot=`<div class="fpfoot"><span>Stays on for this quote <span class="fr">FR-15</span></span>${S.filters.fin.size?'<button type="button" class="tolink" data-fclr="fin">Clear</button>':""}</div>`; }
+  if(k==="fin"){ body=finBody(count); if(S.filters.fin.size) foot=`<div class="fpfoot"><span><span class="fr">FR-15</span></span><button type="button" class="tolink" data-fclr="fin">Clear</button></div>`; } // footer only for Clear, as the other trays (the "Stays on for this quote" note was removed, Sam, Nov 6)
   else if(k==="cat") body=catBody(count);
   else if(k==="col"){ const cols=uniq(CAT,"col").filter(o=>!TEST_VALUES.has(o));
-    if((S.fq.col||"").trim()) body=listBody("col",cols,count,"collections");
+    const grid=list=>`<div class="fgrid">${list.map(o=>optRow("col",o,count)).join("")}</div>`; // two columns when the tray is wide enough
+    if((S.fq.col||"").trim()){ const m=cols.filter(o=>hit("col",o)); body=fpSearch("col","collections")+(m.length?grid(m):'<p class="fpnone">No collections match</p>'); }
     else { const most=[...cols].sort((a,b)=>catCount("col",b)-catCount("col",a)||alpha(a,b)).slice(0,COL_MOST), rest=cols.filter(o=>!most.includes(o));
-      body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${most.map(o=>optRow("col",o,count)).join("")}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${rest.map(o=>optRow("col",o,count)).join("")}`; } }
-  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?"":" checked"}><span>Hide discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They're shown by default, with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5): unticked by default like every other filter, so ticking it narrows the results
+      body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${grid(most)}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${grid(rest)}`; } }
+  else body=`<p class="fpgrp">Line type</p><div class="fgrid">${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}</div><p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?"":" checked"}><span>Hide discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They're shown by default, with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5): unticked by default like every other filter, so ticking it narrows the results
   if(k!=="fin"&&(groupSel(k).length||(k==="more"&&!S.disc))) foot=`<div class="fpfoot"><span></span><button type="button" class="tolink" data-fclr="${k}">Clear</button></div>`;
-  return `<div class="fpop" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
+  return `<div class="fpop${k==="cat"?"":" wide"}" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
 }
 function focusKey(){ const a=document.activeElement; if(!a||!a.closest?.("#fpills")) return null;
-  for(const at of ["f","fq","fpop","fclr","finmore","finview","finfam","fcat","ftype","catopen"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
+  for(const at of ["f","fq","fpop","fclr","finfam","fcat","ftype","catopen"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
   return a.id?{sel:"#"+a.id}:null; }
 const anyFilterOn=()=>Object.values(S.filters).some(v=>v.size)||!S.disc; // hiding discontinued items counts as a filter, so Clear all appears
 function renderFilters(){
@@ -2565,10 +2580,8 @@ document.addEventListener("click",e=>{
   if(t.dataset.qview){ setQView(t.dataset.qview); document.querySelector('.qtab[aria-selected="true"]')?.focus(); return; }
   if(t.dataset.fpop){ const k=t.dataset.fpop; if(S.fpop===k){ closePop(true); return; } S.fpop=k; popDir=null; renderFilters(); const fp=$("#fpop"); if(fp&&fitPop(fp,true)<300){ document.querySelector(`[data-fpop="${k}"]`)?.scrollIntoView({block:"start"}); fitPop(fp,true); } fp?.querySelector("input,button")?.focus({preventScroll:true}); return; }
   if(t.dataset.fclr){ const k=t.dataset.fclr; clearGroup(k); renderFilters(); search(); (k==="all"?$("#q"):document.querySelector(`[data-fpop="${k}"]`))?.focus(); return; }
-  if(t.dataset.finfam){ const f=t.dataset.finfam; S.finOpen.has(f)?S.finOpen.delete(f):S.finOpen.add(f); renderFilters(); return; }
+  if(t.dataset.finfam){ S.finTab=t.dataset.finfam; renderFilters(); return; } // Finish: show that group's finishes in the right pane
   if(t.dataset.catopen){ const c=t.dataset.catopen; S.catOpen.has(c)?S.catOpen.delete(c):S.catOpen.add(c); renderFilters(); return; }
-  if(t.dataset.finmore){ S.finMore=!S.finMore; renderFilters(); return; }
-  if(t.dataset.finview){ S.finView=t.dataset.finview; renderFilters(); $("#fpop")?.querySelector(t.dataset.finview==="surf"?".fpback, .fopt input":".fpentry")?.focus(); return; }
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
