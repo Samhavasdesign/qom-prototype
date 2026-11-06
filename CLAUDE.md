@@ -18,14 +18,15 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 ## What is built (v2)
 - Layout: search and quote side by side with a drag handle to resize them, plus an expand button for a full-screen quote view. The tabs layout (B) is hidden.
 - Search: runs on Enter. Words match in any order and case. Exact item numbers and old 12-digit JDE codes come first, with light typo tolerance, and matches are underlined. Service parts are ranked below sellable products (and tagged "Service part"), not hidden.
-- Filters: pills for Finish, Collection, Category (with product types beneath) and More filters (line type), each opening a popover over the results. They work before typing, stay set for the quote until cleared, and show as black removable pills with "Clear all". Counts use the same rules as the results. Values that differ only by case or spacing ("Brass", "BRASS") are one option.
+- Filters: pills for Finish, Collection, Category (with product types beneath) and More filters (line type, plus "Hide discontinued and in-development items"), each opening a popover over the results. They work before typing, stay set for the quote until cleared, and show as black removable pills with "Clear all". Counts use the same rules as the results. Values that differ only by case or spacing ("Brass", "BRASS") are one option.
 - States: an empty-search prompt, "keep typing" under three characters, loading, no results with next steps, and an error with retry.
-- Can't-add reasons: discontinued (status 80 or 90) and in development (status 10) show in results with the reason. Warehouse status and "waiting on a price" only appear when the item is added. The SC shows or hides discontinued and in-development items with a checkbox at the bottom of More filters (kept in step with the demo bar toggle).
+- Can't-add reasons: discontinued (status 80 or 90) and in development (status 10) show in results with the reason. Warehouse status and "waiting on a price" only appear when the item is added. They show by default. The SC hides them with "Hide discontinued and in-development items" at the bottom of More filters (unticked by default, like every filter; it counts on the More filters badge and Clear all resets it), or with Hide on the results count ("1 discontinued or in-development · Hide", then "… hidden · Show"). Both stay in step with the demo bar toggle.
 - Every result row shows the item's status: in the Status column when the search side is 500px or wider, otherwise in the line under the name ("Style ARTF · Status 20"). Kelli asked for it on Nov 5 because today's results show it.
 - Country of Origin shows on quote lines only in the Commercial view (it's commercial-only in QOM).
 - Results show no stock or availability. Availability appears on the quote line, worded as QOM-2926 will build it: "Available to Promise (ATP): 4" (or "9 from Feb 15, 2027" when only available later), "Estimated delivery date: Nov 12, 2026 · meets RDD" (or "· after RDD"), and "Sourcing warehouse: <code>" only when it differs from the line's warehouse (mock: Henry Single Robe Hook, HNHK-N, ships from USR). ATP and the date each have a two-layer tooltip: a plain sentence, then an "M3:" line (AVTP, CODZ, OIS340MI/LstSupplSummary, mock customer and quantity). No "as of" time.
 - Room picker: the quote's own rooms come first, then "+ Add room", then the standard room types. One form adds or renames a room: "Rename room" in a room's "…" menu opens the Add room form filled in. Type is required and name is optional. The room bar shows the type in grey after the name ("sams kitchen · Kitchen") unless they're the same.
 - Quote panel: rooms, lines, quantities, per-line shipping, "Find in this quote", plus Quote information and PDF preview tabs.
+- Quantities follow QOM-2491 (order multiples): items sold in multiples start at one multiple, + and − step by it, and the helper reads "Sold in increments of 10 square feet". A typed amount that isn't a whole multiple rounds up to the next one, with QOM-2961's note ("Rounded up to 30 square feet: this item is sold in increments of 10 square feet."), on result rows and quote lines. A saved quantity that's already wrong is flagged, not changed.
 - Footer bar: save status with an "unsaved changes" marker, Save, Calculate freight, Send to client, and the "Before you send" panel.
 
 ## Demo bar (black bar at the top, not part of the design)
@@ -40,7 +41,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 - Simulate a save that returns an Autospec or Pricing problem.
 - Toggles:
   - Stock warning examples: on by default.
-  - Show discontinued and in-development: on by default. The same setting is the "Show discontinued and in-development items" checkbox in More filters.
+  - Show discontinued and in-development: on by default. It's the reverse of "Hide discontinued and in-development items" in More filters, and they stay in step.
   - Price in results (needs an M3 call per item): off by default.
   - Concept: Required parts on add (QOM-2561): off by default; `#concept-required-parts` in the URL also turns it on. It offers rough-in valves and often-added parts under a newly added line, using a mock `requiredParts` map.
 

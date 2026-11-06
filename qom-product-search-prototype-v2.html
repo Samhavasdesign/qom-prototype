@@ -1596,17 +1596,17 @@ function popHtml(k,label){
     if((S.fq.col||"").trim()) body=listBody("col",cols,count,"collections");
     else { const most=[...cols].sort((a,b)=>catCount("col",b)-catCount("col",a)||alpha(a,b)).slice(0,COL_MOST), rest=cols.filter(o=>!most.includes(o));
       body=fpSearch("col","collections")+`<p class="fpgrp">Most used</p>${most.map(o=>optRow("col",o,count)).join("")}<hr class="fpsep"><p class="fpgrp">All collections, A–Z</p>${rest.map(o=>optRow("col",o,count)).join("")}`; } }
-  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?" checked":""}><span>Show discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They show with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5)
-  if(k!=="fin"&&groupSel(k).length) foot=`<div class="fpfoot"><span></span><button type="button" class="tolink" data-fclr="${k}">Clear</button></div>`;
+  else body=`<p class="fpgrp">Line type</p>${LT_ORDER.map(o=>optRow("lt",o,count)).join("")}<p class="fpnote">Not every product has a line type, so these may hide some products.</p><hr class="fpsep"><p class="fpgrp">Status</p><label class="fopt"><input type="checkbox" id="fpDisc"${S.disc?"":" checked"}><span>Hide discontinued and in-development items</span></label><p class="fpnote">Discontinued is status 80 or 90, and in development is status 10. They're shown by default, with the reason they can't be added.</p>`; // the SC's own show or hide control (Kelli, Nov 5): unticked by default like every other filter, so ticking it narrows the results
+  if(k!=="fin"&&(groupSel(k).length||(k==="more"&&!S.disc))) foot=`<div class="fpfoot"><span></span><button type="button" class="tolink" data-fclr="${k}">Clear</button></div>`;
   return `<div class="fpop" id="fpop" role="dialog" aria-label="${label} filter"><div class="fpbody">${body}</div>${foot}</div>`;
 }
 function focusKey(){ const a=document.activeElement; if(!a||!a.closest?.("#fpills")) return null;
   for(const at of ["f","fq","fpop","fclr","finmore","finview","finfam","fcat","ftype","catopen"]) if(a.dataset[at]!=null) return {sel:`[data-${at}="${CSS.escape(a.dataset[at])}"]`+(at==="f"?`[value="${CSS.escape(a.value)}"]`:""),pos:a.selectionStart};
   return a.id?{sel:"#"+a.id}:null; }
-const anyFilterOn=()=>Object.values(S.filters).some(v=>v.size);
+const anyFilterOn=()=>Object.values(S.filters).some(v=>v.size)||!S.disc; // hiding discontinued items counts as a filter, so Clear all appears
 function renderFilters(){
   const fk=focusKey();
-  $("#fpills").innerHTML=PILLS.map(([k,label])=>{ const on=groupSel(k).length>0, open=S.fpop===k, n=groupSel(k).length;
+  $("#fpills").innerHTML=PILLS.map(([k,label])=>{ const on=groupSel(k).length>0, open=S.fpop===k, n=groupSel(k).length+(k==="more"&&!S.disc?1:0); // the More filters badge counts "Hide discontinued" too
     if(k==="more") return `<span class="fpill ficon${open?" open":""}"><button type="button" class="fpbtn" data-fpop="more" aria-expanded="${open}" aria-haspopup="dialog"${open?' aria-controls="fpop"':""} aria-label="${n?`More filters, ${n} on`:"More filters"}" title="More filters"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>${n?`<span class="fcount" aria-hidden="true">${n}</span>`:""}</button>${open?popHtml(k,label):""}</span>`; // square icon, as the old Filters button; cleared from its popover
     const black=on&&!open; // while its popover is open the pill shows as the open control, not the chip
     return `<span class="fpill${black?" on":""}${open?" open":""}"><button type="button" class="fpbtn" data-fpop="${k}" aria-expanded="${open}" aria-haspopup="dialog"${open?' aria-controls="fpop"':""}>${esc(pillText(k,label))}${black?"":CHEV}</button>${black?`<button type="button" class="fpx" data-fclr="${k}" aria-label="Clear ${label.toLowerCase()}">×</button>`:""}${open?popHtml(k,label):""}</span>`; }).join("")
@@ -1617,7 +1617,8 @@ function renderFilters(){
   if(fk){ const el=document.querySelector("#fpills "+fk.sel); if(el){ el.focus(); if(fk.pos!=null&&el.setSelectionRange) try{ el.setSelectionRange(fk.pos,fk.pos); }catch(_){} } }
 }
 function closePop(refocus){ const k=S.fpop; if(!k) return; S.fpop=null; renderFilters(); if(refocus) document.querySelector(`[data-fpop="${k}"]`)?.focus(); }
-function clearGroup(k){ (k==="all"?Object.keys(S.filters):k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; }); if(k==="fin"||k==="all") S.finAll=false; }
+function clearGroup(k){ (k==="all"?Object.keys(S.filters):k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; }); if(k==="fin"||k==="all") S.finAll=false;
+  if(k==="all"||k==="more"){ S.disc=true; const d=$("#showDisc"); if(d) d.checked=true; } } // clearing also shows discontinued items again
 function renderResults(){
   const q=S.query.trim(); const box=$("#results"); const cnt=$("#count");
   $(".search").classList.toggle("busy",!!S.loading); $("#q").setAttribute("aria-busy",String(!!S.loading));
@@ -1652,7 +1653,9 @@ function renderResults(){
     return;
   }
   const pages=Math.ceil(list.length/PAGE); S.page=Math.min(Math.max(1,S.page),pages); const from=(S.page-1)*PAGE, shown=list.slice(from,from+PAGE);
-  cnt.innerHTML=`${applied(list.length)}${pages>1?` · showing ${from+1}–${from+shown.length}`:""}${hiddenDisc?` · ${hiddenDisc} discontinued or in-development hidden`:""} <span class="fr">FR-17</span>`;
+  const shownDisc=S.disc?list.filter(p=>isDisc(p)||p.st===10).length:0; // the show or hide link only appears when it changes something
+  cnt.innerHTML=`${applied(list.length)}${pages>1?` · showing ${from+1}–${from+shown.length}`:""}${shownDisc?` · ${shownDisc} discontinued or in&#8209;development · <button type="button" class="tolink" id="hideDiscLink">Hide</button>`:hiddenDisc?` · ${hiddenDisc} discontinued or in&#8209;development hidden · <button type="button" class="tolink" id="showDiscLink">Show</button>`:""} <span class="fr">FR-17</span>`;
+  if(S.focusDisc){ $(S.focusDisc)?.focus(); S.focusDisc=null; } // keyboard focus moves to the opposite link after Hide or Show
   const rows=shown.map(p=>{ // UOM opens a tray with weight, collection and finish, as in QOM staging
     const reason=reasonFor(p); const blocked=!!reason; const canAdd=roomOk && !blocked;
     const price = p.price==null ? "—" : money(p.price);
@@ -2388,7 +2391,7 @@ document.addEventListener("click",e=>{
   if(t.id==="rmYes"){ confirmRemove(); return; }
   if(t.id==="clearQ"){ S.query=""; $("#q").value=""; t.hidden=true; search(); return; }
   if(t.id==="retry"){ S.scenario="normal"; $("#scenario").value="normal"; search(); return; }
-  if(t.id==="showDiscLink"){ S.disc=true; $("#showDisc").checked=true; search(); return; }
+  if(t.id==="showDiscLink"||t.id==="hideDiscLink"){ S.disc=t.id==="showDiscLink"; $("#showDisc").checked=S.disc; S.focusDisc=S.disc?"#hideDiscLink":"#showDiscLink"; renderFilters(); search(); return; } // Show or Hide on the results count line (and "Show them" when nothing else matches)
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
   if(t.dataset.sideroom){ const n=t.dataset.sideroom; const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
   if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); // after saving there is no Undo
@@ -2483,7 +2486,7 @@ document.addEventListener("change",e=>{
     if(t.checked&&syncLike(r,l)) S.dirty=true;
     rerenderKeepFocus(); return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
-  if(t.id==="showDisc"||t.id==="fpDisc"){ S.disc=t.checked; $("#showDisc").checked=t.checked; renderFilters(); search(); return; } // More filters checkbox and the demo bar toggle stay in step
+  if(t.id==="showDisc"||t.id==="fpDisc"){ S.disc=t.id==="fpDisc"?!t.checked:t.checked; $("#showDisc").checked=S.disc; renderFilters(); search(); return; } // "Hide…" in More filters is the reverse of the demo bar's "Show…"; they stay in step
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
   if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult, up=n>0&&n%m!==0; if(n>0&&n!==S.rq[sku]){ S.rq[sku]=up?Math.ceil(n/m)*m:n; up?RROUNDED.add(sku):RROUNDED.delete(sku); } const q=S.rq[sku]??m; t.value=q; // QOM-2961: rounds up to the next multiple
     // updated in place, not re-rendered, so typing a number and then clicking Add still lands on the button
