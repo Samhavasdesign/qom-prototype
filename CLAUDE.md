@@ -17,10 +17,10 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 
 ## What is built (v2)
 - Layout: search and quote side by side with a drag handle to resize them, plus an expand button for a full-screen quote view. The tabs layout (B) is hidden.
-- Search: runs on Enter. Words match in any order and case. Exact item numbers and old 12-digit JDE codes come first, with light typo tolerance, and matches are underlined. Service parts are ranked below sellable products (and tagged "Service part"), not hidden.
+- Search: runs as you type, about a quarter second after typing stops, and Enter searches at once. This is the ideal case (Nick, Nov 5); the PRD's provisional decision is Enter only, so "Search as you type" in the demo bar switches to that fallback. Words match in any order and case. Exact item numbers and old 12-digit JDE codes come first, with light typo tolerance, and matches are underlined. Service parts are ranked below sellable products (and tagged "Service part"), not hidden.
 - Filters: pills for Finish, Collection, Category (with product types beneath) and More filters (line type, plus "Hide discontinued and in-development items"), each opening a popover over the results. They work before typing, stay set for the quote until cleared, and show as black removable pills with "Clear all". Counts use the same rules as the results. Values that differ only by case or spacing ("Brass", "BRASS") are one option.
 - States: an empty-search prompt, "keep typing" under three characters, loading, no results with next steps, and an error with retry.
-- Can't-add reasons: discontinued (status 80 or 90) and in development (status 10) show in results with the reason. Warehouse status and "waiting on a price" only appear when the item is added. They show by default. The SC hides them with "Hide discontinued and in-development items" at the bottom of More filters (unticked by default, like every filter; it counts on the More filters badge and Clear all resets it), or with Hide on the results count ("1 discontinued or in-development · Hide", then "… hidden · Show"). Both stay in step with the demo bar toggle.
+- Can't-add reasons: discontinued (status 80 or 90) and in development (status 10) show in results with the reason. Warehouse status and "waiting on a price" only appear when the item is added. They show by default. The SC hides them with "Hide discontinued and in-development items" at the bottom of More filters (unticked by default, like every filter; it counts on the More filters badge and Clear all resets it), and the results count no longer has a Hide or Show note (removed Nov 5); "Show them" stays in the no-results state. Both stay in step with the demo bar toggle.
 - Every result row shows the item's status: in the Status column when the search side is 500px or wider, otherwise in the line under the name ("Style ARTF · Status 20"). Kelli asked for it on Nov 5 because today's results show it.
 - Every result row has a "Details" button with a chevron, at every width, that opens a tray with the unit, weight, collection and finish (Nick, Nov 5; it used to open only from the unit column, which hides under 640px). Units read "each" and "sq ft", and the column is headed "Unit", not UOM, EA or SF.
 - Country of Origin shows on quote lines only in the Commercial view (it's commercial-only in QOM).
@@ -28,6 +28,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 - Room picker: the quote's own rooms come first, then "+ Add room", then the standard room types. One form adds or renames a room: "Rename room" in a room's "…" menu opens the Add room form filled in. Type is required and name is optional. The room bar shows the type in grey after the name ("sams kitchen · Kitchen") unless they're the same.
 - Quote panel: rooms, lines, quantities, per-line shipping, "Find in this quote", plus Quote information and PDF preview tabs.
 - Removing a line: every line has a delete button under its "…" menu (Nick and Vicki, Nov 5). Every way of removing a line (that button, "Remove Product" in the "…" menu, and the stepper's trash at the minimum) opens a confirmation showing the product, quantity and room, with Cancel and "Yes, delete". Undo appears after the line goes.
+- Reordering: drag a line or room by its handle, use the arrow keys on the handle, or pick Move up or Move down at the top of a line's "…" menu (Nick, Nov 5). They're greyed out at the top and bottom of the room, and a move flashes the line and is announced to screen readers.
 - Find in this quote: the usual find-in-page pattern, for items only (rooms are never matched). Every word must match the start of a word in the product name with its finish ("… in Nickel") or the start of the item number. After a pause or Enter it underlines every match and goes to the best one (exact item number first); the up and down arrows in the box, or Enter and Shift+Enter, then step through the matches one by one in quote order, wrapping at the ends, and the panel scrolls to each. The current line has a black outline. Small black text under the box says "3 of 21 matches" (or "No matching lines"), and each room bar shows "· 2 matches". Nothing is hidden.
 - Quantities follow QOM-2491 (order multiples): items sold in multiples start at one multiple, + and − step by it, and the helper reads "Sold in increments of 10 square feet". A typed amount that isn't a whole multiple rounds up to the next one, with QOM-2961's note ("Rounded up to 30 square feet: this item is sold in increments of 10 square feet."), on result rows and quote lines. A saved quantity that's already wrong is flagged, not changed.
 - Footer bar: save status with an "unsaved changes" marker, Save, Calculate freight, Send to client, and the "Before you send" panel.
@@ -44,6 +45,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
   - Footer 1 · Unsaved edits, Footer 2 · Saved, no freight, Footer 3 · Calculating freight, Footer 4 · Ready to send, Footer 5 · Blocked.
 - Simulate a save that returns an Autospec or Pricing problem.
 - Toggles:
+  - Search as you type: on by default. Off, search runs only on Enter (the PRD's provisional decision).
   - Stock warning examples: on by default.
   - Stock in results: on by default.
   - Show discontinued and in-development: on by default. It's the reverse of "Hide discontinued and in-development items" in More filters, and they stay in step.
@@ -56,7 +58,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 - ATP and quantity are read in the context of the quote, not per search result. Full availability (ATP, delivery date) stays on the quote line; the stock tag on result rows (added back Nov 5) still has to be costed with Scott and Nick, from QOM's product table or one batched read, not an M3 call per row.
 - Product status is known at search time. Item and warehouse status are known only when the item is added.
 - Styles (CHCD = 2) and non-sales items (SALE = 0) are already excluded. Service parts are item groups starting "SVP".
-- Minimum search length stays, with an info state instead of silence. Type-ahead is likely cut.
+- Minimum search length stays, with an info state instead of silence. Type-ahead is likely cut (the prototype shows it anyway as the ideal case, with a demo-bar toggle for Enter only).
 - Thumbnails come from a separate imagery system and often fail; the prototype shows a failed-image state.
 
 ## Design principles

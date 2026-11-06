@@ -199,7 +199,7 @@ table.res .rdet:hover{color:var(--ink);text-decoration:underline;text-underline-
 table.res .rdet svg{transition:transform .15s}
 table.res .rdet[aria-expanded="true"] svg{transform:rotate(180deg)}
 table.res tr.has-tray td{border-bottom:0}
-table.res tr.tray td{background:var(--surface);padding:8px 6px;font-size:14px;line-height:1.5}
+table.res tr.tray td{background:var(--surface);padding:6px;font-size:12px;line-height:1.45;color:var(--ink-2)}
 table.res tr.part td .name{color:var(--ink-2)}
 .thumb{width:84px;height:84px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--ink-3);font-size:11px;flex:none}
 .item{display:flex;gap:12px;align-items:center}
@@ -375,6 +375,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .lmenu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:transparent;border:0;padding:11px 16px;font-size:14px;color:var(--ink)}
 .lmenu button:hover,.lmenu button:focus-visible{background:var(--surface)}
 .lmenu button:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.lmenu button[aria-disabled="true"]{color:var(--ink-3);cursor:default}
+.lmenu button[aria-disabled="true"]:hover{background:transparent}
+.lmenu .lmsep{border:0;border-top:1px solid var(--line);margin:4px 0}
 .roomhdr .more{width:18px;height:18px;border:.5px solid currentColor;border-radius:50%;background:transparent;color:var(--bg);padding:0;display:flex;align-items:center;justify-content:center;text-decoration:none;opacity:.9}
 .roomhdr .more:hover,.roomhdr .more:focus-visible,.roomhdr .more[aria-expanded="true"]{opacity:1}
 .roomhdr.menuopen{z-index:8} /* the open menu sits over the lines and later room bars */
@@ -1075,6 +1078,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
     </select>
   </label>
   <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
+  <label><input type="checkbox" id="liveSearch" checked autocomplete="off"> Search as you type</label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
   <label><input type="checkbox" id="showStock" checked autocomplete="off"> Stock in results</label>
@@ -1695,8 +1699,7 @@ function renderResults(){
     return;
   }
   const pages=Math.ceil(list.length/PAGE); S.page=Math.min(Math.max(1,S.page),pages); const from=(S.page-1)*PAGE, shown=list.slice(from,from+PAGE);
-  const shownDisc=S.disc?list.filter(p=>isDisc(p)||p.st===10).length:0; // the show or hide link only appears when it changes something
-  cnt.innerHTML=`${applied(list.length)}${pages>1?` · showing ${from+1}–${from+shown.length}`:""}${shownDisc?` · ${shownDisc} discontinued or in&#8209;development · <button type="button" class="tolink" id="hideDiscLink">Hide</button>`:hiddenDisc?` · ${hiddenDisc} discontinued or in&#8209;development hidden · <button type="button" class="tolink" id="showDiscLink">Show</button>`:""} <span class="fr">FR-17</span>`;
+  cnt.innerHTML=`${applied(list.length)}${pages>1?` · showing ${from+1}–${from+shown.length}`:""} <span class="fr">FR-17</span>`;
   if(S.focusDisc){ $(S.focusDisc)?.focus(); S.focusDisc=null; } // keyboard focus moves to the opposite link after Hide or Show
   const rows=shown.map(p=>{ // UOM opens a tray with weight, collection and finish, as in QOM staging
     const reason=reasonFor(p); const blocked=!!reason; const canAdd=roomOk && !blocked;
@@ -1766,7 +1769,16 @@ function duplicateRoom(name){
   const copy=structuredClone(rooms[idx]); copy.name=`${base} ${n}`; delete copy.id; rooms.splice(idx+1,0,copy); S.dirty=true; // the copy is a new room, so it gets its own ID
   renderRoomMenu(); renderQuote(); showToast(`✓ Duplicated ${name} as ${copy.name}`,"ok"); document.querySelector(`[data-rmore="${CSS.escape(copy.name)}"]`)?.focus();
 }
-const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
+// Move up and Move down sit first in the line's "…" menu, so mouse users can reorder without dragging (Nick, Nov 5); greyed at the top and bottom of the room
+const MOVE_ICON={up:MI('<path d="M12 19V5M6 11l6-6 6 6"/>'),down:MI('<path d="M12 5v14M6 13l6 6 6-6"/>')};
+const moveItems=(r,l)=>{ const i=r.lines.indexOf(l), n=r.lines.length; if(n<2) return "";
+  return [["up","Move up",i===0],["down","Move down",i===n-1]].map(([id,label,off])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}"${off?' aria-disabled="true"':""}>${MOVE_ICON[id]}<span>${label}</span></button>`).join("")+'<hr class="lmsep" aria-hidden="true">'; };
+function moveLine(room,sku,dir){ const rm=S.quote.rooms.find(r=>r.name===room); if(!rm) return; const i=rm.lines.findIndex(l=>l.sku===sku), j=i+dir; if(i<0||j<0||j>=rm.lines.length) return;
+  [rm.lines[i],rm.lines[j]]=[rm.lines[j],rm.lines[i]]; S.dirty=true; renderQuote(); renderRoomMenu();
+  const p=CAT.find(x=>x.sku===sku); $("#moveMsg").textContent=`${p.name} moved ${dir<0?"up":"down"}, now ${j+1} of ${rm.lines.length} in ${room}`;
+  const el=document.querySelector(`.line[data-lroom="${CSS.escape(room)}"][data-lsku="${CSS.escape(sku)}"]`); if(el){ el.scrollIntoView({block:"nearest"}); el.classList.add("justadded"); setTimeout(()=>el.classList.remove("justadded"),1200); }
+  document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); }
+const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${moveItems(r,l)}${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
 let toastTimer=null;
 function showToast(msg,kind){ const t=$("#toast"); t.textContent=msg; t.className="toast"+(kind?" "+kind:""); t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true,kind==="ok"?1600:2600); }
 // remove-product confirmation, shown as a dialog over the page
@@ -2333,12 +2345,12 @@ function setView(v){
 // ---------- actions ----------
 let timer=null, spinTimer=null;
 const PAGE=20; // results per page
-function search(){ // the spinner only appears if a search takes longer than 300 ms, so fast searches don't flash it
+function search(typing){ // the spinner only appears if a search takes longer than 300 ms, so fast searches don't flash it; typing=true while searching as you type
   clearTimeout(timer); clearTimeout(spinTimer); S.notice=null; S.page=1;
   const delay = S.scenario==="loading" ? 1500 : 250; // Scenario "Loading": slow enough for "Searching…" to show
   spinTimer=setTimeout(()=>{ S.loading=true; renderResults(); }, 300);
   timer=setTimeout(()=>{ clearTimeout(spinTimer); S.loading=false; renderFilters(); renderResults();
-    if(!S.room && S.query.trim()) showToast("Add room to quote to start adding products","warn"); // searching before a room exists
+    if(!typing && !S.room && S.query.trim()) showToast("Add room to quote to start adding products","warn"); // searching before a room exists (on Enter, not on every keystroke)
   }, delay);
 }
 // result row: type how many, then Add; same typing rules as a quote line
@@ -2429,6 +2441,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.ldel){ const [room,sku]=t.dataset.ldel.split("|"); S.lmenu=null; S.rmenu=null; openRemoveDialog(room,sku,t); return; } // the line's delete button
   if(t.dataset.more){ S.rmenu=null; S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
+    if(t.dataset.act==="up"||t.dataset.act==="down"){ if(t.getAttribute("aria-disabled")==="true"){ document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; } moveLine(room,sku,t.dataset.act==="up"?-1:1); return; }
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
   if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false,"issues"); return; }
@@ -2451,7 +2464,7 @@ document.addEventListener("click",e=>{
   if(t.id==="rmYes"){ confirmRemove(); return; }
   if(t.id==="clearQ"){ S.query=""; $("#q").value=""; t.hidden=true; search(); return; }
   if(t.id==="retry"){ S.scenario="normal"; $("#scenario").value="normal"; search(); return; }
-  if(t.id==="showDiscLink"||t.id==="hideDiscLink"){ S.disc=t.id==="showDiscLink"; $("#showDisc").checked=S.disc; S.focusDisc=S.disc?"#hideDiscLink":"#showDiscLink"; renderFilters(); search(); return; } // Show or Hide on the results count line (and "Show them" when nothing else matches)
+  if(t.id==="showDiscLink"||t.id==="hideDiscLink"){ S.disc=t.id==="showDiscLink"; $("#showDisc").checked=S.disc; S.focusDisc=S.disc?"#q":"#showDiscLink"; renderFilters(); search(); return; } // Show or Hide on the results count line (and "Show them" when nothing else matches)
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
   if(t.dataset.sideroom){ const n=t.dataset.sideroom; const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
   if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); // after saving there is no Undo
@@ -2575,10 +2588,14 @@ document.addEventListener("click",e=>{ if(e.target.closest("#ctUndo")) undoLike(
   if(ev==="focusout"&&t.contains(e.relatedTarget)) return; if(ev==="mouseleave"&&t.contains(document.activeElement)) return; CT_HOLD=false; if(!t.hidden) ctArm(1000); },true));
 // the ⓘ beside Default margin shows the cost behind it on hover or keyboard focus (CSS only, see .dm)
 document.addEventListener("keydown",e=>{ const t=e.target; if(t.dataset?.rqty&&e.key==="Enter"){ e.preventDefault(); t.dispatchEvent(new Event("change",{bubbles:true})); if(!t.disabled){ const sku=t.dataset.rqty; addLine(sku); const ni=document.querySelector(`[data-rqty="${CSS.escape(sku)}"]`); ni?.focus(); ni?.select(); } return; } if(t.dataset?.rqty&&e.key==="Escape"){ const p=CAT.find(x=>x.sku===t.dataset.rqty); t.value=S.rq[p.sku]??p.mult; t.select(); e.stopPropagation(); return; } if(!t.dataset?.qty||e.key!=="Escape") return; const [room,sku]=t.dataset.qty.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(l){ t.value=l.qty; t.select(); e.stopPropagation(); } },true);
-$("#q").addEventListener("input",e=>{ $("#clearQ").hidden=!e.target.value; });
+// search as you type, the ideal case (Nick, Nov 5): results follow the box a moment after typing stops, and Enter still searches at once.
+// Engineering expects type-ahead may be cut; untick "Search as you type" in the demo bar for the Enter-only fallback.
+let LIVE_T=0;
+$("#q").addEventListener("input",e=>{ $("#clearQ").hidden=!e.target.value; clearTimeout(LIVE_T);
+  if($("#liveSearch")?.checked){ const v=e.target.value; LIVE_T=setTimeout(()=>{ if(v!==S.query){ S.query=v; search(true); } },250); } });
 $("#q").addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ S.query=""; e.target.value=""; $("#clearQ").hidden=true; search(); }
-  if(e.key==="Enter"){ S.query=e.target.value; search(); }
+  if(e.key==="Escape"){ clearTimeout(LIVE_T); S.query=""; e.target.value=""; $("#clearQ").hidden=true; search(); }
+  if(e.key==="Enter"){ clearTimeout(LIVE_T); S.query=e.target.value; search(); }
 });
 document.addEventListener("click",e=>{ if(!e.target.closest(".room")) { $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); } },true);
 // drag to reorder rooms and lines (a line reorders within its own room); arrow keys on the handle do the same
