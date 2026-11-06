@@ -359,6 +359,13 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .line .nm small{display:block;color:var(--ink-3);font-size:12px}
 .line .more{width:18px;height:18px;border:.5px solid var(--ink);border-radius:50%;background:transparent;color:var(--ink);padding:0;display:flex;align-items:center;justify-content:center;align-self:center;justify-self:center}
 .line .more svg{display:block}
+/* the line's "…" menu with an always-visible delete under it (Nick and Vicki, Nov 5); both share the last grid column */
+.line .lacts{display:flex;flex-direction:column;align-items:center;gap:8px;align-self:center;justify-self:center}
+.line .ldel{width:26px;height:26px;border:0;border-radius:4px;background:transparent;color:var(--ink-2);padding:0;display:flex;align-items:center;justify-content:center}
+.line .ldel:hover{color:var(--ink);background:var(--surface)}
+.line .ldel svg{width:16px;height:16px;display:block}
+@container quote (max-width:600px){ .pane.quote .line .lacts{grid-column:5;grid-row:2} .pane.quote .line.com .lacts{grid-row:1} }
+@container quote (max-width:440px){ .pane.quote .line .lacts{grid-column:4;grid-row:1} }
 .line{position:relative}
 .lmenu{position:absolute;right:10px;top:calc(50% + 16px);z-index:40;min-width:230px;background:var(--bg);border:1px solid var(--line);box-shadow:var(--shadow-pop);padding:4px 0}
 .lmenu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:transparent;border:0;padding:11px 16px;font-size:14px;color:var(--ink)}
@@ -854,6 +861,7 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fpop{position:absolute;left:0;top:calc(100% + 4px);z-index:40;display:flex;flex-direction:column;width:320px;max-width:calc(100vw - 32px);max-height:min(70vh,520px);background:var(--bg);color:var(--ink);border:1px solid var(--ink);box-shadow:var(--shadow-pop);font-weight:400;white-space:normal;text-align:left;cursor:auto}
 .shead:has(.fpop){z-index:9} /* an open filter popover sits over the quote's pinned tabs bar and room bars when the panels are stacked */
 .fpop .fpbody{overflow:auto;padding:12px 0 6px}
+.fpop.up{top:auto;bottom:calc(100% + 4px)} /* opens upward when there is more room above the pill than below it */
 .fpsrch{position:relative;margin:0 14px 6px}
 .fpsrch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
 .fpsrch input{width:100%;height:44px;padding:0 10px 0 34px;border:1px solid var(--control-line);border-radius:0;background:var(--bg);font:inherit;font-size:14px;color:var(--ink)}
@@ -1058,6 +1066,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
   <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
+  <label><input type="checkbox" id="showStock" checked autocomplete="off"> Stock in results</label>
   <label><input type="checkbox" id="showPrice" autocomplete="off"> Price in results (needs an M3 call per item)</label>
   <label><input type="checkbox" id="conceptRP" autocomplete="off"> Concept: Required parts on add (QOM-2561)</label>
 </div>
@@ -1408,7 +1417,7 @@ const S = {
   // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
   filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
   fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal", finAll:false, finAllFor:"",
-  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
+  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
@@ -1624,10 +1633,21 @@ function renderFilters(){
     +(anyFilterOn()?'<button type="button" class="tolink fpclear" data-fclr="all">Clear all</button>':"")
     +'<span class="fr">FR-3</span>';
   document.querySelectorAll("#fpills [data-ind]").forEach(i=>{ i.indeterminate=true; }); // a category with some of its types ticked
-  const pop=$("#fpop"); if(pop){ const w=$(".filterwrap").getBoundingClientRect(); pop.style.maxWidth=w.width+"px"; const r=pop.getBoundingClientRect(); if(r.right>w.right) pop.style.left=Math.round(w.right-r.right)+"px"; }
+  const pop=$("#fpop"); if(pop){ const w=$(".filterwrap").getBoundingClientRect(); pop.style.maxWidth=w.width+"px"; const r=pop.getBoundingClientRect(); if(r.right>w.right) pop.style.left=Math.round(w.right-r.right)+"px"; fitPop(pop); }
   if(fk){ const el=document.querySelector("#fpills "+fk.sel); if(el){ el.focus(); if(fk.pos!=null&&el.setSelectionRange) try{ el.setSelectionRange(fk.pos,fk.pos); }catch(_){} } }
 }
-function closePop(refocus){ const k=S.fpop; if(!k) return; S.fpop=null; renderFilters(); if(refocus) document.querySelector(`[data-fpop="${k}"]`)?.focus(); }
+// keep the open filter popover clear of the footer bar and inside the scrolling search panel. It opens downward when its list fits below the pill;
+// otherwise it opens upward if there's more room above. The direction is chosen once per opening, so ticking boxes or typing in its search doesn't make it jump.
+// Neither side tall enough: the list scrolls inside it (never shorter than 180px), and on open the page first scrolls the pill up (see the pill click handler).
+let popDir=null; // {k, up}
+function popRoom(pop){ const pill=pop.parentElement.getBoundingClientRect(); let bottom=innerHeight, top=0; const fb=$(".pbar"); if(fb&&fb.getClientRects().length){ const t=fb.getBoundingClientRect().top; if(t>0) bottom=Math.min(bottom,t); }
+  for(let a=pop.parentElement.parentElement;a&&a!==document.body;a=a.parentElement){ const o=getComputedStyle(a).overflowY; if(o==="auto"||o==="scroll"||o==="hidden"){ const r=a.getBoundingClientRect(); bottom=Math.min(bottom,r.bottom); top=Math.max(top,r.top); break; } }
+  return {below:Math.floor(bottom-pill.bottom-4-12), above:Math.floor(pill.top-top-4-12), hidden:pill.bottom>bottom||pill.top<top}; }
+function fitPop(pop,redecide){ pop=pop||$("#fpop"); if(!pop) return; const k=S.fpop; const {below,above,hidden}=popRoom(pop);
+  if(redecide||!popDir||popDir.k!==k){ pop.classList.remove("up"); pop.style.maxHeight="none"; const want=Math.min(520,pop.offsetHeight); popDir={k, up: want>below && above>below}; }
+  pop.classList.toggle("up",popDir.up); const room=popDir.up?above:below; pop.style.maxHeight=Math.max(180,Math.min(520,room))+"px";
+  return hidden?0:Math.max(below,above); } // 0 when the pill itself is under the footer, so the opener scrolls it into view
+function closePop(refocus){ const k=S.fpop; if(!k) return; S.fpop=null; popDir=null; renderFilters(); if(refocus) document.querySelector(`[data-fpop="${k}"]`)?.focus(); }
 function clearGroup(k){ (k==="all"?Object.keys(S.filters):k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; }); if(k==="fin"||k==="all") S.finAll=false;
   if(k==="all"||k==="more"){ S.disc=true; const d=$("#showDisc"); if(d) d.checked=true; } } // clearing also shows discontinued items again
 function renderResults(){
@@ -1674,7 +1694,7 @@ function renderResults(){
     return `<tr class="${blocked?'blocked':''} ${p.part?'part':''} ${openTrays.has(p.sku)?'has-tray':''}">
       <td>${addCell(p,canAdd,blocked)}</td>
       <td>${thumbHtml(p)}</td>
-      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)} · Status ${p.st}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}</div></td>
+      <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${stockTag(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)} · Status ${p.st}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}</div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
       <td class="num wd c-st">${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
@@ -1684,6 +1704,8 @@ function renderResults(){
   }).join("");
   box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">UOM</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
 }
+// stock hint on sellable result rows (status 20), labelled with the warehouse it comes from; discontinued and in-development rows show their reason instead
+const stockTag=p=> !S.stock||p.st!==20 ? "" : (p.stock>0 ? ` <span class="tag ok stk">In stock: ${p.stock} in USC</span>` : ` <span class="tag note stk">${p.lead?"Out of stock in USC · lead time "+esc(p.lead):"Out of stock in USC"}</span>`)+'<span class="fr">FR-8</span>';
 // neutral tags under the product name (grey text, light outline); orange stays for warnings
 const rowTags=p=>{ const t=[];
   if(p.part||p.col==="Service Parts") t.push(`<span class="tag ntag" title="Item group ${esc(p.ig)}">Service part</span>`);
@@ -1738,10 +1760,10 @@ let toastTimer=null;
 function showToast(msg,kind){ const t=$("#toast"); t.textContent=msg; t.className="toast"+(kind?" "+kind:""); t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true,kind==="ok"?1600:2600); }
 // remove-product confirmation, shown as a dialog over the page
 let dlgReturn=null;
-function openRemoveDialog(room,sku){
-  const p=CAT.find(x=>x.sku===sku); S.confirm={room,sku}; dlgReturn=document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`);
+function openRemoveDialog(room,sku,ret){ // every way of removing a line asks first: the line's delete button, "Remove Product" in its "…" menu, and the stepper's trash at the minimum
+  const p=CAT.find(x=>x.sku===sku), ln=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); S.confirm={room,sku}; dlgReturn=ret||document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`);
   const d=$("#rmDialog"); d.hidden=false;
-  d.innerHTML=`<div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="dlgicon" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v2h5v2H4V4h5zM5.5 8h13l-.9 13.1a1 1 0 0 1-1 .9H7.4a1 1 0 0 1-1-.9zM9.5 11v8h2v-8zm3 0v8h2v-8z"/></svg></div><h2 id="dlgTitle">Are you sure you want to remove this product?</h2><div class="dlgcard">${thumbHtml(p)}<div>${esc(p.name)} in ${esc(p.fin)}<small>${esc(p.sku)}</small></div></div><div class="dlgbtns"><button type="button" class="dbtn cancel" id="rmCancel">Cancel</button><button type="button" class="dbtn yes" id="rmYes">Yes, delete</button></div></div>`;
+  d.innerHTML=`<div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="dlgicon" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v2h5v2H4V4h5zM5.5 8h13l-.9 13.1a1 1 0 0 1-1 .9H7.4a1 1 0 0 1-1-.9zM9.5 11v8h2v-8zm3 0v8h2v-8z"/></svg></div><h2 id="dlgTitle">Are you sure you want to remove this product?</h2><div class="dlgcard">${thumbHtml(p)}<div>${esc(p.name)} in ${esc(p.fin)}<small>${esc(p.sku)}${ln?` · quantity ${ln.qty}${esc(unitWord(p))} · ${esc(room)}`:""}</small></div></div><div class="dlgbtns"><button type="button" class="dbtn cancel" id="rmCancel">Cancel</button><button type="button" class="dbtn yes" id="rmYes">Yes, delete</button></div></div>`;
   $("#rmCancel").focus();
 }
 // the last saved copy of the quote; "Discard changes" goes back to it
@@ -2017,7 +2039,7 @@ function renderQuote(){
     const isOpen=findOnly()||(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ if(!findShows(r,l)) return ""; const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
-      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
+      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${r.lines.length>1?grip("line",r.name,l.sku,p.name):'<span></span>'}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button><button type="button" class="ldel" data-ldel="${esc(r.name)}|${esc(l.sku)}" aria-label="Remove ${esc(p.name)} from the quote" title="Remove from quote">${ICON.trash}</button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span>${(m=>m?`<span class="rfind">· ${m} match${m===1?"":"es"}</span>`:"")(S.lineQ.trim()?roomHitLines(r.name):0)}${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room
@@ -2364,7 +2386,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.cal){ const h=document.querySelector(`[data-hdate="${CSS.escape(t.dataset.cal)}"]`); if(h){ try{ h.showPicker(); }catch(_){ h.focus(); } } return; }
   if(t.id==="expandBtn"){ setExpanded(!S.expanded); return; }
   if(t.dataset.qview){ setQView(t.dataset.qview); document.querySelector('.qtab[aria-selected="true"]')?.focus(); return; }
-  if(t.dataset.fpop){ const k=t.dataset.fpop; if(S.fpop===k){ closePop(true); return; } S.fpop=k; renderFilters(); $("#fpop")?.querySelector("input,button")?.focus(); return; }
+  if(t.dataset.fpop){ const k=t.dataset.fpop; if(S.fpop===k){ closePop(true); return; } S.fpop=k; popDir=null; renderFilters(); const fp=$("#fpop"); if(fp&&fitPop(fp,true)<300){ document.querySelector(`[data-fpop="${k}"]`)?.scrollIntoView({block:"start"}); fitPop(fp,true); } fp?.querySelector("input,button")?.focus({preventScroll:true}); return; }
   if(t.dataset.fclr){ const k=t.dataset.fclr; clearGroup(k); renderFilters(); search(); (k==="all"?$("#q"):document.querySelector(`[data-fpop="${k}"]`))?.focus(); return; }
   if(t.dataset.finfam){ const f=t.dataset.finfam; S.finOpen.has(f)?S.finOpen.delete(f):S.finOpen.add(f); renderFilters(); return; }
   if(t.dataset.catopen){ const c=t.dataset.catopen; S.catOpen.has(c)?S.catOpen.delete(c):S.catOpen.add(c); renderFilters(); return; }
@@ -2392,7 +2414,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.kit){ const [room,sku]=t.dataset.kit.split("|"); const key=sku+room; S.kitClosed=S.kitClosed.includes(key)?S.kitClosed.filter(x=>x!==key):[...S.kitClosed,key]; renderQuote(); document.querySelector(`[data-kit="${CSS.escape(t.dataset.kit)}"]`)?.focus(); return; }
   if(t.dataset.step){ const [room,sku,dir]=t.dataset.step.split("|"); const rm=S.quote.rooms.find(r=>r.name===room); const idx=rm.lines.findIndex(x=>x.sku===sku); const l=rm.lines[idx]; const p=CAT.find(x=>x.sku===sku), m=p.mult;
     if(QTY_ERR.k===room+"|"+sku) setQtyErr(null); ROUNDED.delete(room+"|"+sku);
-    if(dir==="-1"&&l.qty===m){ dropLine(rm,idx,p.name); return; } // at the minimum, the minus is a trash can
+    if(dir==="-1"&&l.qty===m){ openRemoveDialog(room,sku,t); return; } // at the minimum, the minus is a trash can, and it asks before removing
     l.qty = dir==="1" ? (Math.floor(l.qty/m)+1)*m : Math.max(m,(Math.ceil(l.qty/m)-1)*m); // steps by the sold-in multiple; snaps a typed odd value to the next valid one
     S.dirty=true; renderQuote(); document.querySelector(`[data-step="${CSS.escape(t.dataset.step)}"]`)?.focus(); return; }
   if(t.dataset.rmore){ S.lmenu=null; S.rmenu=S.rmenu===t.dataset.rmore?null:t.dataset.rmore; renderQuote(); document.querySelector(S.rmenu?".rmenu [role=menuitem]":`[data-rmore="${CSS.escape(t.dataset.rmore)}"]`)?.focus(); return; }
@@ -2400,6 +2422,7 @@ document.addEventListener("click",e=>{
     if(t.dataset.ract==="dup"){ duplicateRoom(name); return; }
     if(t.dataset.ract==="del"){ removeRoom(name); return; }
     renderQuote(); startRename(name); return; } // "Rename room": the same form as Add room, filled in
+  if(t.dataset.ldel){ const [room,sku]=t.dataset.ldel.split("|"); S.lmenu=null; S.rmenu=null; openRemoveDialog(room,sku,t); return; } // the line's delete button
   if(t.dataset.more){ S.rmenu=null; S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
@@ -2525,6 +2548,7 @@ document.addEventListener("change",e=>{
     rerenderKeepFocus(); return; }
   if(t.dataset.sf){ const [room,sku]=t.dataset.key.split("|"); const l=S.quote.rooms.find(x=>x.name===room)?.lines.find(x=>x.sku===sku); if(l){ l[t.dataset.sf]=t.value.trim(); shipDirty(); if(t.dataset.sf==="rdd"){ const n=document.querySelector(`[data-cddnote="${CSS.escape(t.dataset.key)}"]`); if(n) n.outerHTML=cddNote({name:room},l,true); } } return; }
   if(t.id==="showDisc"||t.id==="fpDisc"){ S.disc=t.id==="fpDisc"?!t.checked:t.checked; $("#showDisc").checked=S.disc; renderFilters(); search(); return; } // "Hide…" in More filters is the reverse of the demo bar's "Show…"; they stay in step
+  if(t.id==="showStock"){ S.stock=t.checked; renderResults(); return; }
   if(t.id==="showPrice"){ S.price=t.checked; renderResults(); return; }
   if(t.dataset.rqty){ const sku=t.dataset.rqty, n=parseInt(t.value,10), p=CAT.find(x=>x.sku===sku), m=p.mult, up=n>0&&n%m!==0; if(n>0&&n!==S.rq[sku]){ S.rq[sku]=up?Math.ceil(n/m)*m:n; up?RROUNDED.add(sku):RROUNDED.delete(sku); } const q=S.rq[sku]??m; t.value=q; // QOM-2961: rounds up to the next multiple
     // updated in place, not re-rendered, so typing a number and then clicking Add still lands on the button
@@ -2796,7 +2820,7 @@ $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototy
 // panes fill the space below the page header; re-measure when anything above them changes height
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
 new ResizeObserver(fitPanes).observe(document.body);
-const qbarEl=$(".qbar"); new ResizeObserver(()=>document.documentElement.style.setProperty("--qbar-h",qbarEl.offsetHeight+"px")).observe(qbarEl); addEventListener("resize",fitPanes); fitPanes();
+const qbarEl=$(".qbar"); new ResizeObserver(()=>document.documentElement.style.setProperty("--qbar-h",qbarEl.offsetHeight+"px")).observe(qbarEl); addEventListener("resize",fitPanes); fitPanes(); addEventListener("resize",()=>fitPop()); document.addEventListener("scroll",()=>fitPop(),{capture:true,passive:true});
 // drag the handle between the panels to make one side wider; arrow keys nudge it, double-click resets
 (function(){ const g=$("#gutter"), w=$("#work"), MIN=.3, MAX=3; let drag=false;
   const cur=()=>parseFloat(w.style.getPropertyValue("--left"))||.55;
