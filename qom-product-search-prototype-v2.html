@@ -1431,7 +1431,7 @@ const S = {
   // cat holds category names and product type names together (see CATEGORY_TYPES_MOCK). Finish applies to the whole quote:
   // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
   filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
-  fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal", finAll:false, finAllFor:"",
+  fpop:null, finMore:false, finOpen:new Set(), catOpen:new Set(), finView:"metal",
   page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
@@ -1462,12 +1462,11 @@ function fuzzy(h,t){ // one-character tolerance for words of 5+ letters (FR-10, 
 const normVal=v=>String(v??"").trim().replace(/\s+/g," ").toLowerCase();
 const sameVal=(a,b)=>normVal(a)===normVal(b);
 const FFIELD={cat:"cat",col:"col",fin:"fin",series:"series",lt:"lt",sname:"name"}; // filter → product field (Style Name is the shared product name across finishes)
-const finBypass=()=>S.finAll && S.finAllFor===S.query; // "Show other finishes": same search, every finish, saved finish kept
 // every filter is strict (Surfaces never show under Fittings); `over` swaps in one group's values, for counts.
 // Within a filter, values combine with OR (Nickel or Brass); across filters, with AND (Henry and Accessories and Nickel).
 // Category: a ticked category matches all its products; a ticked type matches products of that type.
 function passesWith(p,over){
-  for(const k in FFIELD){ const own=over&&(k in over); if(k==="fin"&&!own&&finBypass()) continue;
+  for(const k in FFIELD){ const own=over&&(k in over); 
     const set=own?over[k]:S.filters[k]; if(set.size && !(k==="cat"?catPass(set,p):[...set].some(v=>sameVal(v,p[FFIELD[k]])))) return false; }
   return true;
 }
@@ -1663,7 +1662,7 @@ function fitPop(pop,redecide){ pop=pop||$("#fpop"); if(!pop) return; const k=S.f
   pop.classList.toggle("up",popDir.up); const room=popDir.up?above:below; pop.style.maxHeight=Math.max(180,Math.min(520,room))+"px";
   return hidden?0:Math.max(below,above); } // 0 when the pill itself is under the footer, so the opener scrolls it into view
 function closePop(refocus){ const k=S.fpop; if(!k) return; S.fpop=null; popDir=null; renderFilters(); if(refocus) document.querySelector(`[data-fpop="${k}"]`)?.focus(); }
-function clearGroup(k){ (k==="all"?Object.keys(S.filters):k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; }); if(k==="fin"||k==="all") S.finAll=false;
+function clearGroup(k){ (k==="all"?Object.keys(S.filters):k==="more"?MORE.map(([g])=>g):[k]).forEach(g=>{ S.filters[g].clear(); S.fq[g]=""; });
   if(k==="all"||k==="more"){ S.disc=true; const d=$("#showDisc"); if(d) d.checked=true; } } // clearing also shows discontinued items again
 function renderResults(){
   const q=S.query.trim(); const box=$("#results"); const cnt=$("#count");
@@ -1681,8 +1680,7 @@ function renderResults(){
   }
   const list=run();
   const hiddenDisc = CAT.filter(p=>(isDisc(p)||p.st===10) && !S.disc && passesFilters(p) && (tokens(q).length? matches(p,tokens(q)):true)).length;
-  const finSel=[...S.filters.fin], byp=finBypass();
-  const others=finSel.length&&!byp ? CAT.filter(p=>visible(p)&&!passesFilters(p)&&passesWith(p,{fin:new Set()})&&(tokens(q).length?matches(p,tokens(q)):true)).length : 0;
+  const finSel=[...S.filters.fin]; // finishes change only in the Finish dropdown; the results line just says which are on
   // results line in plain words: "12 Henry accessories in Nickel", "3 results for “HNTVC” in Nickel or Brass".
   // Values in one filter read as "or"; three or more are counted instead of listed.
   const applied=n=>{ const one=n===1, few=a=>a.length>0&&a.length<3;
@@ -1691,8 +1689,7 @@ function renderResults(){
     const home=[...new Set(cats.map(c=>TYPE_INFO[c]?.cat||c))], oneCat=cats.length>2&&home.length===1; // 3+ types of one category: "fittings of 6 types"
     const noun=few(cats)?cats.map(c=>catNoun(c,one)).join(" or "):oneCat?catNoun(home[0],one):pre?(one?"product":"products"):(one?"result":"results");
     const tail=(oneCat?` of ${cats.length} types`:cats.length>2?` across ${cats.length} categories and types`:"")+(cols.length>2?` from ${cols.length} collections`:"")+(lts.length>2?` with ${lts.length} line types`:"");
-    return `${n} ${esc(pre?pre+" ":"")}${esc(noun)}${q?` for “${esc(q)}”`:""}${esc(tail)}${finSel.length?(byp?" in all finishes":` in ${esc(orList(finSel))}`):""}${rest.length?` · ${esc(rest.join(", "))}`:""}`
-      +(byp?` · <button type="button" class="tolink" id="finOnly">Only ${esc(orList(finSel))}</button>`:others?` · <button type="button" class="tolink" id="finOthers">Show other finishes (${others})</button>`:""); };
+    return `${n} ${esc(pre?pre+" ":"")}${esc(noun)}${q?` for “${esc(q)}”`:""}${esc(tail)}${finSel.length?` in ${esc(orList(finSel))}`:""}${rest.length?` · ${esc(rest.join(", "))}`:""}`; }; // finishes are only toggled in the Finish dropdown
   if(!list.length){
     cnt.textContent="";
     box.innerHTML=`<div class="state"><h3>No products match “${esc(q)}”${anyFilter?" with these filters":""}</h3>Try one of these:<ul><li>Check the spelling, or use fewer words</li>${anyFilter?'<li>Clear a filter; finish filters narrow the most</li>':''}<li>Enter the item number if you have it</li>${hiddenDisc?`<li>${hiddenDisc} discontinued or in-development item${hiddenDisc>1?'s match':' matches'}. <button type="button" class="chip" id="showDiscLink">Show them</button></li>`:''}</ul><span class="fr">FR-5</span></div>`; cnt.innerHTML=others?applied(0):"";
@@ -2408,8 +2405,6 @@ document.addEventListener("click",e=>{
   if(t.dataset.catopen){ const c=t.dataset.catopen; S.catOpen.has(c)?S.catOpen.delete(c):S.catOpen.add(c); renderFilters(); return; }
   if(t.dataset.finmore){ S.finMore=!S.finMore; renderFilters(); return; }
   if(t.dataset.finview){ S.finView=t.dataset.finview; renderFilters(); $("#fpop")?.querySelector(t.dataset.finview==="surf"?".fpback, .fopt input":".fpentry")?.focus(); return; }
-  if(t.id==="finOthers"){ S.finAll=true; S.finAllFor=S.query; S.page=1; renderResults(); $("#finOnly")?.focus(); return; }
-  if(t.id==="finOnly"){ S.finAll=false; S.page=1; renderResults(); $("#finOthers")?.focus(); return; }
   if(t.dataset.layout){ S.layout=t.dataset.layout; renderLayout(); return; }
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; t.setAttribute("aria-expanded",String(open)); return; }
@@ -2526,7 +2521,7 @@ document.addEventListener("submit",e=>{ if(e.target.id!=="roomForm") return; e.p
   if(changed) S.dirty=true; $("#roomMenu").hidden=true; $("#roomBtn").setAttribute("aria-expanded","false"); if(S.scenario==="noroom"){S.scenario="normal";$("#scenario").value="normal";} renderRoom(); renderResults(); renderRoomMenu(); renderQuote(); if(renaming) focusName(name); });
 document.addEventListener("change",e=>{
   const t=e.target;
-  if(t.dataset.f){ const k=t.dataset.f, set=S.filters[k]; t.checked?set.add(t.value):set.delete(t.value); if(k==="fin") S.finAll=false; renderFilters(); search(); return; }
+  if(t.dataset.f){ const k=t.dataset.f, set=S.filters[k]; t.checked?set.add(t.value):set.delete(t.value); renderFilters(); search(); return; }
   if(t.dataset.fcat){ catTick(t.dataset.fcat,null,t.checked); renderFilters(); search(); return; }
   if(t.dataset.ftype){ catTick(TYPE_INFO[t.dataset.ftype].cat,t.dataset.ftype,t.checked); renderFilters(); search(); return; }
   if(t.id==="scenario"){ S.undo=null;

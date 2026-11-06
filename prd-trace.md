@@ -64,7 +64,7 @@ PRD: `prd.md` (last updated Nov 5, 2026). Prototype: `qom-product-search-prototy
 - **Commercial view pricing** (locked margin, blended margin input, cost breakdown, apply-to-other-instances toast): outside this PRD (QOM-2566, QOM-2688).
 - **Required-parts concept**: the PRD does cover it, as FR-14 (P2, proposed P1). Differences are in contradiction 5.
 - **Quantity box and sold-in multiples on result rows** ("Sold in increments of 10 square feet"; a typed amount that isn't a whole multiple rounds up with "Rounded up to 30 square feet: …", as QOM-2961 does, on rows and quote lines): likely PRD gap.
-- **"Show other finishes (n)" link** when the finish filter hides matching products: likely PRD gap (FR-3 behavior).
+- ~~**"Show other finishes (n)" link**~~ Removed Nov 5 (Sam): finishes change only in the Finish dropdown, and the results line names the ones that are on.
 - **Finish families, "Most used" groups, and a two-level Category filter with product types**: likely PRD gap (FR-15), and an NFR-4 question.
 - **Line type filter** under More filters: likely PRD gap (not in the FR-12 list).
 - **Photo zoom and the Details tray** (unit, weight, collection, finish, opened from "Details" on every row): likely PRD gap (FR-7 detail).
