@@ -749,6 +749,12 @@ body.noscroll{overflow:hidden}
 .pane.quote.expanded .qfoot{display:none}
 .qside{grid-column:1;grid-row:1/span 5;position:sticky;top:0;background:var(--bg);border:1px solid var(--hdr-line);max-height:calc(100vh - var(--bar-h,0px) - 92px);overflow:auto}
 .qside[hidden]{display:none}
+.pane.quote.expanded #qProducts,.pane.quote.expanded .qbar{container:quote/inline-size} /* full view: line and toolbar layouts follow the lines column's own width, not the whole screen with the Rooms panel in it */
+@container quote (max-width:760px){ /* full view on a narrow window: the Rooms panel goes above the lines instead of squeezing them into a thin column */
+  .pane.quote.expanded .qbox{grid-template-columns:minmax(0,1fr)}
+  .pane.quote.expanded .qbox>:not(.qside){grid-column:1}
+  .pane.quote.expanded .qside{grid-row:auto;position:static;max-height:none;margin-bottom:16px}
+}
 .pane.quote.expanded .rmblock{scroll-margin-top:calc(var(--qbar-h,80px) + 52px)} /* a room picked in the left panel lands just under the title bar */
 .qsidet{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:6px 16px;border-bottom:1px solid var(--hdr-line)}
 .qsidet h3{font-weight:600;font-size:15px;margin:0}
