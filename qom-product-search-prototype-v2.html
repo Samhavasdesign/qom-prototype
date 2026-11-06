@@ -561,7 +561,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qtcount{margin:0;font-size:14px;color:var(--ink-2);white-space:nowrap}.qtcount b{color:var(--ink);font-weight:600}
 .qtcount .bmlink{min-height:44px;margin:-14px 0;padding:0 2px;border:0;background:none;font:inherit;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;cursor:pointer} /* small inline link, still a 44px target */
 .qtcount .bmlink:hover{text-decoration-style:solid}
-.qtact{display:flex;align-items:center;gap:8px 20px;margin-left:auto}
+.qtact{display:flex;align-items:center;justify-content:flex-end;gap:8px 20px;margin-left:auto;flex:1 1 auto;min-width:0} /* fills the row beside the count, so the find box can grow */
 .qtact>[hidden]{display:none}
 .qtact[hidden]{display:none}
 /* narrow quote panel: the actions drop to their own row and the find box stretches; very narrow, the count goes under the title */
@@ -581,7 +581,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   .roomhdr .rcount{display:none} /* the line count is on the toolbar; the room name and tag need the room */
   .roomhdr .addtag{margin-left:8px;padding:2px 6px;letter-spacing:.06em;font-size:11px}
 }
-.lfilter{display:flex;align-items:center;gap:10px;height:44px;width:220px;min-width:150px;flex:0 1 220px;max-width:100%;padding:0 12px;background:var(--bg);border:1px solid var(--control-line);color:var(--ink-3)}
+.lfilter{display:flex;align-items:center;gap:10px;height:44px;width:auto;min-width:150px;flex:1 1 300px;max-width:480px;padding:0 12px;background:var(--bg);border:1px solid var(--control-line);color:var(--ink-3)}
 .lfilter:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
 /* Find in this quote: "2 of 5", previous / next and clear sit inside the field once there's something typed */
@@ -748,7 +748,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* while the bar has nothing to show (Shipping Details switch hidden), the first room lines up with the top of the Rooms panel on the left */
 /* full view: the toolbar pins just under the tabs row; its 16px top padding is the gap under the tabs, so nothing peeks out above it */
 .pane.quote.expanded .qbar,.pane.quote.expanded .qbar:not(:has(.shipsw:not([hidden]))){top:-16px;margin-top:-16px;padding-top:16px;padding-bottom:8px}
-.pane.quote.expanded .lfilter{width:240px;flex-basis:240px}
+.pane.quote.expanded .lfilter{max-width:560px} /* full view: the find box grows into the toolbar row */
 .pane.quote.expanded .qfoot{bottom:-24px}
 body.noscroll{overflow:hidden}
 /* full screen: left panel with rooms, totals and save actions; products on the right */
