@@ -11,7 +11,7 @@
   color-scheme:light;
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--surface:#f5f5f5;--surface-2:#ebebeb;--panel:var(--surface);--panel-soft:var(--surface);--panel-line:var(--line);--panel-head:#d2d2d2; /* rooms you're not adding to: one step darker than the borders */--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
   --line:#dcdcdc;--line-2:#ebebeb;--hdr-line:var(--line);--hdr-count:var(--ink-2);--rail:var(--ink);--rail-2:#262626;--rail-ink:#ffffff;--rail-muted:var(--control-line);
-  --accent:#111111;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:var(--ink-2);--note-bg:#f1efe9;
+  --accent:#111111;--alert:#e0201b;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:var(--ink-2);--note-bg:#f1efe9;
   --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:var(--ink-3);--sp-w:320px;
   --pill:#f3d64b;--focus:#111111;--proto:#e4e4e4;--proto-ink:#111111;
   /* greys, one ramp: #fff bg · #f5f5f5 surface · #ebebeb surface-2/line-2 · #dcdcdc line · #d2d2d2 panel-head (other rooms) · #949494 control-line · #6f6f6f ink-3 · #4a4a4a ink-2 · #111 ink */
@@ -78,6 +78,12 @@ h1{font-family:var(--serif);font-weight:400;font-size:24px;margin:10px 0 2px}
 .tabs{display:flex;gap:26px;margin-bottom:14px;overflow-x:auto}
 .tabs span{padding:8px 2px;color:var(--ink-2);white-space:nowrap}
 .tabs span.cur{color:var(--ink);font-weight:600;border-bottom:3px solid var(--ink)}
+/* the other page tabs aren't built: they get a hover state but a click does nothing */
+.tabs a.ptab{display:inline-flex;align-items:center;padding:8px 2px;color:var(--ink-2);white-space:nowrap;text-decoration:none;border-bottom:3px solid transparent;cursor:pointer}
+.tabs a.ptab:hover{color:var(--ink);border-bottom-color:var(--line)}
+.tabs a.ptab:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.tabs .tabdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--alert);margin-left:6px;flex:none;padding:0}
+.tabs .tabdot[hidden]{display:none}
 .qtop{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px}
 .btn{background:var(--ink);color:var(--bg);border:0;padding:11px 18px;letter-spacing:.14em;font-size:12px;text-transform:uppercase;font-weight:500}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
@@ -276,6 +282,10 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .roomhdr{cursor:pointer}
 .roomhdr .rwarn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;font-size:12px;font-weight:600;background:var(--warn-bg);color:var(--warn)}
 .roomhdr .rwarn.risk{background:var(--amber-bg);color:var(--amber)}
+/* a dot on the Products tab when lines need attention and the SC is on another tab (same count and colours as the room bar warning) */
+.qtab .tabdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--alert);margin-left:6px;flex:none;vertical-align:middle}
+.qtab .tabdot.risk{background:var(--amber)}
+.qtab .tabdot[hidden]{display:none}
 .roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 -6px 0 0;text-decoration:none;opacity:.85}
 .roomhdr button.rchev svg{transition:transform .15s}
 .roomhdr button.rchev[aria-expanded="true"] svg{transform:rotate(180deg)}
@@ -1084,6 +1094,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
       <option value="long">QOM-2514 · U-04 Find in this quote (100-line quote)</option>
       <option value="loading">Search · Loading (slow search)</option>
       <option value="error">Search · Error</option>
+      <option value="tabdot">Tab dot · Lines need attention (on Quote information)</option>
       <option value="s-unsaved">Footer 1 · Unsaved edits</option>
       <option value="s-saved">Footer 2 · Saved, no freight</option>
       <option value="s-calc">Footer 3 · Calculating freight</option>
@@ -1118,7 +1129,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
     <h1>Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
     <p class="sub">QUALITY FINISHES (USC) - Henry bar and club house</p>
     <div class="tabs">
-      <span>Essential Quote Info</span><span>Header Information</span><span>Shipping Information</span><span>Associations</span><span class="cur">Product Selection</span><span>Admin: Calculations</span><span>Communications</span><span class="tabmore" aria-label="More tabs">•••</span>
+      <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><span class="cur">Product Selection</span><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><span class="tabmore" aria-label="More tabs">•••</span>
     </div>
 
     <div class="pane-tabs" id="paneTabs" hidden>
@@ -1172,7 +1183,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
         <!-- view tabs and the enlarge button sit at the top of the quote panel; in full screen they float top right -->
         <div class="qtop" id="qTop">
         <div class="qseg" role="tablist" aria-label="Quote panel view">
-          <button type="button" class="qtab" role="tab" id="qtabProducts" aria-controls="qProducts" data-qview="products" aria-selected="true">Products</button>
+          <button type="button" class="qtab" role="tab" id="qtabProducts" aria-controls="qProducts" data-qview="products" aria-selected="true">Products<span class="tabdot" id="tabDot" hidden></span></button>
           <button type="button" class="qtab" role="tab" id="qtabInfo" aria-controls="qInfo" data-qview="info" aria-selected="false" tabindex="-1">Quote information</button>
           <button type="button" class="qtab" role="tab" id="qtabPdf" aria-controls="qPdf" data-qview="pdf" aria-selected="false" tabindex="-1">PDF preview</button>
         </div>
@@ -1975,6 +1986,13 @@ function computeRisk(){
   return {by,blockers}; }
 // how many lines in a room need attention (stock, discontinued, status unavailable, bad quantity); shown on the bar when the room is folded
 const roomAttention=r=>{ let n=0, bad=false; r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku), res=RISK&&RISK.by[r.name+"|"+l.sku]; const q=l.qty%p.mult!==0; if(q||(res&&res.level!=="ok")){ n++; if(q||res.level==="blocking"||res.level==="unknown") bad=true; } }); return {n,sev:bad?"bad":"risk"}; };
+// demo only: the page tabs above aren't built, so the Tab dot scenario puts mock dots on Header Information and Shipping Information to show the same pattern there
+const PAGE_DOTS={1:"Mock: 1 field needs attention (customer PO number missing)",2:"Mock: 1 field needs attention (ship-to address not validated)"};
+function renderPageDots(){ document.querySelectorAll("[data-pdot]").forEach(d=>{ const m=S.scenario==="tabdot"&&PAGE_DOTS[d.dataset.pdot]; d.hidden=!m; d.title=m||""; m?(d.setAttribute("role","img"),d.setAttribute("aria-label",m)):(d.removeAttribute("role"),d.removeAttribute("aria-label")); }); }
+// the Products tab dot: shows only on the other tabs, red if any line blocks sending, amber if every flagged line is only a risk
+function renderTabDot(){ const d=$("#tabDot"); if(!d) return; let n=0, bad=false; S.quote.rooms.forEach(r=>{ const a=roomAttention(r); n+=a.n; if(a.sev==="bad"&&a.n) bad=true; });
+  const on=n>0&&S.qview!=="products"; d.hidden=!on; d.className="tabdot"+(bad?"":" risk");
+  const label=on?`${n} line${n===1?"":"s"} need${n===1?"s":""} attention`:""; d.title=label; d.setAttribute("role",on?"img":"presentation"); on?d.setAttribute("aria-label",label):d.removeAttribute("aria-label"); }
 const riskShort=x=>x.reason==="discontinued"?"Discontinued":x.reason==="stock"?"Not enough stock":x.reason==="useup"?"Limited stock":"Status unavailable";
 const RI={bad:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.8L14.5 13.5h-13z"/><path d="M8 6.5v3.2M8 11.6v.1"/></svg>',unk:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v3.6M8 5v.1"/></svg>'};
 const riskBanner=(res,p)=>{ if(!res||res.level==="ok") return "";
@@ -2091,7 +2109,7 @@ function renderQuote(){
   if(S.qview==="pdf") $("#qPdf").innerHTML=pdfHtml(); const ub=$("#undoBar"); ub.hidden=!S.undo; $(".qfoot").hidden=!S.undo; ub.innerHTML=S.undo?`<span>⚠ ${S.undo.kind==="room"?(S.undo.lastItem?`Removed ${esc(S.undo.lastItem)}, the last item in ${esc(S.undo.room)}, so the room was removed too`:`Removed room ${esc(S.undo.room)}${S.undo.count?` and its ${S.undo.count} item${S.undo.count===1?"":"s"}`:""}`):`Removed ${esc(S.undo.name)} from ${esc(S.undo.room)}`}.</span><button type="button" class="btn ghost" id="undoBtn">Undo</button>`:"";
   const n=rooms.reduce((a,r)=>a+r.lines.length,0);
   $("#qSub").textContent=`${rooms.length} room${rooms.length===1?"":"s"} · ${n} line${n===1?"":"s"} total`; $("#tabCount").textContent=`(${n})`; $("#stripCount").textContent=n; $("#stripRoom").textContent=S.room||"no room"; $("#stripTotal").textContent=money(sub);
-  placeLineMenu(); renderSend();
+  placeLineMenu(); renderSend(); renderTabDot();
 }
 // pin the open line menu just under its "…" button, right edges aligned
 function placeLineMenu(){
@@ -2306,6 +2324,7 @@ function applySendScenario(v){
   RISK=computeRisk();
 }
 // a click anywhere outside closes it; the footer's own controls and the line notes it points to don't count
+document.addEventListener("click",e=>{ if(e.target.closest?.("a.ptab")) e.preventDefault(); },true); // page tabs that aren't built: hover only
 document.addEventListener("click",e=>{ if(SEND.open&&!e.target.closest("#sendPanel,#pbar,.lflag,.dlgwrap")) closeSend(); },true);
 document.addEventListener("keydown",e=>{
   if(e.key!=="Escape") return;
@@ -2564,7 +2583,8 @@ document.addEventListener("change",e=>{
     if(t.value==="fresh"||t.value==="normal"){ $("#q").value=S.query; $("#clearQ").hidden=!S.query; renderFilters(); }
     markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu();
     $("#lineFilter").value=t.value==="long"?"bar":""; S.lineQ=$("#lineFilter").value; FIND.i=-1; // the U-04 demo opens with "bar" found; other scenarios start with no find
-    renderQuote(); search(); if(t.value==="long") applyFind(); return; }
+    if(t.value==="tabdot"){ S.riskDemo=true; applyRiskDemo(true); $("#riskDemo").checked=true; S.folded=[]; RISK=computeRisk(); } // the stock warning examples flag four lines in the usual quote (some block sending), and the SC is on Quote information, so the Products tab shows a red dot
+    renderQuote(); search(); if(t.value==="long") applyFind(); if(t.value==="tabdot") setQView("info"); renderPageDots(); return; }
   if(t.id==="view"){ setView(t.value); return; }
   if(t.id==="conceptRP"){ CR.on=t.checked; CR.open=null; CR.size={}; crHash(CR.on); renderQuote(); renderResults(); return; }
   if(t.id==="riskDemo"){ S.riskDemo=t.checked; applyRiskDemo(t.checked); renderQuote(); renderResults(); return; }
@@ -2818,6 +2838,7 @@ function renderQView(){
   document.querySelectorAll(".qtab").forEach(b=>{ b.setAttribute("aria-selected",String(b.dataset.qview===v)); b.tabIndex=b.dataset.qview===v?0:-1; });
   if(v==="info") $("#qInfo").innerHTML=infoHtml();
   if(v==="pdf") $("#qPdf").innerHTML=pdfHtml();
+  renderTabDot();
 }
 function setQView(v){ S.qview=v; renderQView(); if(v==="pdf") sendForward(); }
 // enlarge: the quote panel fills the whole screen (content stays readable on very wide screens); Escape or the same button exits
