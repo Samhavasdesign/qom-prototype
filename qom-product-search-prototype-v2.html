@@ -1695,7 +1695,7 @@ function renderResults(){
       +(byp?` · <button type="button" class="tolink" id="finOnly">Only ${esc(orList(finSel))}</button>`:others?` · <button type="button" class="tolink" id="finOthers">Show other finishes (${others})</button>`:""); };
   if(!list.length){
     cnt.textContent="";
-    box.innerHTML=`<div class="state"><h3>No products match “${esc(q)}”${anyFilter?" with these filters":""}</h3>Try one of these:<ul><li>Check the spelling, or use fewer words</li>${anyFilter?'<li>Clear a filter; finish filters narrow the most</li>':''}<li>Enter the item number if you have it</li>${hiddenDisc?`<li>${hiddenDisc} discontinued or in-development item${hiddenDisc>1?'s':''} match. <button type="button" class="chip" id="showDiscLink">Show them</button></li>`:''}</ul><span class="fr">FR-5</span></div>`; cnt.innerHTML=others?applied(0):"";
+    box.innerHTML=`<div class="state"><h3>No products match “${esc(q)}”${anyFilter?" with these filters":""}</h3>Try one of these:<ul><li>Check the spelling, or use fewer words</li>${anyFilter?'<li>Clear a filter; finish filters narrow the most</li>':''}<li>Enter the item number if you have it</li>${hiddenDisc?`<li>${hiddenDisc} discontinued or in-development item${hiddenDisc>1?'s match':' matches'}. <button type="button" class="chip" id="showDiscLink">Show them</button></li>`:''}</ul><span class="fr">FR-5</span></div>`; cnt.innerHTML=others?applied(0):"";
     return;
   }
   const pages=Math.ceil(list.length/PAGE); S.page=Math.min(Math.max(1,S.page),pages); const from=(S.page-1)*PAGE, shown=list.slice(from,from+PAGE);
