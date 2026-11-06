@@ -73,7 +73,7 @@ PRD: `prd.md` (last updated Nov 5, 2026). Prototype: `qom-product-search-prototy
 - **"Adding here" tag on the room bar, and clicking a room to target it**: likely PRD gap (FR-21).
 - **"Find in this quote" line search**: PRD gap (US-10, long quotes; U-04 in the design spec). The prototype now finds lines only, goes to the best match, and steps through matches with arrows in the box ("3 of 21 matches" under it), with a count on each room bar; test it with the "QOM-2514 · U-04 Find in this quote" scenario. Proposed PRD wording: "When an SC searches within a quote, they can see how many lines match and which rooms they're in, go straight to the best match, and choose to see only the matching lines. Lines are never hidden without the screen saying so."
 - **Quote editing**: drag to reorder lines and rooms, duplicate or delete a room, undo remove, Join Product, Add Charge, Alt. Address. Outside this PRD.
-- **Empty quote states** ("Start with a room", "No rooms yet"): likely PRD gap (FR-19, FR-21).
+- **Empty quote state** ("No products yet", carton icon; Add room on Product Selection, "Product selection" on the other tabs, Nov 6): likely PRD gap (FR-19, FR-21).
 
 ## 2. Contradictions with the PRD
 

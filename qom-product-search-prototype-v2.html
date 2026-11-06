@@ -1826,6 +1826,7 @@ const grip=(type,room,sku,label)=>`<button type="button" class="grip" data-grip=
 const roomName=r=>esc(r.name)+(r.type&&r.type.toLowerCase()!==r.name.trim().toLowerCase()?` <span class="rtype">· ${esc(r.type)}</span>`:"");
 // quantity cell: stepper always visible; unit + info icon unless the unit is "each"; the sold-in multiple is helper text, not just a tooltip
 const ICON={
+  box:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3.5 8.5h13V17h-13z"/><path d="M3.5 8.5L5.5 4h9l2 4.5M10 4v4.5"/><path d="M8 11.5h4"/></svg>`,
   door:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5 18V2h10v16M3 18h14M5 2l6 2v14"/><circle cx="9.3" cy="10.5" r=".6" fill="currentColor"/></svg>`,
   minus:`<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   plus:`<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10M7 2v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
@@ -2149,8 +2150,8 @@ function renderQuote(){
   if(S.collapsedFor && S.collapsedFor!==S.room) S.collapsedFor=null; // only the room you're adding to is open; it can be folded shut by hand
   const rooms=S.quote.rooms; const wrap=$("#rooms"); let sub=0, bad=0;
   rooms.forEach(r=>r.lines.forEach(l=>{ const p=CAT.find(x=>x.sku===l.sku); sub+=l.qty*l.unit; if(l.qty%p.mult) bad++; }));
-  if(!rooms.length&&S.expanded){ wrap.innerHTML=`<div class="empty-quote none xl"><span class="eqicon">${ICON.door}</span><h3>Start with a room</h3><p>Rooms group the quote the way your client thinks about it. Add one, then search for products to put in it.</p><button type="button" class="btn" id="emptyAdd"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>Add room</button></div>`; }
-  else if(!rooms.length){ wrap.innerHTML=`<div class="empty-quote none"><span class="eqicon">${ICON.door}</span><h3>No rooms yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="emptyAdd">Add room</button></div>`; }
+  // empty quote (Sam, Nov 6): same box icon and copy on every tab; Product Selection offers Add room, the other tabs Product selection, which goes to Product Selection
+  if(!rooms.length){ const ps=S.ptab===4; wrap.innerHTML=`<div class="empty-quote none${S.expanded?" xl":""}"><span class="eqicon">${ICON.box}</span><h3>No products yet</h3><p>Add a room, then search for products to add to it.</p><button type="button" class="btn" id="${ps?"emptyAdd":"emptyAddProd"}">${ps?"Add room":"Product selection"}</button></div>`; }
   else wrap.innerHTML=rooms.map((r,ri)=>{
     const isOpen=(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
@@ -2519,6 +2520,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.pane){ S.pane=t.dataset.pane; renderLayout(); return; }
   if(t.id==="roomBtn"){ const m=$("#roomMenu"); const open=m.hidden; if(open) renderRoomMenu(); m.hidden=!open; if(open) fitRoomMenu(); t.setAttribute("aria-expanded",String(open)); return; }
   if(t.id==="emptyAdd"||t.id==="sideAddBtn"){ startAddRoom(); return; }
+  if(t.id==="emptyAddProd"){ setPTab(4); $("#q").focus(); return; } // other tabs: go to Product Selection
   if(t.id==="foldAll"){ const open=t.textContent.trim()==="Collapse all"; S.allOpen=!open; S.folded=[]; S.collapsedFor=open?S.room:null; renderQuote(); $("#foldAll").focus(); return; }
   if(t.id==="toolAddBtn"||t.id==="addRoomRow"){ startAddRoom(); return; } // same form as the "Adding to" menu on the search side
   if(t.id==="sideRoomCancel"){ S.sideAdd=false; renderQuote(); $("#sideAddBtn").focus(); return; }
@@ -2995,7 +2997,7 @@ function renderPTab(){ if(S.ptab===4) return; syncAddr(); $("#ptForm").innerHTML
 function setPTab(n){ if(n===S.ptab){ renderPTab(); return; }
   if(n!==4&&S.expanded) setExpanded(false);
   S.ptab=n; document.querySelectorAll("a.ptab[data-ptab]").forEach(a=>{ const on=+a.dataset.ptab===n; a.classList.toggle("cur",on); on?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"); });
-  document.body.classList.toggle("ptab-other",n!==4); $("#ptView").hidden=n===4; renderPTab(); placeBar(); fitPanes(); $("#ptView").scrollTop=0; scrollTo(0,0); }
+  document.body.classList.toggle("ptab-other",n!==4); $("#ptView").hidden=n===4; renderPTab(); renderQuote(); placeBar(); fitPanes(); $("#ptView").scrollTop=0; scrollTo(0,0); }
 document.addEventListener("click",e=>{ const a=e.target.closest("a.ptab[data-ptab]"); if(!a) return; e.preventDefault(); setPTab(+a.dataset.ptab); });
 // any edit marks the quote unsaved (counted in the bar), without re-rendering the form, so focus stays where you're typing
 function tfSet(k,v){ TF[k]=v; S.dirty=true; renderSend(); }
