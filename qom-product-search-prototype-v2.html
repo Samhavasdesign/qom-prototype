@@ -184,14 +184,15 @@ table.res .ncomp{display:none}
 }
 @container search (max-width:499px){
   table.res .wd{display:none}
-  table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* header row hidden on screen, kept for screen readers */
   table.res .ncomp{display:block;font-size:12px;color:var(--ink-2);margin-top:3px}
   table.res .ktag{display:none} /* stock tags stay: SCs need in/out of stock in the narrow default panel too */
 }
+table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* no header bar over the results at any width (Sam, Nov 5); kept for screen readers */
 table.res th{background:var(--surface-2);text-align:left;padding:10px 6px;font-weight:600;font-size:14px}
 table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-align:middle}
 table.res tr.blocked td{color:var(--ink-3)}
 table.res td.num{white-space:nowrap}
+table.res .stl{color:var(--ink-3)} /* "Status 20": the word is grey, the number black */
 table.res .sty{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
 /* Details on every row, at every width: opens the tray with unit, weight, collection and finish (it used to open only from the unit column, which hides under 640px) */
 table.res .rdet{display:flex;align-items:center;gap:6px;margin-top:6px;padding:2px 0;border:0;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer}
@@ -900,8 +901,14 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 .fpfoot .tolink{min-height:44px}
 .fplist{max-height:220px;overflow:auto} /* a long list (Style Name) scrolls inside its own section */
 .state.idle .isub{max-width:380px;font-size:14px;line-height:1.45;color:var(--ink-3)}
-.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;font-size:13px;color:var(--ink-2)}
-.pager .btn{padding:8px 14px}
+.pager{display:flex;align-items:center;justify-content:center;gap:2px;margin-top:14px;flex-wrap:wrap}
+.pager button{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 5px;border:0;border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:14px;font-variant-numeric:tabular-nums;cursor:pointer}
+.pager .pgnum:hover{background:var(--surface-2)}
+.pager .pgnum[aria-current="page"]{background:var(--ink);color:var(--bg);cursor:default}
+.pager .pgnav{min-width:36px}
+.pager .pgnav:disabled{color:var(--line);cursor:default}
+.pager .pggap{min-width:22px;text-align:center;color:var(--ink);font-size:14px}
+.pager button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* hide the browser's own clear button; the search box has its own */
 #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 
@@ -1707,13 +1714,13 @@ function renderResults(){
       <td>${thumbHtml(p)}</td>
       <td><div class="name"><span class="pn">${hl(p.name)} in ${hl(p.fin)}</span>${rowTags(p)}${stockTag(p)}${p.cmm?` <span class="tag note" title="Item group ${esc(p.ig)}">Commercial only</span>`:''}${p.kit?` <span class="tag note ktag" title="Includes ${p.kit.length} products">Kit · ${p.kit.length} products</span>`:''}${accents}<small class="ncomp">Style ${hl(p.style)} · Status ${p.st}${S.price?` · List ${price}`:""}</small>${reason?`<span class="reason">${esc(reason)} <span class="fr">FR-4</span></span>`:''}<button type="button" class="rdet" data-tray="${esc(p.sku)}" aria-expanded="${openTrays.has(p.sku)}" aria-controls="tray-${esc(p.sku)}">Details<span class="sr"> for ${esc(p.name)} in ${esc(p.fin)}</span>${CHEV}</button></div></td>
       <td class="sku wd c-sku">${hl(p.sku)}${p.style!==p.sku?`<small class="sty">Style ${hl(p.style)}</small>`:""}</td>
-      <td class="num wd c-st">${p.st}</td>
+      <td class="num wd c-st"><span class="stl" aria-hidden="true">Status </span>${p.st}</td>
       <td class="wd c-lt">${esc(p.lt)}</td>
       <td class="uom wd c-uom">${esc(unitLabel(p))}</td>
       ${S.price?`<td class="sku wd c-price">${price}</td>`:""}
     </tr>${openTrays.has(p.sku)?`<tr class="tray" id="tray-${esc(p.sku)}"><td colspan="2"></td><td colspan="10">Unit: ${esc(unitLabel(p))}<br>Weight: ${p.wt}<br>Collection Name: ${esc(p.col)}<br>${p.cat==="Surfaces"?"Color":"Metal Finish"}: ${esc(p.fin)}</td></tr>`:""}`;
   }).join("");
-  box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">Unit</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?`<nav class="pager" aria-label="Result pages"><button type="button" class="btn ghost" data-page="-1" ${S.page===1?"disabled":""}>Previous</button><span>Page ${S.page} of ${pages}</span><button type="button" class="btn ghost" data-page="1" ${S.page===pages?"disabled":""}>Next</button></nav>`:""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
+  box.innerHTML=`<div class="reswrap"><table class="res"><thead><tr><th scope="col">Add</th><th scope="col">Picture</th><th scope="col">Name</th><th scope="col" class="wd c-sku">Item Number</th><th scope="col" class="wd c-st">Status</th><th scope="col" class="wd c-lt">Line Type</th><th scope="col" class="wd c-uom">Unit</th>${S.price?'<th scope="col" class="wd c-price">List $</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>${pages>1?pagerHtml(S.page,pages):""}${roomOk?'':'<p class="hint" style="margin-top:8px">Choose a room above to add products. <span class="fr">FR-19</span></p>'}`;
 }
 // stock hint on sellable result rows (status 20), labelled with the warehouse it comes from; discontinued and in-development rows show their reason instead
 const stockTag=p=> !S.stock||p.st!==20 ? "" : (p.stock>0 ? ` <span class="tag ok stk">In stock: ${p.stock} in USC</span>` : ` <span class="tag note stk">${p.lead?"Out of stock in USC · lead time "+esc(p.lead):"Out of stock in USC"}</span>`)+'<span class="fr">FR-8</span>';
@@ -2342,6 +2349,12 @@ function setView(v){
 // ---------- actions ----------
 let timer=null, spinTimer=null;
 const PAGE=20; // results per page
+// pager: chevrons either side, page numbers with the current one in a black circle, and "…" for the gaps ("‹ 1 2 3 4 5 … 2841 ›")
+function pageList(p,n){ if(n<=7) return Array.from({length:n},(_,i)=>i+1);
+  if(p<=4) return [1,2,3,4,5,"…",n]; if(p>=n-3) return [1,"…",n-4,n-3,n-2,n-1,n]; return [1,"…",p-1,p,p+1,"…",n]; }
+const CHEV_L='<svg width="9" height="15" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2 2 10l8 8"/></svg>';
+const CHEV_R='<svg width="9" height="15" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 2 8 8-8 8"/></svg>';
+const pagerHtml=(p,n)=>`<nav class="pager" aria-label="Result pages"><button type="button" class="pgnav" data-goto="${p-1}" data-pnav="prev" aria-label="Previous page"${p===1?" disabled":""}>${CHEV_L}</button>${pageList(p,n).map(x=>x==="…"?'<span class="pggap" aria-hidden="true">…</span>':`<button type="button" class="pgnum" data-goto="${x}"${x===p?' aria-current="page"':""} aria-label="Page ${x}${x===n?", last page":""}">${x}</button>`).join("")}<button type="button" class="pgnav" data-goto="${p+1}" data-pnav="next" aria-label="Next page"${p===n?" disabled":""}>${CHEV_R}</button></nav>`;
 function search(typing){ // the spinner only appears if a search takes longer than 300 ms, so fast searches don't flash it; typing=true while searching as you type
   clearTimeout(timer); clearTimeout(spinTimer); S.notice=null; S.page=1;
   const delay = S.scenario==="loading" ? 1500 : 250; // Scenario "Loading": slow enough for "Searching…" to show
@@ -2420,7 +2433,8 @@ document.addEventListener("click",e=>{
   if(t.dataset.toggleroom){ toggleRoom(t.dataset.toggleroom); return; }
   if(t.dataset.pick){ pickRoom(t.dataset.pick); if(S.layout==="tabs"){S.pane="search";renderLayout();} return; }
   if(t.dataset.add){ addLine(t.dataset.add); return; }
-  if(t.dataset.page){ S.page+=Number(t.dataset.page); renderResults(); $("#count").scrollIntoView({block:"nearest"}); $(`.pager [data-page="${t.dataset.page}"]`)?.focus(); return; }
+  if(t.dataset.goto){ const nav=t.dataset.pnav; S.page=Number(t.dataset.goto); renderResults(); $("#count").scrollIntoView({block:"nearest"});
+    (nav&&!$(`.pager [data-pnav="${nav}"]`)?.disabled?$(`.pager [data-pnav="${nav}"]`):$('.pager [aria-current="page"]'))?.focus(); return; } // focus stays on the arrow, or moves to the new current page
   if(t.dataset.tray){ const k=t.dataset.tray; openTrays.has(k)?openTrays.delete(k):openTrays.add(k); renderResults(); [...document.querySelectorAll(`[data-tray="${CSS.escape(k)}"]`)].find(b=>b.offsetParent)?.focus(); return; }
   if(t.dataset.kit){ const [room,sku]=t.dataset.kit.split("|"); const key=sku+room; S.kitClosed=S.kitClosed.includes(key)?S.kitClosed.filter(x=>x!==key):[...S.kitClosed,key]; renderQuote(); document.querySelector(`[data-kit="${CSS.escape(t.dataset.kit)}"]`)?.focus(); return; }
   if(t.dataset.step){ const [room,sku,dir]=t.dataset.step.split("|"); const rm=S.quote.rooms.find(r=>r.name===room); const idx=rm.lines.findIndex(x=>x.sku===sku); const l=rm.lines[idx]; const p=CAT.find(x=>x.sku===sku), m=p.mult;
