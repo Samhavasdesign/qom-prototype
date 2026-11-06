@@ -1111,10 +1111,11 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 /* ---------- v3: the other quote tabs (Essential Quote Info, Header Information, Shipping Information, Associations), mocked from QOM staging.
    A two-column form on the left, the Preview drawer on the right. No Save or Discard here: the step-track bar is the only Save. ---------- */
 .tabs a.ptab.cur{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
-body.ptab-other #work,body.ptab-other #paneTabs,body.ptab-other #quoteStrip{display:none !important}
-.ptview{container:ptv/inline-size;padding-top:10px}
-.ptgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,1fr);gap:40px;align-items:start}
-@container ptv (max-width:960px){ .ptgrid{grid-template-columns:minmax(0,1fr)} } /* narrow (or the panel is open): the Preview goes under the form */
+/* Nov 6: these tabs keep the Product Selection split. The form takes the search side's place on the left; the quote panel, the handle between them
+   and the width you dragged it to stay the same on every tab. */
+body.ptab-other #searchPane,body.ptab-other #paneTabs,body.ptab-other #quoteStrip{display:none !important}
+.ptview{container:ptv/inline-size;padding-top:20px !important}
+.ptview[hidden]{display:none !important}
 .ptform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 40px;align-content:start}
 @container ptv (max-width:560px){ .ptform{grid-template-columns:minmax(0,1fr)} .pf-addwrap{padding-top:0} }
 .pf{display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -1142,16 +1143,6 @@ body.ptab-other #work,body.ptab-other #paneTabs,body.ptab-other #quoteStrip{disp
 .pf-add{height:56px;display:flex;align-items:center;justify-content:center;gap:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
 .pf-addwrap{display:flex;flex-direction:column;gap:6px;padding-top:30px}
 .pf-menu{top:calc(100% + 2px)}
-/* the Preview drawer, as on staging: its own tabs, then the preview card */
-.ptprev{min-width:0;display:flex;flex-direction:column}
-.ptseg{display:flex;justify-content:flex-end;gap:26px;height:44px;border-bottom:1px solid var(--line)} /* same look as the quote panel's view tabs (.qtab) */
-.ptseg span{display:flex;align-items:center;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 2px 0;color:var(--ink-2);white-space:nowrap}
-.ptseg span.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
-.ptcard{border:1px solid var(--line);border-top:0;padding:20px 22px;min-height:420px}
-.ptcard h2{display:flex;align-items:center;gap:16px;margin:0 0 14px;font-family:var(--sans);font-weight:400;font-size:26px}
-.ptcard .ptid{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
-.ptcard .ptid b{font-family:var(--serif);font-weight:400;font-size:22px}
-.ptcard .ptid span{font-size:14px;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1215,16 +1206,6 @@ body.ptab-other #work,body.ptab-other #paneTabs,body.ptab-other #quoteStrip{disp
       <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><a href="#" class="ptab cur" data-ptab="4" aria-current="page">Product Selection</a><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><span class="tabmore" aria-label="More tabs">•••</span>
     </div>
 
-    <!-- v3: Essential Quote Info, Header Information, Shipping Information and Associations, mocked from QOM staging (renderPTab fills it) -->
-    <div class="ptview" id="ptView" hidden><div class="ptgrid">
-      <form class="ptform" id="ptForm" autocomplete="off" onsubmit="return false"></form>
-      <aside class="ptprev" aria-label="Preview">
-        <div class="ptseg" aria-hidden="true"><span>PDF Preview</span><span>Quote Information</span><span class="on">Selected Products</span></div>
-        <div class="ptcard"><h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>Preview</h2>
-          <div class="ptid"><b>Quote ID: 6000024967</b><span id="ptExp"></span></div>
-          <span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span></div>
-      </aside>
-    </div></div>
 
     <div class="pane-tabs" id="paneTabs" hidden>
       <button type="button" role="tab" aria-selected="true" data-pane="search">Find products</button>
@@ -1261,6 +1242,12 @@ body.ptab-other #work,body.ptab-other #paneTabs,body.ptab-other #quoteStrip{disp
         <p class="resmeta" id="count"></p>
         <div id="notice" aria-live="assertive"></div>
         <div id="results" aria-live="polite"></div>
+      </section>
+
+      <!-- v3: Essential Quote Info, Header Information, Shipping Information and Associations, mocked from QOM staging (renderPTab fills it).
+           It replaces the search side on those tabs; the quote panel on the right is the same one Product Selection uses. -->
+      <section class="pane ptview" id="ptView" aria-label="Quote details" hidden>
+        <form class="ptform" id="ptForm" autocomplete="off" onsubmit="return false"></form>
       </section>
 
       <div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Resize panels (drag, or use the arrow keys; double-click to reset)" tabindex="0"></div>
@@ -2677,12 +2664,14 @@ document.addEventListener("click",e=>{ const b=e.target.closest("#findPrev,#find
   if(b.id==="findClear"){ clearFind(); $("#lineFilter").focus(); } else { stepFind(b.id==="findNext"?1:-1); b.focus(); } }); // focus stays on the arrow, so it can be pressed again
 // Add room from anywhere: full screen uses the Rooms panel form; otherwise the search side's room menu (switching to it on layout B's Quote tab)
 function startAddRoom(){
+  if(S.ptab!==4) setPTab(4); // the room form lives on the search side, so go back to Product Selection
   if(S.expanded){ S.sideAdd=true; S.qview="products"; renderQView(); renderQuote(); $("#sideRoomType").focus(); return; }
   if(S.layout==="tabs"&&S.pane!=="search"){ S.pane="search"; renderLayout(); }
   openRoomForm("add");
 }
 // Add products to a room: make it the target, leave full screen, show the search side and put the cursor in search
 function startAddProducts(name){
+  if(S.ptab!==4) setPTab(4);
   pickRoom(name); if(S.expanded) setExpanded(false,false); // going to search: no need to scroll the quote back
   if(S.layout==="tabs"&&S.pane!=="search"){ S.pane="search"; renderLayout(); }
   $("#q").focus(); $("#q").scrollIntoView({block:"nearest"});
@@ -3055,12 +3044,12 @@ const PT_FORMS={
 };
 const PT_NAMES=["Essential Quote Info","Header Information","Shipping Information","Associations"];
 S.ptab=4; // 4 is Product Selection
-function renderPTab(){ if(S.ptab===4) return; syncAddr(); $("#ptForm").innerHTML=PT_FORMS[S.ptab](); $("#ptForm").setAttribute("aria-label",PT_NAMES[S.ptab]); $("#ptExp").textContent="Expires on: "+fDate(pDate(QI.expires)); }
+function renderPTab(){ if(S.ptab===4) return; syncAddr(); $("#ptForm").innerHTML=PT_FORMS[S.ptab](); $("#ptForm").setAttribute("aria-label",PT_NAMES[S.ptab]); $("#ptView").setAttribute("aria-label",PT_NAMES[S.ptab]); }
 // switching tabs happens on the same page; the bar, a collapsed bar and an open panel all stay as they are
 function setPTab(n){ if(n===S.ptab){ renderPTab(); return; }
   if(n!==4&&S.expanded) setExpanded(false);
   S.ptab=n; document.querySelectorAll("a.ptab[data-ptab]").forEach(a=>{ const on=+a.dataset.ptab===n; a.classList.toggle("cur",on); on?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"); });
-  document.body.classList.toggle("ptab-other",n!==4); $("#ptView").hidden=n===4; renderPTab(); placeBar(); if(n===4) fitPanes(); scrollTo(0,0); }
+  document.body.classList.toggle("ptab-other",n!==4); $("#ptView").hidden=n===4; renderPTab(); placeBar(); fitPanes(); $("#ptView").scrollTop=0; scrollTo(0,0); }
 document.addEventListener("click",e=>{ const a=e.target.closest("a.ptab[data-ptab]"); if(!a) return; e.preventDefault(); setPTab(+a.dataset.ptab); });
 // any edit marks the quote unsaved (counted in the bar), without re-rendering the form, so focus stays where you're typing
 function tfSet(k,v){ TF[k]=v; S.dirty=true; renderSend(); }
