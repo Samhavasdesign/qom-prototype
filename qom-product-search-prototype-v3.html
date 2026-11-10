@@ -305,7 +305,6 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .roomhdr button.rchev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;margin:0 -6px 0 0;text-decoration:none;opacity:.85}
 .roomhdr button.rchev svg{transition:transform .15s}
 .roomhdr button.rchev[aria-expanded="true"] svg{transform:rotate(180deg)}
-.roomhdr .rtype{font-weight:400;color:inherit;opacity:.7} /* room type after the name, greyed on both the grey and the black (active) room bar */
 .rmblock .form-err{color:var(--warn);font-size:13px;margin:6px 0 0;padding:0 10px}
 .dragging{opacity:.4}
 .drop-before{box-shadow:inset 0 3px 0 var(--ink)}
@@ -1950,7 +1949,7 @@ const lineMove=(r,l,p)=>{ const n=r.lines.length, i=r.lines.indexOf(l); if(n<2) 
 const grip=(type,room,sku,label)=>`<button type="button" class="grip" data-grip="${type}" data-groom="${esc(room)}" data-gsku="${esc(sku)}" aria-label="Reorder ${esc(label)}. Drag, or press arrow up or down." title="Drag to reorder">⠿</button>`;
 // room name, then its type in grey unless the name is just the type ("sams kitchen · Kitchen", but "Bar", not "Bar · Bar").
 // Renaming is only in the room's "…" menu; a click on the name opens the room like the rest of the bar
-const roomName=r=>esc(r.name)+(r.type&&r.type.toLowerCase()!==r.name.trim().toLowerCase()?` <span class="rtype">· ${esc(r.type)}</span>`:"");
+const roomName=r=>esc(r.name); // the quote panel shows the room name only; the type is seen and changed in the Add or Rename room form (Sam, Nov 9)
 // quantity cell: stepper always visible; unit + info icon unless the unit is "each"; the sold-in multiple is helper text, not just a tooltip
 const ICON={
   box:`<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3.5 8.5h13V17h-13z"/><path d="M3.5 8.5L5.5 4h9l2 4.5M10 4v4.5"/><path d="M8 11.5h4"/></svg>`,
@@ -2278,7 +2277,7 @@ function renderQTools(rooms){
   const fb=$("#foldAll"); fb.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${anyOpen?'<path d="M2 6l4-4 4 4M2 10.5l4-4 4 4"/>':'<path d="M2 1.5l4 4 4-4M2 6l4 4 4-4"/>'}</svg><span>${anyOpen?"Collapse all":"Expand all"}</span>`; fb.disabled=false; fb.title="";
 }
 // add-room form at the top of the Rooms panel in full screen
-const ADD_ROOM_FORM=()=>`<form class="sideform" id="sideRoomForm" aria-label="Add room"><select id="sideRoomType" aria-label="Room type (required)" required><option value="" selected disabled>Room type (required)</option>${ROOM_TYPES.map(t=>`<option>${t}</option>`).join("")}</select><input id="sideRoomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="sideRoomErr"><p class="form-err" id="sideRoomErr" role="alert" hidden></p><div class="row"><button type="submit" class="btn">Add room</button><button type="button" class="btn ghost" id="sideRoomCancel">Cancel</button></div><p class="hint">Leave the name blank to use the room type. <span class="fr">FR-21</span></p></form>`;
+const ADD_ROOM_FORM=()=>`<form class="sideform" id="sideRoomForm" aria-label="Add room"><select id="sideRoomType" aria-label="Room type (required)" required><option value="" selected disabled>Room type (required)</option>${ROOM_TYPES.map(t=>`<option>${t}</option>`).join("")}</select><input id="sideRoomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="sideRoomErr"><p class="form-err" id="sideRoomErr" role="alert" hidden></p><div class="row"><button type="submit" class="btn">Add room</button><button type="button" class="btn ghost" id="sideRoomCancel">Cancel</button></div><span class="fr">FR-21</span></form>`;
 function renderQuote(){
   RISK=computeRisk();
   FIND.stops=findStops(); if(FIND.i>=FIND.stops.length) FIND.i=FIND.stops.length-1;
@@ -2660,12 +2659,19 @@ function showAddedLine(room,sku){
   pane.scrollTo({top,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
   el.classList.add("justadded"); setTimeout(()=>el.classList.remove("justadded"),1600);
 }
+// Picking a room type fills the name with the type and the next free number ("ADA 1", then "ADA 2"), unless the SC has typed their own name (FR-21)
+function nextRoomName(type,except){ let n=1; while(S.quote.rooms.some(r=>r!==except&&r.name.toLowerCase()===(type+" "+n).toLowerCase())) n++; return type+" "+n; }
+document.addEventListener("change",e=>{ const id=e.target.id; if(id!=="roomType"&&id!=="sideRoomType") return;
+  const inp=$(id==="roomType"?"#roomName":"#sideRoomName"); if(!inp||!e.target.value) return;
+  const ex=id==="roomType"&&roomMode==="rename"?S.quote.rooms.find(r=>r.name===renameFrom):null;
+  if(inp.value.trim()&&inp.value!==inp.dataset.auto) return; // keep a name the SC typed
+  inp.value=inp.dataset.auto=nextRoomName(e.target.value,ex); });
 let roomMode="add", renameFrom=null; // one form adds a room or renames one (FR-21); renameFrom is the room being renamed
 function openRoomForm(mode,preset,target){
   const menu=$("#roomMenu"); menu.hidden=false; fitRoomMenu(); $("#roomBtn").setAttribute("aria-expanded","true");
   const tr=mode==="rename"?S.quote.rooms.find(r=>r.name===target):null; roomMode=tr?"rename":"add"; renameFrom=tr?tr.name:null; const ren=!!tr;
   if(ren) preset=tr.type; const types=ren&&tr.type&&!ROOM_TYPES.includes(tr.type)?[tr.type,...ROOM_TYPES]:ROOM_TYPES;
-  menu.innerHTML=`<div class="grp">${ren?"Rename room":"Add room"}</div><form id="roomForm" aria-label="${ren?"Rename room":"Add room"}"><select id="roomType" aria-label="Room type (required)" required><option value="" ${preset?"":"selected"} disabled>Room type (required)</option>${types.map(t=>`<option ${t===preset?"selected":""}>${esc(t)}</option>`).join("")}</select><input id="roomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="roomHint roomErr" value="${ren?esc(tr.name):""}"><p class="form-err" id="roomErr" role="alert" hidden></p><button type="submit" class="btn">${ren?"Save":"Add room"}</button><button type="button" class="btn ghost" id="roomCancel">Cancel</button><span class="rfhint" id="roomHint">Leave the name blank to use the room type as the name. <span class="fr">FR-21</span></span></form>`;
+  menu.innerHTML=`<div class="grp">${ren?"Rename room":"Add room"}</div><form id="roomForm" aria-label="${ren?"Rename room":"Add room"}"><select id="roomType" aria-label="Room type (required)" required><option value="" ${preset?"":"selected"} disabled>Room type (required)</option>${types.map(t=>`<option ${t===preset?"selected":""}>${esc(t)}</option>`).join("")}</select><input id="roomName" placeholder="Room name (optional)" aria-label="Room name (optional)" aria-describedby="roomErr" value="${ren?esc(tr.name):preset?esc(nextRoomName(preset)):""}" ${!ren&&preset?`data-auto="${esc(nextRoomName(preset))}"`:""}><p class="form-err" id="roomErr" role="alert" hidden></p><button type="submit" class="btn">${ren?"Save":"Add room"}</button><button type="button" class="btn ghost" id="roomCancel">Cancel</button><span class="fr">FR-21</span></form>`;
   if(ren){ $("#roomName").focus(); $("#roomName").select(); return; }
   (preset?$("#roomName"):$("#roomType")).focus();
 }
@@ -2747,7 +2753,7 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("submit",e=>{ if(e.target.id!=="sideRoomForm") return; e.preventDefault();
   const type=$("#sideRoomType").value; if(!type) return; let name=$("#sideRoomName").value.trim();
-  if(!name){ name=type; let n=2; while(S.quote.rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
+  if(!name) name=nextRoomName(type);
   const clash=S.quote.rooms.find(r=>r.name.toLowerCase()===name.toLowerCase());
   if(clash){ const err=$("#sideRoomErr"); err.textContent=`Another room is already called ${clash.name}.`; err.hidden=false; $("#sideRoomName").focus(); return; } // only a typed name can clash; a blank one is numbered above
   S.quote.rooms.push({name,type,lines:[]}); S.room=name; S.collapsedFor=null; S.sideAdd=false; S.dirty=true;
@@ -2790,7 +2796,7 @@ function startAddProducts(name){
 }
 document.addEventListener("submit",e=>{ if(e.target.id!=="roomForm") return; e.preventDefault(); const type=$("#roomType").value; if(!type) return; let name=$("#roomName").value.trim(); const typed=!!name;
   const existing=roomMode==="rename"?S.quote.rooms.find(r=>r.name===renameFrom):null; const renaming=!!existing; // rename: the room whose "…" opened the form
-  if(!typed){ name=type; let n=2; while(S.quote.rooms.some(r=>r!==existing&&r.name.toLowerCase()===name.toLowerCase())) name=type+" "+n++; }
+  if(!typed) name=nextRoomName(type,existing);
   const clash=S.quote.rooms.find(r=>r.name.toLowerCase()===name.toLowerCase() && !(renaming&&r===existing));
   if(clash){ const err=$("#roomErr"); err.textContent=`Another room is already called ${clash.name}.`; err.hidden=false; $("#roomName").focus(); return; } // only a typed name can clash; a blank one is numbered above
   const changed=!renaming||existing.name!==name||existing.type!==type;
