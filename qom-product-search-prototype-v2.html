@@ -20,6 +20,10 @@
   --shadow-pop:0 10px 28px rgba(0,0,0,.16); /* menus and popovers */
   --shadow-dlg:0 24px 60px rgba(0,0,0,.3); /* dialogs and the image viewer */
   --sb-thumb:#b8b8b8;--sb-thumb-hover:var(--ink-3); /* scroll bars: quiet grey thumb, no track */
+  /* Breakpoints, from sp-fe docs/responsive-design.md. Desktop-first: xl (1280px and wider) is the approved design; narrower layouts use (width < ...) queries.
+     CSS can't read custom properties inside @media, so each query repeats the value with its name in a comment. These tokens are the one place the values are defined.
+     sm 640 large phones | md 768 narrow desktop window (production's side nav becomes the hamburger below it) | lg 1024 half-screen window | xl 1280 approved desktop | 2xl 1536 wide, not used yet */
+  --bp-sm:640px;--bp-md:768px;--bp-lg:1024px;--bp-xl:1280px;--bp-2xl:1536px;
   --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -573,8 +577,21 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* FR tags */
 .fr{display:none !important;font-size:10px;background:var(--proto);color:var(--proto-ink);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;letter-spacing:.04em}
 
-@media (max-width:980px){
-  .app{grid-template-columns:1fr}.rail{display:flex;flex-wrap:wrap;padding:8px 10px;gap:0 4px}.rail .mark{padding:8px 12px}.rail a{padding:8px 10px;font-size:14px}.rail .sec{display:none}
+.railbtn{display:none}
+@media (width < 1024px){ /* below lg: the rail gets out of the way, so search and quote keep their room side by side. A black bar with a menu button and the wordmark; the links open in a drawer under it.
+     Design proposal: production keeps the full side nav down to md (768px) and only switches to its hamburger below that. */
+  .app{grid-template-columns:1fr}
+  .rail{position:relative;z-index:60;padding:0}
+  .railtop{display:flex;align-items:center;gap:4px;height:52px;padding:0 8px}
+  .railbtn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;background:none;color:var(--rail-ink);cursor:pointer}
+  .railbtn:hover,.rail.open .railbtn{background:var(--rail-2)}
+  .railbtn:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
+  .rail .mark{padding:0 8px}
+  .railnav{display:none;position:absolute;top:100%;left:0;width:260px;max-width:100vw;padding:8px 0 14px;background:var(--rail);box-shadow:var(--shadow-pop)}
+  .rail.open .railnav{display:block}
+  .rail .sec{padding:18px 22px 8px}
+}
+@media (width < 768px){ /* below md: search and quote stack, with no drag handle */
   .work[data-layout="split"]{grid-template-columns:1fr;gap:16px}.gutter{display:none}  .toprow{grid-template-columns:1fr}
 }
 
@@ -770,7 +787,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .pane.quote.expanded{position:fixed;inset:0;z-index:100;overflow:auto;overscroll-behavior:none;border:0;background:var(--panel-soft);padding:24px max(24px,calc((100vw - 1200px)/2))}
 /* side by side on desktop: each side fills the screen below the page header and scrolls on its own,
    so a long result list never leaves the quote off screen (and the sticky headers and Save bar pin to each side) */
-@media (min-width:981px){
+@media (width >= 768px){ /* md and up: side by side */
   .work[data-layout="split"] .pane{position:relative;height:max(480px,calc(100vh - var(--work-top,0px) - var(--bar-h,0px)));overflow-y:auto;overscroll-behavior:none;padding-right:16px;scrollbar-gutter:stable} /* space for the scroll bar is kept, so content never shifts when it appears */
   .main:has(>.work[data-layout="split"]){padding-bottom:0} /* both panels run down to the pricing bar, with no strip of page between */
   .app:has(.work[data-layout="split"]){min-height:0} /* the panels already fill the window; the old minimum assumed a shorter top bar and added extra scroll */
@@ -846,7 +863,7 @@ body.noscroll{overflow:hidden}
 /* while the quote is enlarged, its view tabs and the shrink button float over its top right corner */
 /* full view: the tabs row runs across the top of the screen, the same underline tabs as the normal view; content starts 16px below it */
 body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2));right:max(24px,calc((100vw - 1200px)/2));z-index:101;margin:0;background:var(--panel-soft)}
-@media (min-width:1280px){ body.sendopen.noscroll .qtop{right:calc(var(--sp-w) + max(24px,calc((100vw - 1200px)/2)))} }
+@media (width >= 1280px){ /* xl */ body.sendopen.noscroll .qtop{right:calc(var(--sp-w) + max(24px,calc((100vw - 1200px)/2)))} }
 .pane.quote.expanded{padding-top:68px !important}
 /* "Exit full view": a borderless text button with the collapse icon before it */
 .pane.quote.expanded .expandbtn{width:auto;gap:8px;padding:0 6px;font:inherit;font-size:14px;font-weight:500;white-space:nowrap}
@@ -997,7 +1014,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pbar.stack .pb-btns{flex-wrap:wrap;min-width:0} /* on a phone the buttons wrap instead of running off the right edge */
 .pbar.stack .pb-br{justify-content:flex-start}
 .pbar.stack .pb-help{text-align:left;white-space:normal}
-@media (max-width:980px){ .pbar{padding-left:16px;padding-right:16px} }
+@media (width < 1024px){ /* below lg */ .pbar{padding-left:16px;padding-right:16px} }
 /* collapse handle: a small tab centred on the bar's top edge, so it never changes the bar's layout */
 .pb-tog{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:52px;height:20px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--panel-line);border-bottom:0;background:var(--bg);color:var(--ink-2);cursor:pointer}
 .pb-tog::after{content:"";position:absolute;inset:-12px -4px -4px} /* 44px-ish target without a bigger tab */
@@ -1066,7 +1083,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .spi .spi-tx span{display:block;color:var(--muted);font-size:13px;margin-top:1px}
 .splink{min-height:44px;margin:-12px 0;padding:0 2px;border:0;background:none;color:var(--ink);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 /* wide screens: the page makes room for the panel so it never covers the quote */
-@media (min-width:1280px){ body.sendopen .app{margin-right:var(--sp-w)} body.sendopen .pane.quote.expanded{right:var(--sp-w)} }
+@media (width >= 1280px){ /* xl */ body.sendopen .app{margin-right:var(--sp-w)} body.sendopen .pane.quote.expanded{right:var(--sp-w)} }
 /* a line the panel points to: orange outline and an inline note */
 .line.lfocus{outline:2px solid var(--block);outline-offset:-1px;position:relative;z-index:1}
 .lflag{grid-column:3/-1;display:flex;align-items:center;flex-wrap:wrap;gap:0 8px;font-size:13px;color:var(--muted)}
@@ -1171,9 +1188,9 @@ body.ptab-other #searchPane,body.ptab-other #paneTabs,body.ptab-other #quoteStri
 
 <div class="app">
   <nav class="rail" aria-label="QOM navigation">
-    <div class="mark">WATERWORKS</div>
-    <a href="#">Welcome</a><a href="#">Dashboard</a><a href="#">Clients</a><a href="#" class="cur">Quotes</a><a href="#">Orders</a>
-    <div class="sec">ADMIN TOOLS</div><a href="#">Import Tools</a>
+    <div class="railtop"><button type="button" class="railbtn" id="railBtn" aria-expanded="false" aria-controls="railNav" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="mark">WATERWORKS</div></div>
+    <div class="railnav" id="railNav"><a href="#">Welcome</a><a href="#">Dashboard</a><a href="#">Clients</a><a href="#" class="cur">Quotes</a><a href="#">Orders</a>
+    <div class="sec">ADMIN TOOLS</div><a href="#">Import Tools</a></div>
   </nav>
   <main class="main">
     <!-- header extras from QOM staging; display only, nothing here is clickable -->
@@ -3025,6 +3042,12 @@ $("#conceptRP").checked=CR.on; // concept QOM-2561 starts from the address: #con
 addEventListener("hashchange",()=>{ const on=/(^#|&)concept-required-parts(&|$)/.test(location.hash); if(on===CR.on) return; CR.on=on; CR.open=null; $("#conceptRP").checked=on; renderQuote(); renderResults(); });
 renderRoomMenu(); renderAll();
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
+// below lg the rail is a menu button: it opens the links in a drawer; Escape, a click outside or picking a link closes it
+(function(){ const r=document.querySelector(".rail"), b=$("#railBtn"); const set=o=>{ r.classList.toggle("open",o); b.setAttribute("aria-expanded",String(o)); };
+  b.addEventListener("click",()=>set(!r.classList.contains("open")));
+  document.addEventListener("click",e=>{ if(r.classList.contains("open")&&(!r.contains(e.target)||e.target.closest(".railnav a"))) set(false); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&r.classList.contains("open")){ set(false); b.focus(); } });
+})();
 // panes fill the space below the page header; re-measure when anything above them changes height
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
 new ResizeObserver(fitPanes).observe(document.body);

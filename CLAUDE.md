@@ -12,6 +12,7 @@ A clickable, wireframe-level prototype of the Product Selection step in QOM (Wat
 - Mock data only. Never add real client, quote or pricing data. Do not call QOM or M3.
 - `images/`: eight sample product photos saved from the public waterworks.com wall-mounted accessories page, used as dummy thumbnails (not matched to the mock products). Products with no photo show a grey placeholder; a missing file falls back to the failed-image state.
 - Open it directly in a browser, or serve the folder (`python3 -m http.server`).
+- Breakpoints (Nov 9) match production (sp-fe docs/responsive-design.md): sm 640, md 768, lg 1024, xl 1280, 2xl 1536, defined once as `--bp-*` tokens on :root. Desktop-first: xl and up is the approved design, and narrower layouts use `(width < …)` queries with the name in a comment (CSS can't read the tokens inside @media). Below lg the rail becomes a black bar with a menu button and the wordmark, and the links open in a drawer (Escape, a click outside or a link closes it). That's a design proposal: production keeps the full side nav down to md. Search and quote stay side by side down to md and stack (no drag handle) below it. Container queries (panel widths) and the 480px header-icon gap are not mapped to these.
 
 ## Before you say it works
 Extract the `<script>` contents and run `node --check` on them. One stray character in a template string breaks the entire script and the page goes inert.
