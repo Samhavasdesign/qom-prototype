@@ -47,6 +47,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 - Finish split by category (Nov 6, from Kelli's and Josh's notes on tile color; PRD open question on tile color, design spec S-05, QOM-3218): a Surfaces product's finish is listed as a stone or tile color, every other product's as a metal finish. With no category picked, or Surfaces plus another category, "Stone and tile colors" is the last group in the Finish tray's left pane and lists them A–Z; with Category: Surfaces only that list shows. The Finish search finds a color by name ("bloom" finds Bloomsbury). Metal finishes no family covers sit last under "Other finishes". 14 mock "Architectonics 3 x 6 Tile" items (ARCH36-…) in different colors make it testable. v2 has the same filter code but not the 14 mock tile items, so it shows few or no stone colors. Washstands (a stone color and a metal finish on one item) aren't covered.
 
 ## Demo bar (black bar at the top, not part of the design)
+- Show and hide (Nov 9, v2 and v3): "Hide prototype controls" at the bar's right end hides it, and a small "Show prototype controls" tab at the top right brings it back. The choice is remembered in the browser, and hiding re-fits the panes, rail and footer bar.
 - Layout, and View: Residential or Commercial (commercial-only items and margin pricing appear only in Commercial).
 - Scenario:
   - Normal: a "faucet" search with Finish: Brass and Category: Fittings.

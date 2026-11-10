@@ -59,6 +59,11 @@ button{cursor:pointer}
 .proto .seg button{background:transparent;border:0;padding:0;color:var(--proto-ink);font:inherit}
 .proto .seg button[aria-pressed="true"]{font-weight:600} /* only layout A shows for now, so it reads as plain text */
 .proto select{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 6px}
+/* the demo bar can be hidden (Nov 9): Hide at its right end, and a small tab at the top right brings it back; remembered in the browser */
+.proto .protohide{margin-left:auto;background:transparent;border:1px solid var(--proto-ink);color:var(--proto-ink);border-radius:4px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.protoshow{display:none;position:fixed;top:0;right:16px;z-index:150;background:var(--proto);color:var(--proto-ink);border:2px dashed var(--proto-ink);border-top:0;border-radius:0 0 6px 6px;padding:2px 10px 3px;font:inherit;font-size:12px;cursor:pointer}
+html.noproto .proto{display:none}
+html.noproto .protoshow{display:block}
 
 /* app chrome */
 .app{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 44px)}
@@ -1233,7 +1238,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
 </head>
 <body>
 
-<div class="proto" role="region" aria-label="Prototype controls">
+<div class="proto" id="protoBar" role="region" aria-label="Prototype controls">
   <strong class="protonote">NOTE: FOR PROTOTYPE ONLY – NOT PART OF THE DESIGN</strong>
   <span>Layout:</span>
   <span class="seg" role="group" aria-label="Layout">
@@ -1269,7 +1274,9 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label><input type="checkbox" id="showStock" checked autocomplete="off"> Stock in results</label>
   <label><input type="checkbox" id="showPrice" autocomplete="off"> Price in results (needs an M3 call per item)</label>
   <label><input type="checkbox" id="conceptRP" autocomplete="off"> Concept: Required parts on add (QOM-2561)</label>
+  <button type="button" class="protohide" id="protoHide" aria-controls="protoBar">Hide prototype controls</button>
 </div>
+<button type="button" class="protoshow" id="protoShow" aria-controls="protoBar">Show prototype controls</button>
 
 <div class="app">
   <nav class="rail" aria-label="QOM navigation">
@@ -3177,6 +3184,10 @@ $("#ptForm").addEventListener("click",e=>{ const b=e.target.closest("button"); i
 $("#ptForm").addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id==="pf-addr"){ e.preventDefault(); addrMenu(true); } if(e.key==="Escape"&&!$("#addrMenu")?.hidden){ addrMenu(false); $("#pf-addr").focus(); } });
 document.addEventListener("click",e=>{ const m=$("#addrMenu"); if(m&&!m.hidden&&!e.target.closest("#addrMenu,[data-tfgo='addr']")) addrMenu(false); });
 renderQView();
+// show or hide the demo bar; the layout measures from the page top, so a resize event re-fits the panes, rail and footer
+function setProto(show,focus){ document.documentElement.classList.toggle("noproto",!show); try{ localStorage.setItem("qomProtoHidden",show?"":"1"); }catch(e){} dispatchEvent(new Event("resize")); if(focus) $(show?"#protoHide":"#protoShow").focus(); }
+$("#protoHide").addEventListener("click",()=>setProto(false,true)); $("#protoShow").addEventListener("click",()=>setProto(true,true));
+try{ if(localStorage.getItem("qomProtoHidden")) setProto(false); }catch(e){}
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
 $("#conceptRP").checked=CR.on; // concept QOM-2561 starts from the address: #concept-required-parts turns it on
 addEventListener("hashchange",()=>{ const on=/(^#|&)concept-required-parts(&|$)/.test(location.hash); if(on===CR.on) return; CR.on=on; CR.open=null; $("#conceptRP").checked=on; renderQuote(); renderResults(); });
