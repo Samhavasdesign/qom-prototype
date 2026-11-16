@@ -581,14 +581,15 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-pay svg{flex:none;margin-top:1px}
 .fc-rv{margin:0;padding:14px 16px;border:0;border-top:1px solid var(--line-2);min-width:0}
 .fc-room+.fc-rv{border-top:0}
-.fc-rvh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
+.fc-rvh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:-14px -16px 0;padding:12px 16px;background:var(--surface)} /* the product being decided on, in the room bars' grey (Sam, Nov 16) */
 .fc-rvh b{display:block;font-weight:500;font-size:15px}
 .fc-rvh small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
 .fc-rv.off .fc-rvh{margin:0} .fc-rv.off b,.fc-rv.off small{color:var(--ink-3)}
 .fc-pill{flex:none;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
 .fc-pill.g{background:var(--ok-bg);color:var(--ok)} .fc-pill.a{background:var(--amber-bg);color:var(--amber)} .fc-pill.n{background:var(--surface);color:var(--ink-2)}
 .fc-opt{display:flex;align-items:flex-start;gap:14px;margin:0;padding:12px 0;border-top:1px solid var(--line-2);cursor:pointer} /* rows like step 1's lines, not boxed cards (Sam, Nov 16) */
-.fc-rvh+.fc-opt{margin-top:8px}
+.fc-rvh+.fc-opt{border-top:0}
+.fc-rvh .fc-pill{background:var(--ink);color:#fff} /* "2 options", "1 option, not exact": black with white text on the grey heading (Sam, Nov 16) */
 .fc-opt:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
 .fc-opt input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--ink);flex:none}
 .fc-opt.off{opacity:.55;cursor:not-allowed}
@@ -640,11 +641,13 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-att.x svg,.fc-att.x small{color:var(--alert)}
 .fc-att b{display:block;font-weight:500;font-size:14px} .fc-att small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
 .fc-att.w small{color:var(--block)}
+.fc-chint{margin:-4px 0 10px;font-size:12px;color:var(--ink-2)} /* "Go back to leave a line out." under Check before you confirm */
+.fc-not .fc-att.x small{color:var(--ink-2)} /* Not changing is a record, not an error: grey (Sam, Nov 16) */
 .fc-rm{font-weight:400;color:var(--ink-3)}
 .fc-tot{flex:none;display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 16px;border:1px solid var(--line);background:var(--surface)} /* pinned under the scrolling sections */
 .fc-tot span{font-weight:600} .fc-tot b{margin-left:auto;font-family:var(--serif);font-size:20px;font-weight:400;font-variant-numeric:tabular-nums} .fc-tot span,.fc-tot small{display:block} .fc-tot small{margin-top:2px;font-size:12px;color:var(--ink-3)}
 .fc-est{display:flex;gap:8px;align-items:center;margin:0;font-size:13px;color:var(--ink-2)}
-/* the confirm step's accordions (Needs attention, Will change): open by default, caret on the right (Sam, Nov 16) */
+/* the confirm step's accordions (Check before you confirm open by default, Not changing folded), caret on the right (Sam, Nov 16) */
 .fc-acc summary{cursor:pointer;font-weight:600;font-size:14px;min-height:28px;display:flex;align-items:center;list-style:none}
 .fc-acc summary::-webkit-details-marker{display:none}
 .fc-acc summary::after{content:"";margin-left:auto;border-top:6px solid currentColor;border-left:5px solid transparent;border-right:5px solid transparent;transition:transform .15s}
@@ -2570,30 +2573,33 @@ const fcOptCards=x=>{ const nm=`fc:${x.key}`;
   return x.opts.map(opt).join("")+`<label class="fc-opt"><input type="radio" name="${esc(nm)}" value="keep" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:keep" ${x.ch==="keep"?"checked":""}><span class="fc-ot"><b>Keep current item (${esc(x.l.sku)} · ${esc(x.p.fin)})</b><small>The client keeps this one as is.</small></span></label>`; };
 function fcStep2(){ const C=fcChoiceRows(fcPlan()), pick=C.filter(x=>!x.ch), multi=new Set(C.map(x=>x.r.name)).size>1||FC.origin.kind==="room";
   const rows=S.quote.rooms.map(r=>{ const rr=C.filter(x=>x.r===r); if(!rr.length) return ""; return (multi?`<div class="fc-room"><span>${esc(r.name)}</span></div>`:"")+rr.map(x=>`<fieldset class="fc-rv"><legend class="sr">${esc(x.p.name)}, ${esc(x.r.name)}</legend><div class="fc-rvh"><div><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>Now: ${esc(x.l.sku)} · ${esc(x.p.fin)} · qty ${x.l.qty}</small></div><span class="fc-pill a">${x.opts.length===1?"1 option, not exact":plural(x.opts.length,"option")+(x.opts.some(o=>o.exact)?"":", none exact")}</span></div>${fcOptCards(x)}</fieldset>`).join(""); }).join("");
-  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),`Choose items in ${esc(FC.to)}`,`${C.length===1?"This line has":"These lines have"} more than one match, or none that's exact. Pick one, or keep the current item.`)+`<div class="fc-body">
-    <div class="fc-sum">${RI.bad}<b>${plural(C.length,"line")} need${C.length===1?"s":""} a choice</b><span class="fc-sumr">${C.length-pick.length} picked · ${pick.length} to pick</span></div>
+  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),`Choose products in ${esc(FC.to)}`,`${C.length===1?"This line doesn’t":"These lines don’t"} have a single exact match. Select an option or keep the current item.`)+`<div class="fc-body">
+    <div class="fc-sum">${RI.bad}<b>${plural(C.length,"line")} need${C.length===1?"s":""} a choice</b></div>
     <div class="fc-box"><div class="fc-list">${rows}</div></div></div>
     <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="confirm" ${pick.length?"disabled":""}>${pick.length?`Pick ${pick.length} more`:"Review changes"}</button></div>`; }
 function fcStep3(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="keep"), n=chg.length, rooms=[...new Set(P.map(x=>x.r.name))], multi=rooms.length>1, t=fcTotal();
   const inRoom=x=>multi?` <span class="fc-rm">· ${esc(x.r.name)}</span>`:""; // room names only when more than one room is involved
   const crooms=[...new Set((n?chg:P).map(x=>x.r.name))], scope=crooms.length===1?`in ${esc(crooms[0])}`:FC.origin.kind==="quote"?"across the quote":`across ${crooms.length} rooms`;
-  // needs attention: one row per line, all of its issues together
-  const att=P.map(x=>{ const iss=[]; let sev="w";
-    if(x.cant){ iss.push(`Can't change: ${esc(x.cant)}`); sev="x"; }
-    else if(x.ch==="keep"){ iss.push("Keeping the current item"); sev="n"; }
-    else { const c=fcProd(x.ch); if(fcCustom(x.l,x.p)) iss.push(S.view!=="commercial"?`Custom price ${money(x.l.unit)} → standard ${money(fcUnit(x.l,x.p,c))}`:x.l.im?`Item Management price ${money(x.l.unit)} → standard ${money(fcUnit(x.l,x.p,c))}`:`Margin ${fcPct(marginOf(x.l.unit,x.p))} → standard ${fcPct(defMargin(c))} · ${money(x.l.unit)} → ${money(fcUnit(x.l,x.p,c))}`); const s=fcStock(c,x.l.qty); if(s) iss.push(s); }
-    return iss.length?`<li class="fc-att ${sev}"><span><b>${esc(x.p.name)}${inRoom(x)}</b><small>${iss.join(" · ")}</small></span></li>`:""; }).filter(Boolean);
+  // split (Sam, Nov 16): "Check before you confirm" holds side effects of lines that will change (price or margin reset, stock), in amber;
+  // "Not changing" records lines that can't change or that the SC kept, in grey and folded. One row per line, its issues together
+  const attRow=(x,iss,sev)=>`<li class="fc-att ${sev}"><span><b>${esc(x.p.name)}${inRoom(x)}</b><small>${iss.join(" · ")}</small></span></li>`;
+  const att=chg.map(x=>{ const iss=[], c=fcProd(x.ch), std=money(fcUnit(x.l,x.p,c));
+    if(fcCustom(x.l,x.p)) iss.push(S.view!=="commercial"?`Custom price ${money(x.l.unit)} resets to standard ${std}`:x.l.im?`Item Management price ${money(x.l.unit)} resets to standard ${std}`:`Margin ${fcPct(marginOf(x.l.unit,x.p))} resets to standard ${fcPct(defMargin(c))} · ${money(x.l.unit)} → ${std}`);
+    const st=fcStock(c,x.l.qty); if(st) iss.push(st);
+    return iss.length?attRow(x,iss,"w"):""; }).filter(Boolean);
+  const nots=P.filter(x=>x.cant||x.ch==="keep").map(x=>attRow(x,[x.cant?esc(x.cant):"Keeping the current item"],x.cant?"x":"n"));
   const cur=quoteLines().reduce((a,{l})=>a+l.qty*l.unit,0), nu=cur+chg.reduce((a,x)=>a+x.l.qty*(fcUnit(x.l,x.p,fcProd(x.ch))-x.l.unit),0);
   // order (Sam, Nov 16): needs attention, the payment link, the estimate, then Will change, open by default (an accordion the SC can close) and scrolling on its own when it's long; the quote total is pinned under them
   const secs=[
-    att.length?`<details class="fc-sec fc-acc fc-attn"${FC.attnOpen===false?"":" open"}><summary data-fk="attn"><span class="fc-attn-ic" aria-hidden="true">${RI.bad}</span>Needs attention (${att.length})</summary><ul class="fc-atts">${att.join("")}</ul></details>`:"",
+    att.length?`<details class="fc-sec fc-acc fc-attn"${FC.attnOpen===false?"":" open"}><summary data-fk="attn"><span class="fc-attn-ic" aria-hidden="true">${RI.bad}</span>Check before you confirm (${plural(att.length,"line")})</summary><p class="fc-chint">Go back to leave a line out.</p><ul class="fc-atts">${att.join("")}</ul></details>`:"",
     n>50?`<p class="fc-est">${FC_CLOCK}About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate). You can keep working while it runs.</p>`:"",
-    n?`<div class="fc-sec fc-will"><h3 class="fc-whead">Will change (${n})</h3><ul>${S.quote.rooms.filter(r=>chg.some(x=>x.r===r)).map(r=>{ const rr=chg.filter(x=>x.r===r); return (multi||FC.origin.kind==="room"?`<li class="fc-room fc-wroom"><span>${esc(r.name)}</span><small>${plural(rr.length,"line")}</small></li>`:"")+rr.map(fcWill(()=>"")).join(""); }).join("")}</ul></div>`:""].join("");
+    n?`<div class="fc-sec fc-will"><h3 class="fc-whead">Changing (${plural(n,"line")})</h3><ul>${S.quote.rooms.filter(r=>chg.some(x=>x.r===r)).map(r=>{ const rr=chg.filter(x=>x.r===r); return (multi||FC.origin.kind==="room"?`<li class="fc-room fc-wroom"><span>${esc(r.name)}</span><small>${plural(rr.length,"line")}</small></li>`:"")+rr.map(fcWill(()=>"")).join(""); }).join("")}</ul></div>`:"",
+    nots.length?`<details class="fc-sec fc-acc fc-not"${FC.notOpen?" open":""}><summary data-fk="not">Not changing (${plural(nots.length,"line")})</summary><ul class="fc-atts">${nots.join("")}</ul></details>`:""].join("");
   const tot=n?`<div class="fc-tot"><div><span>Quote total</span><small>Products, before freight and tax</small></div><b>${money(cur)} → ${money(nu)}</b></div>`:"";
   const pay=n&&fcPayLink()&&PAYDEMO.link==="breaks"?`<p class="fc-pay">${RI.bad}<span>This quote has a payment link out with the client. After this change, that link won't work, and Undo won't restore it. You'll need to send a new one.</span></p>`:""; // right below the buttons (Sam, Nov 16); nothing when the link updates
-  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),n?`Change ${plural(n,"line")} ${scope} from ${fcFromTxt(chg)} to ${esc(FC.to)}`:"Nothing to change",`Step ${t} of ${t} · Nothing has changed yet`)+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
+  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),n?`Review finish changes for ${plural(n,"line")} ${scope}`:"Nothing to change","Nothing will change until you confirm it.")+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
     <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="apply" ${n?"":"disabled"}>${n===1?"Confirm change":n?"Confirm changes":"Nothing to change"}</button>${pay}</div>`; }
-document.addEventListener("toggle",e=>{ if(!FC) return; if(e.target.classList?.contains("fc-attn")) FC.attnOpen=e.target.open; },true); // remembered while the dialog is open
+document.addEventListener("toggle",e=>{ if(!FC) return; if(e.target.classList?.contains("fc-attn")) FC.attnOpen=e.target.open; if(e.target.classList?.contains("fc-not")) FC.notOpen=e.target.open; },true); // remembered while the dialog is open
 document.addEventListener("change",e=>{ if(!FC||S.confirm?.kind!=="fc"||!e.target.closest?.("#rmDialog")) return; const t=e.target, a=t.dataset.fc; e.stopPropagation(); // capture: the dialog sits after this script
   if(t.id==="fcFrom"){ FC.sel=new Set(fcRows().filter(x=>!x.why&&(t.value==="all"||x.p.fin===t.value)).map(x=>x.key)); FC.choice={}; fcRender(); return; } // mixed scope: tick every line in that finish, or all of them // ticks the lines in that finish (all of them for "All finishes")
   if(t.id==="fcTo"){ FC.to=t.value; FC.lost=null; FC.choice={}; fcRender(); return; }
