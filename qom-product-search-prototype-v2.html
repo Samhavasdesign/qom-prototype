@@ -426,11 +426,6 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 /* quote line alerts are smaller and tighter (Sam, Nov 16): 11px text, 12px icon, less padding */
 .line .rb{font-size:11px;line-height:1.4;padding:4px 8px;gap:6px}
 .line .rb svg{width:12px;height:12px;margin-top:1px}
-.rb.multi{flex-direction:column;gap:3px}
-.rbrow{display:flex;gap:6px;align-items:flex-start}
-.rb.multi .rbrow.bad{color:var(--warn)}
-.rb.multi .rbrow.risk{color:var(--amber)}
-.rb.multi .rbrow.unk{color:var(--ink-2)}
 .line .cddnote,.line .cddnote.late{font-size:11px}
 .line .cddnote.late{padding:2px 6px}
 .kitrow2.kbad{border-left:3px solid var(--warn);padding-left:6px}
@@ -2861,16 +2856,14 @@ const riskBanner=(res,p)=>{ if(!res||res.level==="ok") return "";
   else if(res.reason==="useup") msg=`<b>Limited stock.</b> This item may not be restocked.`;
   else msg=`<b>Stock status unavailable.</b> This line can't be sent until its status is confirmed.`;
   return `<div class="rb ${cls}">${res.level==="unknown"?RI.unk:RI.bad}<span>${msg}</span></div>`; };
-// One alert per line (Sam, Nov 16): the stock or kit problem and, with Show details off, a confirmed date later than requested share one box.
-// The box takes the colour of its most serious problem (red blocks sending, amber is a risk); with two or more problems each gets its own row
-// and icon; the late date takes the box's colour (red with a blocker; Sam, Nov 16), other rows keep their own. With Show details on, the late date stays by the CDD field instead.
+// Line alerts (Sam, Nov 16): the stock or kit problem and, with Show details off, a confirmed date later than requested, each in the same
+// alert style (.rb). The late date is its own yellow box, kept apart from red stock problems. With Show details on, it stays by the CDD field instead.
 const lineAlert=(r,l,p)=>{ const res=RISK&&RISK.by[r.name+"|"+l.sku], items=[];
   if(res&&res.level!=="ok"){ const b=riskBanner(res,p); items.push({lvl:res.level, html:b.replace(/^<div class="rb [a-z]+">/,"").replace(/<\/div>$/,"")}); }
   if(!S.ship&&(S.view==="residential"||S.view==="commercial")&&cddLate(l)) items.push({lvl:"risk", date:true, html:`${RI.bad}<span title="We can't deliver by the requested date for this quantity."><b>Later than requested.</b> Confirmed for ${esc(fmtDay(l.cdd))}; requested ${esc(fmtDay(l.rdd))}.</span>`});
   if(!items.length) return "";
   const cls=lv=>lv==="blocking"?"bad":lv==="risk"?"risk":"unk", top=items.reduce((a,x)=>RISK_RANK[x.lvl]>RISK_RANK[a]?x.lvl:a,"unknown");
-  if(items.length===1) return `<div class="rb ${cls(top)}">${items[0].html}</div>`;
-  return `<div class="rb multi ${cls(top)}" role="group" aria-label="${items.length} problems on this line">${items.map(x=>`<div class="rbrow ${cls(x.date?top:x.lvl)}">${x.html}</div>`).join("")}</div>`; };
+  return items.map(x=>`<div class="rb ${cls(x.lvl)}">${x.html}</div>`).join(""); }; // each problem in its own box in its own colour: the late date stays yellow, apart from the red stock or kit problem (Sam, Nov 16)
 const kitBox=(r,l,p)=>kitClosed(r,l)?"":`<div class="kitbox"><div class="kithead">Included in this kit</div>${p.kit.map(c=>{const cp=CAT.find(x=>x.sku===c.sku); const part=(RISK&&RISK.by[r.name+"|"+l.sku].kit||[]).find(x=>x.cp.sku===cp.sku); return `<div class="kitrow2${part?" "+({blocking:"kbad",risk:"krisk",unknown:"kunk"})[part.level]:""}">${thumbHtml(cp)}<span class="kq">×${c.qty*l.qty}</span><span>${esc(cp.name)} in ${esc(cp.fin)}${part?`<span class="ktag">${riskShort(part)}</span>`:""}<small>${esc(cp.sku)} · ${stockText(cp)}</small></span></div>`;}).join("")}</div>`;
 const UNIT_SHORT={"square feet":"sq ft"};
 const unitLabel=p=>p.uom==="each"?"each":(UNIT_SHORT[p.uom]||p.uom); // plain words on result rows ("each", "sq ft"), not M3's codes (EA, SF) (Nick, Nov 5)
