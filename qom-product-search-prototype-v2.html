@@ -81,7 +81,18 @@ html.noproto .protoshow{display:block}
 @media (max-width:480px){ .pgicons{gap:14px} }
 .avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-2);color:var(--ink-3);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .infor{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:6px;height:24px;padding:0 4px;background:#d21e2b;color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:-.01em;line-height:1}
-.tabs .tabmore{margin-left:auto;letter-spacing:.1em;color:var(--ink)}
+/* ••• in a thin black circle, like the room bar's "…" (Sam, Nov 16) */
+.tabs .tabmore{margin-left:auto;align-self:center;display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;background:none;color:var(--ink);cursor:pointer;flex:none}
+.tabs .tabmore svg circle:first-child{transition:fill .12s}
+.tabs .tabmore:hover svg circle:first-child,.tabs .tabmore[aria-expanded="true"] svg circle:first-child{fill:var(--surface-2)}
+.tabs .tabmore:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:50%}
+/* quote actions menu under the ••• at the right end of the page tabs */
+.qmore{position:fixed;z-index:220;min-width:300px;max-height:calc(100vh - 24px);overflow-y:auto;padding:10px 0;background:var(--bg);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.04)}
+.qmore[hidden]{display:none}
+.qm-item{display:flex;align-items:center;gap:22px;width:100%;min-height:48px;padding:6px 28px 6px 24px;border:0;background:none;font:inherit;font-size:16px;letter-spacing:.02em;color:var(--ink);text-align:left;white-space:nowrap;cursor:pointer}
+.qm-item:hover:not([aria-disabled="true"]),.qm-item:focus-visible{background:var(--surface);outline:none}
+.qm-item[aria-disabled="true"]{color:#a8a8a8;cursor:default}
+.qm-item svg{flex:none}
 h1{font-family:var(--serif);font-weight:400;font-size:24px;margin:10px 0 2px}
 .sub{font-family:var(--serif);font-size:15px;color:var(--ink-2);margin:0 0 14px}
 .tabs{display:flex;gap:26px;margin-bottom:14px;overflow-x:auto}
@@ -99,6 +110,65 @@ h1{font-family:var(--serif);font-weight:400;font-size:24px;margin:10px 0 2px}
 .btn.sm{height:44px;padding:0 12px;font-size:11px;letter-spacing:.04em;white-space:nowrap} /* 44px = the height of the room dropdown beside it */
 .btn.quiet{background:var(--surface-2);color:var(--ink-3)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Quotes list (Nov 16, from the production Quotes screen): the side nav's Quotes link opens it, and quote 6000024967 opens the quote page.
+   body.page-quotes hides the quote page (header, tabs, panes, footer bar, Before you send) and shows #quotesPage. Mock rows only. */
+body.page-quotes .main>:not(.pghead,#quotesPage),body.page-quotes #pbar,body.page-quotes #sendPanel{display:none !important}
+.crumb a.crumblink{color:inherit;text-decoration:none}
+.crumb a.crumblink:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.ql h1{font-size:44px;margin:14px 0 18px;outline:none}
+.qltop{display:flex;align-items:center;flex-wrap:wrap;gap:16px 24px;margin-bottom:34px}
+.qlsearch{position:relative;flex:0 1 504px;min-width:240px}
+.qlsearch svg{position:absolute;left:2px;top:50%;transform:translateY(-50%);color:var(--ink)}
+.qlsearch input{width:100%;border:0;border-bottom:2px solid var(--control-line);padding:8px 4px 8px 30px;font-family:var(--serif);font-size:17px;background:transparent;border-radius:0}
+.qlsearch input::placeholder{color:var(--ink-3)}
+.qlsearch input:focus{outline:none;border-bottom-color:var(--ink)}
+.qlright{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap}
+.qlchips{display:flex;gap:12px}
+.qlchip{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--ink);background:var(--bg);color:var(--ink);font-size:12px;font-weight:600;padding:0}
+.qlchip:hover{background:var(--surface)}
+.qlchip[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
+.qlnew{display:inline-flex;align-items:center;gap:14px;height:48px;padding:0 24px;margin-left:6px;letter-spacing:.16em}
+.qlmeta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 20px;margin-bottom:24px;font-size:16px}
+.qlmeta b{font-weight:600}
+.qlsizes{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-weight:600}
+.qlsizes .sep{color:var(--ink)}
+.qlsizes button{background:none;border:0;padding:0 2px;font-weight:600;color:var(--ink)}
+.qlsizes button:hover{text-decoration:underline;text-underline-offset:3px}
+.qlsizes button[aria-pressed="true"]{display:none} /* the current size is said in "Showing 11 per page" */
+.ql h2{font-family:var(--sans);font-size:18px;font-weight:600;margin:0 0 14px}
+.qlwrap{overflow-x:auto}
+.qltable{width:100%;min-width:1120px;border-collapse:collapse;font-size:14px}
+.qltable th{background:var(--surface-2);text-align:left;font-weight:600;font-size:15px;padding:0;vertical-align:middle}
+.qltable th button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:48px;padding:6px 10px;background:none;border:0;font:inherit;text-align:left;line-height:1.15}
+.qltable th button svg{flex:none;transition:transform .15s}
+.qltable th[aria-sort="ascending"] button svg{transform:rotate(180deg)}
+.qltable th.plain{padding:6px 10px}
+.qltable td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle;line-height:1.3}
+.qltable tbody tr:hover td{background:var(--surface)}
+.qltable .up{text-transform:uppercase;letter-spacing:.02em}
+.qlcopy{display:inline-flex;align-items:flex-start;gap:6px}
+.qltable .cp{flex:none;width:22px;height:22px;margin-top:-1px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:0;color:var(--ink)}
+.qltable .cp:hover{background:var(--surface-2)}
+.qlid{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.qlid a{color:var(--ink);font-weight:500;text-decoration:none}
+.qlid a:hover{text-decoration:underline;text-underline-offset:3px}
+.qlid a.built{text-decoration:underline;text-underline-offset:3px}
+.qlact{width:44px;height:36px;background:none;border:0;font-size:20px;line-height:1;letter-spacing:.06em;color:var(--ink)}
+.qlact:hover{background:var(--surface-2)}
+.qlempty{padding:40px 10px;text-align:center;color:var(--ink-2)}
+.qlpager{display:flex;justify-content:center;align-items:center;gap:6px;margin:28px 0 8px}
+.qlpager button{min-width:38px;height:38px;border-radius:50%;border:0;background:none;font-size:15px;color:var(--ink);padding:0 6px}
+.qlpager button:hover:not(:disabled){background:var(--surface-2)}
+.qlpager button[aria-current="page"]{background:var(--ink);color:var(--on-ink)}
+.qlpager button:disabled{opacity:.3;cursor:default}
+.qlpager .gap{min-width:30px;text-align:center}
+@media (width < 1024px){ /* below lg: the search takes its own row, the chips and Create new wrap under it */
+  .qlsearch{flex-basis:100%}.qlright{margin-left:0}
+}
+@media (width < 640px){ /* below sm */
+  .ql h1{font-size:34px}.qlchip{width:44px;height:44px}.qlnew{margin-left:0}.qlmeta{font-size:14px}
+}
 
 /* workspace layouts */
 .work{display:grid;gap:22px;align-items:start}
@@ -411,6 +481,131 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .lmenu button[aria-disabled="true"]{color:var(--ink-3);cursor:default}
 .lmenu button[aria-disabled="true"]:hover{background:transparent}
 .lmenu .lmsep{border:0;border-top:1px solid var(--line);margin:4px 0}
+/* Change finish (Nov 16): bold, on a light grey band, with a black NEW pill */
+.lmenu .lmsep+.lm-new{margin-bottom:-4px}
+.lmenu button.lm-new,.qm-item.qm-new{background:var(--surface);font-weight:600}
+.lmenu button.lm-new:hover,.lmenu button.lm-new:focus-visible,.qm-item.qm-new:hover,.qm-item.qm-new:focus-visible{background:var(--surface-2)}
+.newpill{margin-left:auto;padding:2px 9px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1.5}
+.qm-sep{border:0;border-top:1px solid var(--line);margin:6px 0 0}
+.qmore .qm-new{margin-bottom:-10px;padding-bottom:10px;min-height:58px}
+/* Change finish (Nov 16): two-step dialog, progress and result banner, locked lines */
+.dlg.fcdlg{width:min(820px,100%);height:min(860px,calc(100vh - 40px));padding:0;text-align:left;display:flex;flex-direction:column}
+.fc-head{display:flex;align-items:flex-start;gap:16px;padding:24px 40px 18px}
+.fc-ic{flex:none;width:48px;height:48px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.fc-head h2{margin:2px 0 3px;font-family:var(--sans);font-size:19px;font-weight:500}
+.fc-head h2:focus{outline:none}
+.fc-sub{margin:0;color:var(--ink-2);font-size:13px}
+/* which room, when opened from a room: a black band like the quote's room bars */
+.fc-band{display:flex;align-items:center;gap:12px;min-height:44px;margin:0 40px 16px;padding:0 16px;background:var(--ink);color:var(--on-ink)}
+.fc-band-l{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.fc-band b{font-size:15px;font-weight:600}
+.fc-band-n{margin-left:auto;font-size:12px;opacity:.75}
+@media (width < 640px){ /* sm */ .fc-band{margin:0 20px 12px} .fc-band-n{display:none} }
+.fc-x{flex:none;margin:-6px -10px 0 auto;width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer}
+.fc-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 40px 20px}
+.fc-pick{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.fc-f label{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
+.fc-f select{width:100%;height:48px;padding:0 12px;border:1px solid var(--ink);border-radius:0;background:var(--bg);font:inherit;font-size:15px;color:var(--ink)}
+.fc-help{margin:6px 0 0;font-size:12px;color:var(--ink-3)}
+.fc-help.fc-none2{color:var(--ink-2)}
+.fc-lost{margin:6px 0 0;font-size:12px;font-weight:600;color:var(--block)}
+.fc-f select:disabled{border-color:var(--line);background:var(--surface);color:var(--ink-3);cursor:not-allowed}
+.fc-box{flex:1;min-height:0;display:flex;flex-direction:column;border:1px solid var(--line)}
+.fc-lhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.fc-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.fc-room{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;padding:0 16px;background:var(--surface);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fc-room small{font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink-3)}
+.fc-room .fc-chk{font-size:12px}
+.fc-chk{display:inline-flex;align-items:center;gap:10px;min-height:40px;cursor:pointer;font-size:14px}
+.fc-chk input,.fc-row input{width:18px;height:18px;margin:0;accent-color:var(--ink);flex:none}
+.fc-row{display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-top:1px solid var(--line-2);cursor:pointer}
+.fc-room+.fc-row{border-top:0}
+.fc-row input{margin-top:2px}
+.fc-rt b{display:block;font-weight:500;font-size:15px}
+.fc-rt small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
+.fc-rt small b{display:inline;font-size:12px;font-weight:700}
+.fc-row.off{cursor:default} .fc-row.off b,.fc-row.off small{color:var(--ink-3)}
+.fc-none{color:var(--ink-3)} .fc-choice{color:var(--amber)}
+.fc-warnl{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--block)}
+.fc-warnl svg{flex:none}
+.fc-foot{display:flex;align-items:center;gap:14px;padding:18px 40px;border-top:1px solid var(--line);box-shadow:0 -6px 14px -10px rgba(0,0,0,.2)}
+.fc-foot p{margin:0 auto 0 0;font-size:13px;color:var(--ink-2)}
+.fc-foot p.need{color:var(--block)}
+.fc-foot .dbtn{flex:0 0 150px;height:50px}
+.fc-foot .dbtn.yes{flex-basis:200px}
+.fc-sum{display:flex;justify-content:space-between;gap:6px 16px;flex-wrap:wrap;margin-bottom:12px;padding:10px 16px;background:var(--prog-bg);border-left:3px solid var(--prog);color:var(--prog);font-size:14px}
+.fc-sum b{font-weight:600}
+.fc-pay{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:10px 14px;background:var(--amber-bg);color:var(--amber);font-size:13px}
+.fc-pay svg{flex:none;margin-top:1px}
+.fc-rv{margin:0;padding:14px 16px;border:0;border-top:1px solid var(--line-2);min-width:0}
+.fc-room+.fc-rv{border-top:0}
+.fc-rvh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
+.fc-rvh b{display:block;font-weight:500;font-size:15px}
+.fc-rvh small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
+.fc-rv.off .fc-rvh{margin:0} .fc-rv.off b,.fc-rv.off small{color:var(--ink-3)}
+.fc-pill{flex:none;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.fc-pill.g{background:var(--ok-bg);color:var(--ok)} .fc-pill.a{background:var(--amber-bg);color:var(--amber)} .fc-pill.n{background:var(--surface);color:var(--ink-2)}
+.fc-opt{display:flex;align-items:flex-start;gap:12px;margin-top:8px;padding:10px 14px;border:1px solid var(--line);cursor:pointer}
+.fc-opt:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.fc-opt:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+.fc-opt input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--ink);flex:none}
+.fc-opt.off{opacity:.55;cursor:not-allowed}
+.fc-ot b{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px}
+.fc-ot small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
+.fc-diff{display:block;margin-top:4px;font-size:12px;color:var(--ink-2)}
+.fc-diff mark{margin-right:4px;padding:0 4px;background:#fff1b8;color:var(--ink);font-weight:600}
+.fc-sw{display:inline-flex;flex:none} .fc-sw i{display:inline-block;width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)} .fc-sw i+i{margin-left:-4px}
+@media (width < 640px){ /* sm */ .fc-head,.fc-foot{padding-left:20px;padding-right:20px} .fc-body{padding:0 20px 16px} .fc-pick{grid-template-columns:1fr} .fc-foot{flex-wrap:wrap} .fc-foot p{flex-basis:100%} .fc-foot .dbtn{flex:1 1 0} }
+/* the banner above the rooms: progress, then the result with Summary and Undo */
+#fcBanner:empty{display:none}
+.fcb{margin:0 0 14px;padding:12px 16px;border-left:4px solid;font-size:14px}
+.fcb.run,.fcb.undone{background:var(--prog-bg);border-color:var(--prog);color:var(--prog)}
+.fcb.done{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.fcb.partial{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.fcb-top{display:flex;align-items:center;gap:10px}
+.fcb-top>svg,.fcb-top>.spin{flex:none;margin:0}
+.fcb-top b{font-weight:600}
+.fcb-act{margin-left:auto;display:flex;align-items:center;gap:16px;white-space:nowrap;font-weight:600}
+.fcb .tolink{min-height:44px;margin:-12px 0;color:inherit;font-weight:600}
+.fcb-x{width:36px;height:36px;margin:-8px -8px -8px 0;border:0;background:none;color:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.fcb-bar{height:4px;margin:10px 0 6px;background:rgba(43,92,138,.18)} .fcb-bar i{display:block;height:100%;background:var(--prog);transition:width .3s}
+.fcb-note{margin:6px 0 0;font-size:12px}
+.fcb-sum{margin-top:10px;padding-top:6px;border-top:1px solid currentColor;color:var(--ink);font-size:13px}
+.fcb-sum h4{margin:10px 0 4px;font-size:13px;font-weight:600}
+.fcb-sum ul{margin:0;padding-left:18px} .fcb-sum li{margin:2px 0} .fcb-sum p{margin:0;color:var(--ink-3)}
+@media (prefers-reduced-motion: reduce){ .fcb-bar i{transition:none} }
+/* lines the job is working on: dimmed and locked (inert) until it's done */
+.line.flock{opacity:.5}
+.fc-ls{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:12px;font-weight:600}
+.fc-ls svg,.fc-ls .spin{flex:none;margin:0}
+.fc-ls.ok{color:var(--ok)} .fc-ls.run{color:var(--prog)} .fc-ls.wait{color:var(--ink-3)} .fc-ls.bad{color:var(--alert)}
+.fc-note svg{flex:none}
+/* step 3, confirm */
+.fc-conf{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.fc-sec{border:1px solid var(--line);padding:14px 16px}
+.fc-sec h3{margin:0 0 8px;font-size:14px;font-weight:600}
+.fc-atts{list-style:none;margin:0;padding:0}
+.fc-att{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line-2)}
+.fc-att:first-child{border-top:0;padding-top:0}
+.fc-att svg{flex:none;margin-top:2px} .fc-att.w svg{color:var(--block)} .fc-att.n svg{color:var(--ink-3)}
+.fc-att b{display:block;font-weight:500;font-size:14px} .fc-att small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
+.fc-att.w small{color:var(--block)}
+.fc-rm{font-weight:400;color:var(--ink-3)}
+.fc-tot{flex:none;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 12px;margin-top:12px;padding:12px 16px;border:1px solid var(--line);background:var(--surface)} /* pinned under the scrolling sections */
+.fc-tot span{font-weight:600} .fc-tot b{margin-left:auto;font-family:var(--serif);font-size:20px;font-weight:400;font-variant-numeric:tabular-nums} .fc-tot small{flex-basis:100%;font-size:12px;color:var(--ink-3)}
+.fc-est{display:flex;gap:8px;align-items:center;margin:0;font-size:13px;color:var(--ink-2)}
+.fc-will summary{cursor:pointer;font-weight:600;font-size:14px;min-height:28px;display:flex;align-items:center}
+.fc-will summary::-webkit-details-marker{display:none}
+.fc-will summary::before{content:"";margin-right:10px;border-left:6px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .15s}
+.fc-will[open] summary::before{transform:rotate(90deg)}
+@media (prefers-reduced-motion: reduce){ .fc-will summary::before{transition:none} }
+.fc-will ul{margin:10px 0 0;padding-left:18px;font-size:13px;color:var(--ink-2);max-height:min(280px,34vh);overflow-y:auto;overscroll-behavior:contain} /* a 100-line change scrolls inside the tray */ .fc-will li{margin:3px 0} .fc-will li b{color:var(--ink);font-weight:600}
+.fc-conf .fc-pay{margin:0}
+.fcb-fail{margin:8px 0 0;padding-left:20px;font-size:13px;color:var(--ink)}
+.fc-cm{display:block;margin-top:4px;font-size:12px;font-weight:600;color:var(--amber)}
+.fc-kitph{grid-column:1/-1;display:flex;gap:8px;align-items:center;margin:8px 0 0;font-size:12px;color:var(--ink-2)}
+.fc-kitph svg{flex:none}
+.dbtn:disabled{opacity:.45;cursor:not-allowed}
 .roomhdr .more{width:18px;height:18px;border:.5px solid currentColor;border-radius:50%;background:transparent;color:var(--bg);padding:0;display:flex;align-items:center;justify-content:center;text-decoration:none;opacity:.9}
 .roomhdr .more:hover,.roomhdr .more:focus-visible,.roomhdr .more[aria-expanded="true"]{opacity:1}
 .roomhdr.menuopen{z-index:8} /* the open menu sits over the lines and later room bars */
@@ -1090,6 +1285,42 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pbar.mini .pb-act:not(.primary):not(.run){display:none}
 .pbar.mini .pb-act{position:relative;min-height:28px;padding:0 12px;font-size:11px}
 .pbar.mini .pb-act::after{content:"";position:absolute;inset:-8px 0} /* still a 44px target */
+/* descoped (QOM-3280 lower-effort, Nov 13; demo bar: Bottom bar > Descoped, or a Descoped scenario): no bar across every tab and no side panel.
+   Save status, freight, the blockers list, the total and the three actions sit in a totals box at the end of the product list, kept in view (Pauline) */
+body.lite #pbar,body.lite #sendPanel{display:none !important}
+.tbox{position:sticky;bottom:-16px;z-index:6;/* -16px: sits on the pane's bottom edge, over its 16px padding, so no line shows beneath */margin-top:16px;background:var(--bg);border:1px solid var(--line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28);padding:12px 16px 16px;display:flex;flex-direction:column;gap:10px;font-size:13px;max-height:min(45vh,520px);overflow-y:auto;overscroll-behavior:contain}
+.tbox[hidden],.ptacts[hidden],.tb-bd[hidden]{display:none}
+body.ptab-other .tbox{display:none} /* other tabs keep today's per-tab Save (ptActs) */
+.tb-save{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding-bottom:10px;border-bottom:1px solid var(--line-2)}
+.tb-st{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.tb-st.ok{color:var(--done)} .tb-st.unsaved{color:var(--block)} .tb-st.prog{color:var(--prog)} .tb-st.fail{color:var(--alert)}
+.tb-st .spin{margin:0} .tb-st svg{flex:none}
+.tb-st .tolink{font-weight:600;color:inherit}
+.tb-save>.tolink,.ptacts .tolink{min-height:44px;margin:-12px 0;font-size:13px}
+.tb-tot{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tb-lbl{color:var(--ink-2);font-size:14px}
+.tb-amt{font-family:var(--serif);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.tb-note{margin-top:-6px;color:var(--ink-3)}
+.tb-note .tolink{min-height:44px;margin:-14px 0;font-size:13px}
+.tb-bd{padding:10px 12px;background:var(--surface)}
+.tb-bd .totals{margin:0;width:100%;font-size:13px;gap:6px 12px}
+.tb-bd .totals .big{font-size:16px}
+.tb-fr{display:flex;align-items:flex-start;gap:8px;margin:0;padding-top:10px;border-top:1px solid var(--line-2);color:var(--ink-2)}
+.tb-fr svg,.tb-fr .spin{flex:none;margin:0} .tb-fr .spin{margin-top:2px}
+.tb-fr.warn{color:var(--block)} .tb-fr.prog{color:var(--prog)} .tb-fr.ok{color:var(--done)}
+.tb-fr b{font-weight:600}
+.tb-fix:empty{display:none}
+.tb-fixbtn{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin:-6px 0;padding:0;border:0;background:none;font:inherit;font-weight:600;color:var(--ink);text-align:left;cursor:pointer}
+.tb-fixbtn.block{color:var(--block)}
+.tb-fixbtn svg{flex:none}
+.tb-fixbtn .chev{margin-left:auto;transition:transform .15s}
+.tb-fixbtn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.tb-ok{display:flex;align-items:center;gap:8px;margin:0;color:var(--done);font-weight:600}
+.tb-list .spi{padding:10px 0}
+.tb-btns{position:sticky;bottom:-16px;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin:0 -16px -16px;padding:8px 16px 16px;background:var(--bg)} /* the actions stay in view when the list scrolls inside the box */
+.tb-btns .pb-act{flex:1 1 auto;padding:0 12px}
+.ptacts{grid-column:1/-1;position:sticky;bottom:0;z-index:5;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px 20px;margin-top:28px;padding:14px 0;background:var(--bg);border-top:1px solid var(--line);font-size:13px}
+#ptSt{margin-right:auto}
 .sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
 .sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
 .sp-bd h3:focus{outline:none}
@@ -1106,8 +1337,8 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pb-act .spin{border-color:var(--line);border-top-color:var(--ink-3);margin:0}
 .spi .spin{border-color:var(--line);border-top-color:var(--prog);margin:0}
 .pb-fix{min-height:44px;margin:-12px 0;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--block);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
-/* "Before you send": a flyout on the right; on wide screens the page makes room for it */
-.spanel{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(var(--sp-w),100vw);display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);box-shadow:-10px 0 24px -16px rgba(0,0,0,.3)}
+/* "Before you send": a flyout on the right; on wide screens the page makes room for it. It ends above the footer bar (Sam, Nov 13), so the bar's buttons always show, and its body scrolls */
+.spanel{position:fixed;top:0;right:0;bottom:var(--bar-h,0px);z-index:160;width:min(var(--sp-w),100vw);display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);box-shadow:-10px 0 24px -16px rgba(0,0,0,.3)}
 .sp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:22px 20px 14px;border-bottom:1px solid var(--line)}
 .sp-head h2{margin:0;font-family:var(--sans);font-size:18px;font-weight:600}
 .sp-head h2:focus{outline:none}
@@ -1123,7 +1354,7 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .sp-sec h3:focus{outline:none}
 .sp-sec h3:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sp-none{padding:10px 0;font-size:13px;color:var(--muted)}
-.sp-bd .totals small.bdsub{display:block;font-size:12px;margin-top:2px}
+.sp-bd .totals small.bdsub,.tb-bd .totals small.bdsub{display:block;font-size:12px;margin-top:2px}
 .totals .v.bm{display:flex;align-items:center;justify-content:flex-end;gap:10px;align-self:center}
 .totals .bmbox{display:inline-flex;align-items:center;height:36px;width:104px;border:1px solid var(--control-line);background:var(--bg);padding:0 10px 0 0}
 .totals .bmbox:focus-within{outline:2px solid var(--focus);outline-offset:-1px}
@@ -1232,15 +1463,33 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
       <option value="normal">Normal</option>
       <option value="qom2926">QOM-2926 · ATP, delivery date and sourcing warehouse</option>
       <option value="fresh" selected>Fresh quote, no lines</option>
+      <option value="finish">Change finish · demo quote (5 rooms, one per state)</option>
       <option value="long">QOM-2514 · U-04 Find in this quote (100-line quote)</option>
       <option value="loading">Search · Loading (slow search)</option>
       <option value="error">Search · Error</option>
       <option value="tabdot">Tab dot · Lines need attention (on Quote information)</option>
+      <optgroup label="Full bottom bar (every tab)">
       <option value="s-unsaved">Footer 1 · Unsaved edits</option>
       <option value="s-saved">Footer 2 · Saved, no freight</option>
       <option value="s-calc">Footer 3 · Calculating freight</option>
       <option value="s-ready">Footer 4 · Ready to send</option>
       <option value="s-blocked">Footer 5 · Blocked</option>
+      </optgroup>
+      <optgroup label="Descoped · QOM-3280 lower-effort (totals box)">
+      <option value="d-unsaved">Descoped 1 · Unsaved edits (3 lines changed)</option>
+      <option value="d-saved">Descoped 2 · Saved, freight not calculated</option>
+      <option value="d-calc">Descoped 3 · Calculating freight</option>
+      <option value="d-stale">Descoped 4 · Freight out of date after an edit</option>
+      <option value="d-ready">Descoped 5 · Ready to send</option>
+      <option value="d-blocked">Descoped 6 · Blocked (things to fix)</option>
+      <option value="d-failed">Descoped 7 · Save failed</option>
+      </optgroup>
+    </select>
+  </label>
+  <label>Bottom bar
+    <select id="barMode" autocomplete="off">
+      <option value="full" selected>Full</option>
+      <option value="lite">Descoped (QOM-3280, totals box)</option>
     </select>
   </label>
   <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
@@ -1250,6 +1499,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label><input type="checkbox" id="showStock" checked autocomplete="off"> Stock in results</label>
   <label><input type="checkbox" id="showPrice" autocomplete="off"> Price in results (needs an M3 call per item)</label>
   <label><input type="checkbox" id="conceptRP" autocomplete="off"> Concept: Required parts on add (QOM-2561)</label>
+  <label><input type="checkbox" id="fcFailSim" autocomplete="off"> Change finish: last line fails to save</label>
   <button type="button" class="protohide" id="protoHide" aria-controls="protoBar">Hide prototype controls</button>
 </div>
 <button type="button" class="protoshow" id="protoShow" aria-controls="protoBar">Show prototype controls</button>
@@ -1257,26 +1507,51 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
 <div class="app">
   <nav class="rail" aria-label="QOM navigation">
     <div class="railtop"><button type="button" class="railbtn" id="railBtn" aria-expanded="false" aria-controls="railNav" aria-label="Menu"><svg class="ri-tab" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg><svg class="ri-menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="mark">WATERWORKS</div><div class="markmin" aria-hidden="true">W</div></div>
-    <div class="railnav" id="railNav"><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 9.8V20h4.5v-5.5h3V20H18V9.8"/></svg><span class="rl">Welcome</span></a><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="14.5" cy="11.3" r="1.8"/><path d="M11.4 16.4c.5-1.5 1.6-2.3 3.1-2.3s2.6.8 3.1 2.3"/></svg><span class="rl">Clients</span></a><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2"/><path d="M8 18h3.5a3 3 0 0 0 3-3V9.5a3 3 0 0 1 3-3H19"/><path d="M17 4l2.5 2.5L17 9"/><path d="M4 4.5l3 3M7 4.5l-3 3M16 15.5l3 3M19 15.5l-3 3"/></svg><span class="rl">Projects</span></a><a href="#" class="rlink cur" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h9a1.5 1.5 0 0 0 1.5-1.5V7z"/><path d="M14 3v4h4"/><path d="M13.7 11.1c-.3-.5-.9-.8-1.7-.8-.9 0-1.7.5-1.7 1.2 0 1.7 3.4.9 3.4 2.7 0 .7-.7 1.2-1.7 1.2-.8 0-1.5-.3-1.8-.9M12 9.4v.9M12 15.4v1"/></svg><span class="rl">Quotes</span></a><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h11M4 12h11M4 17.5h11"/><path d="M19 6.5h.01M19 12h.01M19 17.5h.01" stroke-width="2.6"/></svg><span class="rl">Orders</span></a>
+    <div class="railnav" id="railNav"><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 9.8V20h4.5v-5.5h3V20H18V9.8"/></svg><span class="rl">Welcome</span></a><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="14.5" cy="11.3" r="1.8"/><path d="M11.4 16.4c.5-1.5 1.6-2.3 3.1-2.3s2.6.8 3.1 2.3"/></svg><span class="rl">Clients</span></a><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2"/><path d="M8 18h3.5a3 3 0 0 0 3-3V9.5a3 3 0 0 1 3-3H19"/><path d="M17 4l2.5 2.5L17 9"/><path d="M4 4.5l3 3M7 4.5l-3 3M16 15.5l3 3M19 15.5l-3 3"/></svg><span class="rl">Projects</span></a><a href="#" class="rlink cur" aria-current="page" data-nav="quotes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h9a1.5 1.5 0 0 0 1.5-1.5V7z"/><path d="M14 3v4h4"/><path d="M13.7 11.1c-.3-.5-.9-.8-1.7-.8-.9 0-1.7.5-1.7 1.2 0 1.7 3.4.9 3.4 2.7 0 .7-.7 1.2-1.7 1.2-.8 0-1.5-.3-1.8-.9M12 9.4v.9M12 15.4v1"/></svg><span class="rl">Quotes</span></a><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h11M4 12h11M4 17.5h11"/><path d="M19 6.5h.01M19 12h.01M19 17.5h.01" stroke-width="2.6"/></svg><span class="rl">Orders</span></a>
     <div class="sec"><span class="rl">ADMIN TOOLS</span></div><a href="#" class="rlink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15.5 4.5 19 8l-3.5 3.5M20 16H5M8.5 12.5 5 16l3.5 3.5"/></svg><span class="rl">Import Tools</span></a>
     <div class="railfoot"><div class="envbadge"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path class="ex" d="M12 10v4.6M12 17.4v.1" fill="none" stroke-width="2.2" stroke-linecap="round"/></svg><span class="rl"><b>STAGING</b><a href="#">Go to Production</a></span></div><button type="button" class="railout" id="logoutBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H10M10 12h10M16.5 8.5 20 12l-3.5 3.5"/></svg><span class="rl">Log Out</span></button></div></div>
   </nav>
   <main class="main">
-    <!-- header extras from QOM staging; display only, nothing here is clickable -->
+    <!-- header extras from QOM staging; display only, except the breadcrumb's "Quote", which opens the Quotes list -->
     <div class="pghead">
-      <div class="crumb"><svg class="crumbicon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1"/><path d="M16 8V4.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5V17a.5.5 0 0 0 .5.5H8"/></svg>Projects <span>›</span> Quote <span>›</span> # 6000024967</div>
+      <div class="crumb" id="qCrumb"><svg class="crumbicon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1"/><path d="M16 8V4.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5V17a.5.5 0 0 0 .5.5H8"/></svg>Projects <span>›</span> <a href="#" class="crumblink" data-nav="quotes">Quote</a> <span>›</span> # 6000024967</div><div class="crumb" id="qlCrumb" hidden><svg class="crumbicon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1"/><path d="M16 8V4.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5V17a.5.5 0 0 0 .5.5H8"/></svg>Projects <span>›</span> Quotes</div>
       <div class="pgicons">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Notifications"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M12 3v2"/></svg>
         <span class="avatar" role="img" aria-label="Signed-in user"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></span>
       </div>
     </div>
-    <h1>Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
+    <h1 id="quoteTitle" tabindex="-1">Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
     <p class="sub">QUALITY FINISHES (USC) - Henry bar and club house</p>
     <div class="tabs">
-      <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><a href="#" class="ptab cur" data-ptab="4" aria-current="page">Product Selection</a><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><span class="tabmore" aria-label="More tabs">•••</span>
+      <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><a href="#" class="ptab cur" data-ptab="4" aria-current="page">Product Selection</a><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><button type="button" class="tabmore" id="qMoreBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="qMoreMenu" aria-label="More quote actions" title="More quote actions"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="9.5" cy="14" r="1.5" fill="currentColor"/><circle cx="14" cy="14" r="1.5" fill="currentColor"/><circle cx="18.5" cy="14" r="1.5" fill="currentColor"/></svg></button>
     </div>
+    <!-- quote actions (Nov 16, from the QOM staging menu): fixed, so the tab row's overflow doesn't clip it. Greyed items are disabled, as in staging -->
+    <div class="qmore" id="qMoreMenu" role="menu" aria-label="Quote actions" hidden><button type="button" role="menuitem" class="qm-item" data-qmore="override" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h12v9"/><path d="M5 3.5v17h7"/><path d="M8 8h6M8 11h3"/><path d="M8 14.5h3"/><circle cx="17" cy="17" r="1.6"/><path d="M14 21.5c.4-1.6 1.6-2.4 3-2.4s2.6.8 3 2.4"/></svg><span>Override Automated Payment</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="followup" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h12v9"/><path d="M5 3.5v17h7"/><path d="M8 8h6M8 11h3"/><path d="M8 14.5h3"/><circle cx="17" cy="17" r="1.6"/><path d="M14 21.5c.4-1.6 1.6-2.4 3-2.4s2.6.8 3 2.4"/></svg><span>Follow-up Notes</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="internal" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h10.5l3.5 3.5v13.5H5z"/><path d="M8 10h8M8 13.5h8M8 17h5"/></svg><span>Internal Notes</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="duplicate" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3.5h8l3.5 3.5v11H8z"/><path d="M8 7H4.5v13.5H15V18"/></svg><span>Duplicate Quote</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="archive" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="4" width="15" height="16" rx="1"/><path d="M4.5 8.5h15"/><path d="M12 11v5.5M9.5 14l2.5 2.5 2.5-2.5"/></svg><span>Archive Quote</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="specpacks" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h10l3 3v14H6z"/><path d="M4 6v16h12"/><text x="8.3" y="12.6" font-size="4.6" font-family="Arial" stroke="none" fill="currentColor">PDF</text></svg><span>Generate SpecPacks</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="charge" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5h5l-1.5 3h-2z"/><path d="M11 7.5C6.5 9.5 5 13 5 16c0 2.5 2 4.5 7 4.5s7-2 7-4.5c0-3-1.5-6.5-6-8.5"/><circle cx="12" cy="14.5" r="1.4"/></svg><span>Add Charge</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="refresh" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="14" height="13" rx="1"/><path d="M4 9h14M8 3v4M14 3v4"/><path d="M15.5 21a3.5 3.5 0 1 0-3.2-4.9"/><path d="M12 13.8v2.6h2.6"/></svg><span>Refresh Quote</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="dates" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="14" height="14" rx="1"/><path d="M4 9h14M8 3v4M14 3v4"/><path d="M14 20.5l1-3 5-5 2 2-5 5z"/></svg><span>Refresh Dates</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="saveexit" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="4" width="15" height="16" rx="1.5"/><path d="M8.5 4v4.5h7V4"/><circle cx="12" cy="14" r="1.3" fill="currentColor"/></svg><span>Save &amp; Exit</span></button><hr class="qm-sep"><button type="button" role="menuitem" class="qm-item qm-new" data-qmore="finish" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5h12A1.5 1.5 0 0 1 18.5 4v4A1.5 1.5 0 0 1 17 9.5H5A1.5 1.5 0 0 1 3.5 8V4A1.5 1.5 0 0 1 5 2.5z" fill="currentColor"/><path d="M7 5.5h7" stroke="var(--bg)" stroke-width="1.4" stroke-linecap="round"/><path d="M18.5 6h1a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1H12v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="9.8" y="15" width="4.4" height="7" rx="1" fill="currentColor"/></svg><span>Change finish</span><span class="newpill">New</span></button></div>
 
 
+    <!-- Quotes list (Nov 16): opened from the side nav's Quotes link or the breadcrumb; mock rows, rendered by renderQL() -->
+    <section class="ql" id="quotesPage" aria-labelledby="qlTitle" hidden>
+      <h1 id="qlTitle" tabindex="-1">Quotes</h1>
+      <div class="qltop">
+        <div class="qlsearch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg><input type="search" id="qlSearch" placeholder="Search by Project or Quote" aria-label="Search by Project or Quote" autocomplete="off"></div>
+        <div class="qlright">
+          <div class="qlchips" role="group" aria-label="Show quotes">
+            <button type="button" class="qlchip" data-qlwho="me" aria-pressed="false" title="My quotes">Me</button><button type="button" class="qlchip" data-qlwho="all" aria-pressed="true" title="All quotes">All</button><button type="button" class="qlchip" data-qlwho="team" aria-pressed="false" title="My team's quotes">Team</button><button type="button" class="qlchip" data-qltype="Residential" aria-pressed="false" title="Residential quotes only">Resi.</button><button type="button" class="qlchip" data-qltype="Commercial" aria-pressed="false" title="Commercial quotes only">Com.</button>
+          </div>
+          <button type="button" class="btn qlnew" id="qlNew"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg>Create new</button>
+        </div>
+      </div>
+      <div class="qlmeta"><div>Total Items: <b id="qlTotal">0</b></div><div class="qlsizes" id="qlSizes"><span>Showing <span id="qlSize">11</span> per page</span><span class="sep" aria-hidden="true">|</span><button type="button" data-qlsize="11" aria-pressed="true">Show 11</button><button type="button" data-qlsize="20" aria-pressed="false">Show 20</button><span class="sep" aria-hidden="true" data-sepfor="20">|</span><button type="button" data-qlsize="50" aria-pressed="false">Show 50</button><span class="sep" aria-hidden="true" data-sepfor="50">|</span><button type="button" data-qlsize="100" aria-pressed="false">Show 100</button></div></div>
+      <h2>Quote</h2>
+      <div class="qlwrap">
+        <table class="qltable" aria-label="Quotes">
+          <thead><tr id="qlHead"></tr></thead>
+          <tbody id="qlBody"></tbody>
+        </table>
+      </div>
+      <nav class="qlpager" id="qlPager" aria-label="Pages"></nav>
+      <div class="sr" id="qlLive" aria-live="polite"></div>
+    </section>
     <div class="pane-tabs" id="paneTabs" hidden>
       <button type="button" role="tab" aria-selected="true" data-pane="search">Find products</button>
       <button type="button" role="tab" aria-selected="false" data-pane="quote">Quote <span id="tabCount">(3)</span></button>
@@ -1318,6 +1593,8 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
            It replaces the search side on those tabs; the quote panel on the right is the same one Product Selection uses. -->
       <section class="pane ptview" id="ptView" aria-label="Quote details" hidden>
         <form class="ptform" id="ptForm" autocomplete="off" onsubmit="return false"></form>
+        <!-- descoped only: today's per-tab Save, with Discard changes, or Close when nothing changed (QOM-3280 Q7) -->
+        <div class="ptacts" id="ptActs" hidden><span id="ptSt"></span><button type="button" class="tolink" id="ptDisc" data-tb="discard">Close</button><button type="button" class="pb-act" id="ptSave" data-tb="save">Save</button></div>
       </section>
 
       <div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Resize panels (drag, or use the arrow keys; double-click to reset)" tabindex="0"></div>
@@ -1357,7 +1634,19 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
         </div>
         </div>
         <div id="qProducts" role="tabpanel" aria-labelledby="qtabProducts">
+        <!-- Change finish: progress, then the result with Summary and Undo (fcBanner fills it) -->
+        <div id="fcBanner"></div>
         <div id="rooms"></div>
+        <!-- descoped only (QOM-3280 lower-effort): the totals box at the end of the product list, kept in view. Save status, blockers, freight, total and the three actions. renderTBox fills it -->
+        <div class="tbox" id="tBox" role="region" aria-label="Save status, total and send" hidden>
+          <div class="tb-save" id="tbSave"></div>
+          <div class="tb-tot"><span class="tb-lbl" id="tbLbl">Estimated total</span><span class="tb-amt" id="tbAmt"></span></div>
+          <div class="tb-note"><span id="tbNote"></span><span id="tbBdWrap"><span aria-hidden="true"> · </span><button type="button" class="tolink" id="tbBdBtn" data-tb="bd" aria-expanded="false" aria-controls="tbBd">Breakdown</button></span></div>
+          <div class="tb-bd" id="tbBd" hidden></div>
+          <p class="tb-fr" id="tbFr"></p>
+          <div class="tb-fix" id="tbFix"></div>
+          <div class="tb-btns"><button type="button" class="pb-act" id="tbSaveBtn" data-tb="save">Save</button><button type="button" class="pb-act" id="tbFrBtn" data-tb="freight">Calculate freight</button><button type="button" class="pb-act" id="tbSendBtn" data-tb="send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client</button></div>
+        </div>
         <div class="qfoot">
           <div class="undo" id="undoBar" role="status" hidden></div>
         </div>
@@ -1585,6 +1874,38 @@ CAT.push({sku:"HNBAR-N~2", same:"HNBAR-N", alias:true, name:"Henry Handshower on
 CAT.push({sku:"TRTHM-PB", name:"Transit Thermostatic Trim TR PB", sec:"TR PB THERM TRIM LVR", col:"Transit", series:"Modern", cat:"Fittings", fin:"Polished Brass", st:20, stock:5, price:1180});
 // sample product photos saved from waterworks.com (wall-mounted accessories page) into images/; they are dummies, not matched to the mock products.
 // Products without an entry show the plain placeholder, and a missing file falls back to the failed-image state.
+// Change finish demo (Nov 16): invented "Avery" products in six metal finishes, plus a tile, an unfinished rough-in, a two-tone faucet and a washstand kit.
+// The "Change finish · demo quote" scenario uses them. Burnished Brass PVD is its own finish, not a kind of Burnished Brass.
+const FIN6=[["PN","Polished Nickel"],["MN","Matte Nickel"],["UB","Unlacquered Brass"],["BB","Burnished Brass"],["BBP","Burnished Brass PVD"],["CH","Chrome"]];
+const AV_UP={PN:1,MN:1,CH:1,UB:1.08,BB:1.08,BBP:1.18}; // mock: brass costs a little more, PVD more again
+const avery=(code,name,sec,cat,price,only,over={})=>FIN6.filter(([c])=>!only||only.includes(c)).map(([c,f],i)=>({sku:`${code}-${c}`,style:code,name,sec,col:"Avery",series:"Avery",cat,fin:f,st:20,stock:[6,3,4,5,2,8][i],price:Math.round(price*AV_UP[c]),...(over[c]||{})}));
+CAT.push(
+  ...avery("AVLAV","Avery One Hole Lavatory Faucet, Lever Handle","Deck mount, 1.2 gpm","Fittings",1480,null,{BBP:{ig:"CMM-PVD"}}), // PVD versions in a CMM item group: commercial quotes only
+  ...avery("AVTB24","Avery Towel Bar 24 inch","Wall mount","Accessories",410,["PN","MN","BB","BBP","CH"],{BB:{stock:1},BBP:{ig:"CMM-PVD"}}),
+  ...avery("AVRH","Avery Robe Hook","Wall mount","Accessories",165,["PN","MN","BB","BBP","CH"],{BB:{stock:0,lead:"about 10 weeks"},BBP:{ig:"CMM-PVD"}}),
+  ...avery("AVTB18","Avery Towel Bar 18 inch","Wall mount","Accessories",360), // every finish, PVD included, on residential quotes too
+  ...avery("AVTP","Avery Paper Holder","Wall mount","Accessories",285),
+  ...avery("AVTR","Avery Towel Ring","Wall mount","Accessories",240),
+  ...avery("AVSH","Avery Rain Shower Head 10 inch","Ceiling or wall arm, 1.8 gpm","Fittings",780,["PN","MN","BB","CH"]),
+  ...avery("AVSTM","Avery Steam Head","Square, for steam showers","Fittings",520,["PN"]), // one finish only: nothing to change to
+  ...avery("AVTH","Avery Thermostatic Valve Trim, Lever Handle","Trim only","Fittings",2240,["PN","MN","CH"]), // no brass versions
+  ...avery("AVPF","Avery Wall Mounted Pot Filler","Two handles, 24 inch reach","Fittings",1890,["PN","BB","CH"]),
+  // handshower: the current item is 1.8 gpm; Burnished Brass comes in 1.2 and 1.8 gpm (two choices), PVD only in 1.2 gpm (no exact match)
+  ...[["PN","1.8"],["MN","1.8"],["CH","1.8"],["BB","1.8"],["BB","1.2"],["BBP","1.2"]].map(([c,g])=>{ const f=FIN6.find(x=>x[0]===c)[1]; return {sku:`AVHS${g.replace(".","")}-${c}`,style:"AVHS",name:"Avery Handshower on Bar",sec:`Wall-mount bar, ${g} gpm handshower`,col:"Avery",series:"Avery",cat:"Fittings",fin:f,st:20,stock:c==="BB"&&g==="1.2"?7:4,price:Math.round(1960*AV_UP[c]),attrs:{"Flow rate":g+" gpm"},...(c==="BBP"?{ig:"CMM-PVD"}:{})}; }),
+  // two-tone: changes when the target is one of the tones it comes in
+  {sku:"AVKF-PNUB",style:"AVKF",name:"Avery Bridge Kitchen Faucet, Cross Handles",sec:"Side spray, two tone",col:"Avery",series:"Avery",cat:"Fittings",fin:"Polished Nickel / Unlacquered Brass",st:20,stock:3,price:3450},
+  {sku:"AVKF-BBUB",style:"AVKF",name:"Avery Bridge Kitchen Faucet, Cross Handles",sec:"Side spray, two tone",col:"Avery",series:"Avery",cat:"Fittings",fin:"Burnished Brass / Unlacquered Brass",st:20,stock:2,price:3690},
+  {sku:"AVKF-CHUB",style:"AVKF",name:"Avery Bridge Kitchen Faucet, Cross Handles",sec:"Side spray, two tone",col:"Avery",series:"Avery",cat:"Fittings",fin:"Chrome / Unlacquered Brass",st:20,stock:5,price:3450},
+  // can't change: an unfinished rough-in and a tile
+  {sku:"AVRV-UF",style:"AVRV",name:"Avery Thermostatic Rough Valve",sec:"Rough-in, 3/4 inch",col:"Avery",series:"Avery",cat:"Fittings",fin:"Unfinished",st:20,stock:12,price:640},
+  {sku:"CLT36-BIA",style:"CLT36",name:"Calder 3 x 6 Tile",sec:"Glazed ceramic",col:"Calder",series:"Calder",cat:"Surfaces",fin:"Bianco",st:20,stock:900,price:28,uom:"sq ft"},
+  // washstand kit: it changes as one item; its parts are the new kit's
+  ...avery("AVWSL","Avery Washstand Legs","Pair, 30 inch","Fixtures",1980,["PN","BB","CH"]),
+  ...avery("AVDR","Avery Basin Drain","Grid drain","Fittings",140,["PN","BB","CH"]),
+  {sku:"CLWT30-CAR",style:"CLWT30",name:"Calder Marble Top 30 inch",sec:"Single basin cut-out",col:"Calder",series:"Calder",cat:"Surfaces",fin:"Carrara",st:20,stock:4,price:2900},
+  {sku:"AVSNK-WH",style:"AVSNK",name:"Avery Undermount Sink",sec:"Vitreous china",col:"Avery",series:"Avery",cat:"Fixtures",fin:"White",st:20,stock:9,price:820},
+  ...["PN","BB","CH"].map(c=>({sku:`AVWS-${c}`,style:"AVWS",name:"Avery Metal Two Leg Washstand",sec:"30 inch, marble top, undermount sink",col:"Avery",series:"Avery",cat:"Fixtures",fin:FIN6.find(x=>x[0]===c)[1],st:20,stock:c==="BB"?1:3,price:Math.round(6840*AV_UP[c]),kit:[{sku:`AVWSL-${c}`,qty:1},{sku:"CLWT30-CAR",qty:1},{sku:"AVSNK-WH",qty:1},{sku:`AVDR-${c}`,qty:1}]}))
+);
 const IMG={
   "HNBAR-N":"easton-24-towel-bar","HNTVC-N":"henry-single-hook","HNTVC-DB":"easton-18-towel-bar","HNWS29":"easton-24-glass-towel-bar-rosette",
   "HGLAV-BUN":"easton-18-glass-towel-bar","HGARM-N":"easton-10-guest-bar","UNRSH10-N":"easton-10-guest-bar-pearl","UNRSH10-CP":"easton-24-towel-bar-rosette",
@@ -1939,7 +2260,9 @@ const ROOM_MENU=[
   ["del","Delete room",MI('<path d="M9 3h6M4 6h16"/><rect x="6" y="6" width="12" height="15" rx="1"/><path d="M10 11l4 5M14 11l-4 5"/>')],
   ["ren","Rename room",MI('<path d="M4 20l1-5L16 4l4 4L9 19zM14 6l4 4"/>')]
 ];
-const roomMenu=r=>`<div class="lmenu rmenu" role="menu" aria-label="Actions for ${esc(r.name)}">${ROOM_MENU.map(([id,label,icon])=>`<button type="button" role="menuitem" data-ract="${id}" data-rname="${esc(r.name)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
+const ROLLER_ICON='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5h12A1.5 1.5 0 0 1 18.5 4v4A1.5 1.5 0 0 1 17 9.5H5A1.5 1.5 0 0 1 3.5 8V4A1.5 1.5 0 0 1 5 2.5z" fill="currentColor"/><path d="M7 5.5h7" stroke="var(--bg)" stroke-width="1.4" stroke-linecap="round"/><path d="M18.5 6h1a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1H12v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="9.8" y="15" width="4.4" height="7" rx="1" fill="currentColor"/></svg>';
+// Change finish (Nov 16): last, under a line, bold with a NEW pill, as in the reference
+const roomMenu=r=>`<div class="lmenu rmenu" role="menu" aria-label="Actions for ${esc(r.name)}">${ROOM_MENU.map(([id,label,icon])=>`<button type="button" role="menuitem" data-ract="${id}" data-rname="${esc(r.name)}">${icon}<span>${label}</span></button>`).join("")}<hr class="lmsep"><button type="button" role="menuitem" class="lm-new" data-ract="fin" data-rname="${esc(r.name)}">${ROLLER_ICON}<span>Change finish</span><span class="newpill">New</span></button></div>`;
 // a copy goes straight after the original, named "Bar 2", "Bar 3"…; it is a draft until saved, like any other change
 function duplicateRoom(name){
   const rooms=S.quote.rooms, idx=rooms.findIndex(r=>r.name===name); if(idx<0) return;
@@ -1956,7 +2279,7 @@ function moveLine(room,sku,dir){ const rm=S.quote.rooms.find(r=>r.name===room); 
   const p=CAT.find(x=>x.sku===sku); $("#moveMsg").textContent=`${p.name} moved ${dir<0?"up":"down"}, now ${j+1} of ${rm.lines.length} in ${room}`;
   const el=document.querySelector(`.line[data-lroom="${CSS.escape(room)}"][data-lsku="${CSS.escape(sku)}"]`); if(el){ el.scrollIntoView({block:"nearest"}); el.classList.add("justadded"); setTimeout(()=>el.classList.remove("justadded"),1200); }
   document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); }
-const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${moveItems(r,l)}${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}</div>`;
+const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${moveItems(r,l)}${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}<hr class="lmsep"><button type="button" role="menuitem" class="lm-new" data-act="finish" data-key="${esc(r.name)}|${esc(l.sku)}">${ROLLER_ICON}<span>Change finish</span><span class="newpill">New</span></button></div>`;
 let toastTimer=null;
 function showToast(msg,kind){ const t=$("#toast"); t.textContent=msg; t.className="toast"+(kind?" "+kind:""); t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true,kind==="ok"?1600:2600); }
 // remove-product confirmation, shown as a dialog over the page
@@ -2011,6 +2334,213 @@ function removeRoom(name,lastItem){
   S.undo={kind:"room",room:name,roomObj:room,idx,wasActive,count:room.lines.length,lastItem}; S.dirty=true;
   renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); $("#undoBtn")?.focus();
 }
+// ---------- Change finish (Nov 16, Sam's brief and references): a bulk action from a line, a room or the whole quote ----------
+// One dialog, two steps. 1: tick the lines (grouped by room) and pick From and To. 2: review each line: one exact match is preselected,
+// choices (several matches, or none exact) must be picked, and every line can keep its current item. Then a mock M3 job changes the lines
+// one by one under a banner; the result has a summary and Undo (the whole change, never part of it). Mock data: "Change finish · demo quote".
+// Engineering decisions (Nov 16): kits swap as one item; required and recommended parts are never changed; the channel decides what's offered (CMM item groups only on commercial quotes, PVD included); custom margins and prices don't carry over.
+const FC_METAL=/nickel|brass|chrome|bronze|copper|gold|black|steel|silver|pewter/i;
+const fcTones=f=>String(f||"").split(" / ").map(s=>s.trim());
+// only metal finishes change: tile and stone colors, Unfinished rough-ins and colors such as "Paonazzo / Brass" don't
+// required and recommended parts (QOM-2561) stay as they are: the two features are kept separate (engineering, Nov 16)
+const fcReqPart=sku=>Object.values(requiredParts).some(m=>m.required.some(x=>x.options.some(o=>o.sku===sku))||m.often.some(o=>o.sku===sku));
+function fcWhyNot(p){ if(fcReqPart(p.sku)) return "Required or recommended part: not changed with the finish"; if(p.cat==="Surfaces") return "No metal finish (tile or stone color)"; if(p.fin==="Unfinished") return "No metal finish (unfinished rough-in)";
+  if(!fcTones(p.fin).every(t=>FC_METAL.test(t))) return `No metal finish (${p.fin} is a color)`; if(p.part) return "Service part"; return null; }
+const fcKey=(r,l)=>r.name+"|"+l.sku;
+const fcProd=sku=>CAT.find(c=>c.sku===sku);
+const fcHasTone=(p,t)=>fcTones(p.fin).includes(t);
+const fcOrderable=c=>!c.alias&&c.st===20&&c.whst!==50&&c.price!=null&&(S.view==="commercial"||!c.cmm); // the quote's channel: CMM item groups only on commercial quotes
+// candidates: the same style (item number without its finish code), orderable, in the target finish (a two-tone item: one of its tones is the target)
+const fcCands=(p,to)=>fcHasTone(p,to)?[]:CAT.filter(c=>c.style===p.style&&c.sku!==p.sku&&c.fin!==p.fin&&fcOrderable(c)&&fcHasTone(c,to));
+// exact: the same attributes, and exactly one tone swapped for the target (a one-tone finish: it is the target). No From finish needed (Nov 16)
+function fcExact(p,c,to){ const a=p.attrs||{}, b=c.attrs||{}; if(Object.keys({...a,...b}).some(k=>a[k]!==b[k])) return false;
+  const pt=fcTones(p.fin), ct=fcTones(c.fin); if(pt.length!==ct.length) return false; const d=pt.map((t,i)=>i).filter(i=>pt[i]!==ct[i]); return d.length===1&&ct[d[0]]===to; }
+const fcDiffs=(p,c)=>{ const a=p.attrs||{}, b=c.attrs||{}; return Object.keys({...a,...b}).filter(k=>a[k]!==b[k]).map(k=>({k,now:a[k]||"none",nu:b[k]||"none"})); };
+const FC_SW={"Polished Nickel":"#cfcfca","Matte Nickel":"#a3a39c","Nickel":"#bdbdb7","Dark Nickel":"#6f6c66","Unlacquered Brass":"#c9a45a","Burnished Brass":"#a8844a","Burnished Brass PVD":"#8f6e33","Brass":"#c2a052","Dark Brass":"#7a5f33","Chrome":"#dfe3e6"};
+const fcSwatch=f=>`<span class="fc-sw" aria-hidden="true">${fcTones(f).map(t=>`<i style="background:${FC_SW[t]||"#b8b8b8"}"></i>`).join("")}</span>`;
+const fcDate=(p,l)=>fmtLong(estDelivery(p,l));
+const fcStock=(c,qty,fin)=>(c.stock||0)>=qty?"":(c.stock||0)>0?`Limited stock${fin?" in "+esc(fin):""}: ${c.stock} available to promise in USC, ${qty} on this quote`:`Out of stock${fin?" in "+esc(fin)+" at":" in"} USC${c.lead?` · lead time ${esc(c.lead)}`:""}`;
+// a custom margin or price never carries over: the new item comes in at its standard price (engineering, Nov 16)
+const fcStd=c=>S.view==="commercial"?listOf(c):c.price;
+const fcUnit=(l,p,c)=>fcStd(c);
+const fcCustom=(l,p)=>!!l.im||Math.abs(l.unit-fcStd(p))>0.004;
+const FC_BOX='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v13H3zM3 7l2-3h14l2 3M9 11h6"/></svg>';
+const FC_CHECK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m8 12.3 2.7 2.7L16 9.6"/></svg>';
+const FC_CLOCK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/></svg>';
+const FC_LIST='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="M7 9.5l1.5 1.5L11 8.5M13.5 10h4M7 15l1.5 1.5L11 14M13.5 15.5h4"/></svg>';
+const FC_X='<svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg>';
+var FC=null, FJ=null; // FC: the open dialog. FJ: the change job, running or finished (its banner)
+const fcPayLink=()=>S.scenario==="finish"&&S.payLinkLive!==false; // mock: the demo quote has a live payment link
+function fcOpen(origin,ret){
+  if(FJ&&FJ.state==="run"){ showToast("A finish change is still running. Wait for it to finish."); ret?.focus(); return; }
+  const all=quoteLines(); if(!all.length){ showToast("This quote has no lines to change yet."); ret?.focus(); return; }
+  // every line in scope that can change starts ticked (that line, that room, or the whole quote); SCs untick the exceptions. No Change from (Nov 16)
+  const scope=all.filter(x=>origin.kind==="quote"||x.r.name===origin.room&&(origin.kind==="room"||x.l.sku===origin.sku));
+  FC={step:1,origin,to:"",lost:null,choice:{},sel:new Set(scope.filter(x=>!fcWhyNot(fcProd(x.l.sku))).map(x=>fcKey(x.r,x.l)))};
+  S.lmenu=null; S.rmenu=null; S.confirm={kind:"fc"}; dlgReturn=ret||null; $("#rmDialog").hidden=false; fcRender(true); ($("#fcTo:not(:disabled)")||$("#rmDialog .fc-x")).focus(); }
+// every quote line, with whether it can change and, once To is picked, its candidates
+// from a room, only that room's lines and finishes (Sam, Nov 16)
+const fcRows=()=>quoteLines().filter(x=>FC.origin.kind!=="room"||x.r.name===FC.origin.room).map(x=>{ const p=fcProd(x.l.sku), key=fcKey(x.r,x.l), why=fcWhyNot(p), c=FC.to&&!why?fcCands(p,FC.to):[];
+  return {...x,p,key,why,sel:!why&&FC.sel.has(key),c,ex:c.filter(y=>fcExact(p,y,FC.to))}; });
+// the review: per selected line, what it can become and what the SC picked
+function fcPlan(){ const taken=new Set();
+  return fcRows().filter(x=>x.sel).map(x=>{ let cant=fcHasTone(x.p,FC.to)?"Already "+FC.to:!x.c.length?"No version in "+FC.to:null;
+    const opts=cant?[]:x.c.map(c=>({c,exact:fcExact(x.p,c,FC.to),inRoom:x.r.lines.some(y=>y!==x.l&&y.sku===c.sku),dup:taken.has(x.r.name+"|"+c.sku)}));
+    if(!cant&&opts.every(o=>o.inRoom)) cant="Already in this room in "+FC.to;
+    const live=opts.filter(o=>!o.inRoom), single=live.length===1&&live[0].exact;
+    let ch=FC.choice[x.key]; if(ch===undefined) ch=single?live[0].c.sku:null; // one exact match is preselected; with choices nothing is picked for the SC
+    if(ch&&ch!=="keep"&&!live.some(o=>o.c.sku===ch&&!o.dup)) ch=null;
+    if(ch&&ch!=="keep") taken.add(x.r.name+"|"+ch); // two lines in one room can't become the same item
+    return {...x,cant,opts:live,single,ch}; }); }
+function fcRender(top){ const d=$("#rmDialog"), L=d.querySelector(".fc-list"), ls=top?0:L?.scrollTop||0, fk=d.contains(document.activeElement)?document.activeElement.dataset.fk:null;
+  d.innerHTML=`<div class="dlg fcdlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="fcSub">${FC.step===1?fcStep1():FC.step===2?fcStep2():fcStep3()}</div>`;
+  const L2=d.querySelector(".fc-list"); if(L2) L2.scrollTop=ls; d.querySelectorAll("[data-ind]").forEach(i=>i.indeterminate=true);
+  if(fk) d.querySelector(`[data-fk="${CSS.escape(fk)}"]`)?.focus({preventScroll:true}); }
+// opened from a room: a black band under the header, like the quote's room bars, names the room and says other rooms aren't changed (Sam picked option B, Nov 16)
+const fcHead=(icon,title,sub)=>{ const o=FC.origin, room=o.kind==="room"?esc(o.room):null, n=room?fcRows().filter(x=>!x.why).length:0;
+  return `<div class="fc-head"><span class="fc-ic" aria-hidden="true">${icon}</span><div><h2 id="dlgTitle" tabindex="-1">${title}${room&&!title.includes(room)?`<span class="sr"> for ${room}</span>`:""}</h2><p class="fc-sub" id="fcSub">${sub}</p></div><button type="button" class="fc-x" data-fc="close" aria-label="Close Change finish">${FC_X}</button></div>`
+    +(room?`<div class="fc-band" aria-hidden="true"><span class="fc-band-l">Room</span><b>${room}</b><span class="fc-band-n">${plural(n,"line")} · other rooms aren't changed</span></div>`:""); };
+const fcEst=n=>n>50?` · About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate)`:"";
+// the selected lines' current finishes, for the titles: "Polished Nickel", or "2 finishes"
+const fcFromTxt=rows=>{ const f=[...new Set(rows.map(x=>x.p.fin))]; return f.length===1?esc(f[0]):`${f.length} finishes`; };
+function fcStep1(){ const o=FC.origin, rows=fcRows(), elig=rows.filter(x=>!x.why), sel=elig.filter(x=>x.sel), n=sel.length;
+  // To: only finishes at least one selected line can change to (so a finish every selected line already has never shows), A to Z, with coverage of the selected lines
+  const cov=new Map(); sel.forEach(x=>{ const ts=new Set(); CAT.filter(c=>c.style===x.p.style&&c.sku!==x.p.sku&&c.fin!==x.p.fin&&fcOrderable(c)).forEach(c=>fcTones(c.fin).forEach(t=>{ if(!fcHasTone(x.p,t)) ts.add(t); })); ts.forEach(t=>cov.set(t,(cov.get(t)||0)+1)); });
+  const toList=[...cov.keys()].sort((a,b)=>a.localeCompare(b));
+  if(FC.to&&!toList.includes(FC.to)){ FC.lost=FC.to; FC.to=""; FC.choice={}; } // the chosen finish stopped being available after a selection change
+  const scopeOk=rows.some(x=>!x.why&&(o.kind!=="line"||x.r.name===o.room&&x.l.sku===o.sku)); // opened from a line with no metal finish: say so, not "select a line"
+  const why=!elig.length||!scopeOk&&!n?"None of the selected lines have a metal finish that can change.":!n?"Select at least one line to see the finishes it can change to.":!toList.length?"None of the selected lines come in another metal finish.":null;
+  const counts=n>1; // one line: no counts, they'd only ever read "1 of 1"
+  const opt=t=>`<option value="${esc(t)}"${t===FC.to?" selected":""}>${esc(t)}${counts?` · ${cov.get(t)} of ${plural(n,"line")}`:""}</option>`;
+  const notes=[why?`<p class="fc-help fc-none2" id="fcToH">${why}</p>`:`<p class="fc-help" id="fcToH">Finishes the selected lines come in.</p>`];
+  if(FC.lost&&!why) notes.push(`<p class="fc-lost" role="status">${esc(FC.lost)} isn't available for the selected lines.</p>`);
+  const sub=o.kind==="line"?`Step 1 of ${fcTotal()} · Started from one line: ${esc(fcProd(o.sku).name)} (${esc(o.sku)})`:o.kind==="room"?`Step 1 of ${fcTotal()} · Every line in this room that can change is selected; untick any to leave them`:`Step 1 of ${fcTotal()} · Whole quote · every line that can change is selected; untick any to leave them`;
+  // Change from (back on Nov 16, Sam: more control): "All finishes", or one finish, which ticks just its lines; it follows the ticks, showing "Selected lines" when they match neither
+  const tm=new Map(); elig.forEach(x=>fcTones(x.p.fin).forEach(t=>{ const v=tm.get(t)||{n:0,rooms:new Set()}; v.n++; v.rooms.add(x.r.name); tm.set(t,v); }));
+  const tones=[...tm.keys()].sort((a,b)=>a.localeCompare(b)), same=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x)), selK=sel.map(x=>x.key);
+  const fromVal=tones.find(t=>same(elig.filter(x=>fcHasTone(x.p,t)).map(x=>x.key),selK))||(same(elig.map(x=>x.key),selK)&&n?"all":"custom");
+  const roomsTxt=v=>o.kind==="room"?"":` in ${plural(v.rooms.size,"room")}`;
+  const fromOpts=(fromVal==="custom"?`<option value="custom" selected disabled>Selected lines · ${n}</option>`:"")+(tones.length>1?`<option value="all"${fromVal==="all"?" selected":""}>All finishes · ${plural(elig.length,"line")}</option>`:"")+tones.map(t=>`<option value="${esc(t)}"${fromVal===t?" selected":""}>${esc(t)} · ${plural(tm.get(t).n,"line")}${roomsTxt(tm.get(t))}</option>`).join("");
+  const fromField=`<div class="fc-f"><label for="fcFrom">Change from</label><select id="fcFrom" data-fk="from" aria-describedby="fcFromH" ${elig.length?"":"disabled"}>${elig.length?fromOpts:`<option selected disabled>No metal finishes</option>`}</select><p class="fc-help" id="fcFromH">${o.kind==="room"?"Finishes in this room.":"Finishes on this quote."} Picks every line in that finish; untick any to leave them.</p></div>`;
+  const rooms=S.quote.rooms.filter(r=>rows.some(x=>x.r===r)).map(r=>{ const rr=rows.filter(x=>x.r===r), re=rr.filter(x=>!x.why), rs=re.filter(x=>x.sel).length;
+    return (o.kind==="room"?"":`<div class="fc-room"><label class="fc-chk"><input type="checkbox" data-fc="room" data-room="${esc(r.name)}" data-fk="r:${esc(r.name)}" ${re.length&&rs===re.length?"checked":""} ${rs&&rs<re.length?"data-ind":""} ${re.length?"":"disabled"} aria-label="Select every line in ${esc(r.name)} that can change">${esc(r.name)}</label><small>${rs} of ${re.length} selected</small></div>`)+rr.map(x=>{ // from a room, no room row: the band and Select all already cover it (Sam, Nov 16)
+      const lead=`${esc(x.l.sku)} · ${esc(x.p.fin)}`; let meta, warn="";
+      if(x.why) meta=`${lead} · ${esc(x.why)}`;
+      else if(!FC.to) meta=`${lead} · qty ${x.l.qty}`;
+      else if(fcHasTone(x.p,FC.to)) meta=`${lead} · <span class="fc-none">Already ${esc(FC.to)}</span>`;
+      else if(!x.c.length) meta=`${lead} · <span class="fc-none">No version in ${esc(FC.to)}</span>`;
+      else if(x.c.length===1&&x.ex.length===1){ const c=x.c[0]; meta=`${esc(x.l.sku)} → <b>${esc(c.sku)}</b> · ${money(x.l.unit)} → ${money(fcUnit(x.l,x.p,c))} · Est. delivery ${fcDate(x.p,x.l)} → ${fcDate(c,x.l)}`; const s=fcStock(c,x.l.qty); if(s) warn=`<span class="fc-warnl">${FC_BOX}${s}</span>`; }
+      else meta=`${lead} · <span class="fc-choice">${plural(x.c.length,"choice")} in ${esc(FC.to)}${x.ex.length?"":", none exact"}: you pick next</span>`;
+      return `<label class="fc-row${x.why?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel?"checked":""} ${x.why?"disabled":""}><span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>${meta}</small>${warn}</span></label>`; }).join(""); }).join("");
+  const allOn=elig.length&&n===elig.length;
+  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),"Change finish",sub)+`<div class="fc-body">
+    <div class="fc-pick">${fromField}<div class="fc-f"><label for="fcTo">Change to</label><select id="fcTo" data-fk="to" aria-describedby="fcToH" ${why?"disabled":""}><option value=""${FC.to?"":" selected"} disabled>${why?"No finishes to offer":"Choose a finish"}</option>${why?"":toList.map(opt).join("")}</select>${notes.join("")}</div></div>
+    <div class="fc-box"><div class="fc-lhead"><b>Lines to review (${elig.length})</b><label class="fc-chk"><input type="checkbox" data-fc="all" data-fk="all" ${allOn?"checked":""} ${n&&!allOn?"data-ind":""} ${elig.length?"":"disabled"}> Select all</label></div><div class="fc-list">${rooms}</div></div></div>
+    <div class="fc-foot"><p>${n} of ${plural(elig.length,"line")} selected · You confirm before anything changes${fcEst(n)}</p><button type="button" class="dbtn cancel" data-fc="close">Cancel</button><button type="button" class="dbtn yes" data-fc="next" ${FC.to&&n?"":"disabled"}>${!n&&scopeOk&&elig.length?"Select lines":why?"Nothing to change":!FC.to?"Choose a finish":"Next"}</button></div>`; }
+// a kit's parts, current against the candidate: which follow the finish
+// kits swap as one item: the parent kit only, never its parts one by one (engineering, Nov 16)
+// three steps (Nov 16): 1 select lines and the finish; 2 resolve choices (only lines with several matches, or none exact; skipped when every line has exactly one); 3 confirm, before anything changes
+const fcChoiceRows=P=>P.filter(x=>!x.cant&&!x.single);
+const fcTotal=()=>FC.to&&!fcChoiceRows(fcPlan()).length?2:3;
+const fcOptCards=x=>{ const nm=`fc:${x.key}`;
+  const opt=o=>{ const d=fcDiffs(x.p,o.c), s=fcStock(o.c,x.l.qty,FC.to), diff=d.length?d.map(z=>`<span class="fc-diff"><mark>${esc(z.k)}: ${esc(z.nu)}</mark> now ${esc(z.now)}</span>`).join(""):!o.exact?`<span class="fc-diff"><mark>Finish: ${esc(o.c.fin)}</mark> now ${esc(x.p.fin)}</span>`:"";
+    return `<label class="fc-opt${o.dup?" off":""}"><input type="radio" name="${esc(nm)}" value="${esc(o.c.sku)}" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:${esc(o.c.sku)}" ${x.ch===o.c.sku?"checked":""} ${o.dup?"disabled":""}><span class="fc-ot"><b>${fcSwatch(o.c.fin)}${esc(o.c.sku)} · ${esc(o.c.fin)}${o.exact?" · exact match":""}</b><small>${money(fcUnit(x.l,x.p,o.c))} each · Est. delivery ${fcDate(o.c,x.l)}${o.dup?" · another line in this room already changes to this item":""}</small>${diff}${s?`<span class="fc-warnl">${FC_BOX}${s}</span>`:""}</span></label>`; };
+  return x.opts.map(opt).join("")+`<label class="fc-opt"><input type="radio" name="${esc(nm)}" value="keep" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:keep" ${x.ch==="keep"?"checked":""}><span class="fc-ot"><b>${fcSwatch(x.p.fin)}Keep current item (${esc(x.l.sku)} · ${esc(x.p.fin)})</b><small>The client keeps this one as is.</small></span></label>`; };
+function fcStep2(){ const C=fcChoiceRows(fcPlan()), pick=C.filter(x=>!x.ch), multi=new Set(C.map(x=>x.r.name)).size>1;
+  const rows=S.quote.rooms.map(r=>{ const rr=C.filter(x=>x.r===r); if(!rr.length) return ""; return (multi?`<div class="fc-room"><span>${esc(r.name)}</span></div>`:"")+rr.map(x=>`<fieldset class="fc-rv"><legend class="sr">${esc(x.p.name)}, ${esc(x.r.name)}</legend><div class="fc-rvh"><div><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>Now: ${esc(x.l.sku)} · ${esc(x.p.fin)} · qty ${x.l.qty}</small></div><span class="fc-pill a">${x.opts.length===1?"1 match, not exact":plural(x.opts.length,"match")+(x.opts.some(o=>o.exact)?"":", none exact")}</span></div>${fcOptCards(x)}</fieldset>`).join(""); }).join("");
+  return fcHead(FC_LIST,`Choose items in ${esc(FC.to)}`,`Step 2 of 3 · ${C.length===1?"This line has":"These lines have"} more than one match, or none that's exact. Pick one, or keep the current item.`)+`<div class="fc-body">
+    <div class="fc-sum"><b>${plural(C.length,"line")} need${C.length===1?"s":""} a choice</b><span>${C.length-pick.length} picked · ${pick.length} to pick</span></div>
+    <div class="fc-box"><div class="fc-list">${rows}</div></div></div>
+    <div class="fc-foot">${pick.length?`<p class="need">Pick an item or Keep for ${plural(pick.length,"line")}</p>`:`<p>Every line has a pick · You confirm next</p>`}<button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="confirm" ${pick.length?"disabled":""}>${pick.length?`Pick ${pick.length} more`:"Next"}</button></div>`; }
+function fcStep3(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="keep"), n=chg.length, rooms=[...new Set(P.map(x=>x.r.name))], multi=rooms.length>1, t=fcTotal();
+  const inRoom=x=>multi?` <span class="fc-rm">· ${esc(x.r.name)}</span>`:""; // room names only when more than one room is involved
+  const crooms=[...new Set((n?chg:P).map(x=>x.r.name))], scope=crooms.length===1?`in ${esc(crooms[0])}`:FC.origin.kind==="quote"?"across the quote":`across ${crooms.length} rooms`;
+  // needs attention: one row per line, all of its issues together
+  const att=P.map(x=>{ const iss=[]; let sev="w";
+    if(x.cant){ iss.push(`Can't change: ${esc(x.cant)}`); sev="n"; }
+    else if(x.ch==="keep"){ iss.push("Keeping the current item"); sev="n"; }
+    else { const c=fcProd(x.ch); if(fcCustom(x.l,x.p)) iss.push(`${S.view==="commercial"?"Custom margin":"Custom price"} ${money(x.l.unit)} → standard ${money(fcUnit(x.l,x.p,c))}`); const s=fcStock(c,x.l.qty); if(s) iss.push(s); }
+    return iss.length?`<li class="fc-att ${sev}">${sev==="n"?INFO_ICON:FC_BOX}<span><b>${esc(x.p.name)}${inRoom(x)}</b><small>${iss.join(" · ")}</small></span></li>`:""; }).filter(Boolean);
+  const cur=quoteLines().reduce((a,{l})=>a+l.qty*l.unit,0), nu=cur+chg.reduce((a,x)=>a+x.l.qty*(fcUnit(x.l,x.p,fcProd(x.ch))-x.l.unit),0);
+  // order (Sam, Nov 16): needs attention, the payment link, the estimate, then Will change, open by default (an accordion the SC can close) and scrolling on its own when it's long; the quote total is pinned under them
+  const secs=[
+    att.length?`<section class="fc-sec"><h3>Needs attention (${att.length})</h3><ul class="fc-atts">${att.join("")}</ul></section>`:"",
+    n&&fcPayLink()?`<p class="fc-pay">${RI.bad}<span>The client's current payment link will stop working. You'll need to send a new one.</span></p>`:"",
+    n>50?`<p class="fc-est">${FC_CLOCK}About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate). You can keep working while it runs.</p>`:"",
+    n?`<details class="fc-sec fc-will"${FC.willOpen===false?"":" open"}><summary data-fk="will">Will change (${n})</summary><ul>${chg.map(x=>`<li>${esc(x.p.name)}${inRoom(x)}: ${esc(x.l.sku)} → <b>${esc(x.ch)}</b></li>`).join("")}</ul></details>`:""].join("");
+  const tot=n?`<div class="fc-tot"><span>Quote total</span><b>${money(cur)} → ${money(nu)}</b><small>Products, before freight and tax</small></div>`:"";
+  return fcHead(FC_LIST,n?`Change ${plural(n,"line")} ${scope} from ${fcFromTxt(chg)} to ${esc(FC.to)}`:"Nothing to change",`Step ${t} of ${t} · Nothing has changed yet`)+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
+    <div class="fc-foot"><p>${plural(n,"line")} will change${fcEst(n)}</p><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="apply" ${n?"":"disabled"}>${n?`Change ${plural(n,"line")}`:"Nothing to change"}</button></div>`; }
+document.addEventListener("toggle",e=>{ if(FC&&e.target.classList?.contains("fc-will")) FC.willOpen=e.target.open; },true); // remembered while the dialog is open
+document.addEventListener("change",e=>{ if(!FC||S.confirm?.kind!=="fc"||!e.target.closest?.("#rmDialog")) return; const t=e.target, a=t.dataset.fc; e.stopPropagation(); // capture: the dialog sits after this script
+  if(t.id==="fcFrom"){ FC.sel=new Set(fcRows().filter(x=>!x.why&&(t.value==="all"||fcHasTone(x.p,t.value))).map(x=>x.key)); FC.choice={}; fcRender(); return; } // ticks the lines in that finish (all of them for "All finishes")
+  if(t.id==="fcTo"){ FC.to=t.value; FC.lost=null; FC.choice={}; fcRender(); return; }
+  if(a==="all"||a==="room"){ fcRows().filter(x=>!x.why&&(a==="all"||x.r.name===t.dataset.room)).forEach(x=>t.checked?FC.sel.add(x.key):FC.sel.delete(x.key)); FC.choice={}; fcRender(); return; }
+  if(a==="line"){ t.checked?FC.sel.add(t.dataset.key):FC.sel.delete(t.dataset.key); fcRender(); return; }
+  if(a==="pick"){ FC.choice[t.dataset.key]=t.value; fcRender(); } },true);
+document.addEventListener("click",e=>{ if(!FC||S.confirm?.kind!=="fc") return; const b=e.target.closest?.("#rmDialog button[data-fc]"); if(!b) return; e.stopPropagation(); const a=b.dataset.fc;
+  if(a==="close"){ FC=null; closeRemoveDialog(); return; }
+  if(a==="next"){ FC.step=fcChoiceRows(fcPlan()).length?2:3; fcRender(true); $("#dlgTitle").focus(); return; } // straight to confirm when every line has exactly one match
+  if(a==="confirm"){ FC.step=3; fcRender(true); $("#dlgTitle").focus(); return; }
+  if(a==="back"){ FC.step=FC.step===3&&fcChoiceRows(fcPlan()).length?2:1; fcRender(true); (FC.step===1?$("#fcTo"):$("#dlgTitle"))?.focus(); return; }
+  if(a==="apply") fcApply(); },true);
+// ----- the job: one line at a time, as M3 would; the lines it touches are locked until it's done -----
+const fcScopeTxt=J=>J.scope.room?`in ${esc(J.scope.room)}`:J.scope.quote?"across the quote":`across ${J.scope.rooms} rooms`;
+function fcApply(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="keep"); if(!chg.length) return;
+  const rooms=new Set(chg.map(x=>x.r.name)), o=FC.origin;
+  FJ={state:"run",kind:"apply",from:(f=>f.length===1?f[0]:null)([...new Set(chg.map(x=>x.p.fin))]),to:FC.to,scope:o.kind==="room"&&rooms.size===1?{room:[...rooms][0]}:o.kind==="quote"?{quote:true}:rooms.size===1?{room:[...rooms][0]}:{rooms:rooms.size},
+    items:chg.map(x=>({room:x.r.name,a:x.l.sku,b:x.ch,aUnit:x.l.unit,bUnit:fcUnit(x.l,x.p,fcProd(x.ch)),qty:x.l.qty,custom:fcCustom(x.l,x.p),im:!!x.l.im,st:"wait"})),
+    kept:P.filter(x=>x.ch==="keep").map(x=>({room:x.r.name,sku:x.l.sku})), cant:P.filter(x=>x.cant).map(x=>({room:x.r.name,sku:x.l.sku,why:x.cant})),
+    fail:!!$("#fcFailSim")?.checked, pay:fcPayLink(), i:0, open:false};
+  if(FJ.pay) S.payLinkLive=false;
+  FC=null; closeRemoveDialog(false); if(SEND.freight==="done"){ SEND.freight="none"; SEND.freightAt=null; SEND.stale=true; } // new prices: freight has to run again
+  $("#sendLive").textContent=`Changing ${plural(FJ.items.length,"line")} to ${FJ.to}.`; renderQuote(); fcTick(); $("#fcBanner").scrollIntoView({block:"nearest"}); }
+// a line moves to its new item in place: same room, order and quantity; saved straight to the quote (it's an M3 job, not an unsaved edit)
+function fcSwap(it,back){ const [from,to,unit]=back?[it.b,it.a,it.aUnit]:[it.a,it.b,it.bUnit];
+  [S.quote,S.base].forEach(q=>{ const l=q?.rooms.find(r=>r.name===it.room)?.lines.find(x=>x.sku===from); if(!l) return; l.sku=to; l.unit=unit; delete l.spec; delete l.cp; if(back){ delete l.fcTo; if(it.im) l.im=true; } else { l.fcTo=to; delete l.im; } }); }
+function fcTick(){ const J=FJ; if(!J||J.state!=="run") return; const it=J.items[J.i];
+  if(!it){ J.state=J.kind==="undo"?"undone":J.items.some(x=>x.st==="fail")?"partial":"done"; renderQuote(); renderResults();
+    const ok=J.items.filter(x=>x.st==="done").length; $("#sendLive").textContent=J.state==="undone"?`Finish change undone. ${plural(ok,"line")} back.`:J.state==="partial"?`${ok} of ${J.items.length} lines changed; ${J.items.length-ok} couldn't be saved.`:`Changed ${plural(ok,"line")} to ${J.to}.`; return; }
+  it.st="run"; renderQuote();
+  J.timer=setTimeout(()=>{ if(FJ!==J) return; if(J.kind==="apply"&&J.fail&&J.i===J.items.length-1) it.st="fail"; else { fcSwap(it,J.kind==="undo"); it.st="done"; } J.i++; fcTick(); },matchMedia("(prefers-reduced-motion: reduce)").matches?250:700); }
+function fcUndo(){ const J=FJ; if(!J||J.kind!=="apply"||J.state==="run") return; const done=J.items.filter(x=>x.st==="done"); if(!done.length){ FJ=null; renderQuote(); return; }
+  FJ={...J,kind:"undo",state:"run",items:done.map(x=>({...x,st:"wait"})),i:0,open:false,undoOf:J}; $("#sendLive").textContent=`Undoing the finish change on ${plural(done.length,"line")}.`; renderQuote(); fcTick(); }
+function fcReset(){ if(FJ) clearTimeout(FJ.timer); FJ=null; }
+// which job item a quote line belongs to, by the item number the line has right now
+function fcItem(r,l){ const J=FJ; if(!J) return null; const undo=J.kind==="undo"; return J.items.find(x=>x.room===r.name&&l.sku===(x.st==="done"?(undo?x.a:x.b):(undo?x.b:x.a)))||null; }
+function fcCls(r,l){ const it=fcItem(r,l); return it&&FJ.state==="run"&&(it.st==="wait"||it.st==="run")?" flock":""; }
+function fcState(r,l){ const J=FJ, it=fcItem(r,l); if(!it||J.state==="undone") return "";
+  if(it.st==="wait") return `<span class="fc-ls wait">${FC_CLOCK}Waiting…</span>`;
+  if(it.st==="run") return `<span class="fc-ls run"><span class="spin" aria-hidden="true"></span>${J.kind==="undo"?`Changing back to ${esc(fcProd(it.a).fin)}…`:`Changing to ${esc(J.to)}…`}</span>`;
+  if(it.st==="fail") return `<span class="fc-ls bad">${SI.block}Couldn't be saved. Still ${esc(fcProd(it.a).fin)}</span>`;
+  return J.kind==="undo"?`<span class="fc-ls ok">${FC_CHECK}Back to ${esc(fcProd(it.a).fin)}</span>`:`<span class="fc-ls ok">${FC_CHECK}Changed</span>`; }
+// a new item that's short gets its own notice on the line
+function fcNote(r,l,p){ if(l.fcTo!==l.sku) return ""; const s=fcStock(p,l.qty,p.fin);
+  return (s?`<div class="rb risk fc-note">${FC_BOX}<span>${s}.</span></div>`:"")+(p.kit?`<div class="fc-kitph">${INFO_ICON}<span>The parts listed are the new kit's. Placeholder behaviour, pending engineering confirmation.</span></div>`:""); }
+function fcBanner(){ const el=$("#fcBanner"); if(!el) return; const J=FJ; let h="";
+  if(J){ const n=J.items.length, ok=J.items.filter(x=>x.st==="done").length, failed=J.items.filter(x=>x.st==="fail"), nm=s=>esc(fcProd(s).name), fromTxt=J.from?esc(J.from):"their current finishes";
+    const x=`<button type="button" class="fcb-x" data-fcb="close" aria-label="Dismiss">${FC_X}</button>`, undoBtn=`<button type="button" class="tolink" data-fcb="undo">Undo</button>`;
+    if(J.state==="run"){ const k=J.items.filter(y=>y.st==="done"||y.st==="fail").length;
+      h=`<div class="fcb run" role="status"><div class="fcb-top"><span class="spin" aria-hidden="true"></span><b>${J.kind==="undo"?`Undoing: changing ${plural(n,"line")} back to ${J.from?esc(J.from):"their previous finishes"}`:`Changing ${plural(n,"line")} ${fcScopeTxt(J)} to ${esc(J.to)}`}…</b><span class="fcb-act">${k} of ${n} ${J.kind==="undo"?"done":"changed"}</span></div><div class="fcb-bar" aria-hidden="true"><i style="width:${Math.round(k/n*100)}%"></i></div><p class="fcb-note">You can keep working in the quote. Leaving this page won't cancel the change.</p></div>`; }
+    else if(J.state==="undone") h=`<div class="fcb undone" role="status"><div class="fcb-top">${INFO_ICON}<b>Finish change undone. ${plural(ok,"line")} ${ok===1?"is":"are"} back to ${J.from?esc(J.from):"its previous finish"}.</b><span class="fcb-act">${x}</span></div></div>`;
+    else { const part=J.state==="partial";
+      h=`<div class="fcb ${part?"partial":"done"}" role="status"><div class="fcb-top">${part?SI.block:FC_CHECK}<b>${part?`${ok} of ${n} changed; ${failed.length} couldn't be saved`:`Changed ${plural(ok,"line")} to ${esc(J.to)} ${fcScopeTxt(J)}`}</b><span class="fcb-act">${undoBtn}${x}</span></div>${part?`<ul class="fcb-fail">${failed.map(y=>`<li>${nm(y.a)} (${esc(y.a)}, ${esc(y.room)}): M3 didn't save it, so it's still ${esc(fcProd(y.a).fin)}.</li>`).join("")}</ul><p class="fcb-note">Undo puts back the ${plural(ok,"line")} that changed. Mock failure.</p>`:""}</div>`; } }
+  if(el._h!==h){ el.innerHTML=h; el._h=h; } // rewritten only when it changes, so focus isn't lost
+  document.querySelectorAll("#rooms .line.flock").forEach(e=>e.inert=true); }
+document.addEventListener("click",e=>{ const b=e.target.closest?.("#fcBanner [data-fcb]"); if(!b) return; e.stopPropagation(); const a=b.dataset.fcb;
+  if(a==="undo") fcUndo();
+  if(a==="close"){ FJ=null; renderQuote(); } });
+const FIN_QUOTE=()=>({rooms:[
+  // partial coverage: 7 lines that can change (Chrome 7 of 7 ... Unlacquered Brass 1 of 7), plus a rough-in and a tile that can't
+  {name:"Primary Bath",type:"Primary Bath",lines:[{sku:"AVLAV-PN",qty:2},{sku:"AVHS18-PN",qty:1},{sku:"AVTH-PN",qty:1},{sku:"AVRV-UF",qty:1},{sku:"AVTB24-PN",qty:2,unit:369},{sku:"AVRH-PN",qty:2},{sku:"AVWS-PN",qty:1},{sku:"AVSH-PN",qty:1},{sku:"CLT36-BIA",qty:40}]},
+  // full coverage: every line comes in every finish, so each option reads "3 of 3 lines"
+  {name:"Guest Bath",type:"Guest Bath",lines:[{sku:"AVTB18-PN",qty:1},{sku:"AVTP-PN",qty:1},{sku:"AVTR-PN",qty:1}]},
+  // mixed: three Polished Nickel lines and a Chrome robe hook; both finishes stay offered
+  {name:"Powder Room",type:"Powder Room",lines:[{sku:"AVLAV-PN",qty:1},{sku:"UNPT-N",qty:1},{sku:"AVTP-PN",qty:1},{sku:"AVTR-PN",qty:1},{sku:"AVRH-CH",qty:1}]},
+  {name:"Kitchen",type:"Kitchen",lines:[{sku:"AVKF-PNUB",qty:1},{sku:"AVPF-PN",qty:1}]},
+  // nothing to offer: a steam head that only comes in Polished Nickel, a rough-in and a tile
+  {name:"Steam Shower",type:"Shower",lines:[{sku:"AVSTM-PN",qty:1},{sku:"AVRV-UF",qty:1},{sku:"CLT36-BIA",qty:60}]}
+].map(r=>({...r,lines:r.lines.map(l=>({unit:fcProd(l.sku).price,...l,rdd:"01/15/2027"}))}))}); // a line's own unit wins: a custom price
 function closeRemoveDialog(restore=true){ $("#rmDialog").hidden=true; $("#rmDialog").innerHTML=""; S.confirm=null; if(restore) (dlgReturn&&document.body.contains(dlgReturn)?dlgReturn:null)?.focus(); }
 function confirmRemove(){
   const c=S.confirm; if(!c) return; if(c.kind==="logout"){ closeRemoveDialog(); showToast("Signs you out of Sales Portal and Microsoft (not built in the prototype)."); return; } if(c.kind==="discard"){ closeRemoveDialog(); discardChanges(); return; } const rm=S.quote.rooms.find(r=>r.name===c.room); const idx=rm?rm.lines.findIndex(l=>l.sku===c.sku):-1; const p=CAT.find(x=>x.sku===c.sku);
@@ -2028,7 +2558,7 @@ const atpInfo=(p,l)=>{ if(p.stock>0) return {qty:p.stock,from:null};
   const d=new Date(); d.setDate(d.getDate()+leadWeeks(p)*7); return {qty:l.qty,from:d}; };
 const estDelivery=(p,l)=>{ const d=new Date(); if(!((p.stock||0)>=l.qty)) d.setDate(d.getDate()+leadWeeks(p)*7); d.setDate(d.getDate()+7); d.setHours(0,0,0,0); return d; };
 const dtip=(id,label,plain,m3)=>`<button type="button" class="dinfo" aria-label="About ${label}" aria-describedby="${id}">${INFO_ICON}</button><span class="dtip" id="${id}" role="tooltip"><span>${plain}</span><span class="dm3">${m3}</span></span>`;
-const COO={Henry:"USA",Easton:"USA",Arrow:"ITA",Candide:"FRA"}; // mock country of origin by collection
+const COO={Henry:"USA",Easton:"USA",Arrow:"ITA",Candide:"FRA",Avery:"USA",Calder:"ITA"}; // mock country of origin by collection
 const pdetails=(p,l,hit,id)=>{ const a=atpInfo(p,l), e=estDelivery(p,l), r=dayOf(l.rdd), q=l.qty.toLocaleString("en-US");
   const atpVal=a.from?`${a.qty.toLocaleString("en-US")} from ${fmtLong(a.from)}`:a.qty.toLocaleString("en-US");
   const atpTip=a.from
@@ -2250,7 +2780,7 @@ function renderQuote(){
     const isOpen=(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
-      return `<div class="line${com?" com":""}${lineFocus(r,l)?" lfocus":""}${findCur(r,l)?" findcur":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${lineMove(r,l,p)}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
+      return `<div class="line${com?" com":""}${fcCls(r,l)}${lineFocus(r,l)?" lfocus":""}${findCur(r,l)?" findcur":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${lineMove(r,l,p)}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${fcState(r,l)}${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${fcNote(r,l,p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span>${(m=>m?`<span class="rfind">· ${m} match${m===1?"":"es"}</span>`:"")(S.lineQ.trim()?roomHitLines(r.name):0)}${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room
@@ -2269,7 +2799,7 @@ function renderQuote(){
   if(S.qview==="pdf") $("#qPdf").innerHTML=pdfHtml(); const ub=$("#undoBar"); ub.hidden=!S.undo; $(".qfoot").hidden=!S.undo; ub.innerHTML=S.undo?`<span>⚠ ${S.undo.kind==="room"?(S.undo.lastItem?`Removed ${esc(S.undo.lastItem)}, the last item in ${esc(S.undo.room)}, so the room was removed too`:`Removed room ${esc(S.undo.room)}${S.undo.count?` and its ${S.undo.count} item${S.undo.count===1?"":"s"}`:""}`):`Removed ${esc(S.undo.name)} from ${esc(S.undo.room)}`}.</span><button type="button" class="btn ghost" id="undoBtn">Undo</button>`:"";
   const n=rooms.reduce((a,r)=>a+r.lines.length,0);
   $("#qSub").textContent=`${rooms.length} room${rooms.length===1?"":"s"} · ${n} line${n===1?"":"s"} total`; $("#tabCount").textContent=`(${n})`; $("#stripCount").textContent=n; $("#stripRoom").textContent=S.room||"no room"; $("#stripTotal").textContent=money(sub);
-  placeLineMenu(); renderSend(); renderTabDot();
+  placeLineMenu(); renderSend(); renderTabDot(); fcBanner();
 }
 // pin the open line menu just under its "…" button, right edges aligned
 function placeLineMenu(){
@@ -2352,7 +2882,7 @@ function sendItems(){
 function blockerKeys(){ return [...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
 // the footer's state, worked out once: which button is the next step and what the helper line says
 function footState(items=sendItems()){
-  const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight");
+  const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight"); // descoped too: QOM-3280 found nearly every send rule is already checked in the browser
   const dirty=S.dirty, bad=badQty(), run=SEND.freight==="run", done=SEND.freight==="done"&&!dirty;
   const calcOff=dirty||run||!hasLines||!SEND.addr, canSend=done&&hasLines&&!others.length;
   const help=!hasLines?"Add products to calculate freight":dirty?(bad?"Fix the quantities marked in the quote to save":"Save to calculate freight"):others.length?null:run?"Sending unlocks when freight is ready":!done?"Calculate freight before sending":`Freight calculated ${SEND.freightAt}`;
@@ -2360,7 +2890,8 @@ function footState(items=sendItems()){
 }
 let helpHtml="";
 function renderSend(){
-  if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again
+  if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); if(SEND.freight==="done") SEND.stale=true; SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again (stale: the descoped box says "out of date")
+  if(!S.dirty) SEND.failed=null; // a save or discard clears a failed save
   const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx;
   // 1. save status
   $("#pbIc").innerHTML=F.dirty?SI.dot:SI.done;
@@ -2381,7 +2912,7 @@ function renderSend(){
   const sb=$("#pbSend"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
   const W=F.hasLines?crWarn():[]; // concept QOM-2561: warnings ("to check") never block sending; always empty with the toggle off
   const chk=W.length?`<span aria-hidden="true"> · </span><button type="button" class="pb-chk" id="pbChk" aria-controls="sendPanel">${INFO_ICON}${W.length} to check</button>`:"";
-  const h=F.help!=null?esc(F.help)+chk:`<button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="${SEND.open}">${SI.block}${plural(F.issues.length,"thing")} to fix${chk?"":" before sending"}</button>${chk}`;
+  let h=F.help!=null?esc(F.help)+chk:`<button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="${SEND.open}">${SI.block}${plural(F.issues.length,"thing")} to fix${chk?"":" before sending"}</button>${chk}`;
   if(h!==helpHtml){ $("#pbHelp").innerHTML=h; helpHtml=h; } else $("#pbFix")?.setAttribute("aria-expanded",String(SEND.open)); // rewritten only when it changes, so focus isn't lost
   // panel: things to fix first (only once the quote has lines), then the rest of the checklist, then the breakdown
   const st=F.issues.length&&F.hasLines?[`${plural(F.issues.length,"thing")} to fix`,"block"]:F.run?["Calculating freight in M3","prog"]:F.canSend?["Ready to send","done"]:["Nothing to fix","muted"];
@@ -2394,12 +2925,16 @@ function renderSend(){
   $("#spList").innerHTML=items.filter(x=>x.st!=="block").map(li).join("");
   $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open)); placeBar();
   // auto-open: B reopens on a new blocker once it has opened by itself; C opens on every new blocker
+  renderTBox(F,W,fr,tx,total);
   const keys=blockerKeys(), prev=SEND.seen; SEND.seen=new Set(keys);
+  if(S.lite) return; // descoped: no auto-expand and no panel
   if(prev && F.hasLines && $("#pbar").classList.contains("mini") && keys.some(k=>!prev.has(k))) setMini(false); // a new problem: show the full bar
   if(prev && !SEND.open && F.hasLines && keys.some(k=>!prev.has(k)) && (SEND.mode==="new-blocker"||(SEND.mode==="first-forward"&&SEND.forwarded))) openSend(true,"issues");
 }
 // to: "issues" or "breakdown" (the section it opens at); from: the control focus goes back to when it closes
 function openSend(auto,to,from){
+  if(S.lite){ TB.fix=true; if(to==="breakdown") TB.bd=true; renderSend(); // descoped: no panel; the totals box opens its list (or breakdown) instead
+    const b=$(to==="breakdown"?"#tbBdBtn":"#tBox [data-tb=fix]"); if(b&&b.offsetParent){ b.scrollIntoView({block:"nearest"}); if(!auto) b.focus({preventScroll:true}); } return; }
   SEND.open=true; SEND.from=from||(to==="breakdown"?"#bdBtn":"#pbFix"); renderSend();
   const h=$(to==="breakdown"?"#spBdTitle":to==="check"&&!$("#spCheckSec").hidden?"#spCheckTitle":to==="issues"&&!$("#spIssuesSec").hidden?"#spIssuesTitle":"#spTitle");
   if(auto){ const n=footState().issues.length; $("#sendLive").textContent=`Before you send opened${n?`: ${plural(n,"thing")} to fix`:""}.`; h.scrollIntoView({block:"start"}); return; }
@@ -2408,7 +2943,7 @@ function openSend(auto,to,from){
 function closeSend(){ const inside=$("#sendPanel").contains(document.activeElement); SEND.open=false; renderSend(); if(inside){ const b=SEND.from&&$(SEND.from); (b&&!b.hidden&&b.offsetParent?b:$("#pbSend")).focus(); } }
 // B: the first time the SC heads for the end (PDF preview, or scrolling to the end of the lines) while something blocks sending
 function sendForward(){ const F=footState(); if(SEND.mode!=="first-forward"||SEND.forwarded||SEND.open||!F.hasLines||!F.others.length) return; SEND.forwarded=true; openSend(true,"issues"); }
-function resetSend(){ clearTimeout(SEND.timer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null}); }
+function resetSend(){ fcReset(); clearTimeout(SEND.timer); clearTimeout(SEND.saveTimer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null,stale:false,saving:false,failed:null}); }
 // Calculate freight and Send to client: when they're grey, a click explains instead of doing nothing
 function freightAction(){ const F=footState(); if(F.run) return;
   if(F.calcOff){ if(F.others.length) openSend(false,"issues","#pbFreightBtn"); else showToast(F.help||"Calculate freight isn't available yet."); return; }
@@ -2419,7 +2954,7 @@ function sendClient(){ const F=footState();
   showToast(F.help||"Not ready to send yet."); }
 // Calculate freight saves first if there are unsaved changes, then M3 runs freight, then tax
 function runFreight(){
-  S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
+  S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; SEND.stale=false; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
   clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent="Freight and tax calculated. Ready to send."; },6000);
 }
 function sendAction(a){
@@ -2456,11 +2991,73 @@ function simSave(kind){
   if(!x){ showToast(quoteLines().length?"Every line already has that problem.":"Add a line to the quote first."); return; }
   if(kind==="spec") x.l.spec=false; else x.l.cp=true;
   S.dirty=false; S.undo=null; markSaved(); renderQuote();
-  const p=CAT.find(c=>c.sku===x.l.sku); showToast(`Saved. M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`);
+  const p=CAT.find(c=>c.sku===x.l.sku);
+  showToast(`Saved. M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`);
 }
-// footer states in the Scenario menu (Footer 1 to 5). Every scenario change first clears the mock Blocked line and status.
+// ---------- descoped (QOM-3280 lower-effort, Nov 13): a totals box next to the product list instead of a bar on every tab ----------
+// What engineering can build in about 8 to 11 dev-days of frontend, per Pauline's spike: save status (Unsaved / Saving / Saved / Failed: see message),
+// "N lines changed" (a count of individual edits isn't available), freight status (Not calculated / Calculating / Out of date), the blockers list
+// with links (nearly every send rule is already checked in the browser), warnings that don't block, the estimated total and breakdown, and Close for Discard when nothing changed.
+const TB={fix:false,bd:false}; // the list starts folded so the box doesn't cover the lines; Send or Calculate freight while blocked opens it
+// each line knows whether it changed; renaming a room marks all its lines changed
+function linesChanged(){ if(!S.dirty) return 0;
+  const m=q=>{ const o=new Map(); (q?.rooms||[]).forEach(r=>{ const id=roomId(r); r.lines.forEach(l=>o.set(id+"|"+l.sku,r.name+"|"+JSON.stringify(l))); }); return o; };
+  const a=m(S.base), b=m(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return n; }
+const TB_CHEV=`<svg class="chev" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>`;
+const tbPut=(sel,h)=>{ const e=$(sel); if(e._h!==h){ e.innerHTML=h; e._h=h; } }; // rewritten only when it changes, so focus isn't lost
+function renderTBox(F,W,fr,tx,total){
+  $("#tBox").hidden=!S.lite||!F.hasLines&&!S.quote.rooms.length; $("#ptActs").hidden=!S.lite; if(!S.lite) return;
+  const n=linesChanged(), dirtyish=F.dirty||!!SEND.failed;
+  const st=SEND.saving?["prog",`${SI.prog}Saving…`]:SEND.failed?["fail",`${SI.block}Save failed: <button type="button" class="tolink" data-tb="msg">see message</button>`]:F.dirty?["unsaved",`${SI.dot}${n?plural(n,"line")+" changed":"Unsaved changes"}`]:["ok",`${SI.done}Saved ${SEND.savedAt}`];
+  const close=dirtyish?"Discard changes":"Close";
+  tbPut("#tbSave",`<span class="tb-st ${st[0]}">${st[1]}</span><button type="button" class="tolink" data-tb="discard">${close}</button>`);
+  tbPut("#ptSt",`<span class="tb-st ${st[0]}">${st[1]}</span>`); $("#ptDisc").textContent=close;
+  const ps=$("#ptSave"); ps.disabled=!F.dirty||F.bad||SEND.saving; ps.classList.toggle("primary",F.dirty&&!F.bad);
+  // total and breakdown
+  $("#tbLbl").textContent=F.done?"Total":"Estimated total"; $("#tbAmt").textContent=money(total);
+  $("#tbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
+  $("#tbBdWrap").hidden=!F.hasLines; $("#tbBd").hidden=!TB.bd||!F.hasLines; $("#tbBdBtn").setAttribute("aria-expanded",String(TB.bd)); $("#tbBdBtn").textContent=TB.bd?"Hide breakdown":"Breakdown";
+  // freight: no percentage, since M3 doesn't report progress
+  const fs=F.run?["prog",`${SI.prog}<span><b>Calculating freight and tax in M3.</b> Usually about 2 minutes. You can keep working.</span>`]
+    :F.done?["ok",`${SI.done}<span><b>Freight and tax calculated</b> ${SEND.freightAt}</span>`]
+    :SEND.stale?["warn",`${SI.block}<span><b>Freight out of date.</b> Your changes cleared it. Save and calculate again before sending.</span>`]
+    :["todo",`${SI.todo}<span><b>Freight not calculated.</b> ${!SEND.addr?"Add the delivery address first.":!F.hasLines?"Add products first.":"M3 calculates freight, then tax."}</span>`];
+  $("#tbFr").className="tb-fr "+fs[0]; tbPut("#tbFr",fs[1]);
+  // the blockers list, plus warnings that don't block sending
+  const iss=F.hasLines?F.issues.filter(x=>x.id!=="freight"):[];
+  const li=x=>`<li class="spi ${x.st}"><span class="spi-ic">${SI[x.st]}</span><div class="spi-tx"><b>${esc(x.t)}<span class="sr"> · ${STATE_SR[x.st]}</span></b><span>${esc(x.d)}</span></div>${x.a?`<button type="button" class="splink" data-sact="${x.a[0]}">${x.a[1]}</button>`:"<span></span>"}</li>`;
+  const wl=W.map(({r,l})=>{ const p=CAT.find(x=>x.sku===l.sku); return `<li class="spi warn"><span class="spi-ic">${INFO_ICON}</span><div class="spi-tx"><b>Rough-in not added: ${esc(p.name)} · ${esc(r.name)}<span class="sr"> · To check</span></b><span>Doesn't block sending</span></div><button type="button" class="splink" data-cropen="${esc(r.name+"|"+l.sku)}">Add rough-in</button></li>`; });
+  const lbl=[iss.length?`${plural(iss.length,"thing")} to fix before sending`:"",wl.length?`${wl.length} to check`:""].filter(Boolean).join(" · ");
+  tbPut("#tbFix",!F.hasLines?"":(iss.length||wl.length)
+    ?`<button type="button" class="tb-fixbtn${iss.length?" block":""}" data-tb="fix" aria-expanded="${TB.fix}" aria-controls="tbList">${iss.length?SI.block:INFO_ICON}${lbl}${TB_CHEV}</button>${TB.fix?`<ul class="sp-list tb-list" id="tbList">${iss.map(li).join("")}${wl.join("")}</ul>`:""}`
+    :`<p class="tb-ok">${SI.done}${F.canSend?"Ready to send":"Nothing to fix"}</p>`);
+  // the same three actions as the full bar, styled the same way
+  const sv=$("#tbSaveBtn"); sv.disabled=!F.dirty||F.bad||SEND.saving; sv.classList.toggle("primary",F.dirty&&!F.bad&&!SEND.saving);
+  const fb=$("#tbFrBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
+  tbPut("#tbFrBtn",F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight");
+  const sb=$("#tbSendBtn"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
+}
+function setLite(on){ S.lite=on; $("#barMode").value=on?"lite":"full"; document.body.classList.toggle("lite",on); $("#pbar").classList.toggle("lite",on);
+  if(on){ setMini(false); SEND.open=false; $("#tbBd").appendChild($("#totals")); } else document.querySelector(".sp-bd").appendChild($("#totals")); // one breakdown, moved to wherever it shows
+  helpHtml=""; placeBar(); }
+// Save in the descoped box: "Saving…" for a moment, then saved (in QOM it's the time M3 confirms the save)
+function liteSave(){ const F=footState(); if(!F.dirty||F.bad||SEND.saving) return; SEND.saving=true; renderSend(); $("#sendLive").textContent="Saving.";
+  clearTimeout(SEND.saveTimer); SEND.saveTimer=setTimeout(()=>{ SEND.saving=false; S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); renderQuote(); $("#sendLive").textContent=`Saved ${SEND.savedAt}.`; },900); }
+const TB_FAIL="Line 1 (HNBAR-N) could not be updated: M3 rejected the change. Check the line and try again. (mock M3 message)";
+function tbAction(a){
+  if(a==="fix"){ TB.fix=!TB.fix; renderSend(); $("#tBox [data-tb=fix]")?.focus(); return; }
+  if(a==="bd"){ TB.bd=!TB.bd; renderSend(); return; }
+  if(a==="save"){ liteSave(); return; }
+  if(a==="freight"){ freightAction(); return; }
+  if(a==="send"){ sendClient(); return; }
+  if(a==="msg"){ showToast(SEND.failed||TB_FAIL); return; }
+  if(a==="discard"){ if(S.dirty) openDiscardDialog(); else showToast("Close leaves the quote and goes back to Quotes (prototype)."); return; }
+}
+// footer states in the Scenario menu (Footer 1 to 5, and Descoped 1 to 7). Every scenario change first clears the mock Blocked line and status.
 const FOOT_SCEN=["s-unsaved","s-saved","s-calc","s-ready","s-blocked"];
 function applySendScenario(v){
+  const dv=v, lite=v.startsWith("d-"); if(lite||FOOT_SCEN.includes(v)) setLite(lite); // Descoped scenarios switch the demo bar's Bottom bar to Descoped; Footer 1 to 5 switch it back to Full
+  if(lite){ v={"d-stale":"s-ready","d-failed":"s-unsaved"}[v]||"s-"+v.slice(2); TB.fix=dv==="d-blocked"; TB.bd=false; }
   const tb=CAT.find(p=>p.sku==="HNTWL-DB"); if(tb._w===undefined) tb._w=tb.whst; tb.whst=v==="s-blocked"?80:tb._w; // mock: discontinued only in Blocked
   S.quote.rooms.forEach(r=>{ r.lines=r.lines.filter(l=>!l.mock); });
   if(v==="qom2926"){ // QOM-2926 examples in Bar: in stock (HNBAR-N), sourcing warehouse USR, and "<qty> from <date>" · after RDD
@@ -2483,6 +3080,9 @@ function applySendScenario(v){
   }
   if(v==="s-calc") SEND.freight="run";
   if(v==="s-ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
+  if(dv==="d-stale"){ const x=quoteLines().find(x=>x.l.sku==="HNBAR-N")||quoteLines()[0]; if(x){ x.l.qty+=CAT.find(p=>p.sku===x.l.sku).mult; S.dirty=true; } } // freight was done; one edit clears it
+  if(dv==="d-blocked"){ SEND.addr=false; const ls=quoteLines(); if(ls[1]) ls[1].l.spec=false; if(ls[2]) ls[2].l.cp=true; } // several rules at once: address, autospec, custom pricing and the discontinued line
+  if(dv==="d-failed"){ SEND.failed=TB_FAIL; setTimeout(()=>showToast(TB_FAIL),60); } // M3's line errors arrive as toasts; the status points to it
   RISK=computeRisk();
 }
 // a click anywhere outside closes it; the footer's own controls and the line notes it points to don't count
@@ -2510,6 +3110,7 @@ function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b)
   b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight"); b.classList.add("stack"); }
 // collapse: the bar opens full size on every load; it opens again by itself when a new problem needs fixing
 function setMini(on){ const b=$("#pbar"), t=$("#pbTog"); b.classList.toggle("mini",on); t.setAttribute("aria-expanded",String(!on)); t.setAttribute("aria-label",on?"Expand the bar":"Collapse the bar"); t.title=on?"Expand":"Collapse"; placeBar(); }
+$("#barMode").addEventListener("change",e=>{ setLite(e.target.value==="lite"); renderQuote(); });
 $("#pbTog").addEventListener("click",()=>setMini(!$("#pbar").classList.contains("mini")));
 // collapsed, the whole bar expands on a click, like the folded side nav; its own buttons and links (the next step, "N to fix") still do their job. The tab stays the labelled, keyboard control.
 $("#pbar").addEventListener("click",e=>{ if($("#pbar").classList.contains("mini")&&!e.target.closest("button,a,input,select,[role='button']")) setMini(false); });
@@ -2535,8 +3136,9 @@ const LONG_ROOMS=["Primary Bath","Guest Bath","Powder Room","Kitchen","Bar","Lau
 const LONG_QUOTE=()=>{ const pool=CAT.filter(p=>!p.alias&&!p.part&&!p.cmm&&!isDisc(p)&&p.st!==10&&p.price!=null);
   return {rooms:LONG_ROOMS.map((name,i)=>({name,type:name,lines:Array.from({length:10},(_,j)=>{ const p=pool[(i*10+j)%pool.length]; return {sku:p.sku,qty:p.mult||1,unit:p.price,rdd:"12/19/2026"}; })}))}; };
 function setView(v){
-  S.view=v; S.blendErr=null; LIKE_UNDO=null; hideCToast(); S.undo=null; S.saved=null; resetSend(); S.scenario="normal"; $("#scenario").value="normal";
-  S.quote= v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE);
+  const fin=S.scenario==="finish"; // the Change finish demo quote stays when the channel switches, so both can be shown (Nov 16)
+  S.view=v; S.blendErr=null; LIKE_UNDO=null; hideCToast(); S.undo=null; if(!fin) S.saved=null; resetSend(); S.scenario=fin?"finish":"normal"; $("#scenario").value=S.scenario;
+  S.quote= fin ? FIN_QUOTE() : v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE); if(fin){ S.allOpen=true; S.folded=[]; S.payLinkLive=true; }
   S.room=S.quote.rooms[0].name; S.dirty=false; markSaved();
   QI.subtype= v==="commercial" ? "Commercial Order Domestic" : "Residential Order Domestic";
   renderRoom(); renderRoomMenu(); renderQuote(); renderQView(); search();
@@ -2648,12 +3250,15 @@ document.addEventListener("click",e=>{
   if(t.dataset.ract){ const name=t.dataset.rname; S.rmenu=null;
     if(t.dataset.ract==="dup"){ duplicateRoom(name); return; }
     if(t.dataset.ract==="del"){ removeRoom(name); return; }
+    if(t.dataset.ract==="fin"){ renderQuote(); fcOpen({kind:"room",room:name},document.querySelector(`[data-rmore="${CSS.escape(name)}"]`)); return; }
     renderQuote(); startRename(name); return; } // "Rename room": the same form as Add room, filled in
   if(t.dataset.more){ S.rmenu=null; S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="up"||t.dataset.act==="down"){ if(t.getAttribute("aria-disabled")==="true"){ document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; } moveLine(room,sku,t.dataset.act==="up"?-1:1); return; }
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
+    if(t.dataset.act==="finish"){ fcOpen({kind:"line",room,sku},document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)); return; } // Change finish from one line
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
+  if(t.dataset.tb){ tbAction(t.dataset.tb); return; } // descoped totals box and per-tab Save
   if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false,"issues"); return; }
   if(t.id==="pbChk"){ openSend(false,"check","#pbChk"); return; }
   // concept QOM-2561: the required-parts panel
@@ -2746,6 +3351,7 @@ document.addEventListener("change",e=>{
     S.scenario=t.value; resetSend();
     if(t.value==="noroom") S.room="";
     if(t.value==="fresh"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote.rooms=[]; S.room=""; }
+    if(t.value==="finish"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote=FIN_QUOTE(); S.room="Primary Bath"; S.allOpen=true; S.folded=[]; S.payLinkLive=true; } // Change finish demo: every case in the brief, with a live payment link
     if(t.value==="long"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote=LONG_QUOTE(); S.room="Bar"; S.allOpen=true; S.folded=[]; } // for testing "Find in this quote" at the size SCs see
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
@@ -2876,7 +3482,7 @@ document.addEventListener("keydown",e=>{ if($("#zoomView").hidden) return; if(e.
 // the line menu closes on an outside click or Escape, and arrow keys move through it
 document.addEventListener("click",e=>{ if(S.lmenu && !e.target.closest(".lmenu,[data-more]")){ S.lmenu=null; renderQuote(); } if(S.rmenu && !e.target.closest(".rmenu,[data-rmore]")){ S.rmenu=null; renderQuote(); } },true);
 document.addEventListener("keydown",e=>{
-  if(S.confirm){ if(e.key==="Escape"){ e.preventDefault(); closeRemoveDialog(); } else if(e.key==="Tab"){ const b=[$("#rmCancel"),$("#rmYes")]; const i=b.indexOf(document.activeElement); e.preventDefault(); b[(i+(e.shiftKey?b.length-1:1))%b.length].focus(); } return; }
+  if(S.confirm){ if(e.key==="Escape"){ e.preventDefault(); closeRemoveDialog(); } else if(e.key==="Tab"){ const b=[...$("#rmDialog").querySelectorAll("button:not([disabled]),input:not([disabled]),select")]; const i=b.indexOf(document.activeElement); e.preventDefault(); b[(i+(e.shiftKey?b.length-1:1))%b.length].focus(); } return; }
   if(!S.lmenu&&!S.rmenu) return;
   if(e.key==="Escape"&&S.rmenu){ const k=S.rmenu; S.rmenu=null; renderQuote(); document.querySelector(`[data-rmore="${CSS.escape(k)}"]`)?.focus(); return; }
   if(e.key==="Escape"){ const k=S.lmenu; S.lmenu=null; renderQuote(); document.querySelector(`[data-more="${CSS.escape(k)}"]`)?.focus(); return; }
@@ -3131,6 +3737,26 @@ applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#
 $("#conceptRP").checked=CR.on; // concept QOM-2561 starts from the address: #concept-required-parts turns it on
 addEventListener("hashchange",()=>{ const on=/(^#|&)concept-required-parts(&|$)/.test(location.hash); if(on===CR.on) return; CR.on=on; CR.open=null; $("#conceptRP").checked=on; renderQuote(); renderResults(); });
 renderRoomMenu(); renderAll();
+// ---------- quote actions menu (••• at the right end of the page tabs; items from QOM staging, Nov 16) ----------
+// right edges aligned with the ••• button, just under it; fixed, so the tab row's horizontal scroll can't clip it
+const QM_ITEMS=()=>[...document.querySelectorAll("#qMoreMenu .qm-item")];
+function placeQMore(){ const m=$("#qMoreMenu"); if(m.hidden) return; const b=$("#qMoreBtn").getBoundingClientRect();
+  m.style.top=Math.round(b.bottom+6)+"px"; m.style.right=Math.max(8,Math.round(document.documentElement.clientWidth-b.right))+"px"; }
+function qMore(open,focusFirst){ const m=$("#qMoreMenu"), b=$("#qMoreBtn"); m.hidden=!open; b.setAttribute("aria-expanded",String(open));
+  if(open){ placeQMore(); if(focusFirst) QM_ITEMS()[0].focus(); } }
+$("#qMoreBtn").addEventListener("click",e=>{ e.stopPropagation(); const open=$("#qMoreMenu").hidden; qMore(open,open&&e.detail===0); }); // keyboard opens with focus on the first item
+$("#qMoreMenu").addEventListener("click",e=>{ const it=e.target.closest(".qm-item"); if(!it) return; e.stopPropagation();
+  if(it.getAttribute("aria-disabled")==="true") return; // greyed, as in staging
+  const k=it.dataset.qmore, label=it.textContent.trim(); qMore(false); $("#qMoreBtn").focus();
+  if(k==="finish"){ fcOpen({kind:"quote"},$("#qMoreBtn")); return; }
+  if(k==="saveexit"){ if(S.dirty){ S.dirty=false; S.undo=null; markSaved(); renderQuote(); } showToast("Saved. Save & Exit would now go back to Quotes (prototype)."); return; }
+  showToast(label+" isn't built in this prototype yet."); });
+$("#qMoreMenu").addEventListener("keydown",e=>{ const its=QM_ITEMS(), i=its.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){ e.preventDefault(); its[(i+(e.key==="ArrowDown"?1:its.length-1))%its.length].focus(); }
+  else if(e.key==="Home"||e.key==="End"){ e.preventDefault(); its[e.key==="Home"?0:its.length-1].focus(); }
+  else if(e.key==="Escape"||e.key==="Tab"){ if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); $("#qMoreBtn").focus(); } qMore(false); } });
+document.addEventListener("click",e=>{ if(!$("#qMoreMenu").hidden&&!e.target.closest("#qMoreMenu,#qMoreBtn")) qMore(false); });
+addEventListener("resize",placeQMore); addEventListener("scroll",e=>{ if(!$("#qMoreMenu").hidden&&!e.target.closest?.("#qMoreMenu")) placeQMore(); },true);
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
 // the side nav. Wide: the edge tab folds the full rail to the slim one and back (remembered). Tablet: the tab slides the full rail out over the page.
 // Phone: the hamburger opens the drawer. A click on an empty part of the slim rail unfolds it; Escape, a click outside or picking a link closes the slid-out rail or the drawer.
@@ -3154,6 +3780,67 @@ $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototy
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&r.classList.contains("open")){ slide(false); b.focus(); } });
   r.addEventListener("click",e=>{ const a=e.target.closest("a"); if(!a) return; e.preventDefault(); if(a.closest(".envbadge")) showToast("Opens production QOM (not built in the prototype)."); }); // mock links
 })();
+// Quotes list (Nov 16, from the production Quotes screen). Mock rows only: names, customers and IDs are made up.
+// Only 6000024967 (the prototype's quote) opens; the others say so. Search, Me / All / Team, Resi. / Com., sort, page size and paging all work on the mock rows.
+const QL=(()=>{ const ME="Alex Rivera", TEAM=[ME,"Jordan Lee","Casey Morgan"], SCS=[ME,"Jordan Lee","Casey Morgan","Riley Chen","Taylor Brooks","Morgan Patel","Jamie Ortiz","Sam Okafor"];
+  const CUST=["HARBOR & VINE INTERIORS","NORTHFIELD BUILDERS","MAPLE ROW DESIGN","ORCHARD LANE HOMES","BLUE HERON STUDIO","STONEGATE RENOVATIONS","ASHFORD & KEMP ARCHITECTS","CEDAR POINT HOSPITALITY","LINDEN HOUSE DESIGN","GREY OWL CONSTRUCTION","WILLOW BROOK INTERIORS","FENWICK & STRAND","BAYSIDE KITCHEN & BATH","HOLLIS PARK DEVELOPMENT"];
+  const DESC=["Primary bath remodel","Powder room","Guest suite and hall bath","Kitchen faucets","Lobby restrooms","Spa level fixtures","Pool house","20261102","20261028","Model unit A","Penthouse baths","Townhouse 4B"];
+  const rows=[{m3:"",id:"6000024967",status:"Not yet converted",project:"Henry bar and club house",cust:"QUALITY FINISHES",payer:"QUALITY FINISHES",desc:"Henry bar and club house",sc:ME,type:"Residential",exp:"04/27/2028",built:true}];
+  let seed=7; const rnd=n=>{ seed=(seed*9301+49297)%233280; return Math.floor(seed/233280*n); };
+  for(let i=1;i<=96;i++){ const c=CUST[rnd(CUST.length)], conv=rnd(6)===0, d=DESC[rnd(DESC.length)], mm=1+rnd(12), dd=1+rnd(28);
+    rows.push({m3:conv?"41"+String(10000+rnd(89999)):"",id:String(6000024967-i*3-rnd(3)),status:conv?"Converted":"Not yet converted",project:conv?d:"-",cust:c,payer:rnd(5)===0?CUST[rnd(CUST.length)]:c,desc:d,
+      sc:SCS[rnd(SCS.length)],type:rnd(4)===0?"Commercial":"Residential",exp:String(mm).padStart(2,"0")+"/"+String(dd).padStart(2,"0")+"/"+(2027+rnd(2))}); }
+  const COLS=[["m3","Proj. M3 ID"],["id","Quote ID"],["status","Status"],["project","Project"],["cust","Customer"],["payer","Payer"],["desc","Description"],["sc","Sales Consultant"],["type","Type"],["exp","Expiration Date"]];
+  return {ME,TEAM,rows,COLS,who:"all",type:"",q:"",size:11,page:1,sort:null,dir:1};
+})();
+const QL_CP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1"/><path d="M16 8V4.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5V17a.5.5 0 0 0 .5.5H8"/></svg>';
+const QL_CARET='<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-7 9z" fill="currentColor"/></svg>';
+function qlRows(){ const words=QL.q.toLowerCase().split(/\s+/).filter(Boolean);
+  let r=QL.rows.filter(x=>(QL.who==="all"||(QL.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))&&(!QL.type||x.type===QL.type)
+    &&words.every(w=>[x.id,x.project,x.desc,x.cust,x.payer,x.m3].some(v=>v.toLowerCase().includes(w))));
+  if(QL.sort){ const k=QL.sort, key=v=>k==="exp"?v.slice(6)+v.slice(0,2)+v.slice(3,5):v.toLowerCase(); r=[...r].sort((a,b)=>key(a[k])<key(b[k])?-QL.dir:key(a[k])>key(b[k])?QL.dir:0); }
+  return r; }
+function renderQL(){ const all=qlRows(), pages=Math.max(1,Math.ceil(all.length/QL.size)); QL.page=Math.min(QL.page,pages);
+  const rows=all.slice((QL.page-1)*QL.size,QL.page*QL.size);
+  $("#qlTotal").textContent=all.length.toLocaleString("en-US"); $("#qlSize").textContent=QL.size;
+  document.querySelectorAll("[data-qlsize]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.qlsize===QL.size)));
+  document.querySelectorAll("[data-sepfor]").forEach(s=>s.hidden=+s.dataset.sepfor===QL.size); // no double bar where the current size's button is hidden
+  document.querySelectorAll("[data-qlwho]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qlwho===QL.who)));
+  document.querySelectorAll("[data-qltype]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qltype===QL.type)));
+  $("#qlHead").innerHTML=QL.COLS.map(([k,l])=>`<th scope="col"${QL.sort===k?` aria-sort="${QL.dir>0?"ascending":"descending"}"`:""}><button type="button" data-qlsort="${k}">${esc(l)}${QL_CARET}</button></th>`).join("")+`<th scope="col" class="plain">Actions</th>`;
+  const cp=(v,cls="")=>`<span class="qlcopy${cls}"><button type="button" class="cp" data-qlcopy="${esc(v)}" aria-label="Copy ${esc(v)}" title="Copy">${QL_CP}</button><span>${esc(v)}</span></span>`;
+  $("#qlBody").innerHTML=rows.length?rows.map(x=>`<tr>
+    <td>${esc(x.m3)}</td>
+    <td><div class="qlid"><button type="button" class="qlcopy cp" data-qlcopy="${x.id}" aria-label="Copy ${x.id}" title="Copy">${QL_CP}</button><a href="#" class="${x.built?"built":""}" data-qlopen="${x.id}">${x.id}</a></div></td>
+    <td>${esc(x.status)}</td><td>${esc(x.project)}</td>
+    <td class="up">${cp(x.cust)}</td><td class="up">${cp(x.payer)}</td><td class="up">${cp(x.desc)}</td>
+    <td>${esc(x.sc)}</td><td>${esc(x.type)}<br>Order Domestic</td><td>${esc(x.exp)}</td>
+    <td><button type="button" class="qlact" data-qlact="${x.id}" aria-label="Actions for quote ${x.id}">…</button></td></tr>`).join("")
+    :`<tr><td colspan="11" class="qlempty">No quotes match. Try another search, or pick All.</td></tr>`;
+  // pages: 1 2 3 4 5 … last, sliding with the current page
+  const nums=[]; if(pages<=7){ for(let i=1;i<=pages;i++) nums.push(i); } else { let a=Math.max(1,Math.min(QL.page-2,pages-5)), b=a+4; for(let i=a;i<=b;i++) nums.push(i); if(a>1) nums.unshift(1,a>2?"…":null); if(b<pages) nums.push(b<pages-1?"…":null,pages); }
+  const arrow=(d,dis)=>`<button type="button" data-qlpage="${QL.page+d}" ${dis?"disabled":""} aria-label="${d<0?"Previous":"Next"} page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d<0?"m15 5-7 7 7 7":"m9 5 7 7-7 7"}"/></svg></button>`;
+  $("#qlPager").innerHTML=arrow(-1,QL.page===1)+nums.filter(n=>n!==null).map(n=>n==="…"?`<span class="gap" aria-hidden="true">…</span>`:`<button type="button" data-qlpage="${n}"${n===QL.page?' aria-current="page"':""} aria-label="Page ${n}">${n}</button>`).join("")+arrow(1,QL.page===pages);
+  $("#qlLive").textContent=all.length+" quotes"+(pages>1?", page "+QL.page+" of "+pages:""); }
+// the page: "quotes" for the list, "quote" for the quote you're editing. The side nav's Quotes link stays current on both (the quote sits under Quotes).
+function setPage(p){ const list=p==="quotes"; if(list===document.body.classList.contains("page-quotes")){ if(list) $("#qlTitle").focus(); return; }
+  if(list){ if(SEND.open) closeSend(); if(S.expanded) setExpanded(false); }
+  document.body.classList.toggle("page-quotes",list); $("#quotesPage").hidden=!list; $("#qlCrumb").hidden=!list; $("#qCrumb").hidden=list;
+  document.title=list?"Quotes · QOM product search prototype":"QOM product search prototype";
+  if(list){ renderQL(); $(".qlwrap").scrollLeft=0; } scrollTo(0,0); dispatchEvent(new Event("resize")); if(!list){ placeBar(); fitPanes(); }
+  $(list?"#qlTitle":"#quoteTitle").focus({preventScroll:true}); }
+document.addEventListener("click",e=>{ const a=e.target.closest("[data-nav='quotes']"); if(!a) return; e.preventDefault(); setPage("quotes"); });
+let qlTimer=null; $("#qlSearch").addEventListener("input",e=>{ clearTimeout(qlTimer); qlTimer=setTimeout(()=>{ QL.q=e.target.value.trim(); QL.page=1; renderQL(); },200); });
+$("#quotesPage").addEventListener("click",e=>{ const b=e.target.closest("button,a"); if(!b) return; const d=b.dataset;
+  if(d.qlwho){ QL.who=d.qlwho; QL.page=1; renderQL(); return; }
+  if(d.qltype){ QL.type=QL.type===d.qltype?"":d.qltype; QL.page=1; renderQL(); return; }
+  if(d.qlsize){ QL.size=+d.qlsize; QL.page=1; renderQL(); return; }
+  if(d.qlsort){ if(QL.sort===d.qlsort) QL.dir=-QL.dir; else { QL.sort=d.qlsort; QL.dir=1; } renderQL(); $(`[data-qlsort="${d.qlsort}"]`).focus(); return; }
+  if(d.qlpage){ QL.page=+d.qlpage; renderQL(); $("#qlPager [aria-current]")?.focus(); $("#qlTitle").scrollIntoView({block:"start"}); return; }
+  if(d.qlcopy){ navigator.clipboard?.writeText(d.qlcopy).catch(()=>{}); showToast("Copied "+d.qlcopy,"ok"); return; }
+  if(d.qlopen){ e.preventDefault(); if(d.qlopen==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); return; }
+  if(d.qlact){ showToast("The quote's actions menu opens here (not built in the prototype)."); return; }
+  if(b.id==="qlNew") showToast("Creates a new quote (not built in the prototype)."); });
 // panes fill the space below the page header; re-measure when anything above them changes height
 function fitPanes(){ const w=$("#work"); document.documentElement.style.setProperty("--work-top",Math.round(w.getBoundingClientRect().top+scrollY)+"px"); }
 new ResizeObserver(fitPanes).observe(document.body);
