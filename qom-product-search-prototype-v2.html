@@ -3915,7 +3915,10 @@ $("#qMoreMenu").addEventListener("keydown",e=>{ const its=QM_ITEMS(), i=its.inde
   else if(e.key==="Escape"||e.key==="Tab"){ if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); $("#qMoreBtn").focus(); } qMore(false); } });
 document.addEventListener("click",e=>{ if(!$("#qMoreMenu").hidden&&!e.target.closest("#qMoreMenu,#qMoreBtn")) qMore(false); });
 addEventListener("resize",placeQMore); addEventListener("scroll",e=>{ if(!$("#qMoreMenu").hidden&&!e.target.closest?.("#qMoreMenu")) placeQMore(); },true);
-$("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines
+// a scenario can be linked to with ?scenario=<value> (Nov 16), e.g. ?scenario=finish; picking one in the demo bar updates the address so it can be shared
+{ const want=new URLSearchParams(location.search).get("scenario"); if(want&&$(`#scenario option[value="${CSS.escape(want)}"]`)) $("#scenario").value=want; }
+$("#scenario").addEventListener("change",()=>{ try{ const u=new URL(location.href); u.searchParams.set("scenario",$("#scenario").value); history.replaceState(null,"",u); }catch(e){} });
+$("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines, unless ?scenario= names another
 // the side nav. Wide: the edge tab folds the full rail to the slim one and back (remembered). Tablet: the tab slides the full rail out over the page.
 // Phone: the hamburger opens the drawer. A click on an empty part of the slim rail unfolds it; Escape, a click outside or picking a link closes the slid-out rail or the drawer.
 (function(){ const r=document.querySelector(".rail"), b=$("#railBtn"), tips=r.querySelectorAll("a.rlink,.railout"); let last=NAV.mode();
