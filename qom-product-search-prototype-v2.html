@@ -2863,14 +2863,14 @@ const riskBanner=(res,p)=>{ if(!res||res.level==="ok") return "";
   return `<div class="rb ${cls}">${res.level==="unknown"?RI.unk:RI.bad}<span>${msg}</span></div>`; };
 // One alert per line (Sam, Nov 16): the stock or kit problem and, with Show details off, a confirmed date later than requested share one box.
 // The box takes the colour of its most serious problem (red blocks sending, amber is a risk); with two or more problems each gets its own row
-// and icon in its own colour, so a risk never reads as a blocker. With Show details on, the late date stays by the CDD field instead.
+// and icon; the late date takes the box's colour (red with a blocker; Sam, Nov 16), other rows keep their own. With Show details on, the late date stays by the CDD field instead.
 const lineAlert=(r,l,p)=>{ const res=RISK&&RISK.by[r.name+"|"+l.sku], items=[];
   if(res&&res.level!=="ok"){ const b=riskBanner(res,p); items.push({lvl:res.level, html:b.replace(/^<div class="rb [a-z]+">/,"").replace(/<\/div>$/,"")}); }
-  if(!S.ship&&(S.view==="residential"||S.view==="commercial")&&cddLate(l)) items.push({lvl:"risk", html:`${RI.bad}<span title="We can't deliver by the requested date for this quantity."><b>Later than requested.</b> Confirmed for ${esc(fmtDay(l.cdd))}; requested ${esc(fmtDay(l.rdd))}.</span>`});
+  if(!S.ship&&(S.view==="residential"||S.view==="commercial")&&cddLate(l)) items.push({lvl:"risk", date:true, html:`${RI.bad}<span title="We can't deliver by the requested date for this quantity."><b>Later than requested.</b> Confirmed for ${esc(fmtDay(l.cdd))}; requested ${esc(fmtDay(l.rdd))}.</span>`});
   if(!items.length) return "";
   const cls=lv=>lv==="blocking"?"bad":lv==="risk"?"risk":"unk", top=items.reduce((a,x)=>RISK_RANK[x.lvl]>RISK_RANK[a]?x.lvl:a,"unknown");
   if(items.length===1) return `<div class="rb ${cls(top)}">${items[0].html}</div>`;
-  return `<div class="rb multi ${cls(top)}" role="group" aria-label="${items.length} problems on this line">${items.map(x=>`<div class="rbrow ${cls(x.lvl)}">${x.html}</div>`).join("")}</div>`; };
+  return `<div class="rb multi ${cls(top)}" role="group" aria-label="${items.length} problems on this line">${items.map(x=>`<div class="rbrow ${cls(x.date?top:x.lvl)}">${x.html}</div>`).join("")}</div>`; };
 const kitBox=(r,l,p)=>kitClosed(r,l)?"":`<div class="kitbox"><div class="kithead">Included in this kit</div>${p.kit.map(c=>{const cp=CAT.find(x=>x.sku===c.sku); const part=(RISK&&RISK.by[r.name+"|"+l.sku].kit||[]).find(x=>x.cp.sku===cp.sku); return `<div class="kitrow2${part?" "+({blocking:"kbad",risk:"krisk",unknown:"kunk"})[part.level]:""}">${thumbHtml(cp)}<span class="kq">×${c.qty*l.qty}</span><span>${esc(cp.name)} in ${esc(cp.fin)}${part?`<span class="ktag">${riskShort(part)}</span>`:""}<small>${esc(cp.sku)} · ${stockText(cp)}</small></span></div>`;}).join("")}</div>`;
 const UNIT_SHORT={"square feet":"sq ft"};
 const unitLabel=p=>p.uom==="each"?"each":(UNIT_SHORT[p.uom]||p.uom); // plain words on result rows ("each", "sq ft"), not M3's codes (EA, SF) (Nick, Nov 5)
