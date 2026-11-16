@@ -64,6 +64,20 @@ button{cursor:pointer}
 .protoshow{display:none;position:fixed;top:0;right:16px;z-index:150;background:var(--proto);color:var(--proto-ink);border:2px dashed var(--proto-ink);border-top:0;border-radius:0 0 6px 6px;padding:2px 10px 3px;font:inherit;font-size:12px;cursor:pointer}
 html.noproto .proto{display:none}
 html.noproto .protoshow{display:block}
+/* payment link demo controls (Nov 16): a gear tab on the right edge, styled like the demo bar, not QOM; hidden with the demo bar */
+.devgear{position:fixed;right:0;top:45%;z-index:150;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--proto-ink)}
+.devgear-btn{display:grid;place-items:center;width:36px;height:40px;background:var(--proto);color:var(--proto-ink);border:2px dashed var(--proto-ink);border-right:0;border-radius:6px 0 0 6px;cursor:pointer}
+.devgear-btn:focus-visible{outline:2px solid var(--proto-ink);outline-offset:2px}
+.devpanel{position:absolute;right:42px;top:-8px;width:300px;max-width:calc(100vw - 58px);padding:10px 12px 12px;background:var(--proto);border:2px dashed var(--proto-ink);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.devpanel[hidden]{display:none}
+.devpanel-t{margin:0 0 8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.devpanel fieldset{margin:0 0 8px;padding:0;border:0}
+.devpanel legend{padding:0;margin-bottom:4px;font-weight:700}
+.devpanel label{display:flex;align-items:flex-start;gap:6px;padding:2px 0;cursor:pointer}
+.devpanel input{margin:2px 0 0;accent-color:var(--proto-ink)}
+.devpanel-n{margin:4px 0 0;padding:4px 6px;background:#ffe14d}
+.devpanel-n button{display:block;margin-top:4px;background:transparent;border:1px solid var(--proto-ink);border-radius:4px;padding:2px 8px;font:inherit;color:inherit;cursor:pointer}
+html.noproto .devgear{display:none}
 
 /* app chrome */
 .app{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 44px)}
@@ -494,6 +508,8 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-ic{flex:none;width:48px;height:48px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--ink)}
 .fc-head h2{margin:2px 0 3px;font-family:var(--sans);font-size:19px;font-weight:500}
 .fc-head h2:focus{outline:none}
+.fc-chan{margin:0;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)} /* the quote's channel, above the title (Nov 16) */
+.fcb-mg{font-weight:400}
 .fc-sub{margin:0;color:var(--ink-2);font-size:13px}
 /* which room, when opened from a room: a black band like the quote's room bars */
 .fc-band{display:flex;align-items:center;gap:12px;min-height:44px;margin:0 40px 16px;padding:0 16px;background:var(--ink);color:var(--on-ink)}
@@ -508,7 +524,10 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-f select{width:100%;height:48px;padding:0 12px;border:1px solid var(--ink);border-radius:0;background:var(--bg);font:inherit;font-size:15px;color:var(--ink)}
 .fc-help{margin:6px 0 0;font-size:12px;color:var(--ink-3)}
 .fc-help.fc-none2{color:var(--ink-2)}
-.fc-lost{margin:6px 0 0;font-size:12px;font-weight:600;color:var(--block)}
+.lmenu .lm-txt small{display:block;margin-top:1px;font-size:12px;font-weight:400;color:var(--alert)}
+.lmenu button.lm-new[aria-disabled="true"]{color:var(--ink-3);cursor:default}
+.lmenu button.lm-new[aria-disabled="true"]:hover{background:var(--surface)}
+.fc-lost{margin:6px 0 0;font-size:12px;font-weight:600;color:var(--alert)}
 .fc-f select:disabled{border-color:var(--line);background:var(--surface);color:var(--ink-3);cursor:not-allowed}
 .fc-box{flex:1;min-height:0;display:flex;flex-direction:column;border:1px solid var(--line)}
 .fc-lhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
@@ -524,7 +543,15 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-rt b{display:block;font-weight:500;font-size:15px}
 .fc-rt small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
 .fc-rt small b{display:inline;font-size:12px;font-weight:700}
-.fc-row.off{cursor:default} .fc-row.off b,.fc-row.off small{color:var(--ink-3)}
+.fc-row.off{cursor:default}
+.fc-onebox{flex:none} .fc-row1{cursor:default;border-top:0;align-items:center}
+.fc-pic{flex:none;width:72px;height:72px;display:flex;align-items:center;justify-content:center;background:var(--surface);overflow:hidden}
+.fc-pic img{width:100%;height:100%;object-fit:contain;background:var(--bg)}
+.fc-pic:empty::after,.fc-pic.none::after{content:"No image";font-size:11px;color:var(--ink-3)}
+.fc-incl{order:3;flex:none;display:flex;align-items:center;gap:10px;min-height:48px;margin-top:12px;padding:0 16px;border:1px solid var(--line);background:var(--surface);font-size:14px;cursor:pointer} /* after the list (order), never scrolls away */
+.fc-incl input{width:18px;height:18px;margin:0;accent-color:var(--ink);flex:none}
+.fc-incl-r{color:var(--ink-3)}
+.dlg.fcdlg.fc-onedlg{height:auto;max-height:min(860px,calc(100vh - 40px))} /* one line: the dialog fits its content */ .fc-row.off b,.fc-row.off small{color:var(--ink-3)}
 .fc-none{color:var(--ink-3)} .fc-choice{color:var(--amber)}
 .fc-warnl{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--block)}
 .fc-warnl svg{flex:none}
@@ -588,6 +615,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-att{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line-2)}
 .fc-att:first-child{border-top:0;padding-top:0}
 .fc-att svg{flex:none;margin-top:2px} .fc-att.w svg{color:var(--block)} .fc-att.n svg{color:var(--ink-3)}
+/* an action that can't be made is always the red error colour, like "Can't be ordered right now" (Sam, Nov 16) */
+.fc-help.fc-cant,.fc-cant,.fc-row.off small .fc-cant{color:var(--alert)}
+.fc-att.x svg,.fc-att.x small{color:var(--alert)}
 .fc-att b{display:block;font-weight:500;font-size:14px} .fc-att small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
 .fc-att.w small{color:var(--block)}
 .fc-rm{font-weight:400;color:var(--ink-3)}
@@ -601,6 +631,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @media (prefers-reduced-motion: reduce){ .fc-will summary::before{transition:none} }
 .fc-will ul{margin:10px 0 0;padding-left:18px;font-size:13px;color:var(--ink-2);max-height:min(280px,34vh);overflow-y:auto;overscroll-behavior:contain} /* a 100-line change scrolls inside the tray */ .fc-will li{margin:3px 0} .fc-will li b{color:var(--ink);font-weight:600}
 .fc-conf .fc-pay{margin:0}
+.fc-body>.fc-pay{flex:none;margin:12px 0 0} /* payment link: directly above the buttons */
+.fcb-pay{margin:6px 0 0 34px;font-size:13px}
+.fcb-pay .tolink{margin:-12px 0 -12px 8px}
 .fcb-fail{margin:8px 0 0;padding-left:20px;font-size:13px;color:var(--ink)}
 .fc-cm{display:block;margin-top:4px;font-size:12px;font-weight:600;color:var(--amber)}
 .fc-kitph{grid-column:1/-1;display:flex;gap:8px;align-items:center;margin:8px 0 0;font-size:12px;color:var(--ink-2)}
@@ -694,6 +727,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .ctoast .ctundo{flex:none;align-self:center;height:36px;padding:0 16px;border:0;background:#111;color:#fff;font:inherit;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .ctoast .ctx-x{flex:none;align-self:center;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:0;background:none;color:#fff;cursor:pointer;transition:color .15s}
 .ctoast .ctx-x:hover{color:#bdbdbd}
+.ctoast .ctlink{padding:0;border:0;background:none;color:#fff;font:inherit;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .ctoast button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.ctoast{animation:none}}
 
@@ -1464,6 +1498,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
       <option value="qom2926">QOM-2926 · ATP, delivery date and sourcing warehouse</option>
       <option value="fresh" selected>Fresh quote, no lines</option>
       <option value="finish">Change finish · demo quote (5 rooms, one per state)</option>
+      <option value="finishcom">Change finish · commercial demo quote (2 rooms, custom margins)</option>
       <option value="long">QOM-2514 · U-04 Find in this quote (100-line quote)</option>
       <option value="loading">Search · Loading (slow search)</option>
       <option value="error">Search · Error</option>
@@ -1503,6 +1538,19 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <button type="button" class="protohide" id="protoHide" aria-controls="protoBar">Hide prototype controls</button>
 </div>
 <button type="button" class="protoshow" id="protoShow" aria-controls="protoBar">Show prototype controls</button>
+<div class="devgear" id="devGear">
+  <button type="button" class="devgear-btn" id="devGearBtn" aria-expanded="false" aria-controls="devPanel" title="Prototype controls: payment link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="sr">Prototype controls: payment link</span></button>
+  <div class="devpanel" id="devPanel" role="group" aria-labelledby="devPanelT" hidden>
+    <p class="devpanel-t" id="devPanelT">Prototype · payment link</p>
+    <fieldset><legend>Payment link</legend>
+      <label><input type="radio" name="devPay" value="none" autocomplete="off"> None</label>
+      <label><input type="radio" name="devPay" value="live" checked autocomplete="off"> Live link sent to client</label></fieldset>
+    <fieldset><legend>Link behaviour</legend>
+      <label><input type="radio" name="devLink" value="breaks" checked autocomplete="off"> Change breaks the link (Undo can't restore it)</label>
+      <label><input type="radio" name="devLink" value="updates" autocomplete="off"> Link updates or Undo restores it</label></fieldset>
+    <p class="devpanel-n" id="devPayNote" hidden>A finish change broke the live link, so later changes show no warning. <button type="button" id="devPayReset">Reset to a live link</button></p>
+  </div>
+</div>
 
 <div class="app">
   <nav class="rail" aria-label="QOM navigation">
@@ -1889,7 +1937,8 @@ CAT.push(
   ...avery("AVSH","Avery Rain Shower Head 10 inch","Ceiling or wall arm, 1.8 gpm","Fittings",780,["PN","MN","BB","CH"]),
   ...avery("AVSTM","Avery Steam Head","Square, for steam showers","Fittings",520,["PN"]), // one finish only: nothing to change to
   ...avery("AVTH","Avery Thermostatic Valve Trim, Lever Handle","Trim only","Fittings",2240,["PN","MN","CH"]), // no brass versions
-  ...avery("AVPF","Avery Wall Mounted Pot Filler","Two handles, 24 inch reach","Fittings",1890,["PN","BB","CH"]),
+  ...avery("AVPF","Avery Wall Mounted Pot Filler","Two handles, 24 inch reach","Fittings",1890,["PN","MN","UB","BB","CH"],{MN:{whst:50},UB:{st:80}}), // Matte Nickel not stocked in USC, Unlacquered Brass discontinued: listed greyed
+  ...avery("AVBS","Avery Body Spray","Wall mount","Fittings",460,["PN","BB","CH"],{BB:{st:80},CH:{price:null}}), // other finishes exist but none can be ordered
   // handshower: the current item is 1.8 gpm; Burnished Brass comes in 1.2 and 1.8 gpm (two choices), PVD only in 1.2 gpm (no exact match)
   ...[["PN","1.8"],["MN","1.8"],["CH","1.8"],["BB","1.8"],["BB","1.2"],["BBP","1.2"]].map(([c,g])=>{ const f=FIN6.find(x=>x[0]===c)[1]; return {sku:`AVHS${g.replace(".","")}-${c}`,style:"AVHS",name:"Avery Handshower on Bar",sec:`Wall-mount bar, ${g} gpm handshower`,col:"Avery",series:"Avery",cat:"Fittings",fin:f,st:20,stock:c==="BB"&&g==="1.2"?7:4,price:Math.round(1960*AV_UP[c]),attrs:{"Flow rate":g+" gpm"},...(c==="BBP"?{ig:"CMM-PVD"}:{})}; }),
   // two-tone: changes when the target is one of the tones it comes in
@@ -2279,7 +2328,7 @@ function moveLine(room,sku,dir){ const rm=S.quote.rooms.find(r=>r.name===room); 
   const p=CAT.find(x=>x.sku===sku); $("#moveMsg").textContent=`${p.name} moved ${dir<0?"up":"down"}, now ${j+1} of ${rm.lines.length} in ${room}`;
   const el=document.querySelector(`.line[data-lroom="${CSS.escape(room)}"][data-lsku="${CSS.escape(sku)}"]`); if(el){ el.scrollIntoView({block:"nearest"}); el.classList.add("justadded"); setTimeout(()=>el.classList.remove("justadded"),1200); }
   document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); }
-const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${moveItems(r,l)}${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}<hr class="lmsep"><button type="button" role="menuitem" class="lm-new" data-act="finish" data-key="${esc(r.name)}|${esc(l.sku)}">${ROLLER_ICON}<span>Change finish</span><span class="newpill">New</span></button></div>`;
+const lineMenu=(r,l,p)=>`<div class="lmenu" role="menu" aria-label="Actions for ${esc(p.name)}">${moveItems(r,l)}${MENU_ITEMS.map(([id,label,icon])=>`<button type="button" role="menuitem" data-act="${id}" data-key="${esc(r.name)}|${esc(l.sku)}">${icon}<span>${label}</span></button>`).join("")}<hr class="lmsep">${(w=>`<button type="button" role="menuitem" class="lm-new" data-act="finish" data-key="${esc(r.name)}|${esc(l.sku)}"${w?' aria-disabled="true"':""}>${ROLLER_ICON}<span class="lm-txt">Change finish${w?`<small>${esc(w)}</small>`:""}</span><span class="newpill">New</span></button>`)(fcLineBlock(l))}</div>`;
 let toastTimer=null;
 function showToast(msg,kind){ const t=$("#toast"); t.textContent=msg; t.className="toast"+(kind?" "+kind:""); t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true,kind==="ok"?1600:2600); }
 // remove-product confirmation, shown as a dialog over the page
@@ -2347,6 +2396,11 @@ const fcReqPart=sku=>Object.values(requiredParts).some(m=>m.required.some(x=>x.o
 function fcWhyNot(p){ if(fcReqPart(p.sku)) return "Required or recommended part: not changed with the finish"; if(p.cat==="Surfaces") return "No metal finish (tile or stone color)"; if(p.fin==="Unfinished") return "No metal finish (unfinished rough-in)";
   if(!fcTones(p.fin).every(t=>FC_METAL.test(t))) return `No metal finish (${p.fin} is a color)`; if(p.part) return "Service part"; return null; }
 const fcKey=(r,l)=>r.name+"|"+l.sku;
+// a line's "Change finish" is greyed, with the reason, when the dialog would have nothing to offer (Sam, Nov 16)
+function fcLineBlock(l){ const p=CAT.find(c=>c.sku===l.sku); if(!p) return null; const w=fcWhyNot(p); if(w) return w;
+  return CAT.some(c=>c.style===p.style&&c.sku!==p.sku&&!c.alias&&(S.view==="commercial"||!c.cmm)&&!fcTones(c.fin).every(t=>fcHasTone(p,t)))?null:`Only made in ${p.fin}`; }
+// why another finish's version can't be offered: shown greyed in Change to
+const fcWhyOff=c=>c.st===80||c.st===90?"discontinued":c.st===10?"in development":c.whst===50?"not stocked in USC":c.price==null?"waiting on a price":S.view!=="commercial"&&c.cmm?"commercial quotes only":c.st!==20?`status ${c.st}`:null;
 const fcProd=sku=>CAT.find(c=>c.sku===sku);
 const fcHasTone=(p,t)=>fcTones(p.fin).includes(t);
 const fcOrderable=c=>!c.alias&&c.st===20&&c.whst!==50&&c.price!=null&&(S.view==="commercial"||!c.cmm); // the quote's channel: CMM item groups only on commercial quotes
@@ -2363,6 +2417,7 @@ const fcStock=(c,qty,fin)=>(c.stock||0)>=qty?"":(c.stock||0)>0?`Limited stock${f
 // a custom margin or price never carries over: the new item comes in at its standard price (engineering, Nov 16)
 const fcStd=c=>S.view==="commercial"?listOf(c):c.price;
 const fcUnit=(l,p,c)=>fcStd(c);
+const fcPct=m=>String(Math.round(m*10)/10)+"%"; // 32%, or 16.7%
 const fcCustom=(l,p)=>!!l.im||Math.abs(l.unit-fcStd(p))>0.004;
 const FC_BOX='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v13H3zM3 7l2-3h14l2 3M9 11h6"/></svg>';
 const FC_CHECK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m8 12.3 2.7 2.7L16 9.6"/></svg>';
@@ -2370,7 +2425,9 @@ const FC_CLOCK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stro
 const FC_LIST='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="M7 9.5l1.5 1.5L11 8.5M13.5 10h4M7 15l1.5 1.5L11 14M13.5 15.5h4"/></svg>';
 const FC_X='<svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg>';
 var FC=null, FJ=null; // FC: the open dialog. FJ: the change job, running or finished (its banner)
-const fcPayLink=()=>S.scenario==="finish"&&S.payLinkLive!==false; // mock: the demo quote has a live payment link
+// payment link (Nov 16, prototype gear panel): None or a live link sent to the client, and whether a change breaks it (Undo can't restore it) or updates it
+var PAYDEMO={pay:"live",link:"breaks",broken:false}; // broken: a change already broke the live link, so there's no live link left to warn about
+const fcPayLink=()=>PAYDEMO.pay==="live"&&!PAYDEMO.broken;
 function fcOpen(origin,ret){
   if(FJ&&FJ.state==="run"){ showToast("A finish change is still running. Wait for it to finish."); ret?.focus(); return; }
   const all=quoteLines(); if(!all.length){ showToast("This quote has no lines to change yet."); ret?.focus(); return; }
@@ -2380,7 +2437,8 @@ function fcOpen(origin,ret){
   S.lmenu=null; S.rmenu=null; S.confirm={kind:"fc"}; dlgReturn=ret||null; $("#rmDialog").hidden=false; fcRender(true); ($("#fcTo:not(:disabled)")||$("#rmDialog .fc-x")).focus(); }
 // every quote line, with whether it can change and, once To is picked, its candidates
 // from a room, only that room's lines and finishes (Sam, Nov 16)
-const fcRows=()=>quoteLines().filter(x=>FC.origin.kind!=="room"||x.r.name===FC.origin.room).map(x=>{ const p=fcProd(x.l.sku), key=fcKey(x.r,x.l), why=fcWhyNot(p), c=FC.to&&!why?fcCands(p,FC.to):[];
+// a line: just that line and its finishes; a room: just that room (Sam, Nov 16)
+const fcRows=()=>quoteLines().filter(x=>FC.origin.kind==="quote"||x.r.name===FC.origin.room&&(FC.origin.kind==="room"||x.l.sku===FC.origin.sku)||FC.origin.kind==="line"&&FC.inc&&x.l.sku===FC.origin.sku).map(x=>{ const p=fcProd(x.l.sku), key=fcKey(x.r,x.l), why=fcWhyNot(p), c=FC.to&&!why?fcCands(p,FC.to):[];
   return {...x,p,key,why,sel:!why&&FC.sel.has(key),c,ex:c.filter(y=>fcExact(p,y,FC.to))}; });
 // the review: per selected line, what it can become and what the SC picked
 function fcPlan(){ const taken=new Set();
@@ -2393,50 +2451,60 @@ function fcPlan(){ const taken=new Set();
     if(ch&&ch!=="keep") taken.add(x.r.name+"|"+ch); // two lines in one room can't become the same item
     return {...x,cant,opts:live,single,ch}; }); }
 function fcRender(top){ const d=$("#rmDialog"), L=d.querySelector(".fc-list"), ls=top?0:L?.scrollTop||0, fk=d.contains(document.activeElement)?document.activeElement.dataset.fk:null;
-  d.innerHTML=`<div class="dlg fcdlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="fcSub">${FC.step===1?fcStep1():FC.step===2?fcStep2():fcStep3()}</div>`;
+  d.innerHTML=`<div class="dlg fcdlg${FC.origin.kind==="line"&&!FC.inc?" fc-onedlg":""}" role="dialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="fcSub">${FC.step===1?fcStep1():FC.step===2?fcStep2():fcStep3()}</div>`;
   const L2=d.querySelector(".fc-list"); if(L2) L2.scrollTop=ls; d.querySelectorAll("[data-ind]").forEach(i=>i.indeterminate=true);
   if(fk) d.querySelector(`[data-fk="${CSS.escape(fk)}"]`)?.focus({preventScroll:true}); }
 // opened from a room: a black band under the header, like the quote's room bars, names the room and says other rooms aren't changed (Sam picked option B, Nov 16)
 const fcHead=(icon,title,sub)=>{ const o=FC.origin, room=o.kind==="room"?esc(o.room):null, n=room?fcRows().filter(x=>!x.why).length:0;
-  return `<div class="fc-head"><span class="fc-ic" aria-hidden="true">${icon}</span><div><h2 id="dlgTitle" tabindex="-1">${title}${room&&!title.includes(room)?`<span class="sr"> for ${room}</span>`:""}</h2><p class="fc-sub" id="fcSub">${sub}</p></div><button type="button" class="fc-x" data-fc="close" aria-label="Close Change finish">${FC_X}</button></div>`
+  return `<div class="fc-head"><span class="fc-ic" aria-hidden="true">${icon}</span><div><p class="fc-chan">${S.view==="commercial"?"Commercial":"Residential"} quote</p><h2 id="dlgTitle" tabindex="-1">${title}${room&&!title.includes(room)?`<span class="sr"> for ${room}</span>`:""}</h2><p class="fc-sub" id="fcSub">${sub}</p></div><button type="button" class="fc-x" data-fc="close" aria-label="Close Change finish">${FC_X}</button></div>`
     +(room?`<div class="fc-band" aria-hidden="true"><span class="fc-band-l">Room</span><b>${room}</b><span class="fc-band-n">${plural(n,"line")} · other rooms aren't changed</span></div>`:""); };
 const fcEst=n=>n>50?` · About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate)`:"";
 // the selected lines' current finishes, for the titles: "Polished Nickel", or "2 finishes"
+// one line: its picture beside the name (Sam, Nov 16); a plain image, not the zoom button, so a click can't open the viewer behind the dialog
+const fcPic=p=>`<span class="fc-pic" aria-hidden="true">${p.img&&!p.noimg?`<img src="${esc(p.img)}" alt="" onerror="this.parentNode.classList.add('none');this.remove()">`:""}</span>`;
 const fcFromTxt=rows=>{ const f=[...new Set(rows.map(x=>x.p.fin))]; return f.length===1?esc(f[0]):`${f.length} finishes`; };
 function fcStep1(){ const o=FC.origin, rows=fcRows(), elig=rows.filter(x=>!x.why), sel=elig.filter(x=>x.sel), n=sel.length;
   // To: only finishes at least one selected line can change to (so a finish every selected line already has never shows), A to Z, with coverage of the selected lines
   const cov=new Map(); sel.forEach(x=>{ const ts=new Set(); CAT.filter(c=>c.style===x.p.style&&c.sku!==x.p.sku&&c.fin!==x.p.fin&&fcOrderable(c)).forEach(c=>fcTones(c.fin).forEach(t=>{ if(!fcHasTone(x.p,t)) ts.add(t); })); ts.forEach(t=>cov.set(t,(cov.get(t)||0)+1)); });
   const toList=[...cov.keys()].sort((a,b)=>a.localeCompare(b));
+  // reasons for finishes that exist but can't be ordered, shown only when nothing can be picked; commercial-only versions never show on a residential quote (engineering and Sam, Nov 16)
+  const un=new Map(); sel.forEach(x=>CAT.filter(c=>c.style===x.p.style&&c.sku!==x.p.sku&&c.fin!==x.p.fin&&!c.alias&&!fcOrderable(c)).forEach(c=>fcTones(c.fin).forEach(t=>{ const r=fcWhyOff(c); if(!r||r==="commercial quotes only"||fcHasTone(x.p,t)||cov.has(t)) return; if(!un.has(t)) un.set(t,new Set()); un.get(t).add(r); })));
+  const unList=[...un].sort((a,b)=>a[0].localeCompare(b[0])).map(([t,rs])=>[t,rs.size===1?[...rs][0]:"can't be ordered"]), unTxt=unList.map(([t,r])=>`${esc(t)} (${esc(r)})`).join(", ");
   if(FC.to&&!toList.includes(FC.to)){ FC.lost=FC.to; FC.to=""; FC.choice={}; } // the chosen finish stopped being available after a selection change
   const scopeOk=rows.some(x=>!x.why&&(o.kind!=="line"||x.r.name===o.room&&x.l.sku===o.sku)); // opened from a line with no metal finish: say so, not "select a line"
-  const why=!elig.length||!scopeOk&&!n?"None of the selected lines have a metal finish that can change.":!n?"Select at least one line to see the finishes it can change to.":!toList.length?"None of the selected lines come in another metal finish.":null;
+  const why=!elig.length||!scopeOk&&!n?"None of the selected lines have a metal finish that can change.":!n?"Select at least one line to see the finishes it can change to.":!toList.length?(unList.length?`No other finish can be ordered right now: ${unTxt}.`:"None of the selected lines come in another metal finish."):null;
   const counts=n>1; // one line: no counts, they'd only ever read "1 of 1"
   const opt=t=>`<option value="${esc(t)}"${t===FC.to?" selected":""}>${esc(t)}${counts?` · ${cov.get(t)} of ${plural(n,"line")}`:""}</option>`;
-  const notes=[why?`<p class="fc-help fc-none2" id="fcToH">${why}</p>`:`<p class="fc-help" id="fcToH">Finishes the selected lines come in.</p>`];
+  const notes=[why?`<p class="fc-help ${!n&&scopeOk&&elig.length?"fc-none2":"fc-cant"}" id="fcToH">${why}</p>`:`<p class="fc-help" id="fcToH">Finishes the selected lines come in.</p>`];
   if(FC.lost&&!why) notes.push(`<p class="fc-lost" role="status">${esc(FC.lost)} isn't available for the selected lines.</p>`);
-  const sub=o.kind==="line"?`Step 1 of ${fcTotal()} · Started from one line: ${esc(fcProd(o.sku).name)} (${esc(o.sku)})`:o.kind==="room"?`Step 1 of ${fcTotal()} · Every line in this room that can change is selected; untick any to leave them`:`Step 1 of ${fcTotal()} · Whole quote · every line that can change is selected; untick any to leave them`;
+  const sub=o.kind==="line"?`Step 1 of ${fcTotal()} · ${FC.inc?"This item in every room":"This line only"}`:o.kind==="room"?`Step 1 of ${fcTotal()} · Every line in this room that can change is selected; untick any to leave them`:`Step 1 of ${fcTotal()} · Whole quote · every line that can change is selected; untick any to leave them`;
   // Change from (back on Nov 16, Sam: more control): "All finishes", or one finish, which ticks just its lines; it follows the ticks, showing "Selected lines" when they match neither
   const tm=new Map(); elig.forEach(x=>fcTones(x.p.fin).forEach(t=>{ const v=tm.get(t)||{n:0,rooms:new Set()}; v.n++; v.rooms.add(x.r.name); tm.set(t,v); }));
   const tones=[...tm.keys()].sort((a,b)=>a.localeCompare(b)), same=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x)), selK=sel.map(x=>x.key);
   const fromVal=tones.find(t=>same(elig.filter(x=>fcHasTone(x.p,t)).map(x=>x.key),selK))||(same(elig.map(x=>x.key),selK)&&n?"all":"custom");
   const roomsTxt=v=>o.kind==="room"?"":` in ${plural(v.rooms.size,"room")}`;
   const fromOpts=(fromVal==="custom"?`<option value="custom" selected disabled>Selected lines · ${n}</option>`:"")+(tones.length>1?`<option value="all"${fromVal==="all"?" selected":""}>All finishes · ${plural(elig.length,"line")}</option>`:"")+tones.map(t=>`<option value="${esc(t)}"${fromVal===t?" selected":""}>${esc(t)} · ${plural(tm.get(t).n,"line")}${roomsTxt(tm.get(t))}</option>`).join("");
-  const fromField=`<div class="fc-f"><label for="fcFrom">Change from</label><select id="fcFrom" data-fk="from" aria-describedby="fcFromH" ${elig.length?"":"disabled"}>${elig.length?fromOpts:`<option selected disabled>No metal finishes</option>`}</select><p class="fc-help" id="fcFromH">${o.kind==="room"?"Finishes in this room.":"Finishes on this quote."} Picks every line in that finish; untick any to leave them.</p></div>`;
+  const one=o.kind==="line"&&!FC.inc, oneRow=o.kind==="line"?rows.find(x=>x.r.name===o.room&&x.l.sku===o.sku):null;
+  // from one line: the same item elsewhere on the quote is flagged with the alert style, and can be added to the change (Sam, Nov 16)
+  const others=o.kind==="line"?quoteLines().filter(x=>x.l.sku===o.sku&&x.r.name!==o.room):[], oRooms=[...new Set(others.map(x=>x.r.name))];
+  // a checkbox pinned under the list, above the buttons, so it stays in view however long the list gets (Sam, Nov 16)
+  const alsoNote=!others.length?"":`<label class="fc-incl"><input type="checkbox" data-fc="incbox" data-fk="incbox" ${FC.inc?"checked":""}><span>Also change this item in ${plural(oRooms.length,"other room")} <span class="fc-incl-r">(${oRooms.map(n=>`${esc(n)}${others.filter(x=>x.r.name===n).length>1?` · ${others.filter(x=>x.r.name===n).length} lines`:""}`).join(", ")})</span></span></label>`;
+  const fromField=o.kind==="line"?`<div class="fc-f"><label for="fcFrom">Change from</label><select id="fcFrom" disabled aria-describedby="fcFromH"><option selected>${esc(oneRow.p.fin)}</option></select><p class="fc-help" id="fcFromH">This line's current finish.</p></div>`:`<div class="fc-f"><label for="fcFrom">Change from</label><select id="fcFrom" data-fk="from" aria-describedby="fcFromH" ${elig.length?"":"disabled"}>${elig.length?fromOpts:`<option selected disabled>No metal finishes</option>`}</select><p class="fc-help" id="fcFromH">${o.kind==="room"?"Finishes in this room.":"Finishes on this quote."} Picks every line in that finish; untick any to leave them.</p></div>`;
   const rooms=S.quote.rooms.filter(r=>rows.some(x=>x.r===r)).map(r=>{ const rr=rows.filter(x=>x.r===r), re=rr.filter(x=>!x.why), rs=re.filter(x=>x.sel).length;
-    return (o.kind==="room"?"":`<div class="fc-room"><label class="fc-chk"><input type="checkbox" data-fc="room" data-room="${esc(r.name)}" data-fk="r:${esc(r.name)}" ${re.length&&rs===re.length?"checked":""} ${rs&&rs<re.length?"data-ind":""} ${re.length?"":"disabled"} aria-label="Select every line in ${esc(r.name)} that can change">${esc(r.name)}</label><small>${rs} of ${re.length} selected</small></div>`)+rr.map(x=>{ // from a room, no room row: the band and Select all already cover it (Sam, Nov 16)
+    return (o.kind==="line"&&FC.inc?`<div class="fc-room"><span>${esc(r.name)}</span></div>`:o.kind!=="quote"?"":`<div class="fc-room"><label class="fc-chk"><input type="checkbox" data-fc="room" data-room="${esc(r.name)}" data-fk="r:${esc(r.name)}" ${re.length&&rs===re.length?"checked":""} ${rs&&rs<re.length?"data-ind":""} ${re.length?"":"disabled"} aria-label="Select every line in ${esc(r.name)} that can change">${esc(r.name)}</label><small>${rs} of ${re.length} selected</small></div>`)+rr.map(x=>{ // from a room, no room row: the band and Select all already cover it (Sam, Nov 16)
       const lead=`${esc(x.l.sku)} · ${esc(x.p.fin)}`; let meta, warn="";
-      if(x.why) meta=`${lead} · ${esc(x.why)}`;
+      if(x.why) meta=`${lead} · <span class="fc-cant">${esc(x.why)}</span>`;
       else if(!FC.to) meta=`${lead} · qty ${x.l.qty}`;
       else if(fcHasTone(x.p,FC.to)) meta=`${lead} · <span class="fc-none">Already ${esc(FC.to)}</span>`;
-      else if(!x.c.length) meta=`${lead} · <span class="fc-none">No version in ${esc(FC.to)}</span>`;
+      else if(!x.c.length) meta=`${lead} · <span class="fc-cant">No version in ${esc(FC.to)}</span>`;
       else if(x.c.length===1&&x.ex.length===1){ const c=x.c[0]; meta=`${esc(x.l.sku)} → <b>${esc(c.sku)}</b> · ${money(x.l.unit)} → ${money(fcUnit(x.l,x.p,c))} · Est. delivery ${fcDate(x.p,x.l)} → ${fcDate(c,x.l)}`; const s=fcStock(c,x.l.qty); if(s) warn=`<span class="fc-warnl">${FC_BOX}${s}</span>`; }
       else meta=`${lead} · <span class="fc-choice">${plural(x.c.length,"choice")} in ${esc(FC.to)}${x.ex.length?"":", none exact"}: you pick next</span>`;
-      return `<label class="fc-row${x.why?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel?"checked":""} ${x.why?"disabled":""}><span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>${meta}</small>${warn}</span></label>`; }).join(""); }).join("");
+      return `${one?`<div class="fc-row fc-row1${x.why?" off":""}">${fcPic(x.p)}`:`<label class="fc-row${x.why?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel?"checked":""} ${x.why?"disabled":""}>`}<span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>${meta}</small>${warn}</span>${one?"</div>":"</label>"}`; }).join(""); }).join("");
   const allOn=elig.length&&n===elig.length;
   return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),"Change finish",sub)+`<div class="fc-body">
     <div class="fc-pick">${fromField}<div class="fc-f"><label for="fcTo">Change to</label><select id="fcTo" data-fk="to" aria-describedby="fcToH" ${why?"disabled":""}><option value=""${FC.to?"":" selected"} disabled>${why?"No finishes to offer":"Choose a finish"}</option>${why?"":toList.map(opt).join("")}</select>${notes.join("")}</div></div>
-    <div class="fc-box"><div class="fc-lhead"><b>Lines to review (${elig.length})</b><label class="fc-chk"><input type="checkbox" data-fc="all" data-fk="all" ${allOn?"checked":""} ${n&&!allOn?"data-ind":""} ${elig.length?"":"disabled"}> Select all</label></div><div class="fc-list">${rooms}</div></div></div>
-    <div class="fc-foot"><p>${n} of ${plural(elig.length,"line")} selected · You confirm before anything changes${fcEst(n)}</p><button type="button" class="dbtn cancel" data-fc="close">Cancel</button><button type="button" class="dbtn yes" data-fc="next" ${FC.to&&n?"":"disabled"}>${!n&&scopeOk&&elig.length?"Select lines":why?"Nothing to change":!FC.to?"Choose a finish":"Next"}</button></div>`; }
+    ${alsoNote}${one?`<div class="fc-box fc-onebox">${rooms}</div>`:`<div class="fc-box"><div class="fc-lhead"><b>Lines to review (${elig.length})</b><label class="fc-chk"><input type="checkbox" data-fc="all" data-fk="all" ${allOn?"checked":""} ${n&&!allOn?"data-ind":""} ${elig.length?"":"disabled"}> Select all</label></div><div class="fc-list">${rooms}</div></div>`}</div>
+    <div class="fc-foot"><p>${one?"":`${n} of ${plural(elig.length,"line")} selected · `}You confirm before anything changes${fcEst(n)}</p><button type="button" class="dbtn cancel" data-fc="close">Cancel</button><button type="button" class="dbtn yes" data-fc="next" ${FC.to&&n?"":"disabled"}>${!n&&scopeOk&&elig.length?"Select lines":why?"Nothing to change":!FC.to?"Choose a finish":"Next"}</button></div>`; }
 // a kit's parts, current against the candidate: which follow the finish
 // kits swap as one item: the parent kit only, never its parts one by one (engineering, Nov 16)
 // three steps (Nov 16): 1 select lines and the finish; 2 resolve choices (only lines with several matches, or none exact; skipped when every line has exactly one); 3 confirm, before anything changes
@@ -2457,29 +2525,31 @@ function fcStep3(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="kee
   const crooms=[...new Set((n?chg:P).map(x=>x.r.name))], scope=crooms.length===1?`in ${esc(crooms[0])}`:FC.origin.kind==="quote"?"across the quote":`across ${crooms.length} rooms`;
   // needs attention: one row per line, all of its issues together
   const att=P.map(x=>{ const iss=[]; let sev="w";
-    if(x.cant){ iss.push(`Can't change: ${esc(x.cant)}`); sev="n"; }
+    if(x.cant){ iss.push(`Can't change: ${esc(x.cant)}`); sev="x"; }
     else if(x.ch==="keep"){ iss.push("Keeping the current item"); sev="n"; }
-    else { const c=fcProd(x.ch); if(fcCustom(x.l,x.p)) iss.push(`${S.view==="commercial"?"Custom margin":"Custom price"} ${money(x.l.unit)} → standard ${money(fcUnit(x.l,x.p,c))}`); const s=fcStock(c,x.l.qty); if(s) iss.push(s); }
-    return iss.length?`<li class="fc-att ${sev}">${sev==="n"?INFO_ICON:FC_BOX}<span><b>${esc(x.p.name)}${inRoom(x)}</b><small>${iss.join(" · ")}</small></span></li>`:""; }).filter(Boolean);
+    else { const c=fcProd(x.ch); if(fcCustom(x.l,x.p)) iss.push(S.view!=="commercial"?`Custom price ${money(x.l.unit)} → standard ${money(fcUnit(x.l,x.p,c))}`:x.l.im?`Item Management price ${money(x.l.unit)} → standard ${money(fcUnit(x.l,x.p,c))}`:`Margin ${fcPct(marginOf(x.l.unit,x.p))} → standard ${fcPct(defMargin(c))} · ${money(x.l.unit)} → ${money(fcUnit(x.l,x.p,c))}`); const s=fcStock(c,x.l.qty); if(s) iss.push(s); }
+    return iss.length?`<li class="fc-att ${sev}">${sev==="x"?SI.block:sev==="n"?INFO_ICON:FC_BOX}<span><b>${esc(x.p.name)}${inRoom(x)}</b><small>${iss.join(" · ")}</small></span></li>`:""; }).filter(Boolean);
   const cur=quoteLines().reduce((a,{l})=>a+l.qty*l.unit,0), nu=cur+chg.reduce((a,x)=>a+x.l.qty*(fcUnit(x.l,x.p,fcProd(x.ch))-x.l.unit),0);
   // order (Sam, Nov 16): needs attention, the payment link, the estimate, then Will change, open by default (an accordion the SC can close) and scrolling on its own when it's long; the quote total is pinned under them
   const secs=[
     att.length?`<section class="fc-sec"><h3>Needs attention (${att.length})</h3><ul class="fc-atts">${att.join("")}</ul></section>`:"",
-    n&&fcPayLink()?`<p class="fc-pay">${RI.bad}<span>The client's current payment link will stop working. You'll need to send a new one.</span></p>`:"",
     n>50?`<p class="fc-est">${FC_CLOCK}About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate). You can keep working while it runs.</p>`:"",
     n?`<details class="fc-sec fc-will"${FC.willOpen===false?"":" open"}><summary data-fk="will">Will change (${n})</summary><ul>${chg.map(x=>`<li>${esc(x.p.name)}${inRoom(x)}: ${esc(x.l.sku)} → <b>${esc(x.ch)}</b></li>`).join("")}</ul></details>`:""].join("");
   const tot=n?`<div class="fc-tot"><span>Quote total</span><b>${money(cur)} → ${money(nu)}</b><small>Products, before freight and tax</small></div>`:"";
-  return fcHead(FC_LIST,n?`Change ${plural(n,"line")} ${scope} from ${fcFromTxt(chg)} to ${esc(FC.to)}`:"Nothing to change",`Step ${t} of ${t} · Nothing has changed yet`)+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
+  const pay=n&&fcPayLink()&&PAYDEMO.link==="breaks"?`<p class="fc-pay">${RI.bad}<span>This quote has a payment link out with the client. After this change, that link won't work, and Undo won't restore it. You'll need to send a new one.</span></p>`:""; // directly above the buttons; nothing when the link updates
+  return fcHead(FC_LIST,n?`Change ${plural(n,"line")} ${scope} from ${fcFromTxt(chg)} to ${esc(FC.to)}`:"Nothing to change",`Step ${t} of ${t} · Nothing has changed yet`)+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}${pay}</div>
     <div class="fc-foot"><p>${plural(n,"line")} will change${fcEst(n)}</p><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="apply" ${n?"":"disabled"}>${n?`Change ${plural(n,"line")}`:"Nothing to change"}</button></div>`; }
 document.addEventListener("toggle",e=>{ if(FC&&e.target.classList?.contains("fc-will")) FC.willOpen=e.target.open; },true); // remembered while the dialog is open
 document.addEventListener("change",e=>{ if(!FC||S.confirm?.kind!=="fc"||!e.target.closest?.("#rmDialog")) return; const t=e.target, a=t.dataset.fc; e.stopPropagation(); // capture: the dialog sits after this script
   if(t.id==="fcFrom"){ FC.sel=new Set(fcRows().filter(x=>!x.why&&(t.value==="all"||fcHasTone(x.p,t.value))).map(x=>x.key)); FC.choice={}; fcRender(); return; } // ticks the lines in that finish (all of them for "All finishes")
   if(t.id==="fcTo"){ FC.to=t.value; FC.lost=null; FC.choice={}; fcRender(); return; }
   if(a==="all"||a==="room"){ fcRows().filter(x=>!x.why&&(a==="all"||x.r.name===t.dataset.room)).forEach(x=>t.checked?FC.sel.add(x.key):FC.sel.delete(x.key)); FC.choice={}; fcRender(); return; }
+  if(a==="incbox"){ FC.inc=t.checked; const o=FC.origin; quoteLines().filter(x=>x.l.sku===o.sku&&x.r.name!==o.room&&!fcWhyNot(fcProd(x.l.sku))).forEach(x=>FC.inc?FC.sel.add(fcKey(x.r,x.l)):FC.sel.delete(fcKey(x.r,x.l))); FC.choice={}; fcRender(); return; } // the same item in other rooms joins the change, or leaves it
   if(a==="line"){ t.checked?FC.sel.add(t.dataset.key):FC.sel.delete(t.dataset.key); fcRender(); return; }
   if(a==="pick"){ FC.choice[t.dataset.key]=t.value; fcRender(); } },true);
 document.addEventListener("click",e=>{ if(!FC||S.confirm?.kind!=="fc") return; const b=e.target.closest?.("#rmDialog button[data-fc]"); if(!b) return; e.stopPropagation(); const a=b.dataset.fc;
   if(a==="close"){ FC=null; closeRemoveDialog(); return; }
+  if(a==="inc"||a==="only"){ FC.inc=a==="inc"; const o=FC.origin; quoteLines().filter(x=>x.l.sku===o.sku&&x.r.name!==o.room&&!fcWhyNot(fcProd(x.l.sku))).forEach(x=>FC.inc?FC.sel.add(fcKey(x.r,x.l)):FC.sel.delete(fcKey(x.r,x.l))); FC.choice={}; fcRender(true); $(`#rmDialog [data-fc="${FC.inc?"only":"inc"}"]`)?.focus(); return; } // the same item in other rooms joins the change, or leaves it
   if(a==="next"){ FC.step=fcChoiceRows(fcPlan()).length?2:3; fcRender(true); $("#dlgTitle").focus(); return; } // straight to confirm when every line has exactly one match
   if(a==="confirm"){ FC.step=3; fcRender(true); $("#dlgTitle").focus(); return; }
   if(a==="back"){ FC.step=FC.step===3&&fcChoiceRows(fcPlan()).length?2:1; fcRender(true); (FC.step===1?$("#fcTo"):$("#dlgTitle"))?.focus(); return; }
@@ -2491,8 +2561,8 @@ function fcApply(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="kee
   FJ={state:"run",kind:"apply",from:(f=>f.length===1?f[0]:null)([...new Set(chg.map(x=>x.p.fin))]),to:FC.to,scope:o.kind==="room"&&rooms.size===1?{room:[...rooms][0]}:o.kind==="quote"?{quote:true}:rooms.size===1?{room:[...rooms][0]}:{rooms:rooms.size},
     items:chg.map(x=>({room:x.r.name,a:x.l.sku,b:x.ch,aUnit:x.l.unit,bUnit:fcUnit(x.l,x.p,fcProd(x.ch)),qty:x.l.qty,custom:fcCustom(x.l,x.p),im:!!x.l.im,st:"wait"})),
     kept:P.filter(x=>x.ch==="keep").map(x=>({room:x.r.name,sku:x.l.sku})), cant:P.filter(x=>x.cant).map(x=>({room:x.r.name,sku:x.l.sku,why:x.cant})),
-    fail:!!$("#fcFailSim")?.checked, pay:fcPayLink(), i:0, open:false};
-  if(FJ.pay) S.payLinkLive=false;
+    fail:!!$("#fcFailSim")?.checked, pay:fcPayLink()?PAYDEMO.link:null, chan:S.view, i:0, open:false};
+  if(FJ.pay==="breaks"){ PAYDEMO.broken=true; devPayNote(); }
   FC=null; closeRemoveDialog(false); if(SEND.freight==="done"){ SEND.freight="none"; SEND.freightAt=null; SEND.stale=true; } // new prices: freight has to run again
   $("#sendLive").textContent=`Changing ${plural(FJ.items.length,"line")} to ${FJ.to}.`; renderQuote(); fcTick(); $("#fcBanner").scrollIntoView({block:"nearest"}); }
 // a line moves to its new item in place: same room, order and quantity; saved straight to the quote (it's an M3 job, not an unsaved edit)
@@ -2517,18 +2587,26 @@ function fcState(r,l){ const J=FJ, it=fcItem(r,l); if(!it||J.state==="undone") r
 // a new item that's short gets its own notice on the line
 function fcNote(r,l,p){ if(l.fcTo!==l.sku) return ""; const s=fcStock(p,l.qty,p.fin);
   return (s?`<div class="rb risk fc-note">${FC_BOX}<span>${s}.</span></div>`:"")+(p.kit?`<div class="fc-kitph">${INFO_ICON}<span>The parts listed are the new kit's. Placeholder behaviour, pending engineering confirmation.</span></div>`:""); }
-function fcBanner(){ const el=$("#fcBanner"); if(!el) return; const J=FJ; let h="";
+function fcBanner(){ const el=$("#fcBanner"); if(!el) return; const J=FJ; let h="", toast="", tUndo=false; // success and undone go in the green toast at the bottom, which stays until dismissed (Sam, Nov 16)
   if(J){ const n=J.items.length, ok=J.items.filter(x=>x.st==="done").length, failed=J.items.filter(x=>x.st==="fail"), nm=s=>esc(fcProd(s).name), fromTxt=J.from?esc(J.from):"their current finishes";
     const x=`<button type="button" class="fcb-x" data-fcb="close" aria-label="Dismiss">${FC_X}</button>`, undoBtn=`<button type="button" class="tolink" data-fcb="undo">Undo</button>`;
+    // payment link: "breaks" keeps the reminder after Undo too (the original link stays broken); "updates" says so once applied, and nothing after Undo
+    const pay=J.pay==="breaks"?`<p class="fcb-pay">Send the client a new payment link <button type="button" class="tolink" data-fcb="send">Send to client</button></p>`:J.pay==="updates"&&J.kind==="apply"?`<p class="fcb-pay">The client's payment link now shows the new total.</p>`:"";
+    const payT=J.pay==="breaks"?`<span class="cts">Send the client a new payment link · <button type="button" class="ctlink" data-fcb="send">Send to client</button></span>`:J.pay==="updates"&&J.kind==="apply"?`<span class="cts">The client's payment link now shows the new total.</span>`:"";
     if(J.state==="run"){ const k=J.items.filter(y=>y.st==="done"||y.st==="fail").length;
       h=`<div class="fcb run" role="status"><div class="fcb-top"><span class="spin" aria-hidden="true"></span><b>${J.kind==="undo"?`Undoing: changing ${plural(n,"line")} back to ${J.from?esc(J.from):"their previous finishes"}`:`Changing ${plural(n,"line")} ${fcScopeTxt(J)} to ${esc(J.to)}`}…</b><span class="fcb-act">${k} of ${n} ${J.kind==="undo"?"done":"changed"}</span></div><div class="fcb-bar" aria-hidden="true"><i style="width:${Math.round(k/n*100)}%"></i></div><p class="fcb-note">You can keep working in the quote. Leaving this page won't cancel the change.</p></div>`; }
-    else if(J.state==="undone") h=`<div class="fcb undone" role="status"><div class="fcb-top">${INFO_ICON}<b>Finish change undone. ${plural(ok,"line")} ${ok===1?"is":"are"} back to ${J.from?esc(J.from):"its previous finish"}.</b><span class="fcb-act">${x}</span></div></div>`;
-    else { const part=J.state==="partial";
-      h=`<div class="fcb ${part?"partial":"done"}" role="status"><div class="fcb-top">${part?SI.block:FC_CHECK}<b>${part?`${ok} of ${n} changed; ${failed.length} couldn't be saved`:`Changed ${plural(ok,"line")} to ${esc(J.to)} ${fcScopeTxt(J)}`}</b><span class="fcb-act">${undoBtn}${x}</span></div>${part?`<ul class="fcb-fail">${failed.map(y=>`<li>${nm(y.a)} (${esc(y.a)}, ${esc(y.room)}): M3 didn't save it, so it's still ${esc(fcProd(y.a).fin)}.</li>`).join("")}</ul><p class="fcb-note">Undo puts back the ${plural(ok,"line")} that changed. Mock failure.</p>`:""}</div>`; } }
+    else if(J.state==="undone") toast=`<b>Finish change undone</b><span class="cts">${plural(ok,"line")} ${ok===1?"is":"are"} back to ${J.from?esc(J.from):"the previous finish"}</span>${payT}`;
+    else { const part=J.state==="partial", mg=J.chan==="commercial"?J.items.filter(y=>y.st==="done"&&y.custom).length:0; // commercial: custom margins reset to standard (Nov 16)
+      if(!part){ toast=`<b>Changed ${plural(ok,"line")} to ${esc(J.to)} ${fcScopeTxt(J)}</b>${mg?`<span class="cts">Margins reset on ${plural(mg,"line")} · <button type="button" class="ctlink" data-fcb="margin">Adjust margin</button></span>`:""}${payT}`; tUndo=true; }
+      else h=`<div class="fcb ${part?"partial":"done"}" role="status"><div class="fcb-top">${part?SI.block:FC_CHECK}<b>${part?`${ok} of ${n} changed; ${failed.length} couldn't be saved`:`Changed ${plural(ok,"line")} to ${esc(J.to)} ${fcScopeTxt(J)}`}${mg?`<span class="fcb-mg"> · Margins reset on ${plural(mg,"line")}</span>`:""}</b><span class="fcb-act">${mg?`<button type="button" class="tolink" data-fcb="margin">Adjust margin</button>`:""}${undoBtn}${x}</span></div>${part?`<ul class="fcb-fail">${failed.map(y=>`<li>${nm(y.a)} (${esc(y.a)}, ${esc(y.room)}): M3 didn't save it, so it's still ${esc(fcProd(y.a).fin)}.</li>`).join("")}</ul><p class="fcb-note">Undo puts back the ${plural(ok,"line")} that changed. Mock failure.</p>`:""}${pay}</div>`; } }
   if(el._h!==h){ el.innerHTML=h; el._h=h; } // rewritten only when it changes, so focus isn't lost
+  const T=$("#fcToast"); if(T){ const th=toast?`<span class="ctic">${CHECK_ICON}</span><div class="ctx">${toast}</div>${tUndo?'<button type="button" class="ctundo" data-fcb="undo">Undo</button>':""}<button type="button" class="ctx-x" data-fcb="close" aria-label="Dismiss">${FC_X}</button>`:"";
+    if(T._h!==th){ T.innerHTML=th; T._h=th; } T.hidden=!toast; } // no timer: it stays until dismissed
   document.querySelectorAll("#rooms .line.flock").forEach(e=>e.inert=true); }
-document.addEventListener("click",e=>{ const b=e.target.closest?.("#fcBanner [data-fcb]"); if(!b) return; e.stopPropagation(); const a=b.dataset.fcb;
+document.addEventListener("click",e=>{ const b=e.target.closest?.("#fcBanner [data-fcb], #fcToast [data-fcb]"); if(!b) return; e.stopPropagation(); const a=b.dataset.fcb;
   if(a==="undo") fcUndo();
+  if(a==="send") sendClient(); // the footer's Send to client: sends, or opens Before you send with what's in the way
+  if(a==="margin") showToast("Bulk margin adjustment (QOM-2566) – not yet available"); // placeholder until QOM-2566
   if(a==="close"){ FJ=null; renderQuote(); } });
 const FIN_QUOTE=()=>({rooms:[
   // partial coverage: 7 lines that can change (Chrome 7 of 7 ... Unlacquered Brass 1 of 7), plus a rough-in and a tile that can't
@@ -2539,8 +2617,15 @@ const FIN_QUOTE=()=>({rooms:[
   {name:"Powder Room",type:"Powder Room",lines:[{sku:"AVLAV-PN",qty:1},{sku:"UNPT-N",qty:1},{sku:"AVTP-PN",qty:1},{sku:"AVTR-PN",qty:1},{sku:"AVRH-CH",qty:1}]},
   {name:"Kitchen",type:"Kitchen",lines:[{sku:"AVKF-PNUB",qty:1},{sku:"AVPF-PN",qty:1}]},
   // nothing to offer: a steam head that only comes in Polished Nickel, a rough-in and a tile
-  {name:"Steam Shower",type:"Shower",lines:[{sku:"AVSTM-PN",qty:1},{sku:"AVRV-UF",qty:1},{sku:"CLT36-BIA",qty:60}]}
+  {name:"Steam Shower",type:"Shower",lines:[{sku:"AVSTM-PN",qty:1},{sku:"AVBS-PN",qty:2},{sku:"AVRV-UF",qty:1},{sku:"CLT36-BIA",qty:60}]}
 ].map(r=>({...r,lines:r.lines.map(l=>({unit:fcProd(l.sku).price,...l,rdd:"01/15/2027"}))}))}); // a line's own unit wins: a custom price
+// Change finish, commercial demo quote (Nov 16): 2 rooms, 8 lines, 4 at a custom margin (m, in %; the rest at the standard 25%).
+// Burnished Brass PVD reads 7 of 8 here (the faucet, towel bar 24, robe hook and handshower PVD items are CMM, commercial only) and 2 of 8 on residential;
+// the thermostatic trim has no brass or PVD version; the handshower's only PVD item is 1.2 gpm, so it's a choice in step 2
+const FIN_COM_QUOTE=()=>({rooms:[
+  {name:"Lobby Restroom",type:"Public Areas",lines:[{sku:"AVLAV-PN",qty:2,m:32},{sku:"AVTB24-PN",qty:2,m:30},{sku:"AVRH-PN",qty:2},{sku:"AVTH-PN",qty:1}]},
+  {name:"Hotel Guestroom 1",type:"Hotel Guestroom",lines:[{sku:"AVLAV-PN",qty:2,m:32},{sku:"AVTP-PN",qty:2,m:28},{sku:"AVTR-PN",qty:2},{sku:"AVHS18-PN",qty:1}]}
+].map(r=>({...r,lines:r.lines.map(({m,...l})=>{ const p=fcProd(l.sku); return {...l,unit:m?Math.round(estCost(p)/(1-m/100)*100)/100:listOf(p),rdd:"01/15/2027"}; })}))});
 function closeRemoveDialog(restore=true){ $("#rmDialog").hidden=true; $("#rmDialog").innerHTML=""; S.confirm=null; if(restore) (dlgReturn&&document.body.contains(dlgReturn)?dlgReturn:null)?.focus(); }
 function confirmRemove(){
   const c=S.confirm; if(!c) return; if(c.kind==="logout"){ closeRemoveDialog(); showToast("Signs you out of Sales Portal and Microsoft (not built in the prototype)."); return; } if(c.kind==="discard"){ closeRemoveDialog(); discardChanges(); return; } const rm=S.quote.rooms.find(r=>r.name===c.room); const idx=rm?rm.lines.findIndex(l=>l.sku===c.sku):-1; const p=CAT.find(x=>x.sku===c.sku);
@@ -2587,6 +2672,7 @@ const OVERHEAD=0.12;
 const itemOf=p=>p.same||p.sku; // "same item": same item number (same SKU and finish)
 const COM_LIST={"HNBAR-N":950}; // commercial list price where it differs from the mock catalogue price
 const EST_COST={"HNBAR-N":380,"ESLAV-B":520,"HNWS29":3823.23}; // estimated unit cost (after overhead)
+CAT.filter(p=>p.col==="Avery").forEach(p=>{ EST_COST[p.sku]??=Math.round(p.price*75)/100; }); // Change finish demo items: a standard margin of 25% (Nov 16)
 const listOf=p=>COM_LIST[itemOf(p)]??p.price;
 const estCost=p=>EST_COST[itemOf(p)]??Math.round(listOf(p)*(0.18+([...itemOf(p)].reduce((a,c)=>a+c.charCodeAt(0),0)%13)/100)*(1+OVERHEAD)*100)/100;
 const avgCost=p=>Math.round(estCost(p)/(1+OVERHEAD)*100)/100;
@@ -3136,9 +3222,9 @@ const LONG_ROOMS=["Primary Bath","Guest Bath","Powder Room","Kitchen","Bar","Lau
 const LONG_QUOTE=()=>{ const pool=CAT.filter(p=>!p.alias&&!p.part&&!p.cmm&&!isDisc(p)&&p.st!==10&&p.price!=null);
   return {rooms:LONG_ROOMS.map((name,i)=>({name,type:name,lines:Array.from({length:10},(_,j)=>{ const p=pool[(i*10+j)%pool.length]; return {sku:p.sku,qty:p.mult||1,unit:p.price,rdd:"12/19/2026"}; })}))}; };
 function setView(v){
-  const fin=S.scenario==="finish"; // the Change finish demo quote stays when the channel switches, so both can be shown (Nov 16)
-  S.view=v; S.blendErr=null; LIKE_UNDO=null; hideCToast(); S.undo=null; if(!fin) S.saved=null; resetSend(); S.scenario=fin?"finish":"normal"; $("#scenario").value=S.scenario;
-  S.quote= fin ? FIN_QUOTE() : v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE); if(fin){ S.allOpen=true; S.folded=[]; S.payLinkLive=true; }
+  const fin=S.scenario==="finish"||S.scenario==="finishcom"; // the Change finish demo quote stays when the channel switches, so both can be shown (Nov 16)
+  S.view=v; S.blendErr=null; LIKE_UNDO=null; hideCToast(); S.undo=null; if(!fin) S.saved=null; resetSend(); S.scenario=fin?S.scenario:"normal"; $("#scenario").value=S.scenario;
+  S.quote= fin ? (S.scenario==="finishcom"?FIN_COM_QUOTE():FIN_QUOTE()) : v==="commercial" ? QUOTES.commercial() : structuredClone(RES_QUOTE); if(fin){ S.allOpen=true; S.folded=[]; PAYDEMO.broken=false; devPayNote(); }
   S.room=S.quote.rooms[0].name; S.dirty=false; markSaved();
   QI.subtype= v==="commercial" ? "Commercial Order Domestic" : "Residential Order Domestic";
   renderRoom(); renderRoomMenu(); renderQuote(); renderQView(); search();
@@ -3253,6 +3339,7 @@ document.addEventListener("click",e=>{
     if(t.dataset.ract==="fin"){ renderQuote(); fcOpen({kind:"room",room:name},document.querySelector(`[data-rmore="${CSS.escape(name)}"]`)); return; }
     renderQuote(); startRename(name); return; } // "Rename room": the same form as Add room, filled in
   if(t.dataset.more){ S.rmenu=null; S.lmenu=S.lmenu===t.dataset.more?null:t.dataset.more; renderQuote(); document.querySelector(S.lmenu?".lmenu [role=menuitem]":`[data-more="${CSS.escape(t.dataset.more)}"]`)?.focus(); return; }
+  if(t.dataset.act==="finish"&&t.getAttribute("aria-disabled")==="true") return; // greyed: the reason is on the item, the menu stays open
   if(t.dataset.act){ const [room,sku]=t.dataset.key.split("|"); S.lmenu=null; renderQuote();
     if(t.dataset.act==="up"||t.dataset.act==="down"){ if(t.getAttribute("aria-disabled")==="true"){ document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; } moveLine(room,sku,t.dataset.act==="up"?-1:1); return; }
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
@@ -3351,7 +3438,8 @@ document.addEventListener("change",e=>{
     S.scenario=t.value; resetSend();
     if(t.value==="noroom") S.room="";
     if(t.value==="fresh"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote.rooms=[]; S.room=""; }
-    if(t.value==="finish"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote=FIN_QUOTE(); S.room="Primary Bath"; S.allOpen=true; S.folded=[]; S.payLinkLive=true; } // Change finish demo: every case in the brief, with a live payment link
+    if(t.value==="finish"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote=FIN_QUOTE(); S.room="Primary Bath"; S.allOpen=true; S.folded=[]; PAYDEMO.broken=false; devPayNote(); } // Change finish demo: every case in the brief, with a live payment link
+    if(t.value==="finishcom"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; if(S.view!=="commercial"){ S.view="commercial"; $("#view").value="commercial"; QI.subtype="Commercial Order Domestic"; S.blendErr=null; } S.quote=FIN_COM_QUOTE(); S.room="Lobby Restroom"; S.allOpen=true; S.folded=[]; PAYDEMO.broken=false; devPayNote(); } // commercial Change finish demo: opens on the Commercial view
     if(t.value==="long"){ if(!S.saved) S.saved={quote:structuredClone(S.quote),dirty:S.dirty}; S.quote=LONG_QUOTE(); S.room="Bar"; S.allOpen=true; S.folded=[]; } // for testing "Find in this quote" at the size SCs see
     if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room="";
     if(t.value!=="noroom"&&t.value!=="fresh"&&!S.room) S.room=S.quote.rooms[0]?.name||"";
@@ -3362,6 +3450,7 @@ document.addEventListener("change",e=>{
     markSaved(); applySendScenario(t.value); renderRoom(); renderRoomMenu();
     $("#lineFilter").value=t.value==="long"?"bar":""; S.lineQ=$("#lineFilter").value; FIND.i=-1; // the U-04 demo opens with "bar" found; other scenarios start with no find
     if(t.value==="tabdot"){ S.riskDemo=true; applyRiskDemo(true); $("#riskDemo").checked=true; S.folded=[]; RISK=computeRisk(); } // the stock warning examples flag four lines in the usual quote (some block sending), and the SC is on Quote information, so the Products tab shows a red dot
+    if(t.value==="finishcom") renderQView();
     renderQuote(); search(); if(t.value==="long") applyFind(); if(t.value==="tabdot") setQView("info"); renderPageDots(); return; }
   if(t.id==="view"){ setView(t.value); return; }
   if(t.id==="conceptRP"){ CR.on=t.checked; CR.open=null; CR.size={}; crHash(CR.on); renderQuote(); renderResults(); return; }
@@ -3731,6 +3820,15 @@ document.addEventListener("click",e=>{ const m=$("#addrMenu"); if(m&&!m.hidden&&
 renderQView();
 // show or hide the demo bar; the layout measures from the page top, so a resize event re-fits the panes, rail and footer
 function setProto(show,focus){ document.documentElement.classList.toggle("noproto",!show); try{ localStorage.setItem("qomProtoHidden",show?"":"1"); }catch(e){} dispatchEvent(new Event("resize")); if(focus) $(show?"#protoHide":"#protoShow").focus(); }
+// payment link demo panel (Nov 16)
+function devPayNote(){ const n=$("#devPayNote"); if(n) n.hidden=!(PAYDEMO.pay==="live"&&PAYDEMO.broken); }
+function devPanel(open,focus){ $("#devPanel").hidden=!open; $("#devGearBtn").setAttribute("aria-expanded",open); if(focus) (open?$("#devPanel input:checked"):$("#devGearBtn")).focus(); }
+$("#devGearBtn").addEventListener("click",()=>devPanel($("#devPanel").hidden,true));
+$("#devPanel").addEventListener("keydown",e=>{ if(e.key==="Escape"){ e.stopPropagation(); devPanel(false,true); } });
+document.addEventListener("pointerdown",e=>{ if(!$("#devPanel").hidden&&!e.target.closest("#devGear")) devPanel(false); });
+$("#devPayReset").addEventListener("click",()=>{ PAYDEMO.broken=false; devPayNote(); $("#devPanel input[value=live]").focus(); if(FC&&S.confirm?.kind==="fc"&&FC.step===3) fcRender(); });
+$("#devPanel").addEventListener("change",e=>{ const t=e.target; if(t.name==="devPay"){ PAYDEMO.pay=t.value; PAYDEMO.broken=false; } if(t.name==="devLink") PAYDEMO.link=t.value;
+  devPayNote(); if(FC&&S.confirm?.kind==="fc"&&FC.step===3) fcRender(); });
 $("#protoHide").addEventListener("click",()=>setProto(false,true)); $("#protoShow").addEventListener("click",()=>setProto(true,true));
 try{ if(localStorage.getItem("qomProtoHidden")) setProto(false); }catch(e){}
 applyRiskDemo(S.riskDemo); $("#riskDemo").checked=S.riskDemo; S.ship=S.det; $("#detToggle").checked=S.det; // a reload can restore old checkbox state, so always start from the defaults
@@ -3865,5 +3963,7 @@ document.addEventListener("click",e=>{ const b=e.target.closest("[data-lmove]");
 <div class="zoomwrap" id="zoomView" role="dialog" aria-modal="true" aria-label="Product photo" hidden><button type="button" class="zoomx" id="zoomClose" aria-label="Close photo"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2"/></svg></button><img id="zoomImg" alt=""><div class="zoomcap" id="zoomCap"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="ctoast" id="ctoast" role="status" aria-live="polite" hidden></div>
+<!-- Change finish result: the same green toast, but it stays until dismissed (Sam, Nov 16); fcBanner fills it -->
+<div class="ctoast" id="fcToast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
