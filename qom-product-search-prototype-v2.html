@@ -504,11 +504,11 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .qmore .qm-new{margin-bottom:-10px;padding-bottom:10px;min-height:58px}
 /* Change finish (Nov 16): two-step dialog, progress and result banner, locked lines */
 .dlg.fcdlg{width:min(820px,100%);height:min(860px,calc(100vh - 40px));padding:0;text-align:left;display:flex;flex-direction:column}
-.fc-head{display:flex;align-items:flex-start;gap:16px;padding:24px 40px 18px}
+.fc-head.has-sub{align-items:flex-start} /* a title alone is centred on the icon; with a subline the block starts at the top */
+.fc-head{display:flex;align-items:center;gap:16px;padding:24px 40px 18px}
 .fc-ic{flex:none;width:48px;height:48px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--ink)}
-.fc-head h2{margin:2px 0 3px;font-family:var(--sans);font-size:19px;font-weight:500}
+.dlg .fc-head h2{margin:0;font-family:var(--sans);font-size:19px;font-weight:500}
 .fc-head h2:focus{outline:none}
-.fc-chan{margin:0;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)} /* the quote's channel, above the title (Nov 16) */
 .fcb-mg{font-weight:400}
 .fc-sub{margin:0;color:var(--ink-2);font-size:13px}
 /* which room, when opened from a room: a black band like the quote's room bars */
@@ -517,7 +517,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-band b{font-size:15px;font-weight:600}
 .fc-band-n{margin-left:auto;font-size:12px;opacity:.75}
 @media (width < 640px){ /* sm */ .fc-band{margin:0 20px 12px} .fc-band-n{display:none} }
-.fc-x{flex:none;margin:-6px -10px 0 auto;width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer}
+.fc-x{flex:none;margin:0 -10px 0 auto;width:44px;height:44px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer}
 .fc-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 40px 20px}
 .fc-pick{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
 .fc-f label{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
@@ -525,7 +525,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-help{margin:6px 0 0;font-size:12px;color:var(--ink-3)}
 .fc-f .fc-lbl{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
 .fc-lblrow{display:flex;align-items:center;gap:4px;margin-bottom:6px} .fc-f .fc-lblrow label{margin:0}
-.fc-cur{margin:0;min-height:48px;display:flex;align-items:center;font-size:15px}
+.fc-cur{margin:0;min-height:48px;display:flex;align-items:center;padding:0 12px;background:var(--surface);font-size:15px} /* read-only: the finish in a grey box, the same height as the New finish dropdown (Sam, Nov 16) */
 .fc-help.fc-none2{color:var(--ink-2)}
 .lmenu .lm-txt small{display:block;margin-top:1px;font-size:12px;font-weight:400;color:var(--alert)}
 .lmenu button.lm-new[aria-disabled="true"]{color:var(--ink-3);cursor:default}
@@ -2477,13 +2477,14 @@ function fcRender(top){ const d=$("#rmDialog"), L=d.querySelector(".fc-list"), l
   if(fk) d.querySelector(`[data-fk="${CSS.escape(fk)}"]`)?.focus({preventScroll:true}); }
 // opened from a room: a black band under the header, like the quote's room bars, names the room and says other rooms aren't changed (Sam picked option B, Nov 16)
 const fcHead=(icon,title,sub)=>{ const o=FC.origin, room=o.kind==="room"?esc(o.room):null, n=room?fcRows().filter(x=>!x.why).length:0;
-  return `<div class="fc-head"><span class="fc-ic" aria-hidden="true">${icon}</span><div><p class="fc-chan">${S.view==="commercial"?"Commercial":"Residential"} quote</p><h2 id="dlgTitle" tabindex="-1">${title}${room&&!title.includes(room)?`<span class="sr"> for ${room}</span>`:""}</h2><p class="fc-sub" id="fcSub">${sub}</p></div><button type="button" class="fc-x" data-fc="close" aria-label="Close Change finish">${FC_X}</button></div>`
+  return `<div class="fc-head${sub?" has-sub":""}"><span class="fc-ic" aria-hidden="true">${icon}</span><div><h2 id="dlgTitle" tabindex="-1">${title}${room&&!title.includes(room)?`<span class="sr"> in ${room}</span>`:""}</h2>${sub?`<p class="fc-sub" id="fcSub">${sub}</p>`:""}</div><button type="button" class="fc-x" data-fc="close" aria-label="Close Change finish">${FC_X}</button></div>`
     +(room?`<div class="fc-band" aria-hidden="true"><span class="fc-band-l">Room</span><b>${room}</b><span class="fc-band-n">${plural(n,"line")} · other rooms aren't changed</span></div>`:""); };
 const fcEst=n=>n>50?` · About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate)`:"";
 // the selected lines' current finishes, for the titles: "Polished Nickel", or "2 finishes"
 // one line: its picture beside the name (Sam, Nov 16); a plain image, not the zoom button, so a click can't open the viewer behind the dialog
 const fcPic=p=>`<span class="fc-pic" aria-hidden="true">${p.img&&!p.noimg?`<img src="${esc(p.img)}" alt="" onerror="this.parentNode.classList.add('none');this.remove()">`:""}</span>`;
 const fcFromTxt=rows=>{ const f=[...new Set(rows.map(x=>x.p.fin))]; return f.length===1?esc(f[0]):`${f.length} finishes`; };
+// step 1 (Sam, Nov 16): the count is in the title ("Change finish for 1 product"), with no channel eyebrow or subline
 function fcStep1(){ const o=FC.origin, rows=fcRows(), elig=rows.filter(x=>!x.why), base=elig.filter(x=>x.picked), n0=base.length, sel=elig.filter(x=>x.sel), n=sel.length; // base: ticked lines, before the picked finish rules any out
   // To: only finishes at least one selected line can change to (so a finish every selected line already has never shows), A to Z, with coverage of the selected lines
   const cov=new Map(); base.forEach(x=>{ const ts=new Set(); CAT.filter(c=>c.style===x.p.style&&c.sku!==x.p.sku&&c.fin!==x.p.fin&&fcOrderable(c)).forEach(c=>fcTones(c.fin).forEach(t=>{ if(!fcHasTone(x.p,t)) ts.add(t); })); ts.forEach(t=>cov.set(t,(cov.get(t)||0)+1)); });
@@ -2533,7 +2534,7 @@ function fcStep1(){ const o=FC.origin, rows=fcRows(), elig=rows.filter(x=>!x.why
       else meta=`${lead} · <span class="fc-choice">${plural(x.c.length,"choice")} in ${esc(FC.to)}${x.ex.length?"":", none exact"}: you pick next</span>`;
       return `${one?`<div class="fc-row fc-row1${x.why||x.blocked?" off":""}">${fcPic(x.p)}`:`<label class="fc-row${x.why||x.blocked?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel?"checked":""} ${x.why||x.blocked?"disabled":""}>`}<span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>${meta}${x.why||x.blocked?"":` · Price: ${money(x.l.unit)} each · Est. delivery: ${fcDate(x.p,x.l)}`}</small>${warn}</span>${one?"</div>":"</label>"}`; }).join(""); }).join("");
   const pickable=elig.filter(x=>!x.blocked), allOn=pickable.length&&n===pickable.length;
-  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),"Change finish",sub)+`<div class="fc-body">
+  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),n?`Change finish for ${plural(n,"product")}`:"Change finish","")+`<div class="fc-body">
     <div class="fc-pick">${fromField}<div class="fc-f"><div class="fc-lblrow"><label for="fcTo">New finish</label><span class="dtw"><button type="button" class="dinfo" aria-label="About New finish" aria-describedby="fcToTip">${INFO_ICON}</button><span class="dtip" id="fcToTip" role="tooltip"><span>${toTip}</span></span></span></div><select id="fcTo" data-fk="to" aria-describedby="${why?"fcToH":"fcToTip"}" ${why?"disabled":""}><option value=""${FC.to?"":" selected"} disabled>${why?"No finishes to offer":"Choose a finish"}</option>${why?"":toList.map(opt).join("")}</select>${notes.join("")}</div></div>
     ${alsoNote}${one?`<div class="fc-box fc-onebox">${rooms}</div>`:`<div class="fc-box"><div class="fc-lhead"><b>Lines to review (${elig.length})</b><label class="fc-chk"><input type="checkbox" data-fc="all" data-fk="all" ${allOn?"checked":""} ${n&&!allOn?"data-ind":""} ${elig.length?"":"disabled"}> Select all</label></div><div class="fc-list">${rooms}</div></div>`}</div>
     <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn yes" data-fc="next" ${FC.to&&n?"":"disabled"}>${!n&&scopeOk&&elig.length?"Select lines":why?"Nothing to change":!FC.to?"Choose a finish":"Next"}</button></div>`; }
