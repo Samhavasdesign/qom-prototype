@@ -386,7 +386,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .dragging{opacity:.4}
 .drop-before{box-shadow:inset 0 3px 0 var(--ink)}
 .drop-after{box-shadow:inset 0 -3px 0 var(--ink)}
-.line{display:grid;grid-template-columns:18px 104px 72px 1fr 96px 28px;gap:10px;align-items:center;padding:8px 6px}
+.line{display:grid;grid-template-columns:18px 80px var(--lthumb,72px) 1fr 96px 28px;gap:10px;align-items:center;padding:8px 6px}
 .line{background:var(--bg);border:1px solid var(--panel-line);border-top:0;margin-top:0;padding:10px 12px}
 .line .amt{text-align:right}
 .line.justadded{animation:justadded 1.6s ease-out}
@@ -398,7 +398,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 /* both panes: one neutral grey, no border, 16px inside (the top 16px is part of each sticky header, so nothing shows above it when it pins) */
 .pane:not(.expanded){background:var(--panel-soft);padding:0 16px 16px}
 @container quote (max-width:600px){ /* narrow quote panel: amounts drop under the product name instead of squeezing it */
-  .pane.quote .line{grid-template-columns:18px 104px 72px 1fr 28px;row-gap:2px}
+  .pane.quote .line{grid-template-columns:18px 80px var(--lthumb,72px) 1fr 28px;row-gap:2px}
   .pane.quote .line .amt{grid-column:4;text-align:left}
   .pane.quote .line .amt::before{content:attr(data-lbl) " ";color:var(--ink-3)}
   .pane.quote .line .more{grid-column:5;grid-row:2}
@@ -406,7 +406,7 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
   .pane.quote .line .pdet>div{white-space:normal}
 }
 @container quote (max-width:440px){ /* very narrow quote panel (divider dragged right): photo, name and menu on one row, then price, then quantity */
-  .pane.quote .line{grid-template-columns:18px 64px minmax(0,1fr) 28px;column-gap:8px;padding:10px 8px}
+  .pane.quote .line{grid-template-columns:18px var(--lthumb,64px) minmax(0,1fr) 28px;column-gap:8px;padding:10px 8px}
   .pane.quote .line .lmove{grid-column:1;grid-row:3;margin-top:-9px} /* beside the stepper, which drops to its own row here */
   .pane.quote .line>.qty{margin-top:0}
   .pane.quote .line>.thumb{grid-column:2;grid-row:1;width:64px;height:64px} /* only the line photo, not the smaller kit photos */
@@ -443,6 +443,11 @@ table.res .name .pn{font-size:14px;line-height:1.3} /* product names in results 
 .qty .sbtn:disabled{color:var(--ink-3)}
 .qty .stepper.off{border-color:var(--line);background:var(--surface)}
 .qty .stepper.off input{color:var(--ink-3)}
+/* quote lines (Sam, Nov 16): a narrower stepper, 78px instead of 104, with thinner icon strokes */
+.line .qty .sbtn{width:22px}
+.line .qty input{width:32px}
+.line .qty .sbtn svg path{stroke-width:1.4}
+.line .qty .sbtn svg[viewBox="0 0 16 16"]{stroke-width:1.3}
 .undo{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--amber-bg);color:var(--amber);padding:8px 12px;margin-bottom:10px;font-size:13px;font-weight:600}
 .undo .btn{padding:7px 12px}
 .qty .help{font-size:11px;line-height:inherit;color:var(--ink-2)}
@@ -472,7 +477,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .zoomx:hover{background:rgba(255,255,255,.12)}
 .zoomx:focus-visible{outline:2px solid var(--on-ink)}
 .line .nm{font-size:14px}
-.line .nm .pn{display:block;font-weight:700;font-size:16px}
+.line .nm .pn{display:block;font-weight:700;font-size:13px;line-height:1.35} /* quote line titles 13px, down from 16 (Sam, Nov 16) */
 .line .nm small{display:block;color:var(--ink-3);font-size:12px}
 .line .more{width:18px;height:18px;border:.5px solid var(--ink);border-radius:50%;background:transparent;color:var(--ink);padding:0;display:flex;align-items:center;justify-content:center;align-self:center;justify-self:center}
 .line .more svg{display:block}
@@ -713,7 +718,16 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .toast.warn{background:var(--warn);color:var(--on-ink);font-weight:500;animation:toastin .15s ease-out}
 @media (prefers-reduced-motion:reduce){.toast.ok,.toast.warn{animation:none}}
 /* ---- commercial line pricing: List $ · Unit $ · Line $ · Margin % under the product, like-items box under Unit $ ---- */
-.line.com{grid-template-columns:18px 104px 72px 1fr 28px}
+.line.com{grid-template-columns:18px 80px var(--lthumb,72px) 1fr 28px}
+.line.nothumb{--lthumb:0px} /* Show details off (Sam, Nov 16): no picture column */
+.line.nothumb{padding-top:3px;padding-bottom:3px} /* details off: slimmer rows (Sam, Nov 16) */
+.line.nothumb .lmove{margin-top:0}
+.line.nothumb .lmv{height:12px}
+.line .pn .kitinl{margin:0 0 0 6px;vertical-align:1px;font-weight:400;line-height:1.3} /* details off: the Kit tag sits after the title */
+.line.nothumb .lmove .grip{height:14px} /* a 38px move-arrow stack */
+.line.nothumb .qty .stepper{height:28px}
+.line.nothumb>.qty{margin-top:5px} /* centred on the move-arrow stack */
+.line>.thumboff{width:0;height:0;overflow:hidden}
 .line .cpx{grid-column:3/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 12px;align-items:start;margin:6px 0 4px}
 .cpx .cl{display:block;font-size:12px;color:var(--ink-3);margin-bottom:3px}
 .cpx .cv{display:flex;align-items:center;height:38px;font-size:14px;font-variant-numeric:tabular-nums}
@@ -914,6 +928,7 @@ html.topnav .railfoot{margin-top:12px}
 .qsub{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
 .qright{display:flex;align-items:center;gap:8px;margin-left:auto}
 .qtools{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;min-height:56px}
+.qtools{margin-top:12px} /* more room between the view tabs and the find box (Sam, Nov 16) */
 .qbar:has(#qTools:not([hidden])){padding-bottom:8px} /* the 8px under the toolbar is part of the pinned bar, so it stays the same when room bars pin on scroll */
 .qtools[hidden]{display:none}
 .qbar:has(#qTools:not([hidden])) .qright:not(:has(.shipsw:not([hidden]))){display:none} /* no empty wrapped row under the toolbar while the switch is hidden */
@@ -930,11 +945,11 @@ html.topnav .railfoot{margin-top:12px}
 @container quote (max-width:860px){
   .qtools{flex-wrap:wrap}
   .qtact{flex:1 1 auto;flex-wrap:wrap;justify-content:flex-end;gap:8px 16px} /* stays on the count's row while it fits; wraps under it only when it doesn't, then fills the row */
-  .qtact .lfind{flex:1 1 120px;min-width:120px;max-width:none;margin-right:auto} /* small base so Add room and Collapse all stay beside it; it grows into the rest of the row */
+  .qtools .lfind{flex:1 1 220px;min-width:220px;max-width:none} /* wide enough for the typed text beside the arrows and clear button; narrower, the count wraps under it */ /* small base so the count, Show details and Collapse all stay beside it; it grows into the rest of the row */
 }
 @container quote (max-width:440px){
   .qtsum{flex-wrap:wrap;row-gap:2px}
-  .qtact .lfind{flex-basis:100%;margin-right:0} /* the find box gets its own row; Add room and Collapse all sit under it */
+  .qtools .lfind{flex-basis:100%} /* the find box gets its own row; the count, Show details and Collapse all sit under it */
   .qbar .qtop,.qbar .qseg{min-width:0}
   .qbar .qseg{gap:16px}
   .qbar .qtab{flex:0 1 auto;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis}
@@ -947,7 +962,7 @@ html.topnav .railfoot{margin-top:12px}
 .lfilter:focus-within{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .lfilter input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);outline:none}
 /* Find in this quote: "2 of 5", previous / next and clear sit inside the field once there's something typed */
-.lfilter.on{min-width:min(340px,100%);padding-right:0}
+.lfilter.on{min-width:min(340px,100%);padding-right:4px}
 .lfilter [hidden]{display:none}
 /* the find box and its count: "3 of 21 matches" in small black text under the box, so the box keeps its width for typing */
 .lfind{position:relative;display:flex;flex:1 1 300px;min-width:150px;max-width:480px}
@@ -956,10 +971,13 @@ html.topnav .railfoot{margin-top:12px}
 .findsub[hidden]{display:none}
 .qtools.finding{padding-bottom:20px} /* room for the count under the box */
 .line.findcur{outline:2px solid var(--ink);outline-offset:-2px} /* the match the arrows are on */
+/* Find in this quote matches are highlighted in orange, like a browser's find (Sam, Nov 16): light orange on every match, stronger on the current line */
+.line .pn mark,.line .pdet mark{background:#ffd3a3;color:var(--ink);text-decoration:none;border-radius:2px;padding:0 1px}
+.line.findcur .pn mark,.line.findcur .pdet mark{background:#ff9632}
 .lfilter input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none} /* our own clear button instead */
 .lfilter .findn{flex:none;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
-.lfilter .fbtn{flex:none;width:44px;height:44px;margin:-1px 0;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);padding:0}
-.lfilter .fbtn:hover:not(:disabled){background:var(--surface)}
+.lfilter .fbtn{flex:none;width:36px;height:34px;margin:0;border-radius:4px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);padding:0}
+.lfilter .fbtn:hover:not(:disabled){background:#dcdcdc} /* inset inside the box's border and darker, so it reads as a hover (Sam, Nov 16) */
 .lfilter .fbtn:disabled{color:var(--ink-3)}
 .lfilter .fbtn:focus-visible{outline-offset:-3px}
 /* matches use the product search highlight; the room bar is dark, so its underline follows the text colour */
@@ -967,6 +985,7 @@ html.topnav .railfoot{margin-top:12px}
 .roomhdr mark{text-decoration-color:currentColor}
 .line.findhit,.roomhdr.findhit{outline:3px solid var(--focus);outline-offset:2px}
 .qtfold{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 2px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}.qtfold:hover{text-decoration:underline}
+.qtact .shipsw{min-height:44px;margin-right:0;font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap} /* Show details switch in the quote toolbar (Sam, Nov 16) */
 .qtfold:disabled{color:var(--ink-3);text-decoration:none;cursor:default}
 .qtfold:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* "+ Add another room": a full-width dashed row after the last room, once the quote has products */
@@ -1696,16 +1715,16 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
         <div class="qhead" hidden><h2 class="qtitle">Selected Products</h2><p class="qsub" id="qSub"></p></div>
         <!-- Products view toolbar: what's on the quote, a filter for long quotes, fold every room -->
         <div class="qtools" id="qTools">
+          <!-- Find in this quote sits first, at the left; the line and room count follows it (Sam, Nov 16) -->
+          <div class="lfind"><label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: product name, finish or item number" aria-describedby="findSub" autocomplete="off"><button type="button" class="fbtn" id="findPrev" aria-label="Previous match" hidden><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6.5l5-5 5 5"/></svg></button><button type="button" class="fbtn" id="findNext" aria-label="Next match" hidden><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button><button type="button" class="fbtn" id="findClear" aria-label="Clear find" hidden><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></label><p class="findsub" id="findSub" aria-live="polite" hidden></p></div>
           <div class="qtsum"><h2 class="sr">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
-            <div class="lfind"><label class="lfilter"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input type="search" id="lineFilter" placeholder="Find in this quote" aria-label="Find in this quote: product name, finish or item number" aria-describedby="findSub" autocomplete="off"><button type="button" class="fbtn" id="findPrev" aria-label="Previous match" hidden><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6.5l5-5 5 5"/></svg></button><button type="button" class="fbtn" id="findNext" aria-label="Next match" hidden><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button><button type="button" class="fbtn" id="findClear" aria-label="Clear find" hidden><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8"/></svg></button></label><p class="findsub" id="findSub" aria-live="polite" hidden></p></div>
-            <button type="button" class="tolink qtfold" id="toolAddBtn" aria-controls="roomMenu"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg><span>Add room</span></button>
+            <!-- Show details (Sam, Nov 16, replaces Add room here): shows or hides each line's picture, item details (Item #, ATP, warehouse, delivery) and shipping fields -->
+            <label class="shipsw" id="detSwWrap"><span class="shiplbl">Show details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
             <button type="button" class="tolink qtfold" id="foldAll"></button>
           </div>
         </div>
         <div class="qright">
-        <!-- one switch shows or hides both the item details and the shipping fields on every line -->
-        <label class="shipsw" id="detSwWrap" hidden><span class="shiplbl">Shipping Details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
         </div>
         </div>
         <div id="qProducts" role="tabpanel" aria-labelledby="qtabProducts">
@@ -2854,8 +2873,7 @@ const qtyCell=(r,l,p,id)=>{
   return `<div class="qty"><div class="stepper${bad?" bad":""}">${first}<input type="number" inputmode="numeric" min="1" step="${m}" value="${l.qty}" aria-label="Quantity" ${help?`aria-describedby="${id}" `:""}aria-invalid="${bad}" data-qty="${key}"><button type="button" class="sbtn" data-step="${key}|1" aria-label="Increase quantity of ${esc(p.name)}">${ICON.plus}</button></div>${help}</div>`;
 };
 // the Details switch only appears once the quote has rooms with lines in them
-const SHOW_DET_SWITCH=false; // the Shipping Details switch is hidden for now; set to true to bring it back
-const detSwShown=()=>{ $("#detSwWrap").hidden=!SHOW_DET_SWITCH||S.qview!=="products"||!S.quote.rooms.some(r=>r.lines.length); };
+const detSwShown=()=>{}; // Show details now sits in the quote toolbar, which hides itself off Products and on an empty quote
 // "Find in this quote" (long quotes run to 100 lines), the usual find-in-page pattern: it finds lines only (product name with its finish, as shown:
 // "… in Nickel", or item number), never rooms. After a short pause or Enter it underlines every match and goes to the best one; the up and down
 // arrows in the box (or Enter and Shift+Enter) then step through them one by one in quote order, wrapping at the ends, and the panel scrolls to each.
@@ -2887,8 +2905,9 @@ function renderFindCount(){ const on=!!S.lineQ.trim(), n=FIND.stops.length, type
 // scrolling: the quote scrolls the page, its own pane (layout C) or the full view; the title bar and room bars pin over it
 const scrollerOf=el=>{ for(let n=el.parentElement;n&&n!==document.body;n=n.parentElement){ const o=getComputedStyle(n).overflowY; if((o==="auto"||o==="scroll")&&n.scrollHeight>n.clientHeight) return n; } return window; };
 function pinnedBottom(el){ let b=$(".qbar").getBoundingClientRect().bottom; const h=el.classList.contains("line")?el.closest(".rmblock")?.querySelector(".roomhdr"):null;
-  if(h) b=Math.max(b,h.getBoundingClientRect().bottom); return Math.max(b,0); }
-function revealBelowHeader(el){ el.scrollIntoView({block:"start"}); scrollerOf(el).scrollBy(0,el.getBoundingClientRect().top-pinnedBottom(el)-8); }
+  if(h) b+=h.offsetHeight; return Math.max(b,0); } // a line's room bar pins right under the toolbar; its live position isn't used, since mid-scroll it can sit higher than where it pins, which left the first line of a room under its bar (Sam, Nov 16)
+function revealBelowHeader(el){ document.documentElement.style.setProperty("--qbar-h",$(".qbar").offsetHeight+"px"); // measure the toolbar now (find adds a row under it), so the room bar pins where it will end up instead of moving a moment later (Sam, Nov 16)
+  el.scrollIntoView({block:"start"}); scrollerOf(el).scrollBy(0,el.getBoundingClientRect().top-pinnedBottom(el)-8); }
 // summary, filter and fold-all above the rooms (Products view only)
 function renderQTools(rooms){
   const n=rooms.reduce((a,r)=>a+r.lines.length,0), q=S.lineQ.trim();
@@ -2898,8 +2917,7 @@ function renderQTools(rooms){
   $("#qtCount").hidden=!prod||!$("#qtCount").innerHTML;
   $("#qtAct").hidden=!prod||!rooms.length;
   $("#qTools").hidden=$("#qtCount").hidden&&$("#qtAct").hidden; // nothing to show (another view): no blank strip under the tabs
-  $("#toolAddBtn").hidden=!!S.expanded; // full screen has its own in the Rooms panel
-  $(".lfind").hidden=!n&&!q; // nothing to find on a quote with no lines
+  $(".lfind").hidden=!prod||(!n&&!q); // Products only, and nothing to find on a quote with no lines
   renderFindCount();
   $("#foldAll").hidden=rooms.length<2; // one room: its own chevron does the job
   const anyOpen=rooms.some(r=>S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name));
@@ -2919,7 +2937,7 @@ function renderQuote(){
     const isOpen=(S.allOpen?!S.folded.includes(r.name):(S.room===r.name&&S.collapsedFor!==r.name))||SEND.focus?.room===r.name||(!!CR.open&&CR.open.split("|")[0]===r.name); // a room the checklist (or an open parts panel) points into opens too
     const lines=!isOpen?"":r.lines.map((l,li)=>{ const p=CAT.find(x=>x.sku===l.sku); const line=l.qty*l.unit; const open=S.open.includes(l.sku+r.name);
       const com=S.view==="commercial";
-      return `<div class="line${com?" com":""}${fcCls(r,l)}${lineFocus(r,l)?" lfocus":""}${findCur(r,l)?" findcur":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${lineMove(r,l,p)}${qtyCell(r,l,p,"q"+ri+"_"+li)}${thumbHtml(p)}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}</span>${fcState(r,l)}${crFor(r,l)}${p.kit?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${fcNote(r,l,p)}${p.kit?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
+      return `<div class="line${com?" com":""}${S.det?"":" nothumb"}${fcCls(r,l)}${lineFocus(r,l)?" lfocus":""}${findCur(r,l)?" findcur":""}" data-lroom="${esc(r.name)}" data-lsku="${esc(l.sku)}">${lineMove(r,l,p)}${qtyCell(r,l,p,"q"+ri+"_"+li)}${S.det?thumbHtml(p):'<span class="thumboff" aria-hidden="true"></span>'}<div class="nm"><span class="pn">${findHl(p.name,isFindHit(r.name,l.sku))} in ${findHl(p.fin,isFindHit(r.name,l.sku))}${p.kit&&!S.det?' <span class="tag note kitinl">Kit</span>':""}</span>${fcState(r,l)}${crFor(r,l)}${p.kit&&S.det?kitToggle(r,l,p):""}</div>${com?"":priceCell(l,p,line)}<span class="lacts"><button type="button" class="more" data-more="${esc(r.name)}|${esc(l.sku)}" aria-haspopup="menu" aria-expanded="${S.lmenu===r.name+"|"+l.sku}" aria-label="More actions for ${esc(p.name)}"><svg width="9" height="2.5" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></button></span>${com?comRow(r,l,p,"c"+ri+"_"+li):""}${lineFlag(r,l)}${S.det?pdetails(p,l,isFindHit(r.name,l.sku),"d"+ri+"_"+li):""}${riskBanner(RISK.by[r.name+"|"+l.sku],p)}${fcNote(r,l,p)}${p.kit&&S.det?kitBox(r,l,p):""}${shipRow(r,l)}${S.lmenu===r.name+"|"+l.sku?lineMenu(r,l,p):""}</div>${crAfter(r,l,p)}`; }).join("");
     return `<div class="rmblock" data-rm="${esc(r.name)}"><div class="roomhdr${S.room===r.name?' active':''}${S.rmenu===r.name?' menuopen':''}" data-roomhdr="${esc(r.name)}"><span>${rooms.length>1?grip("room",r.name,"",r.name)+" ":""}${roomName(r)} <span class="rcount">· ${r.lines.length} line${r.lines.length===1?"":"s"}</span>${(m=>m?`<span class="rfind">· ${m} match${m===1?"":"es"}</span>`:"")(S.lineQ.trim()?roomHitLines(r.name):0)}${S.room===r.name?'<span class="addtag">Adding here</span>':""}</span><span class="hdrend">${(()=>{ const a=isOpen?{n:0}:roomAttention(r); return a.n?`<span class="rwarn ${a.sev}" title="${a.n} line${a.n===1?"":"s"} in this room need${a.n===1?"s":""} attention">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:""; })()}<button type="button" class="more rmore" data-rmore="${esc(r.name)}" aria-haspopup="menu" aria-expanded="${S.rmenu===r.name}" aria-label="More actions for ${esc(r.name)}">${MORE_DOTS}</button>${S.rmenu===r.name?roomMenu(r):""}<button type="button" class="rchev" data-toggleroom="${esc(r.name)}" aria-expanded="${isOpen}" aria-label="${isOpen?"Fold up":"Open"} ${esc(r.name)}"><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></button></span></div>${!isOpen?'':(lines||`<div class="empty-quote"><b>No products in this room yet</b><button type="button" class="tolink addprod" data-addprod="${esc(r.name)}">Search for products to add here <span aria-hidden="true">→</span></button></div>`)}</div>`;
   }).join("");
   // once any room has products, a full-width row at the end adds another room
@@ -3775,7 +3793,7 @@ function restorePlace(p){ if(!p) return; const blk=document.querySelector(`.rmbl
   else revealBelowHeader(blk.querySelector(".roomhdr")); } // the line went (or its room was folded) while in full view: its room instead
 function setExpanded(on,restore=true){
   if(on&&!S.expanded) FV_PLACE=capturePlace();
-  S.expanded=on; const b=$("#expandBtn"); if(!on) S.sideAdd=false; $("#toolAddBtn").hidden=on; // full screen uses the Rooms panel's own "+ Add room"
+  S.expanded=on; const b=$("#expandBtn"); if(!on) S.sideAdd=false; // full screen uses the Rooms panel's own "+ Add room"
   $("#quotePane").classList.toggle("expanded",on); document.body.classList.toggle("noscroll",on);
   // totals, Save and the next step stay in the pricing bar; the left panel is room navigation only
   $("#qSide").hidden=!on||S.qview!=="products"; // the footer stays across the bottom while enlarged
