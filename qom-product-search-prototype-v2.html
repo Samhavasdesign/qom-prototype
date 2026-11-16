@@ -2982,6 +2982,11 @@ function renderQuote(){
 function placeLineMenu(){
   const m=document.querySelector(".lmenu"), b=m?.closest(".line")?.querySelector(".more"); if(!b) return;
   const line=b.closest(".line"); m.style.top=(b.offsetTop+b.offsetHeight+4)+"px"; m.style.right=(line.clientWidth-b.offsetLeft-b.offsetWidth)+"px";
+  // opens upward when the footer bar (or the descoped totals box) would cover it and there's room above, under the pinned toolbar (Sam, Nov 16)
+  let bottom=innerHeight; for(const fb of [$(".pbar"),$("#tBox")]) if(fb&&fb.getClientRects().length){ const t=fb.getBoundingClientRect().top; if(t>0&&t<bottom) bottom=t; }
+  const qb=$(".qbar"), qr=qb?.getBoundingClientRect(), pinned=qr&&qr.top<=parseFloat(getComputedStyle(qb).top||0)+1; // the toolbar only covers the page once it has pinned
+  const mr=m.getBoundingClientRect(), br=b.getBoundingClientRect(), top=pinned?qr.bottom:0, above=br.top-4-top, below=bottom-br.bottom-4;
+  if(mr.bottom>bottom-8&&(above>=mr.height+8||above>below)) m.style.top=(b.offsetTop-4-m.offsetHeight)+"px";
 }
 function renderLayout(){
   const w=$("#work"); w.dataset.layout=S.layout;
