@@ -526,6 +526,14 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-f .fc-lbl{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
 .fc-lblrow{display:flex;align-items:center;gap:4px;margin-bottom:6px} .fc-f .fc-lblrow label{margin:0}
 .fc-cur{margin:0;min-height:48px;display:flex;align-items:center;padding:0 12px;background:var(--surface);font-size:15px} /* read-only: the finish in a grey box, the same height as the New finish dropdown (Sam, Nov 16) */
+/* grey band (Sam, Nov 16, trial): step 1's Current finish and New finish fields sit on a grey band, edge to edge, under a white header; black stays for actions */
+.fc-body>.fc-pick{background:#e4e4e4;margin:0 -40px 18px;padding:12px 40px 22px}
+.fc-pick .fc-cur{background:var(--bg)}
+/* every step's header sits on the grey band, with the swatch-book icon and no circle; step 1's fields continue the band, and every step leaves 18px below it (Sam, Nov 16) */
+.fcdlg .fc-head{background:#e4e4e4;gap:12px;padding-bottom:22px;margin-bottom:18px}
+.fcdlg .fc-head:has(+ .fc-body > .fc-pick){padding-bottom:6px;margin-bottom:0}
+.fcdlg .fc-head .fc-ic{background:none;width:auto;height:auto}
+@media (width < 640px){ /* sm */ .fc-body>.fc-pick{margin:0 -20px 16px;padding:16px 20px 18px} .fcdlg .fc-head{margin-bottom:16px} .fcdlg .fc-head:has(+ .fc-body > .fc-pick){margin-bottom:0} }
 .fc-help.fc-none2{color:var(--ink-2)}
 .lmenu .lm-txt small{display:block;margin-top:1px;font-size:12px;font-weight:400;color:var(--alert)}
 .lmenu button.lm-new[aria-disabled="true"]{color:var(--ink-3);cursor:default}
@@ -535,8 +543,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-box{flex:1;min-height:0;display:flex;flex-direction:column;border:1px solid var(--line)}
 .fc-lhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
 .fc-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
-.fc-room{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;padding:0 16px;background:var(--surface);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.fc-room small{font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink-3)}
+.fc-room{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;padding:0 16px;background:var(--surface);border-top:1px solid #c4c4c4;border-bottom:1px solid #c4c4c4;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase} /* a darker line above and below each room bar (Sam, Nov 16) */
+.fc-room small{font-size:13px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink-2)} /* "1 of 1 selected", "1 line": 13px and darker so it reads (Sam, Nov 16) */
+.fc-room small.fc-cant{color:var(--alert)} /* "None available in …" stays the red can't-do colour */
 .fc-room .fc-chk{font-size:12px}
 .fc-chk{display:inline-flex;align-items:center;gap:10px;min-height:40px;cursor:pointer;font-size:14px}
 .fc-chk input,.fc-row input{width:18px;height:18px;margin:0;accent-color:var(--ink);flex:none}
@@ -565,7 +574,8 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-foot{flex-wrap:wrap} .fc-foot p.fc-pay{flex:1 1 100%;margin:0;font-size:13px;color:var(--amber)} /* the payment link warning sits right below the buttons */
 .fc-foot .dbtn{flex:0 0 150px;height:50px}
 .fc-foot .dbtn.yes{flex-basis:200px}
-.fc-sum{display:flex;justify-content:space-between;gap:6px 16px;flex-wrap:wrap;margin-bottom:12px;padding:10px 16px;background:var(--prog-bg);border-left:3px solid var(--prog);color:var(--prog);font-size:14px}
+.fc-sum{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:var(--amber-bg);color:var(--amber);font-size:14px} /* the alert style, like the payment link warning (Sam, Nov 16) */
+.fc-sum svg{flex:none} .fc-sum .fc-sumr{margin-left:auto}
 .fc-sum b{font-weight:600}
 .fc-pay{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:10px 14px;background:var(--amber-bg);color:var(--amber);font-size:13px}
 .fc-pay svg{flex:none;margin-top:1px}
@@ -577,14 +587,14 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-rv.off .fc-rvh{margin:0} .fc-rv.off b,.fc-rv.off small{color:var(--ink-3)}
 .fc-pill{flex:none;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
 .fc-pill.g{background:var(--ok-bg);color:var(--ok)} .fc-pill.a{background:var(--amber-bg);color:var(--amber)} .fc-pill.n{background:var(--surface);color:var(--ink-2)}
-.fc-opt{display:flex;align-items:flex-start;gap:12px;margin-top:8px;padding:10px 14px;border:1px solid var(--line);cursor:pointer}
-.fc-opt:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.fc-opt{display:flex;align-items:flex-start;gap:14px;margin:0;padding:12px 0;border-top:1px solid var(--line-2);cursor:pointer} /* rows like step 1's lines, not boxed cards (Sam, Nov 16) */
+.fc-rvh+.fc-opt{margin-top:8px}
 .fc-opt:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
-.fc-opt input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--ink);flex:none}
+.fc-opt input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--ink);flex:none}
 .fc-opt.off{opacity:.55;cursor:not-allowed}
-.fc-ot b{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px}
+.fc-ot b{display:block;font-weight:500;font-size:15px}
 .fc-ot small{display:block;margin-top:2px;font-size:12px;color:var(--ink-2)}
-.fc-diff{display:block;margin-top:4px;font-size:12px;color:var(--ink-2)}
+.fc-diff{display:inline}
 .fc-diff mark{margin-right:4px;padding:0 4px;background:#fff1b8;color:var(--ink);font-weight:600}
 .fc-sw{display:inline-flex;flex:none} .fc-sw i{display:inline-block;width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)} .fc-sw i+i{margin-left:-4px}
 @media (width < 640px){ /* sm */ .fc-head,.fc-foot{padding-left:20px;padding-right:20px} .fc-body{padding:0 20px 16px} .fc-pick{grid-template-columns:1fr} .fc-foot{flex-wrap:wrap} .fc-foot p{flex-basis:100%} .fc-foot .dbtn{flex:1 1 0} }
@@ -616,9 +626,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-conf{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
 .fc-sec{border:1px solid var(--line);padding:14px 16px}
 .fc-conf>*{flex:none}
-/* Will change, open: fills the dialog down to the quote total and scrolls inside, heading pinned; closed, just its heading (Sam, Nov 16) */
-.fc-will[open]{flex:1 1 auto;min-height:180px;overflow-y:auto;overscroll-behavior:contain;padding-top:0}
-.fc-will[open] summary{position:sticky;top:0;z-index:2;background:var(--bg);padding-top:14px;padding-bottom:8px;margin-bottom:0}
+/* Will change: always open (not an accordion, Sam, Nov 16); fills the dialog down to the quote total and scrolls inside, heading pinned */
+.fc-will{flex:1 1 auto;min-height:180px;overflow-y:auto;overscroll-behavior:contain;padding-top:0}
+.fc-will .fc-whead{position:sticky;top:0;z-index:2;background:var(--bg);margin:0;padding:14px 0 8px;font-weight:600;font-size:14px;min-height:28px;display:flex;align-items:center}
 .fc-will li.fc-wroom{position:static}
 .fc-sec h3{margin:0 0 8px;font-size:14px;font-weight:600}
 .fc-atts{list-style:none;margin:0;padding:0}
@@ -641,10 +651,11 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-acc[open] summary::after{transform:rotate(180deg)}
 .fc-acc[open] summary{margin-bottom:8px}
 @media (prefers-reduced-motion: reduce){ .fc-acc summary::after{transition:none} }
-.fc-will ul{margin:10px 0 0;padding-left:0;list-style:none;font-size:13px;color:var(--ink-2);} /* the whole open tray scrolls, see .fc-will[open] */ .fc-will li{margin:0;padding:10px 0;border-top:1px solid var(--line-2)} .fc-will li:first-child{border-top:0;padding-top:0} .fc-will li b{color:var(--ink);font-weight:600}
+.fc-will ul{margin:10px 0 0;padding-left:0;list-style:none;font-size:13px;color:var(--ink-2);} /* the whole tray scrolls, see .fc-will */ .fc-will li{margin:0;padding:10px 0;border-top:1px solid var(--line-2)} .fc-will li:first-child{border-top:0;padding-top:0} .fc-will li b{color:var(--ink);font-weight:600}
 .fc-wn{display:block;margin-bottom:4px;font-size:14px}
-.fc-will li.fc-wroom{padding:0 12px;border-top:0;margin:8px 0 2px} .fc-will li.fc-wroom:first-child{margin-top:0}
+.fc-will li.fc-wroom{padding:0 12px;border-top:1px solid #c4c4c4;margin:8px 0 2px} .fc-will li.fc-wroom:first-child{margin-top:0}
 .fc-will li.fc-wroom+li{border-top:0}
+.fc-will li:not(.fc-wroom){padding-left:12px;padding-right:12px} /* line content starts where the room name does (Sam, Nov 16) */
 .fc-attn-ic{display:inline-flex;margin-right:8px;color:var(--ink)} /* black, like its title (Sam, Nov 16) */ .fc-attn-ic svg{width:16px;height:16px}
 .fc-wl{display:grid;grid-template-columns:130px 1fr;gap:8px;padding:1px 0}
 .fc-wk{color:var(--ink-3)} .fc-wu{color:var(--ink-3)} .fc-wnote{color:var(--amber);font-weight:600}
@@ -1955,12 +1966,14 @@ CAT.push(
   ...avery("AVTP","Avery Paper Holder","Wall mount","Accessories",285),
   ...avery("AVTR","Avery Towel Ring","Wall mount","Accessories",240),
   ...avery("AVSH","Avery Rain Shower Head 10 inch","Ceiling or wall arm, 1.8 gpm","Fittings",780,["PN","MN","BB","CH"]),
+  // a second Burnished Brass rain shower head with the same attributes (a newer model number): two exact matches, so the SC chooses in step 2 (Sam, Nov 16)
+  {sku:"AVSH2-BB",style:"AVSH",name:"Avery Rain Shower Head 10 inch",sec:"Ceiling or wall arm, 1.8 gpm, 2027 model",col:"Avery",series:"Avery",cat:"Fittings",fin:"Burnished Brass",st:20,stock:6,price:874},
   ...avery("AVSTM","Avery Steam Head","Square, for steam showers","Fittings",520,["PN"]), // one finish only: nothing to change to
   ...avery("AVTH","Avery Thermostatic Valve Trim, Lever Handle","Trim only","Fittings",2240,["PN","MN","CH"]), // no brass versions
   ...avery("AVPF","Avery Wall Mounted Pot Filler","Two handles, 24 inch reach","Fittings",1890,["PN","MN","UB","BB","CH"],{MN:{whst:50},UB:{st:80}}), // Matte Nickel not stocked in USC, Unlacquered Brass discontinued: listed greyed
   ...avery("AVBS","Avery Body Spray","Wall mount","Fittings",460,["PN","BB","CH"],{BB:{st:80},CH:{price:null}}), // other finishes exist but none can be ordered
-  // handshower: the current item is 1.8 gpm; Burnished Brass comes in 1.2 and 1.8 gpm (two choices), PVD only in 1.2 gpm (no exact match)
-  ...[["PN","1.8"],["MN","1.8"],["CH","1.8"],["BB","1.8"],["BB","1.2"],["BBP","1.2"]].map(([c,g])=>{ const f=FIN6.find(x=>x[0]===c)[1]; return {sku:`AVHS${g.replace(".","")}-${c}`,style:"AVHS",name:"Avery Handshower on Bar",sec:`Wall-mount bar, ${g} gpm handshower`,col:"Avery",series:"Avery",cat:"Fittings",fin:f,st:20,stock:c==="BB"&&g==="1.2"?7:4,price:Math.round(1960*AV_UP[c]),attrs:{"Flow rate":g+" gpm"},...(c==="BBP"?{ig:"CMM-PVD"}:{})}; }),
+  // handshower: the current item is 1.8 gpm; Burnished Brass and PVD come only in 1.2 gpm (no exact match, so the SC chooses in step 2; Sam, Nov 16)
+  ...[["PN","1.8"],["MN","1.8"],["CH","1.8"],["BB","1.2"],["BBP","1.2"]].map(([c,g])=>{ const f=FIN6.find(x=>x[0]===c)[1]; return {sku:`AVHS${g.replace(".","")}-${c}`,style:"AVHS",name:"Avery Handshower on Bar",sec:`Wall-mount bar, ${g} gpm handshower`,col:"Avery",series:"Avery",cat:"Fittings",fin:f,st:20,stock:c==="BB"&&g==="1.2"?7:4,price:Math.round(1960*AV_UP[c]),attrs:{"Flow rate":g+" gpm"},...(c==="BBP"?{ig:"CMM-PVD"}:{})}; }),
   // two-tone: changes when the target is one of the tones it comes in
   {sku:"AVKF-PNUB",style:"AVKF",name:"Avery Bridge Kitchen Faucet, Cross Handles",sec:"Side spray, two tone",col:"Avery",series:"Avery",cat:"Fittings",fin:"Polished Nickel / Unlacquered Brass",st:20,stock:3,price:3450},
   {sku:"AVKF-BBUB",style:"AVKF",name:"Avery Bridge Kitchen Faucet, Cross Handles",sec:"Side spray, two tone",col:"Avery",series:"Avery",cat:"Fittings",fin:"Burnished Brass / Unlacquered Brass",st:20,stock:2,price:3690},
@@ -2466,8 +2479,9 @@ function fcPlan(){ const taken=new Set();
   return fcRows().filter(x=>x.sel).map(x=>{ let cant=fcHasTone(x.p,FC.to)?"Already "+FC.to:!x.c.length?"No version in "+FC.to:null;
     const opts=cant?[]:x.c.map(c=>({c,exact:fcExact(x.p,c,FC.to),inRoom:x.r.lines.some(y=>y!==x.l&&y.sku===c.sku),dup:taken.has(x.r.name+"|"+c.sku)}));
     if(!cant&&opts.every(o=>o.inRoom)) cant="Already in this room in "+FC.to;
-    const live=opts.filter(o=>!o.inRoom), single=live.length===1&&live[0].exact;
-    let ch=FC.choice[x.key]; if(ch===undefined) ch=single?live[0].c.sku:null; // one exact match is preselected; with choices nothing is picked for the SC
+    const live=opts.filter(o=>!o.inRoom), exact=live.filter(o=>o.exact), single=exact.length===1;
+    // exactly one exact match (same style, every other attribute the same) is found: it's proposed and skips step 2; none exact, or more than one, goes to step 2 with nothing picked (Sam, Nov 16)
+    let ch=FC.choice[x.key]; if(ch===undefined) ch=single?exact[0].c.sku:null;
     if(ch&&ch!=="keep"&&!live.some(o=>o.c.sku===ch&&!o.dup)) ch=null;
     if(ch&&ch!=="keep") taken.add(x.r.name+"|"+ch); // two lines in one room can't become the same item
     return {...x,cant,opts:live,single,ch}; }); }
@@ -2530,14 +2544,14 @@ function fcStep1(){ const o=FC.origin, rows=fcRows(), elig=rows.filter(x=>!x.why
       else if(!FC.to) meta=`${lead} · qty ${x.l.qty}`;
       else if(fcHasTone(x.p,FC.to)) meta=`${lead} · <span class="fc-none">Already ${esc(FC.to)}</span>`;
       else if(!x.c.length) meta=`${lead} · <span class="fc-cant">No version in ${esc(FC.to)}</span>`;
-      else if(x.c.length===1&&x.ex.length===1) meta=`${lead} · qty ${x.l.qty}`; // nothing new in step 1, not even the item number: every change shows on the confirm step (Sam, Nov 16)
-      else meta=`${lead} · <span class="fc-choice">${plural(x.c.length,"choice")} in ${esc(FC.to)}${x.ex.length?"":", none exact"}: you pick next</span>`;
+      else if(x.ex.length===1) meta=`${lead} · qty ${x.l.qty}`; // nothing new in step 1, not even the item number: every change shows on the confirm step (Sam, Nov 16)
+      else meta=`${lead} · <span class="fc-choice">Needs your choice in step 2</span>`;
       return `${one?`<div class="fc-row fc-row1${x.why||x.blocked?" off":""}">${fcPic(x.p)}`:`<label class="fc-row${x.why||x.blocked?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel?"checked":""} ${x.why||x.blocked?"disabled":""}>`}<span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>${meta}${x.why||x.blocked?"":` · Price: ${money(x.l.unit)} each · Est. delivery: ${fcDate(x.p,x.l)}`}</small>${warn}</span>${one?"</div>":"</label>"}`; }).join(""); }).join("");
   const pickable=elig.filter(x=>!x.blocked), allOn=pickable.length&&n===pickable.length;
   return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),o.kind==="room"?`Change finish for products in ${esc(o.room)}`:o.kind==="quote"&&n?`Change finish for ${plural(n,"product")} in ${plural(selRooms.length,"room")}`:n?`Change finish for ${plural(n,"product")}`:"Change finish","")+`<div class="fc-body">
     <div class="fc-pick">${fromField}<div class="fc-f"><div class="fc-lblrow"><label for="fcTo">New finish</label><span class="dtw"><button type="button" class="dinfo" aria-label="About New finish" aria-describedby="fcToTip">${INFO_ICON}</button><span class="dtip" id="fcToTip" role="tooltip"><span>${toTip}</span></span></span></div><select id="fcTo" data-fk="to" aria-describedby="${why?"fcToH":"fcToTip"}" ${why?"disabled":""}><option value=""${FC.to?"":" selected"} disabled>${why?"No finishes to offer":"Choose a finish"}</option>${why?"":toList.map(opt).join("")}</select>${notes.join("")}</div></div>
     ${alsoNote}${one?`<div class="fc-box fc-onebox">${rooms}</div>`:`<div class="fc-box"><div class="fc-lhead"><b>Lines to review (${elig.length})</b><label class="fc-chk"><input type="checkbox" data-fc="all" data-fk="all" ${allOn?"checked":""} ${n&&!allOn?"data-ind":""} ${elig.length?"":"disabled"}> Select all</label></div><div class="fc-list">${rooms}</div></div>`}</div>
-    <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn yes" data-fc="next" ${FC.to&&n?"":"disabled"}>${!n&&scopeOk&&elig.length?"Select lines":why?"Nothing to change":!FC.to?"Choose a finish":"Next"}</button></div>`; }
+    <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn yes" data-fc="next" ${FC.to&&n?"":"disabled"}>${!n&&scopeOk&&elig.length?"Select lines":why?"Nothing to change":!FC.to?"Choose a finish":fcChoiceRows(fcPlan()).length?"Next":"Review changes"}</button></div>`; }
 // a kit's parts, current against the candidate: which follow the finish
 // kits swap as one item: the parent kit only, never its parts one by one (engineering, Nov 16)
 // three steps (Nov 16): 1 select lines and the finish; 2 resolve choices (only lines with several matches, or none exact; skipped when every line has exactly one); 3 confirm, before anything changes
@@ -2549,15 +2563,17 @@ const fcWill=inRoom=>x=>{ const c=fcProd(x.ch), q=x.l.qty, u1=x.l.unit, u2=fcUni
 const fcChoiceRows=P=>P.filter(x=>!x.cant&&!x.single);
 const fcTotal=()=>FC.to&&!fcChoiceRows(fcPlan()).length?2:3;
 const fcOptCards=x=>{ const nm=`fc:${x.key}`;
-  const opt=o=>{ const d=fcDiffs(x.p,o.c), s=fcStock(o.c,x.l.qty,FC.to), diff=d.length?d.map(z=>`<span class="fc-diff"><mark>${esc(z.k)}: ${esc(z.nu)}</mark> now ${esc(z.now)}</span>`).join(""):!o.exact?`<span class="fc-diff"><mark>Finish: ${esc(o.c.fin)}</mark> now ${esc(x.p.fin)}</span>`:"";
-    return `<label class="fc-opt${o.dup?" off":""}"><input type="radio" name="${esc(nm)}" value="${esc(o.c.sku)}" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:${esc(o.c.sku)}" ${x.ch===o.c.sku?"checked":""} ${o.dup?"disabled":""}><span class="fc-ot"><b>${fcSwatch(o.c.fin)}${esc(o.c.sku)} · ${esc(o.c.fin)}${o.exact?" · exact match":""}</b><small>Price: ${money(fcUnit(x.l,x.p,o.c))} each</small><small>Est. delivery: ${fcDate(o.c,x.l)}</small>${o.dup?"<small>Another line in this room already changes to this item</small>":""}${diff}${s?`<span class="fc-warnl">${FC_BOX}${s}</span>`:""}</span></label>`; };
-  return x.opts.map(opt).join("")+`<label class="fc-opt"><input type="radio" name="${esc(nm)}" value="keep" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:keep" ${x.ch==="keep"?"checked":""}><span class="fc-ot"><b>${fcSwatch(x.p.fin)}Keep current item (${esc(x.l.sku)} · ${esc(x.p.fin)})</b><small>The client keeps this one as is.</small></span></label>`; };
+  // styled like step 1's line rows (Sam, Nov 16): no swatch, the item on one line and its details on the next, joined with dots; what differs is highlighted inline
+  const opt=o=>{ const d=fcDiffs(x.p,o.c), s=fcStock(o.c,x.l.qty,FC.to), diff=d.length?d.map(z=>`<span class="fc-diff"><mark>${esc(z.k)}: ${esc(z.nu)}</mark> now ${esc(z.now)}</span>`).join(" · "):!o.exact?`<span class="fc-diff"><mark>Finish: ${esc(o.c.fin)}</mark> now ${esc(x.p.fin)}</span>`:"";
+    const meta=[o.exact?"Exact match":"",!d.length&&o.c.sec&&o.c.sec!==x.p.sec?esc(o.c.sec):"",diff,`Price: ${money(fcUnit(x.l,x.p,o.c))} each`,`Est. delivery: ${fcDate(o.c,x.l)}`].filter(Boolean).join(" · ");
+    return `<label class="fc-opt${o.dup?" off":""}"><input type="radio" name="${esc(nm)}" value="${esc(o.c.sku)}" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:${esc(o.c.sku)}" ${x.ch===o.c.sku?"checked":""} ${o.dup?"disabled":""}><span class="fc-ot"><b>${esc(o.c.sku)} · ${esc(o.c.fin)}</b><small>${meta}</small>${o.dup?"<small>Another line in this room already changes to this item</small>":""}${s?`<span class="fc-warnl">${FC_BOX}${s}</span>`:""}</span></label>`; };
+  return x.opts.map(opt).join("")+`<label class="fc-opt"><input type="radio" name="${esc(nm)}" value="keep" data-fc="pick" data-key="${esc(x.key)}" data-fk="o:${esc(x.key)}:keep" ${x.ch==="keep"?"checked":""}><span class="fc-ot"><b>Keep current item (${esc(x.l.sku)} · ${esc(x.p.fin)})</b><small>The client keeps this one as is.</small></span></label>`; };
 function fcStep2(){ const C=fcChoiceRows(fcPlan()), pick=C.filter(x=>!x.ch), multi=new Set(C.map(x=>x.r.name)).size>1||FC.origin.kind==="room";
-  const rows=S.quote.rooms.map(r=>{ const rr=C.filter(x=>x.r===r); if(!rr.length) return ""; return (multi?`<div class="fc-room"><span>${esc(r.name)}</span></div>`:"")+rr.map(x=>`<fieldset class="fc-rv"><legend class="sr">${esc(x.p.name)}, ${esc(x.r.name)}</legend><div class="fc-rvh"><div><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>Now: ${esc(x.l.sku)} · ${esc(x.p.fin)} · qty ${x.l.qty}</small></div><span class="fc-pill a">${x.opts.length===1?"1 match, not exact":plural(x.opts.length,"match")+(x.opts.some(o=>o.exact)?"":", none exact")}</span></div>${fcOptCards(x)}</fieldset>`).join(""); }).join("");
-  return fcHead(FC_LIST,`Choose items in ${esc(FC.to)}`,`Step 2 of 3 · ${C.length===1?"This line has":"These lines have"} more than one match, or none that's exact. Pick one, or keep the current item.`)+`<div class="fc-body">
-    <div class="fc-sum"><b>${plural(C.length,"line")} need${C.length===1?"s":""} a choice</b><span>${C.length-pick.length} picked · ${pick.length} to pick</span></div>
+  const rows=S.quote.rooms.map(r=>{ const rr=C.filter(x=>x.r===r); if(!rr.length) return ""; return (multi?`<div class="fc-room"><span>${esc(r.name)}</span></div>`:"")+rr.map(x=>`<fieldset class="fc-rv"><legend class="sr">${esc(x.p.name)}, ${esc(x.r.name)}</legend><div class="fc-rvh"><div><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>Now: ${esc(x.l.sku)} · ${esc(x.p.fin)} · qty ${x.l.qty}</small></div><span class="fc-pill a">${x.opts.length===1?"1 option, not exact":plural(x.opts.length,"option")+(x.opts.some(o=>o.exact)?"":", none exact")}</span></div>${fcOptCards(x)}</fieldset>`).join(""); }).join("");
+  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),`Choose items in ${esc(FC.to)}`,`${C.length===1?"This line has":"These lines have"} more than one match, or none that's exact. Pick one, or keep the current item.`)+`<div class="fc-body">
+    <div class="fc-sum">${RI.bad}<b>${plural(C.length,"line")} need${C.length===1?"s":""} a choice</b><span class="fc-sumr">${C.length-pick.length} picked · ${pick.length} to pick</span></div>
     <div class="fc-box"><div class="fc-list">${rows}</div></div></div>
-    <div class="fc-foot">${pick.length?`<p class="need">Pick an item or Keep for ${plural(pick.length,"line")}</p>`:`<p>Every line has a pick · You confirm next</p>`}<button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="confirm" ${pick.length?"disabled":""}>${pick.length?`Pick ${pick.length} more`:"Next"}</button></div>`; }
+    <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="confirm" ${pick.length?"disabled":""}>${pick.length?`Pick ${pick.length} more`:"Review changes"}</button></div>`; }
 function fcStep3(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="keep"), n=chg.length, rooms=[...new Set(P.map(x=>x.r.name))], multi=rooms.length>1, t=fcTotal();
   const inRoom=x=>multi?` <span class="fc-rm">· ${esc(x.r.name)}</span>`:""; // room names only when more than one room is involved
   const crooms=[...new Set((n?chg:P).map(x=>x.r.name))], scope=crooms.length===1?`in ${esc(crooms[0])}`:FC.origin.kind==="quote"?"across the quote":`across ${crooms.length} rooms`;
@@ -2572,12 +2588,12 @@ function fcStep3(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="kee
   const secs=[
     att.length?`<details class="fc-sec fc-acc fc-attn"${FC.attnOpen===false?"":" open"}><summary data-fk="attn"><span class="fc-attn-ic" aria-hidden="true">${RI.bad}</span>Needs attention (${att.length})</summary><ul class="fc-atts">${att.join("")}</ul></details>`:"",
     n>50?`<p class="fc-est">${FC_CLOCK}About ${Math.max(1,Math.round(n*2/60))} minutes to apply (estimate). You can keep working while it runs.</p>`:"",
-    n?`<details class="fc-sec fc-acc fc-will"${FC.willOpen===false?"":" open"}><summary data-fk="will">Will change (${n})</summary><ul>${S.quote.rooms.filter(r=>chg.some(x=>x.r===r)).map(r=>{ const rr=chg.filter(x=>x.r===r); return (multi||FC.origin.kind==="room"?`<li class="fc-room fc-wroom"><span>${esc(r.name)}</span><small>${plural(rr.length,"line")}</small></li>`:"")+rr.map(fcWill(()=>"")).join(""); }).join("")}</ul></details>`:""].join("");
+    n?`<div class="fc-sec fc-will"><h3 class="fc-whead">Will change (${n})</h3><ul>${S.quote.rooms.filter(r=>chg.some(x=>x.r===r)).map(r=>{ const rr=chg.filter(x=>x.r===r); return (multi||FC.origin.kind==="room"?`<li class="fc-room fc-wroom"><span>${esc(r.name)}</span><small>${plural(rr.length,"line")}</small></li>`:"")+rr.map(fcWill(()=>"")).join(""); }).join("")}</ul></div>`:""].join("");
   const tot=n?`<div class="fc-tot"><div><span>Quote total</span><small>Products, before freight and tax</small></div><b>${money(cur)} → ${money(nu)}</b></div>`:"";
   const pay=n&&fcPayLink()&&PAYDEMO.link==="breaks"?`<p class="fc-pay">${RI.bad}<span>This quote has a payment link out with the client. After this change, that link won't work, and Undo won't restore it. You'll need to send a new one.</span></p>`:""; // right below the buttons (Sam, Nov 16); nothing when the link updates
-  return fcHead(FC_LIST,n?`Change ${plural(n,"line")} ${scope} from ${fcFromTxt(chg)} to ${esc(FC.to)}`:"Nothing to change",`Step ${t} of ${t} · Nothing has changed yet`)+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
-    <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="apply" ${n?"":"disabled"}>${n?`Change ${plural(n,"line")}`:"Nothing to change"}</button>${pay}</div>`; }
-document.addEventListener("toggle",e=>{ if(!FC) return; if(e.target.classList?.contains("fc-will")) FC.willOpen=e.target.open; if(e.target.classList?.contains("fc-attn")) FC.attnOpen=e.target.open; },true); // remembered while the dialog is open
+  return fcHead(ROLLER_ICON.replace('width="20" height="20"','width="24" height="24"'),n?`Change ${plural(n,"line")} ${scope} from ${fcFromTxt(chg)} to ${esc(FC.to)}`:"Nothing to change",`Step ${t} of ${t} · Nothing has changed yet`)+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
+    <div class="fc-foot"><span class="fc-grow" aria-hidden="true"></span><button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="apply" ${n?"":"disabled"}>${n===1?"Confirm change":n?"Confirm changes":"Nothing to change"}</button>${pay}</div>`; }
+document.addEventListener("toggle",e=>{ if(!FC) return; if(e.target.classList?.contains("fc-attn")) FC.attnOpen=e.target.open; },true); // remembered while the dialog is open
 document.addEventListener("change",e=>{ if(!FC||S.confirm?.kind!=="fc"||!e.target.closest?.("#rmDialog")) return; const t=e.target, a=t.dataset.fc; e.stopPropagation(); // capture: the dialog sits after this script
   if(t.id==="fcFrom"){ FC.sel=new Set(fcRows().filter(x=>!x.why&&(t.value==="all"||x.p.fin===t.value)).map(x=>x.key)); FC.choice={}; fcRender(); return; } // mixed scope: tick every line in that finish, or all of them // ticks the lines in that finish (all of them for "All finishes")
   if(t.id==="fcTo"){ FC.to=t.value; FC.lost=null; FC.choice={}; fcRender(); return; }
