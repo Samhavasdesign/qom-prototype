@@ -734,6 +734,8 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .line.nothumb>.qty{margin-top:0;align-self:center}
 /* details off, alerts under the title (Sam, Nov 16): 4px under the title and between alerts, and 8px under the last alert, the same as above the stepper */
 .line.nothumb{row-gap:4px}
+/* details off: no picture column, so everything under the title starts at the title's left edge, not 10px before it (Sam, Nov 16) */
+@container quote (min-width:441px){ .line.nothumb>.cpx,.line.nothumb>.rb,.line.nothumb>.lflag,.line.nothumb>.kitbox,.line.nothumb>.pdet,.line.nothumb>.shiprow{grid-column:4/-1} }
 .line.nothumb .rb{margin-top:0}
 
 .line>.thumboff{width:0;height:0;overflow:hidden}
