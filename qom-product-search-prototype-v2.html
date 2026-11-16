@@ -1720,7 +1720,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
           <div class="qtsum"><h2 class="sr">Selected products</h2><p class="qtcount" id="qtCount" aria-live="polite"></p></div>
           <div class="qtact" id="qtAct">
             <!-- Show details (Sam, Nov 16, replaces Add room here): shows or hides each line's picture, item details (Item #, ATP, warehouse, delivery) and shipping fields -->
-            <label class="shipsw" id="detSwWrap"><span class="shiplbl">Show details</span><input type="checkbox" role="switch" id="detToggle" checked autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
+            <label class="shipsw" id="detSwWrap"><span class="shiplbl">Show details</span><input type="checkbox" role="switch" id="detToggle" autocomplete="off"><span class="swtrack" aria-hidden="true"></span></label>
             <button type="button" class="tolink qtfold" id="foldAll"></button>
           </div>
         </div>
@@ -2026,7 +2026,7 @@ const S = {
   // one selection stays on until cleared, and switching the "Adding to" room never changes a filter.
   filters:{cat:new Set(), fin:new Set(), col:new Set(), series:new Set(), lt:new Set(), sname:new Set()},
   fpop:null, finTab:null, catOpen:new Set(),
-  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:true, det:true, riskDemo:true, lineQ:"", allOpen:false, folded:[],
+  page:1, collapsedFor:null, fq:{cat:"",fin:"",col:"",lt:"",series:"",sname:""}, disc:true, stock:true, price:false, notice:null, scenario:"normal", open:[], mode:"enter", saved:null, kitClosed:[], rmenu:null, qview:"products", lmenu:null, confirm:null, view:"residential", ship:false, det:false, riskDemo:true, lineQ:"", allOpen:false, folded:[],
   quote:{rooms:[{name:"Bar", type:"Bar", lines:[{sku:"HNBAR-N",qty:1,unit:2110,rdd:"12/19/2026"},{sku:"HNTVC-N",qty:1,unit:1485,rdd:"12/19/2026",cdd:"12/15/2026",spec:false},{sku:"HNSHW-KIT-N",qty:1,unit:2390,rdd:"12/19/2026",cdd:"01/12/2027"}]},{name:"Club House", type:"Club House", lines:[{sku:"HNWS29",qty:1,unit:15996,rdd:"01/15/2027",cdd:"01/15/2027"},{sku:"KSTN36-POL",qty:30,unit:48},{sku:"ARCH28-FIG",qty:15,unit:31,spec:false},{sku:"ARCHBN-FIG",qty:10,unit:22}]}]},
   dirty:false, recent:["HNBAR-N","HNTVC-N","HNWS29"], loading:false
 };
