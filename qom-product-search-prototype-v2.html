@@ -3945,8 +3945,12 @@ document.addEventListener("click",e=>{ if(!$("#qMoreMenu").hidden&&!e.target.clo
 addEventListener("resize",placeQMore); addEventListener("scroll",e=>{ if(!$("#qMoreMenu").hidden&&!e.target.closest?.("#qMoreMenu")) placeQMore(); },true);
 // a scenario can be linked to with ?scenario=<value> (Nov 16), e.g. ?scenario=finish; picking one in the demo bar updates the address so it can be shared
 { const want=new URLSearchParams(location.search).get("scenario"); if(want&&$(`#scenario option[value="${CSS.escape(want)}"]`)) $("#scenario").value=want; }
-$("#scenario").addEventListener("change",()=>{ try{ const u=new URL(location.href); u.searchParams.set("scenario",$("#scenario").value); history.replaceState(null,"",u); }catch(e){} });
+// View is linked too (Sam, Nov 16): ?view=commercial opens the Commercial view with its mock quote (lines with margins), e.g. ?view=commercial for the
+// bulk margin adjustment work; Residential leaves it out of the address. Written after the change is handled, since a scenario can switch View.
+const syncUrl=()=>setTimeout(()=>{ try{ const u=new URL(location.href); u.searchParams.set("scenario",$("#scenario").value); if(S.view==="commercial") u.searchParams.set("view","commercial"); else u.searchParams.delete("view"); history.replaceState(null,"",u); }catch(e){} },0);
+$("#scenario").addEventListener("change",syncUrl); $("#view").addEventListener("change",syncUrl);
 $("#scenario").dispatchEvent(new Event("change",{bubbles:true})); // the prototype opens on a fresh quote with no lines, unless ?scenario= names another
+if(new URLSearchParams(location.search).get("view")==="commercial"&&S.view!=="commercial"){ $("#view").value="commercial"; $("#view").dispatchEvent(new Event("change",{bubbles:true})); } // a fresh or residential scenario becomes the commercial quote, with lines
 // the side nav. Wide: the edge tab folds the full rail to the slim one and back (remembered). Tablet: the tab slides the full rail out over the page.
 // Phone: the hamburger opens the drawer. A click on an empty part of the slim rail unfolds it; Escape, a click outside or picking a link closes the slid-out rail or the drawer.
 (function(){ const r=document.querySelector(".rail"), b=$("#railBtn"), tips=r.querySelectorAll("a.rlink,.railout"); let last=NAV.mode();

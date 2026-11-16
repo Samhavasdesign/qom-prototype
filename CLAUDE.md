@@ -53,7 +53,7 @@ Extract the `<script>` contents and run `node --check` on them. One stray charac
 
 ## Demo bar (black bar at the top, not part of the design)
 - Show and hide (Nov 9, v2 and v3): "Hide prototype controls" at the bar's right end hides it, and a small "Show prototype controls" tab at the top right brings it back. The choice is remembered in the browser, and hiding re-fits the panes, rail and footer bar.
-- Layout, and View: Residential or Commercial (commercial-only items and margin pricing appear only in Commercial).
+- Layout, and View: Residential or Commercial (commercial-only items and margin pricing appear only in Commercial). View has its own link too (v2, Nov 16): `?view=commercial` opens the Commercial view with its mock quote (4 rooms, 10 lines with margins) instead of the empty fresh quote, e.g. for the bulk margin adjustment work; picking a View or a scenario keeps the address in step, and Residential drops `view` from it.
 - Scenario (v2: each one has its own URL, `?scenario=<value>`, e.g. `?scenario=finish`; picking one updates the address. Values: normal, qom2926, fresh, finish, finishcom, and so on, as in the dropdown):
   - Normal: a "faucet" search with Finish: Brass and Category: Fittings.
   - QOM-2926 · ATP, delivery date and sourcing warehouse: adds two lines to Bar, so it shows ATP in stock, "2 from <date>" · after RDD (HNKIT-DB) and "Sourcing warehouse: USR" (HNHK-N). The lines go when you pick another scenario.
