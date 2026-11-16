@@ -192,23 +192,16 @@ body.col-resizing{cursor:col-resize;user-select:none}
 /* the staging columns don't fit a narrow search side, so the table scrolls sideways there */
 .reswrap{overflow-x:auto}
 table.res{width:100%;border-collapse:collapse;background:var(--bg)} /* results sit on white inside the grey search pane */
-table.res .name{min-width:200px}
 #searchPane{container:search/inline-size}
-/* results reveal more as the search side widens: under 500px just the name, style number and list price (no header bar);
-   500px+ the table with item number, status and list price; 640px+ UOM; 820px+ line type.
-   Status shows at every width, in the compact line when the table is hidden (Kelli, Nov 5: SCs rely on it today) */
-table.res .ncomp{display:none}
-@container search (max-width:819px){ table.res .c-lt{display:none} }
-@container search (max-width:639px){
-  table.res .c-uom{display:none}
-  table.res .name{min-width:0} /* the name wraps instead of running off the panel edge */
-  table.res td .thumb{width:60px;height:60px}
-}
-@container search (max-width:499px){
-  table.res .wd{display:none}
-  table.res .ncomp{display:block;font-size:12px;color:var(--ink-2);margin-top:3px}
-  table.res .ktag{display:none} /* stock tags stay: SCs need in/out of stock in the narrow default panel too */
-}
+/* results keep one stacked layout at every width (Sam, Nov 16): name, stock tag, "Style ARBAR · Status 20" and Details stacked,
+   with no item number, status, line type or unit columns, even when the search side is dragged wider.
+   Status shows in the compact line (Kelli, Nov 5: SCs rely on it today); unit is in the Details tray */
+table.res .wd{display:none}
+table.res .name{min-width:0} /* the name wraps instead of running off the panel edge */
+table.res td .thumb{width:60px;height:60px}
+table.res .ncomp{display:block;font-size:12px;color:var(--ink-2);margin-top:3px}
+table.res .ktag{display:none} /* stock tags stay: SCs need in/out of stock in the narrow default panel too */
+table.res .stk{display:table;margin:4px 0 0} /* stock tag on its own line under the name, as in the narrow panel */
 table.res thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* no header bar over the results at any width (Sam, Nov 5); kept for screen readers */
 table.res th{background:var(--surface-2);text-align:left;padding:10px 6px;font-weight:600;font-size:14px}
 table.res td{border-bottom:1px solid var(--line-2);padding:12px 6px;vertical-align:middle}
