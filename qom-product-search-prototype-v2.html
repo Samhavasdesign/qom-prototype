@@ -601,7 +601,8 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-pill.g{background:var(--ok-bg);color:var(--ok)} .fc-pill.a{background:var(--amber-bg);color:var(--amber)} .fc-pill.n{background:var(--surface);color:var(--ink-2)}
 .fc-opt{display:flex;align-items:flex-start;gap:14px;margin:0;padding:12px 0;border-top:1px solid var(--line-2);cursor:pointer} /* rows like step 1's lines, not boxed cards (Sam, Nov 16) */
 .fc-rvh+.fc-opt{border-top:0}
-.fc-rvh .fc-pill{background:var(--ink);color:#fff} /* "2 options", "1 option, not exact": black with white text on the grey heading (Sam, Nov 16) */
+.fc-rvh .fc-pill,.fc-rt .fc-pill.fc-s2{background:var(--ink);color:#fff}
+.fc-rt .fc-pill.fc-s2{display:inline-block;margin-left:8px;vertical-align:2px;line-height:1.4} /* "2 options", "1 option, not exact": black with white text on the grey heading (Sam, Nov 16) */
 .fc-opt:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
 .fc-opt input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--ink);flex:none}
 .fc-opt.off{opacity:.55;cursor:not-allowed}
@@ -2576,15 +2577,15 @@ function fcStep1(){ const o=FC.origin, one=o.kind==="line", rows=fcRows(), elig=
     :`<div class="fc-f"><label for="fcFrom">Current finish</label><select id="fcFrom" data-fk="from" ${elig.length?"":"disabled"}>${curVal==="custom"?`<option value="custom" selected disabled>${curF.length===1?esc(curF[0]):curF.length?`Mixed: ${curF.map(esc).join(", ")}`:"No lines selected"} (selected lines)</option>`:""}<option value="all"${curVal==="all"?" selected":""}>All finishes</option>${scopeF.map(f=>`<option value="${esc(f)}"${curVal===f?" selected":""}>${esc(f)} · ${fCount(f)}</option>`).join("")}</select></div>`;
   const rooms=S.quote.rooms.filter(r=>rows.some(x=>x.r===r)).map(r=>{ const rr=rows.filter(x=>x.r===r), re=rr.filter(x=>!x.why&&!x.blocked), rs=re.filter(x=>x.sel).length;
     return (one?"":o.kind==="room"&&re.length?`<div class="fc-room"><span>${esc(r.name)}</span><small>${rs} of ${re.length} selected</small></div>`:!re.length?`<div class="fc-room"><span>${esc(r.name)}</span><small class="fc-cant">${FC.to?`None available in ${esc(FC.to)}`:"No lines can change finish"}</small></div>`:o.kind==="room"?"":`<div class="fc-room"><label class="fc-chk"><input type="checkbox" data-fc="room" data-room="${esc(r.name)}" data-fk="r:${esc(r.name)}" ${rs===re.length?"checked":""} ${rs&&rs<re.length?"data-ind":""} aria-label="Select every line in ${esc(r.name)} that can change">${esc(r.name)}</label><small>${rs} of ${re.length} selected</small></div>`)+rr.map(x=>{
-      const lead=`${esc(x.l.sku)} · ${esc(x.p.fin)}`; let meta;
+      const lead=`${esc(x.l.sku)} · ${esc(x.p.fin)}`; let meta, step2=false;
       if(x.why) meta=`${lead} · <span class="fc-none">${esc(x.why)}</span>`; // greyed, "Can't change finish" (Nov 17)
       else if(!FC.to||FC.loading) meta=`${lead} · qty ${x.l.qty}`;
       else if(fcHasTone(x.p,FC.to)) meta=`${lead} · <span class="fc-none">Already ${esc(FC.to)}</span>`;
       else if(!x.c.length) meta=`${lead} · <span class="fc-cant">No version in ${esc(FC.to)}</span>`;
       else if(x.ex.length===1) meta=`${lead} · qty ${x.l.qty}`; // nothing new in step 1: every change shows on the confirm step (Sam, Nov 16)
-      else meta=`${lead} · <span class="fc-choice">Needs your choice in step 2</span>`;
+      else { meta=`${lead} · qty ${x.l.qty}`; step2=x.ex.length?`${x.ex.length} exact matches`:"No exact match"; } // a black badge beside the title naming why it goes to step 2 (Sam, Nov 17)
       const off=x.why||x.blocked&&!FC.loading;
-      return `${one?`<div class="fc-row fc-row1${off?" off":""}">${fcPic(x.p)}`:`<label class="fc-row${off?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel||FC.loading&&x.picked?"checked":""} ${off?"disabled":""}>`}<span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}</b><small>${meta}${off?"":` · Price: ${money(x.l.unit)} each · Est. delivery: ${fcDate(x.p,x.l)}`}</small></span>${one?"</div>":"</label>"}`; }).join(""); }).join("");
+      return `${one?`<div class="fc-row fc-row1${off?" off":""}">${fcPic(x.p)}`:`<label class="fc-row${off?" off":""}"><input type="checkbox" data-fc="line" data-key="${esc(x.key)}" data-fk="l:${esc(x.key)}" ${x.sel||FC.loading&&x.picked?"checked":""} ${off?"disabled":""}>`}<span class="fc-rt"><b>${esc(x.p.name)}${x.p.kit?' <span class="tag note">Kit</span>':""}${step2?` <span class="fc-pill fc-s2">${step2}</span>`:""}</b><small>${meta}${off?"":` · Price: ${money(x.l.unit)} each · Est. delivery: ${fcDate(x.p,x.l)}`}</small></span>${one?"</div>":"</label>"}`; }).join(""); }).join("");
   const pickable=elig.filter(x=>!x.blocked), allOn=pickable.length&&n===pickable.length;
   // titles (Nov 17): "Change finish for Avery Towel Bar in Primary Bath", "… for 6 items in Primary Bath", "… for 24 items in 4 rooms"
   const selRooms=[...new Set(sel.map(x=>x.r.name))];
