@@ -615,10 +615,10 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* the banner above the rooms: progress, then the result with Summary and Undo */
 #fcBanner:empty{display:none}
 .fcb{margin:0 0 14px;padding:12px 16px;border-left:4px solid;font-size:14px}
-.fcb.run,.fcb.undone,.fcb.pend{background:var(--prog-bg);border-color:var(--prog);color:var(--prog)}
+.fcb.run,.fcb.undone{background:var(--prog-bg);border-color:var(--prog);color:var(--prog)}
 .fcb-top>svg{width:16px;height:16px}
 .fcb.pend .fcb-top{flex-wrap:wrap} .fcb.pend .fcb-top b{flex:1 1 220px} /* the note wraps under its text on a narrow quote panel */
-.fcb.done{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.fcb.done,.fcb.pend{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)} /* the "Not saved yet" note is green (Sam, Nov 17) */
 .fcb.partial{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
 .fcb-top{display:flex;align-items:center;gap:10px}
 .fcb-top>svg,.fcb-top>.spin{flex:none;margin:0}
@@ -659,8 +659,9 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fc-chint{margin:-4px 0 10px;font-size:12px;color:var(--ink-2)} /* "Go back to leave a line out." under Check before you confirm */
 .fc-not .fc-att.x small{color:var(--ink-2)} /* Not changing is a record, not an error: grey (Sam, Nov 16) */
 .fc-rm{font-weight:400;color:var(--ink-3)}
-.fc-tot{flex:none;display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 16px;border:1px solid var(--line);background:var(--surface)} /* pinned under the scrolling sections */
-.fc-tot span{font-weight:600} .fc-tot b{margin-left:auto;font-family:var(--serif);font-size:20px;font-weight:400;font-variant-numeric:tabular-nums} .fc-tot span,.fc-tot small{display:block} .fc-tot small{margin-top:2px;font-size:12px;color:var(--ink-3)}
+.fc-tot{flex:none;display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:4px 12px;margin-top:12px;padding:12px 16px;border:1px solid var(--line);background:var(--surface)} /* pinned under the scrolling sections; rows like Full breakdown */
+.fc-tot i{justify-self:end;font-style:normal;color:var(--ink-3)}
+.fc-tot span{font-weight:600} .fc-tot b{justify-self:end;font-family:var(--serif);font-size:20px;font-weight:400;font-variant-numeric:tabular-nums} .fc-tot span,.fc-tot small{display:block} .fc-tot small{margin-top:2px;font-size:12px;color:var(--ink-3)}
 .fc-est{display:flex;gap:8px;align-items:center;margin:0;font-size:13px;color:var(--ink-2)}
 /* the confirm step's accordions (Check before you confirm open by default, Not changing folded), caret on the right (Sam, Nov 16) */
 .fc-acc summary{cursor:pointer;font-weight:600;font-size:14px;min-height:28px;display:flex;align-items:center;list-style:none}
@@ -2639,7 +2640,10 @@ function fcStep3(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="kee
     att.length?`<details class="fc-sec fc-acc fc-attn"${FC.attnOpen===false?"":" open"}><summary data-fk="attn"><span class="fc-attn-ic" aria-hidden="true">${RI.bad}</span>Check before you confirm (${plural(att.length,"line")})</summary><p class="fc-chint">Go back to leave a line out.</p><ul class="fc-atts">${att.join("")}</ul></details>`:"",
     n?`<div class="fc-sec fc-will"><h3 class="fc-whead">Changing (${plural(n,"line")})</h3><ul>${S.quote.rooms.filter(r=>chg.some(x=>x.r===r)).map(r=>{ const rr=chg.filter(x=>x.r===r); return (multi||FC.origin.kind==="room"?`<li class="fc-room fc-wroom"><span>${esc(r.name)}</span><small>${plural(rr.length,"line")}</small></li>`:"")+rr.map(fcWill).join(""); }).join("")}</ul></div>`:"",
     nots.length?`<details class="fc-sec fc-acc fc-not"${FC.notOpen?" open":""}><summary data-fk="not">Not changing (${plural(nots.length,"line")})</summary><ul class="fc-atts">${nots.join("")}</ul></details>`:""].join("");
-  const tot=n?`<div class="fc-tot"><span>Quote subtotal</span><b>${money(cur)} → ${money(nu)}</b></div>`:"";
+  // the whole quote, laid out like Full breakdown (Sam, Nov 17): the subtotal before and after; freight and tax only when they were calculated,
+  // since this change puts them out of date (a quote without freight would just repeat "Not calculated yet")
+  const fd=footState().done;
+  const tot=n?`<div class="fc-tot"><span class="lb">Subtotal</span><b>${money(cur)} → ${money(nu)}</b>${fd?'<span class="lb">Freight and tax</span><i>Calculate again after you save</i>':""}</div>`:"";
   const pay=n&&fcPayLink()&&PAYDEMO.link==="breaks"?`<p class="fc-pay">${RI.bad}<span>This quote has a payment link out with the client. After you save, that link won't work. You'll need to send a new one.</span></p>`:""; // right below the buttons; nothing when the link updates
   return fcHead(n?`Review finish changes for ${plural(n,"line")} ${scope}`:"Nothing to change","")+`<div class="fc-body"><div class="fc-conf">${secs||`<p class="fc-none">No line will change: every selected line can't change or is kept.</p>`}</div>${tot}</div>
     <div class="fc-foot">${FC_FOOT}<button type="button" class="dbtn cancel" data-fc="back">Back</button><button type="button" class="dbtn yes" data-fc="apply" ${n?"":"disabled"}>${n===1?"Confirm change":n?"Confirm changes":"Nothing to change"}</button>${pay}</div>`; }
