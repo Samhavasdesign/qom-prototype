@@ -2589,7 +2589,7 @@ function fcStep1(){ const o=FC.origin, one=o.kind==="line", rows=fcRows(), elig=
   const pickable=elig.filter(x=>!x.blocked), allOn=pickable.length&&n===pickable.length;
   // titles (Nov 17): "Change finish for Avery Towel Bar in Primary Bath", "… for 6 items in Primary Bath", "… for 24 items in 4 rooms"
   const selRooms=[...new Set(sel.map(x=>x.r.name))];
-  const title=one?`Change finish for ${esc(oneRow?.p.name||"this item")} in ${esc(o.room)}`:o.kind==="room"?`Change finish for ${plural(n,"item")} in ${esc(o.room)}`:`Change finish for ${plural(n,"item")} in ${plural(selRooms.length,"room")}`;
+  const title=one?`Change finish for ${esc(oneRow?.l.sku||"this item")} in ${esc(o.room)}`:o.kind==="room"?`Change finish for ${plural(n,"item")} in ${esc(o.room)}`:`Change finish for ${plural(n,"item")} in ${plural(selRooms.length,"room")}`;
   const ready=FC.to&&n&&!FC.loading;
   return fcHead(title,"")+`<div class="fc-body">
     <div class="fc-pick">${fromField}<div class="fc-f"><div class="fc-lblrow"><label for="fcTo">New finish</label><span class="dtw"><button type="button" class="dinfo" aria-label="About New finish" aria-describedby="fcToTip">${INFO_ICON}</button><span class="dtip" id="fcToTip" role="tooltip"><span>${toTip}</span></span></span></div>${toSel}${notes.join("")}</div></div>
