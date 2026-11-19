@@ -11,8 +11,8 @@
   color-scheme:light;
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--surface:#f5f5f5;--surface-2:#ebebeb;--panel:var(--surface);--panel-soft:var(--surface);--panel-line:var(--line);--panel-head:#d2d2d2; /* rooms you're not adding to: one step darker than the borders */--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
   --line:#dcdcdc;--line-2:#ebebeb;--hdr-line:var(--line);--hdr-count:var(--ink-2);--rail:var(--ink);--rail-2:#262626;--rail-ink:#ffffff;--rail-muted:var(--control-line);
-  --accent:#111111;--alert:#e0201b;--warn:#b7471c;--warn-bg:#fbeee8;--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:var(--ink-2);--note-bg:#f1efe9;
-  --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:var(--ink-3);--sp-w:320px;
+  --accent:#111111;--alert:var(--block);/* tab dots, Save failed and Change finish's can't-change text use the one warning red too (Sam, Nov 19; was #e0201b) */--warn:var(--block);--warn-bg:var(--block-bg);/* one warning red everywhere, the same as Before you send (Sam, Nov 19) */--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:var(--ink-2);--note-bg:#f1efe9;
+  --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:var(--ink-3);--sp-w:400px;
   --pill:#f3d64b;--focus:#111111;--proto:#e4e4e4;--proto-ink:#111111;
   /* greys, one ramp: #fff bg · #f5f5f5 surface · #ebebeb surface-2/line-2 · #dcdcdc line · #d2d2d2 panel-head (other rooms) · #949494 control-line · #6f6f6f ink-3 · #4a4a4a ink-2 · #111 ink */
   --control-line:#949494; /* one border grey for every field, select, pill and outlined control (3:1 on white) */
@@ -1326,18 +1326,29 @@ body.noscroll .qtop{position:fixed;top:0;left:max(24px,calc((100vw - 1200px)/2))
 /* hide the browser's own clear button; the search box has its own */
 #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 
-/* ---------- quote footer: one bar across the page, fixed to the bottom. Two rows:
-   total | save status, divider, buttons
-   note · Full breakdown | helper line ---------- */
+/* ---------- quote footer: one bar across the page, fixed to the bottom. One row (Sam, Nov 19):
+   everything sits together on the right: things to fix, total | save status, buttons (the total by the actions it belongs to; the save status by Save, where you look after saving). The note and the helper line moved into tooltips ---------- */
 body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 .pane.quote.expanded{bottom:var(--bar-h,0px)}
-.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:48px 20px;grid-template-areas:"tl ts tr" "bl br br";row-gap:8px;column-gap:24px;align-items:center;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
+.pbar{position:fixed;bottom:0;left:var(--fb-left,0px);width:var(--fb-w,100%);z-index:150;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:40px;grid-template-areas:"ts tl tr";row-gap:8px;column-gap:24px;align-items:center;padding:8px 28px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--panel-line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28)}
 /* row 1, left: label and amount on one line */
 .pb-tl{grid-area:tl;display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
+/* tooltips: the note on the ⓘ by the total, and on each button what it does or why it's grey. They open above, on hover or keyboard focus */
+.pb-tw{position:relative;display:inline-flex}
+.pb-tip{position:absolute;bottom:calc(100% + 10px);right:0;z-index:3;display:none;width:max-content;max-width:280px;padding:8px 12px;background:var(--ink);color:var(--bg);font-size:12px;line-height:1.45;font-weight:400;letter-spacing:0;text-transform:none;white-space:normal;text-align:left;pointer-events:none}
+.pb-tip.left{right:auto;left:-8px}
+.pb-tip:empty{display:none!important}
+.pb-tw:hover .pb-tip,.pb-tw:has(:focus-visible) .pb-tip{display:block} /* keyboard focus, not a mouse click, so it doesn't linger after one */
+.pb-tip small{display:block;margin-top:4px;color:#c9c9c9}
+/* the total itself is the hover target: its tooltip is the note, and a click opens Full breakdown (Sam, Nov 19: no ⓘ) */
+.pb-totbtn{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.pb-totbtn:hover .pb-amt,.pb-totbtn[aria-expanded="true"] .pb-amt{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
+.pb-totbtn:focus-visible{outline:2px solid var(--focus);outline-offset:4px}
+.pb-tl .pb-tw{align-self:center;min-width:0}
 .pb-lbl{font-size:13px;color:var(--muted)}
-.pb-amt{font-family:var(--serif);font-size:28px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.pb-amt{font-family:var(--serif);font-size:24px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 /* row 2, left: note · Full breakdown on one line */
-.pb-bl{grid-area:bl;display:flex;align-items:center;gap:8px;min-width:0;white-space:nowrap;font-size:12px;color:var(--muted)}
+.pb-bl{display:none;grid-area:bl;align-items:center;gap:8px;min-width:0;white-space:nowrap;font-size:12px;color:var(--muted)}
 .pb-bl .tolink{min-height:44px;margin:-12px 0;padding:0;font-size:12px;color:var(--ink-2)} /* small link, still a 44px target */
 .pb-prog{display:flex;align-items:center;gap:10px;color:var(--ink-2)}
 .pb-progbar{flex:none;display:block;width:64px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
@@ -1346,86 +1357,53 @@ body{padding-bottom:var(--bar-h,0px)} /* the page and both sides end above it */
 @media (prefers-reduced-motion:reduce){ .pb-progbar i{animation:none;width:100%;opacity:.45} }
 /* row 1, right: save status, divider, buttons */
 .pb-tr{grid-area:tr;display:flex;align-items:center;gap:20px}
-.pb-save{grid-area:ts;display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+.pb-left{grid-area:ts;display:flex;align-items:center;min-width:0}
+.pb-save{display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
 .pb-st{display:inline-flex;align-items:center;gap:8px;font-weight:600}
 .pb-st #pbIc{display:inline-flex}
+.pb-st #pbIc:has(+ .ok-msg){color:var(--done)} /* the check next to Saved is green, like its text */
+.pb-st #pbIc:has(+ .fail){color:var(--alert)}
 .pb-st .ok-msg{color:var(--done);font-size:13px}
 .pb-dot{width:9px;height:9px;border-radius:50%;background:var(--block)}
 .pb-st .unsaved{color:var(--block);font-size:13px}
 .pb-save .pb-sep{color:var(--muted)}
 .pb-discard{min-height:44px;margin:-12px 0;font-size:13px;font-weight:600} /* 44px target that doesn't make its row taller */
-.pb-div{flex:none;width:1px;height:28px;background:var(--line)}
+.pb-div{flex:none;width:1px;height:24px;background:var(--line)}
+.pbar .pb-act{position:relative;min-height:36px} /* slimmer bar (Sam, Nov 19): 36px to look at */
+.pbar .pb-act::after{content:"";position:absolute;inset:-4px 0} /* still a 44px target */
+.pb-totbtn{margin:-2px 0}
+.pb-totin{display:inline-flex;align-items:center;gap:12px} /* label and amount each centred in the bar (Sam, Nov 19) */
 .pb-btns{display:flex;gap:10px}
 /* row 2, right: one helper line for the next step */
 .pb-br{grid-area:br;display:flex;align-items:center;justify-content:flex-end;gap:16px;min-width:0}
+.pb-br{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap} /* the helper is only read out; the buttons' tooltips show it */
+#pbFixSlot{align-self:center;margin-right:12px}
+/* things to fix: a count on Send's corner instead of a link (Sam, Nov 19). Its tooltip names them, and a click opens the list */
+.pb-badge{position:absolute;top:-8px;right:-8px;z-index:1;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--warn);color:#fff;font-size:11px;font-weight:700;line-height:18px;letter-spacing:0;text-align:center;box-shadow:0 0 0 2px var(--bg)}
+.pb-badge[hidden]{display:none}
+/* "See full breakdown" after the total, in case the SC doesn't know the amount opens it (Sam, Nov 19) */
+.pb-bdlink{align-self:center;min-height:44px;margin:-2px 0 -2px 4px;padding:0;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.pb-bdlink[hidden]{display:none}
+#pbFixSlot:empty{display:none}
 .pb-help{margin:0;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
-/* when it doesn't fit (placeBar measures): "tight" moves the save status down beside the helper; "stack" puts each zone on its own row */
-.pbar.tight{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"tl tr" "bl br"}
-/* empty quote: the second row is only a hint, so it's smaller and the bar is shorter */
-.pbar.empty{grid-template-rows:48px 14px;row-gap:4px}
-.pbar.empty .pb-note,.pbar.empty .pb-help{font-size:11px;line-height:14px}
-.pbar.tight .pb-div{display:none}
-.pbar.stack{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tl" "bl" "ts" "tr" "br";row-gap:6px}
+/* when it doesn't fit (placeBar measures): "stack" puts the buttons on a second row */
+.pbar.stack{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;grid-template-areas:"ts tl" "tr tr";row-gap:10px}
 .pbar.stack .pb-div{display:none}
-.pbar.stack .pb-tr{flex-wrap:wrap}
+.pbar.stack .pb-tr{flex-wrap:wrap;justify-content:flex-end}
 .pbar.stack .pb-btns{flex-wrap:wrap;min-width:0} /* on a phone the buttons wrap instead of running off the right edge */
-.pbar.stack .pb-br{justify-content:flex-start}
-.pbar.stack .pb-help{text-align:left;white-space:normal}
 @media (width < 1024px){ /* below lg */ .pbar{padding-left:16px;padding-right:16px} }
-/* collapse handle: a small tab centred on the bar's top edge, so it never changes the bar's layout */
-.pb-tog{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:52px;height:20px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--panel-line);border-bottom:0;background:var(--bg);color:var(--ink-2);cursor:pointer}
-.pb-tog::after{content:"";position:absolute;inset:-12px -4px -4px} /* 44px-ish target without a bigger tab */
-.pb-tog svg{transition:transform .15s}
-.pbar.mini .pb-tog svg{transform:rotate(180deg)}
-.pbar.mini{cursor:pointer} /* a click anywhere on the collapsed bar expands it (no hover shade) */
-.pb-tog:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-@media (prefers-reduced-motion:reduce){ .pb-tog svg{transition:none} }
-/* collapsed: one 36px line. Total, save status, the next step in words, and only the next-step button */
-.pbar.mini{grid-template-columns:auto auto minmax(0,1fr) auto;grid-template-rows:28px;grid-template-areas:"tl ts br tr";row-gap:0;column-gap:20px;padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px))}
-.pbar.mini .pb-bl,.pbar.mini .pb-div,.pbar.mini #pbDiscSep,.pbar.mini .pb-discard{display:none}
-.pbar.mini .pb-lbl{font-size:12px}
-.pbar.mini .pb-amt{font-size:18px}
-.pbar.mini .pb-save,.pbar.mini .pb-st .ok-msg,.pbar.mini .pb-st .unsaved{font-size:12px}
-.pbar.mini .pb-help{overflow:hidden;text-overflow:ellipsis;font-size:12px}
-.pbar.mini .pb-act:not(.primary):not(.run){display:none}
-.pbar.mini .pb-act{position:relative;min-height:28px;padding:0 12px;font-size:11px}
-.pbar.mini .pb-act::after{content:"";position:absolute;inset:-8px 0} /* still a 44px target */
-/* descoped (QOM-3280 lower-effort, Nov 13; demo bar: Bottom bar > Descoped, or a Descoped scenario): no bar across every tab and no side panel.
-   Save status, freight, the blockers list, the total and the three actions sit in a totals box at the end of the product list, kept in view (Pauline) */
-body.lite #pbar,body.lite #sendPanel{display:none !important}
-.tbox{position:sticky;bottom:-16px;z-index:6;/* -16px: sits on the pane's bottom edge, over its 16px padding, so no line shows beneath */margin-top:16px;background:var(--bg);border:1px solid var(--line);box-shadow:0 -8px 18px -12px rgba(0,0,0,.28);padding:12px 16px 16px;display:flex;flex-direction:column;gap:10px;font-size:13px;max-height:min(45vh,520px);overflow-y:auto;overscroll-behavior:contain}
-.tbox[hidden],.ptacts[hidden],.tb-bd[hidden]{display:none}
-body.ptab-other .tbox{display:none} /* other tabs keep today's per-tab Save (ptActs) */
-.tb-save{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding-bottom:10px;border-bottom:1px solid var(--line-2)}
-.tb-st{display:inline-flex;align-items:center;gap:7px;font-weight:600}
-.tb-st.ok{color:var(--done)} .tb-st.unsaved{color:var(--block)} .tb-st.prog{color:var(--prog)} .tb-st.fail{color:var(--alert)}
-.tb-st .spin{margin:0} .tb-st svg{flex:none}
-.tb-st .tolink{font-weight:600;color:inherit}
-.tb-save>.tolink,.ptacts .tolink{min-height:44px;margin:-12px 0;font-size:13px}
-.tb-tot{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.tb-lbl{color:var(--ink-2);font-size:14px}
-.tb-amt{font-family:var(--serif);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
-.tb-note{margin-top:-6px;color:var(--ink-3)}
-.tb-note .tolink{min-height:44px;margin:-14px 0;font-size:13px}
-.tb-bd{padding:10px 12px;background:var(--surface)}
-.tb-bd .totals{margin:0;width:100%;font-size:13px;gap:6px 12px}
-.tb-bd .totals .big{font-size:16px}
-.tb-fr{display:flex;align-items:flex-start;gap:8px;margin:0;padding-top:10px;border-top:1px solid var(--line-2);color:var(--ink-2)}
-.tb-fr svg,.tb-fr .spin{flex:none;margin:0} .tb-fr .spin{margin-top:2px}
-.tb-fr.warn{color:var(--block)} .tb-fr.prog{color:var(--prog)} .tb-fr.ok{color:var(--done)}
-.tb-fr b{font-weight:600}
-.tb-fix:empty{display:none}
-.tb-fixbtn{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin:-6px 0;padding:0;border:0;background:none;font:inherit;font-weight:600;color:var(--ink);text-align:left;cursor:pointer}
-.tb-fixbtn.block{color:var(--block)}
-.tb-fixbtn svg{flex:none}
-.tb-fixbtn .chev{margin-left:auto;transition:transform .15s}
-.tb-fixbtn[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.tb-ok{display:flex;align-items:center;gap:8px;margin:0;color:var(--done);font-weight:600}
-.tb-list .spi{padding:10px 0}
-.tb-btns{position:sticky;bottom:-16px;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin:0 -16px -16px;padding:8px 16px 16px;background:var(--bg)} /* the actions stay in view when the list scrolls inside the box */
-.tb-btns .pb-act{flex:1 1 auto;padding:0 12px}
-.ptacts{grid-column:1/-1;position:sticky;bottom:0;z-index:5;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px 20px;margin-top:28px;padding:14px 0;background:var(--bg);border-top:1px solid var(--line);font-size:13px}
-#ptSt{margin-right:auto}
+/* full bar, as buildable now (QOM-3280 spike, Pauline, Nov 16): Saving…, "N lines changed", "Save failed: see message", Close or Discard changes */
+.pb-st .prog-msg{color:var(--prog);font-size:13px}
+.pb-st .fail{color:var(--alert);font-size:13px}
+.pb-st .fail .tolink{min-height:44px;margin:-12px 0;font-size:13px;font-weight:600;color:inherit}
+.pb-st #pbIc .spin{margin:0}
+.pb-note.stale{color:var(--block)}
+/* blockers QOM can't fix (QOM-3280 Q4: quote open in M3, migrated quote, Manual Terms): a banner on every quote tab, as well as in Things to fix */
+.extbn{display:flex;align-items:flex-start;gap:10px;margin:14px 0 2px;padding:10px 14px;background:var(--block-bg);border-left:3px solid var(--block);font-size:13px;line-height:1.45;color:var(--ink)}
+.extbn[hidden]{display:none}
+.extbn>svg{flex:none;color:var(--block);margin-top:1px}
+.extbn b{font-weight:600}
+.extbn .tolink{flex:none;margin:-12px 0 -12px auto;min-height:44px;font-size:13px;font-weight:600;white-space:nowrap}
 .sp-bd{padding:16px 20px 24px;border-top:1px solid var(--line)}
 .sp-bd h3{margin:0 0 12px;font-size:15px;font-weight:600}
 .sp-bd h3:focus{outline:none}
@@ -1580,22 +1558,17 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
       <option value="s-calc">Footer 3 · Calculating freight</option>
       <option value="s-ready">Footer 4 · Ready to send</option>
       <option value="s-blocked">Footer 5 · Blocked</option>
-      </optgroup>
-      <optgroup label="Descoped · QOM-3280 lower-effort (totals box)">
-      <option value="d-unsaved">Descoped 1 · Unsaved edits (3 lines changed)</option>
-      <option value="d-saved">Descoped 2 · Saved, freight not calculated</option>
-      <option value="d-calc">Descoped 3 · Calculating freight</option>
-      <option value="d-stale">Descoped 4 · Freight out of date after an edit</option>
-      <option value="d-ready">Descoped 5 · Ready to send</option>
-      <option value="d-blocked">Descoped 6 · Blocked (things to fix)</option>
-      <option value="d-failed">Descoped 7 · Save failed</option>
+      <option value="s-stale">Footer 6 · Freight out of date after an edit</option>
+      <option value="s-failed">Footer 7 · Save failed</option>
       </optgroup>
     </select>
   </label>
-  <label>Bottom bar
-    <select id="barMode" autocomplete="off">
-      <option value="full" selected>Full</option>
-      <option value="lite">Descoped (QOM-3280, totals box)</option>
+  <label>Blocked outside QOM
+    <select id="extBlk" autocomplete="off">
+      <option value="" selected>None</option>
+      <option value="m3open">Quote open in M3</option>
+      <option value="migrated">Migrated quote</option>
+      <option value="manual">Manual Terms</option>
     </select>
   </label>
   <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
@@ -1640,6 +1613,8 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
     </div>
     <h1 id="quoteTitle" tabindex="-1">Edit Quote: 6000024967 <span class="infor" role="img" aria-label="Infor">infor</span></h1>
     <p class="sub">QUALITY FINISHES (USC) - Henry bar and club house</p>
+    <!-- a blocker QOM can't fix, shown on every quote tab (renderSend fills it) -->
+    <div class="extbn" id="extBanner" role="status" aria-live="polite" hidden></div>
     <div class="tabs">
       <a href="#" class="ptab" data-ptab="0">Essential Quote Info<span class="tabdot" data-pdot="0" hidden></span></a><a href="#" class="ptab" data-ptab="1">Header Information<span class="tabdot" data-pdot="1" hidden></span></a><a href="#" class="ptab" data-ptab="2">Shipping Information<span class="tabdot" data-pdot="2" hidden></span></a><a href="#" class="ptab" data-ptab="3">Associations<span class="tabdot" data-pdot="3" hidden></span></a><a href="#" class="ptab cur" data-ptab="4" aria-current="page">Product Selection</a><a href="#" class="ptab">Admin: Calculations</a><a href="#" class="ptab">Communications</a><button type="button" class="tabmore" id="qMoreBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="qMoreMenu" aria-label="More quote actions" title="More quote actions"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="9.5" cy="14" r="1.5" fill="currentColor"/><circle cx="14" cy="14" r="1.5" fill="currentColor"/><circle cx="18.5" cy="14" r="1.5" fill="currentColor"/></svg></button>
     </div>
@@ -1711,8 +1686,6 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
            It replaces the search side on those tabs; the quote panel on the right is the same one Product Selection uses. -->
       <section class="pane ptview" id="ptView" aria-label="Quote details" hidden>
         <form class="ptform" id="ptForm" autocomplete="off" onsubmit="return false"></form>
-        <!-- descoped only: today's per-tab Save, with Discard changes, or Close when nothing changed (QOM-3280 Q7) -->
-        <div class="ptacts" id="ptActs" hidden><span id="ptSt"></span><button type="button" class="tolink" id="ptDisc" data-tb="discard">Close</button><button type="button" class="pb-act" id="ptSave" data-tb="save">Save</button></div>
       </section>
 
       <div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Resize panels (drag, or use the arrow keys; double-click to reset)" tabindex="0"></div>
@@ -1755,16 +1728,6 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
         <!-- Change finish: "6 lines changed … Not saved yet." with Undo, until the quote is saved (fcBanner fills it) -->
         <div id="fcBanner"></div>
         <div id="rooms"></div>
-        <!-- descoped only (QOM-3280 lower-effort): the totals box at the end of the product list, kept in view. Save status, blockers, freight, total and the three actions. renderTBox fills it -->
-        <div class="tbox" id="tBox" role="region" aria-label="Save status, total and send" hidden>
-          <div class="tb-save" id="tbSave"></div>
-          <div class="tb-tot"><span class="tb-lbl" id="tbLbl">Estimated total</span><span class="tb-amt" id="tbAmt"></span></div>
-          <div class="tb-note"><span id="tbNote"></span><span id="tbBdWrap"><span aria-hidden="true"> · </span><button type="button" class="tolink" id="tbBdBtn" data-tb="bd" aria-expanded="false" aria-controls="tbBd">Breakdown</button></span></div>
-          <div class="tb-bd" id="tbBd" hidden></div>
-          <p class="tb-fr" id="tbFr"></p>
-          <div class="tb-fix" id="tbFix"></div>
-          <div class="tb-btns"><button type="button" class="pb-act" id="tbSaveBtn" data-tb="save">Save</button><button type="button" class="pb-act" id="tbFrBtn" data-tb="freight">Calculate freight</button><button type="button" class="pb-act" id="tbSendBtn" data-tb="send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client</button></div>
-        </div>
         <div class="qfoot">
           <div class="undo" id="undoBar" role="status" hidden></div>
         </div>
@@ -1781,20 +1744,20 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
 
 <!-- quote footer: one bar across the page, fixed to the bottom (placeBar keeps it to the page width) -->
 <div class="pbar" id="pbar" role="region" aria-label="Save status, total and next step">
-  <button type="button" class="pb-tog" id="pbTog" aria-expanded="true" aria-controls="pbar" aria-label="Collapse the bar" title="Collapse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-  <div class="pb-tl"><span class="pb-lbl" id="pbLbl">Estimated total</span><span class="pb-amt" id="pbTotal"></span></div>
+  <div class="pb-left"></div>
+  <div class="pb-tl"><span id="pbFixSlot"></span><span class="pb-tw"><button type="button" class="pb-totbtn" id="pbInfo" aria-describedby="pbNoteTip" aria-expanded="false" aria-controls="sendPanel"><span class="pb-totin"><span class="pb-lbl" id="pbLbl">Estimated total</span><span class="pb-amt" id="pbTotal"></span></span></button><span class="pb-tip left" id="pbNoteTip" role="tooltip"></span></span><button type="button" class="tolink pb-bdlink" id="pbBdLink" aria-expanded="false" aria-controls="sendPanel">See full breakdown</button></div>
   <div class="pb-bl">
     <span class="pb-note" id="pbNote"></span>
-    <span class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span>Calculating freight in M3. You can keep working.</span>
+    <span class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span>Calculating freight and tax in M3. Usually about 2 minutes. You can keep working.</span>
     <span class="pb-sep" id="pbBdSep" aria-hidden="true">·</span><button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button>
   </div>
-  <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">Saved</span></span><span class="pb-sep" id="pbDiscSep" aria-hidden="true" hidden>·</span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
   <div class="pb-tr">
     <span class="pb-div" aria-hidden="true"></span>
+    <div class="pb-save" id="pbSave"><span class="pb-st" id="pbSt"><span id="pbIc"></span><span id="saveMsg" class="ok-msg">Saved</span></span><span class="pb-sep" id="pbDiscSep" aria-hidden="true" hidden>·</span><button type="button" class="tolink pb-discard" id="discardBtn" hidden>Discard</button></div>
     <div class="pb-btns">
-      <button type="button" class="pb-act" id="saveBtn" disabled>Save</button>
-      <button type="button" class="pb-act" id="pbFreightBtn">Calculate freight</button>
-      <button type="button" class="pb-act" id="pbSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client</button>
+      <span class="pb-tw"><button type="button" class="pb-act" id="saveBtn" disabled aria-describedby="tipSave">Save</button><span class="pb-tip" id="tipSave" role="tooltip"></span></span>
+      <span class="pb-tw"><button type="button" class="pb-act" id="pbFreightBtn" aria-describedby="tipFreight">Calculate freight</button><span class="pb-tip" id="tipFreight" role="tooltip"></span></span>
+      <span class="pb-tw"><button type="button" class="pb-act" id="pbSend" aria-describedby="tipSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>Send to client<span class="pb-badge" id="pbSendBadge" aria-hidden="true" hidden></span></button><span class="pb-tip" id="tipSend" role="tooltip"></span></span>
     </div>
   </div>
   <div class="pb-br" id="pbBr"><p class="pb-help" id="pbHelp" aria-live="polite"></p></div>
@@ -2988,8 +2951,8 @@ function renderQuote(){
 function placeLineMenu(){
   const m=document.querySelector(".lmenu"), b=m?.closest(".line")?.querySelector(".more"); if(!b) return;
   const line=b.closest(".line"); m.style.top=(b.offsetTop+b.offsetHeight+4)+"px"; m.style.right=(line.clientWidth-b.offsetLeft-b.offsetWidth)+"px";
-  // opens upward when the footer bar (or the descoped totals box) would cover it and there's room above, under the pinned toolbar (Sam, Nov 16)
-  let bottom=innerHeight; for(const fb of [$(".pbar"),$("#tBox")]) if(fb&&fb.getClientRects().length){ const t=fb.getBoundingClientRect().top; if(t>0&&t<bottom) bottom=t; }
+  // opens upward when the footer bar would cover it and there's room above, under the pinned toolbar (Sam, Nov 16)
+  let bottom=innerHeight; for(const fb of [$(".pbar")]) if(fb&&fb.getClientRects().length){ const t=fb.getBoundingClientRect().top; if(t>0&&t<bottom) bottom=t; }
   const qb=$(".qbar"), qr=qb?.getBoundingClientRect(), pinned=qr&&qr.top<=parseFloat(getComputedStyle(qb).top||0)+1; // the toolbar only covers the page once it has pinned
   const mr=m.getBoundingClientRect(), br=b.getBoundingClientRect(), top=pinned?qr.bottom:0, above=br.top-4-top, below=bottom-br.bottom-4;
   if(mr.bottom>bottom-8&&(above>=mr.height+8||above>below)) m.style.top=(b.offsetTop-4-m.offsetHeight)+"px";
@@ -3063,11 +3026,18 @@ function sendItems(){
   else if(SEND.freight==="done"&&!S.dirty) items.push({id:"freight",st:"done",t:"Freight and tax",d:`Calculated ${SEND.freightAt}`});
   else items.push({id:"freight",st:blk,t:"Freight not calculated",d:!SEND.addr?"Add the delivery address, then calculate freight":S.dirty?"Saves your changes first, then M3 calculates freight and tax":"M3 calculates freight, then tax. This can take a few minutes.",a:SEND.addr&&hasLines?["calc","Calculate freight"]:null});
   items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:SEND.savedAt}
-    :{id:"saved",st:"todo",t:plural(changeCount(),"unsaved change"),d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Calculate freight"});
+    :{id:"saved",st:"todo",t:linesChanged()?plural(linesChanged(),"line")+" changed":"Unsaved changes",d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Calculate freight"});
+  if(S.ext){ const x=EXT[S.ext]; items.push({id:"ext",st:"block",t:x.t,d:x.d,a:["recheck","Check again"]}); } // blocks even an empty quote: it isn't about the lines
   const rank={block:0,prog:1,todo:2,done:3};
   return items.map((x,i)=>({...x,i})).sort((a,b)=>rank[a.st]-rank[b.st]||a.i-b.i);
 }
-function blockerKeys(){ return [...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
+// blockers QOM can't fix (QOM-3280 Q4). Placeholder copy: confirm each cause and what the SC should do with Pauline and Kelli
+const EXT={
+  m3open:{t:"Quote is open in M3",d:"Someone has this quote open in M3, so QOM can't send it. Close it in M3, then check again."},
+  migrated:{t:"Migrated quote",d:"This quote was moved from the old system, so QOM can't send it. Ask your QOM admin how to send it."},
+  manual:{t:"Payment terms are Manual Terms",d:"QOM can't send a quote with Manual Terms. Ask finance to set the payment terms in M3, then check again."}
+};
+function blockerKeys(){ return [...(S.ext?["ext:"+S.ext]:[]),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
 // the footer's state, worked out once: which button is the next step and what the helper line says
 function footState(items=sendItems()){
   const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight"); // descoped too: QOM-3280 found nearly every send rule is already checked in the browser
@@ -3078,30 +3048,45 @@ function footState(items=sendItems()){
 }
 let helpHtml="";
 function renderSend(){
-  if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); if(SEND.freight==="done") SEND.stale=true; SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again (stale: the descoped box says "out of date")
+  if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); if(SEND.freight==="done") SEND.stale=true; SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again (stale: the bar says "out of date")
   if(!S.dirty) SEND.failed=null; // a save or discard clears a failed save
   const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx;
   // 1. save status
-  $("#pbIc").innerHTML=F.dirty?SI.dot:SI.done;
-  const sm=$("#saveMsg"); sm.className=F.dirty?"unsaved":"ok-msg"; sm.textContent=F.dirty?plural(changeCount(),"unsaved change"):`Saved ${SEND.savedAt}`;
-  $("#discardBtn").hidden=!F.dirty; $("#pbDiscSep").hidden=!F.dirty;
+  // as QOM can report it now (QOM-3280): Saving…, "N lines changed" (each line knows whether it changed), "Save failed: see message" until QOM-2468 can say why
+  const n=linesChanged(); $("#pbIc").innerHTML=SEND.saving?SI.prog:SEND.failed?SI.block:F.dirty?SI.dot:SI.done;
+  const sm=$("#saveMsg"); sm.className=SEND.saving?"prog-msg":SEND.failed?"fail":F.dirty?"unsaved":"ok-msg";
+  const smh=SEND.saving?"Saving…":SEND.failed?`Save failed: <button type="button" class="tolink" id="pbFailMsg">see message</button>`:F.dirty?(n?plural(n,"line")+" changed":"Unsaved changes"):`Saved ${SEND.savedAt}`;
+  if(sm._h!==smh||sm.innerHTML!==sm._s){ sm.innerHTML=smh; sm._h=smh; sm._s=sm.innerHTML; } // rewritten only when it changes (older code also writes here), so focus isn't lost
+  $("#discardBtn").textContent="Discard changes"; $("#discardBtn").hidden=$("#pbDiscSep").hidden=!(F.dirty||SEND.failed); // only when there's something to discard; no Close (Sam, Nov 19)
+  const eb=$("#extBanner"), ex=S.ext&&EXT[S.ext], ebh=ex?`${SI.block}<span><b>${esc(ex.t)}.</b> ${esc(ex.d)}</span><button type="button" class="tolink" data-sact="recheck">Check again</button>`:"";
+  eb.hidden=!ex; if(eb._h!==ebh){ eb.innerHTML=ebh; eb._h=ebh; }
   // 2. total
   $("#pbTotal").textContent=money(total);
   if(S.qview==="info"&&!qiEditConv) $("#qInfo").innerHTML=infoHtml();
   $("#pbLbl").textContent=F.done?"Total":"Estimated total";
-  $("#pbNote").hidden=F.run; $("#pbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
+  $("#pbNote").textContent=F.run?"Calculating freight and tax in M3. Usually about 2 minutes. You can keep working.":!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:SEND.stale?"Freight out of date: your changes cleared it":"Freight and tax not calculated yet"; $("#pbNote").classList.toggle("stale",F.hasLines&&!F.done&&!!SEND.stale);
+  // the note is the total's tooltip now; a click on the total opens Full breakdown
+  const nt=esc($("#pbNote").textContent)+(F.hasLines?"<small>Select for the full breakdown</small>":""); if($("#pbNoteTip")._h!==nt){ $("#pbNoteTip").innerHTML=nt; $("#pbNoteTip")._h=nt; }
+  $("#pbInfo").setAttribute("aria-expanded",String(SEND.open)); $("#pbBdLink").setAttribute("aria-expanded",String(SEND.open)); $("#pbBdLink").hidden=!F.hasLines; // nothing to break down on an empty quote
   $("#pbProg").hidden=!F.run; $("#pbar").classList.toggle("empty",!F.hasLines); $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
   $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?blendRow():""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
-  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad; sv.classList.toggle("primary",F.dirty&&!F.bad);
+  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad||!!SEND.saving; sv.classList.toggle("primary",F.dirty&&!F.bad&&!SEND.saving);
   const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
   fb.innerHTML=F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight";
   const sb=$("#pbSend"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
+  // each button's tooltip: what it does, or why it's grey (the helper line's job when the bar had two rows)
+  const nFix=F.others.length?F.issues.length:0; // the same count as the "Things to fix" list
+  const bg=$("#pbSendBadge"); bg.textContent=nFix||""; bg.hidden=!nFix;
+  $("#tipSave").textContent=SEND.saving?"Saving to M3…":F.bad?"Fix the quantities marked in the quote to save":F.dirty?"Saves your changes to M3. Then calculate freight.":"No changes to save";
+  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep working.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated ${SEND.freightAt}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
+  $("#tipSend").textContent=F.canSend?"Sends the quote and payment link to the client":nFix?`${plural(nFix,"thing")} to fix before sending`:F.run?"Sending unlocks when freight is ready":!F.hasLines?"Add products before sending":F.dirty?"Save and calculate freight before sending":"Calculate freight before sending";
   const W=F.hasLines?crWarn():[]; // concept QOM-2561: warnings ("to check") never block sending; always empty with the toggle off
   const chk=W.length?`<span aria-hidden="true"> · </span><button type="button" class="pb-chk" id="pbChk" aria-controls="sendPanel">${INFO_ICON}${W.length} to check</button>`:"";
-  let h=F.help!=null?esc(F.help)+chk:`<button type="button" class="pb-fix" id="pbFix" aria-controls="sendPanel" aria-expanded="${SEND.open}">${SI.block}${plural(F.issues.length,"thing")} to fix${chk?"":" before sending"}</button>${chk}`;
-  if(h!==helpHtml){ $("#pbHelp").innerHTML=h; helpHtml=h; } else $("#pbFix")?.setAttribute("aria-expanded",String(SEND.open)); // rewritten only when it changes, so focus isn't lost
+  const fx=chk; // things to fix are a badge on Send now; only the concept's "to check" link stays here
+  if(fx!==helpHtml){ $("#pbFixSlot").innerHTML=fx; helpHtml=fx; } else $("#pbFix")?.setAttribute("aria-expanded",String(SEND.open)); // rewritten only when it changes, so focus isn't lost
+  if($("#pbHelp").textContent!==(F.help||"")) $("#pbHelp").textContent=F.help||"";
   // panel: things to fix first (only once the quote has lines), then the rest of the checklist, then the breakdown
   const st=F.issues.length&&F.hasLines?[`${plural(F.issues.length,"thing")} to fix`,"block"]:F.run?["Calculating freight in M3","prog"]:F.canSend?["Ready to send","done"]:["Nothing to fix","muted"];
   const sp=$("#spStatus"); sp.textContent=st[0]; sp.className="tone-"+st[1];
@@ -3113,16 +3098,11 @@ function renderSend(){
   $("#spList").innerHTML=items.filter(x=>x.st!=="block").map(li).join("");
   $("#sendPanel").hidden=!SEND.open; document.body.classList.toggle("sendopen",SEND.open); $("#bdBtn").setAttribute("aria-expanded",String(SEND.open)); placeBar();
   // auto-open: B reopens on a new blocker once it has opened by itself; C opens on every new blocker
-  renderTBox(F,W,fr,tx,total);
   const keys=blockerKeys(), prev=SEND.seen; SEND.seen=new Set(keys);
-  if(S.lite) return; // descoped: no auto-expand and no panel
-  if(prev && F.hasLines && $("#pbar").classList.contains("mini") && keys.some(k=>!prev.has(k))) setMini(false); // a new problem: show the full bar
   if(prev && !SEND.open && F.hasLines && keys.some(k=>!prev.has(k)) && (SEND.mode==="new-blocker"||(SEND.mode==="first-forward"&&SEND.forwarded))) openSend(true,"issues");
 }
 // to: "issues" or "breakdown" (the section it opens at); from: the control focus goes back to when it closes
 function openSend(auto,to,from){
-  if(S.lite){ TB.fix=true; if(to==="breakdown") TB.bd=true; renderSend(); // descoped: no panel; the totals box opens its list (or breakdown) instead
-    const b=$(to==="breakdown"?"#tbBdBtn":"#tBox [data-tb=fix]"); if(b&&b.offsetParent){ b.scrollIntoView({block:"nearest"}); if(!auto) b.focus({preventScroll:true}); } return; }
   SEND.open=true; SEND.from=from||(to==="breakdown"?"#bdBtn":"#pbFix"); renderSend();
   const h=$(to==="breakdown"?"#spBdTitle":to==="check"&&!$("#spCheckSec").hidden?"#spCheckTitle":to==="issues"&&!$("#spIssuesSec").hidden?"#spIssuesTitle":"#spTitle");
   if(auto){ const n=footState().issues.length; $("#sendLive").textContent=`Before you send opened${n?`: ${plural(n,"thing")} to fix`:""}.`; h.scrollIntoView({block:"start"}); return; }
@@ -3148,6 +3128,7 @@ function runFreight(){
 function sendAction(a){
   if(a==="addAddr"){ setPTab(2); const f=$("#pf-addr"); f?.focus(); f?.scrollIntoView({block:"center"}); return; } // goes to Shipping Information, Delivery Address
   if(a==="calc"){ runFreight(); return; }
+  if(a==="recheck"){ showToast(S.ext?`Still blocked: ${EXT[S.ext].t}.`:"Nothing outside QOM blocks sending now."); return; } // mock: clear it with the demo bar
   if(a==="addRoom"){ closeSend(); startAddRoom(); return; }
   if(a==="addProd"){ closeSend(); startAddProducts(S.room||S.quote.rooms[0].name); return; }
   const k={nextSpec:"spec",nextPrice:"price",nextDisc:"disc",nextShort:"short",nextUnav:"unav"}[a]; if(k) nextLine(k);
@@ -3186,73 +3167,25 @@ function simSave(kind){
 // What engineering can build in about 8 to 11 dev-days of frontend, per Pauline's spike: save status (Unsaved / Saving / Saved / Failed: see message),
 // "N lines changed" (a count of individual edits isn't available), freight status (Not calculated / Calculating / Out of date), the blockers list
 // with links (nearly every send rule is already checked in the browser), warnings that don't block, the estimated total and breakdown, and Close for Discard when nothing changed.
-const TB={fix:false,bd:false}; // the list starts folded so the box doesn't cover the lines; Send or Calculate freight while blocked opens it
 // each line knows whether it changed; renaming a room marks all its lines changed
 function linesChanged(){ if(!S.dirty) return 0;
   const m=q=>{ const o=new Map(); (q?.rooms||[]).forEach(r=>{ const id=roomId(r); r.lines.forEach(l=>o.set(id+"|"+(l.fcFrom||l.sku),r.name+"|"+JSON.stringify(l))); }); return o; };
   const a=m(S.base), b=m(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return n; }
-const TB_CHEV=`<svg class="chev" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>`;
-const tbPut=(sel,h)=>{ const e=$(sel); if(e._h!==h){ e.innerHTML=h; e._h=h; } }; // rewritten only when it changes, so focus isn't lost
-function renderTBox(F,W,fr,tx,total){
-  $("#tBox").hidden=!S.lite||!F.hasLines&&!S.quote.rooms.length; $("#ptActs").hidden=!S.lite; if(!S.lite) return;
-  const n=linesChanged(), dirtyish=F.dirty||!!SEND.failed;
-  const st=SEND.saving?["prog",`${SI.prog}Saving…`]:SEND.failed?["fail",`${SI.block}Save failed: <button type="button" class="tolink" data-tb="msg">see message</button>`]:F.dirty?["unsaved",`${SI.dot}${n?plural(n,"line")+" changed":"Unsaved changes"}`]:["ok",`${SI.done}Saved ${SEND.savedAt}`];
-  const close=dirtyish?"Discard changes":"Close";
-  tbPut("#tbSave",`<span class="tb-st ${st[0]}">${st[1]}</span><button type="button" class="tolink" data-tb="discard">${close}</button>`);
-  tbPut("#ptSt",`<span class="tb-st ${st[0]}">${st[1]}</span>`); $("#ptDisc").textContent=close;
-  const ps=$("#ptSave"); ps.disabled=!F.dirty||F.bad||SEND.saving; ps.classList.toggle("primary",F.dirty&&!F.bad);
-  // total and breakdown
-  $("#tbLbl").textContent=F.done?"Total":"Estimated total"; $("#tbAmt").textContent=money(total);
-  $("#tbNote").textContent=!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:"Freight and tax not calculated yet";
-  $("#tbBdWrap").hidden=!F.hasLines; $("#tbBd").hidden=!TB.bd||!F.hasLines; $("#tbBdBtn").setAttribute("aria-expanded",String(TB.bd)); $("#tbBdBtn").textContent=TB.bd?"Hide breakdown":"Breakdown";
-  // freight: no percentage, since M3 doesn't report progress
-  const fs=F.run?["prog",`${SI.prog}<span><b>Calculating freight and tax in M3.</b> Usually about 2 minutes. You can keep working.</span>`]
-    :F.done?["ok",`${SI.done}<span><b>Freight and tax calculated</b> ${SEND.freightAt}</span>`]
-    :SEND.stale?["warn",`${SI.block}<span><b>Freight out of date.</b> Your changes cleared it. Save and calculate again before sending.</span>`]
-    :["todo",`${SI.todo}<span><b>Freight not calculated.</b> ${!SEND.addr?"Add the delivery address first.":!F.hasLines?"Add products first.":"M3 calculates freight, then tax."}</span>`];
-  $("#tbFr").className="tb-fr "+fs[0]; tbPut("#tbFr",fs[1]);
-  // the blockers list, plus warnings that don't block sending
-  const iss=F.hasLines?F.issues.filter(x=>x.id!=="freight"):[];
-  const li=x=>`<li class="spi ${x.st}"><span class="spi-ic">${SI[x.st]}</span><div class="spi-tx"><b>${esc(x.t)}<span class="sr"> · ${STATE_SR[x.st]}</span></b><span>${esc(x.d)}</span></div>${x.a?`<button type="button" class="splink" data-sact="${x.a[0]}">${x.a[1]}</button>`:"<span></span>"}</li>`;
-  const wl=W.map(({r,l})=>{ const p=CAT.find(x=>x.sku===l.sku); return `<li class="spi warn"><span class="spi-ic">${INFO_ICON}</span><div class="spi-tx"><b>Rough-in not added: ${esc(p.name)} · ${esc(r.name)}<span class="sr"> · To check</span></b><span>Doesn't block sending</span></div><button type="button" class="splink" data-cropen="${esc(r.name+"|"+l.sku)}">Add rough-in</button></li>`; });
-  const lbl=[iss.length?`${plural(iss.length,"thing")} to fix before sending`:"",wl.length?`${wl.length} to check`:""].filter(Boolean).join(" · ");
-  tbPut("#tbFix",!F.hasLines?"":(iss.length||wl.length)
-    ?`<button type="button" class="tb-fixbtn${iss.length?" block":""}" data-tb="fix" aria-expanded="${TB.fix}" aria-controls="tbList">${iss.length?SI.block:INFO_ICON}${lbl}${TB_CHEV}</button>${TB.fix?`<ul class="sp-list tb-list" id="tbList">${iss.map(li).join("")}${wl.join("")}</ul>`:""}`
-    :`<p class="tb-ok">${SI.done}${F.canSend?"Ready to send":"Nothing to fix"}</p>`);
-  // the same three actions as the full bar, styled the same way
-  const sv=$("#tbSaveBtn"); sv.disabled=!F.dirty||F.bad||SEND.saving; sv.classList.toggle("primary",F.dirty&&!F.bad&&!SEND.saving);
-  const fb=$("#tbFrBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
-  tbPut("#tbFrBtn",F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight");
-  const sb=$("#tbSendBtn"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
-}
-function setLite(on){ S.lite=on; $("#barMode").value=on?"lite":"full"; document.body.classList.toggle("lite",on); $("#pbar").classList.toggle("lite",on);
-  if(on){ setMini(false); SEND.open=false; $("#tbBd").appendChild($("#totals")); } else document.querySelector(".sp-bd").appendChild($("#totals")); // one breakdown, moved to wherever it shows
-  helpHtml=""; placeBar(); }
-// Save in the descoped box: "Saving…" for a moment, then saved (in QOM it's the time M3 confirms the save)
-function liteSave(){ const F=footState(); if(!F.dirty||F.bad||SEND.saving) return; SEND.saving=true; renderSend(); $("#sendLive").textContent="Saving.";
+// Save: "Saving…" for a moment, then saved (in QOM it's the time M3 confirms the save)
+function saveQuote(){ const F=footState(); if(!F.dirty||F.bad||SEND.saving) return; SEND.saving=true; SEND.failed=null; renderSend(); $("#sendLive").textContent="Saving.";
   clearTimeout(SEND.saveTimer); SEND.saveTimer=setTimeout(()=>{ SEND.saving=false; S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); renderQuote(); $("#sendLive").textContent=`Saved ${SEND.savedAt}.`; },900); }
-const TB_FAIL="Line 1 (HNBAR-N) could not be updated: M3 rejected the change. Check the line and try again. (mock M3 message)";
-function tbAction(a){
-  if(a==="fix"){ TB.fix=!TB.fix; renderSend(); $("#tBox [data-tb=fix]")?.focus(); return; }
-  if(a==="bd"){ TB.bd=!TB.bd; renderSend(); return; }
-  if(a==="save"){ liteSave(); return; }
-  if(a==="freight"){ freightAction(); return; }
-  if(a==="send"){ sendClient(); return; }
-  if(a==="msg"){ showToast(SEND.failed||TB_FAIL); return; }
-  if(a==="discard"){ if(S.dirty) openDiscardDialog(); else showToast("Close leaves the quote and goes back to Quotes (prototype)."); return; }
-}
-// footer states in the Scenario menu (Footer 1 to 5, and Descoped 1 to 7). Every scenario change first clears the mock Blocked line and status.
+const SAVE_FAIL="Line 1 (HNBAR-N) could not be updated: M3 rejected the change. Check the line and try again. (mock M3 message)";
+// footer states in the Scenario menu (Footer 1 to 7). Every scenario change first clears the mock Blocked line and status.
 const FOOT_SCEN=["s-unsaved","s-saved","s-calc","s-ready","s-blocked"];
 function applySendScenario(v){
-  const dv=v, lite=v.startsWith("d-"); if(lite||FOOT_SCEN.includes(v)) setLite(lite); // Descoped scenarios switch the demo bar's Bottom bar to Descoped; Footer 1 to 5 switch it back to Full
-  if(lite){ v={"d-stale":"s-ready","d-failed":"s-unsaved"}[v]||"s-"+v.slice(2); TB.fix=dv==="d-blocked"; TB.bd=false; }
+  const dv=v; v={"s-stale":"s-ready","s-failed":"s-unsaved"}[v]||v; // 6 and 7 start from Ready and Unsaved
   const tb=CAT.find(p=>p.sku==="HNTWL-DB"); if(tb._w===undefined) tb._w=tb.whst; tb.whst=v==="s-blocked"?80:tb._w; // mock: discontinued only in Blocked
   S.quote.rooms.forEach(r=>{ r.lines=r.lines.filter(l=>!l.mock); });
   if(v==="qom2926"){ // QOM-2926 examples in Bar: in stock (HNBAR-N), sourcing warehouse USR, and "<qty> from <date>" · after RDD
     const b=S.quote.rooms.find(r=>r.name==="Bar")||S.quote.rooms[0];
     if(b){ b.lines.push({sku:"HNHK-N",qty:2,unit:165,rdd:"12/19/2026",mock:true},{sku:"HNKIT-DB",qty:2,unit:3480,rdd:"12/19/2026",mock:true}); S.folded=S.folded.filter(x=>x!==b.name); }
     S.det=S.ship=true; $("#detToggle").checked=true; }
-  if(!FOOT_SCEN.includes(v)){ RISK=computeRisk(); markSaved(); return; }
+  if(!FOOT_SCEN.includes(v)){ RISK=computeRisk(); markSaved(); S.dirty=false; SEND.failed=null; SEND.stale=false; return; } // a fresh start: nothing left unsaved from the last scenario
   resetSend(); SEND.addr=true;
   S.quote=S.view==="commercial"?QUOTES.commercial():structuredClone(RES_QUOTE); if(!S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
   S.riskDemo=false; applyRiskDemo(false); $("#riskDemo").checked=false; // only the problems each state describes
@@ -3268,9 +3201,8 @@ function applySendScenario(v){
   }
   if(v==="s-calc") SEND.freight="run";
   if(v==="s-ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
-  if(dv==="d-stale"){ const x=quoteLines().find(x=>x.l.sku==="HNBAR-N")||quoteLines()[0]; if(x){ x.l.qty+=CAT.find(p=>p.sku===x.l.sku).mult; S.dirty=true; } } // freight was done; one edit clears it
-  if(dv==="d-blocked"){ SEND.addr=false; const ls=quoteLines(); if(ls[1]) ls[1].l.spec=false; if(ls[2]) ls[2].l.cp=true; } // several rules at once: address, autospec, custom pricing and the discontinued line
-  if(dv==="d-failed"){ SEND.failed=TB_FAIL; setTimeout(()=>showToast(TB_FAIL),60); } // M3's line errors arrive as toasts; the status points to it
+  if(dv==="s-stale"){ const x=quoteLines().find(x=>x.l.sku==="HNBAR-N")||quoteLines()[0]; if(x){ x.l.qty+=CAT.find(p=>p.sku===x.l.sku).mult; S.dirty=true; } } // freight was done; one edit clears it
+  if(dv==="s-failed"){ SEND.failed=SAVE_FAIL; setTimeout(()=>showToast(SAVE_FAIL),60); } // M3's line errors arrive as toasts; the status points to it
   RISK=computeRisk();
 }
 // a click anywhere outside closes it; the footer's own controls and the line notes it points to don't count
@@ -3288,21 +3220,11 @@ document.addEventListener("scroll",()=>{ if(Date.now()-SEND.scrolledAt>1500||S.q
 // the footer is fixed to the screen and spans the whole window, in front of the rail; enlarged, it spans the enlarged quote
 // the natural width of a zone (its cell may be wider or narrower than its content)
 const natW=q=>{ const e=$(q), o=e.style.cssText; e.style.width="max-content"; e.style.justifySelf="start"; const v=e.getBoundingClientRect().width; e.style.cssText=o; return v; };
-function fitBar(){ const b=$("#pbar"), save=$("#pbSave"), cs=getComputedStyle(b), room=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), gap=24;
-  if(save.parentElement!==b) b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight","stack");
-  if(b.classList.contains("mini")) return; // one line; the helper truncates instead
-  const left=Math.max(natW(".pb-tl"),natW(".pb-bl")), sv=natW("#pbSave"), help=natW("#pbHelp"), tr=natW(".pb-tr");
-  if(left+sv+tr+2*gap<=room && help<=sv+tr+gap) return;                 // full: total | save | buttons
-  b.classList.add("tight"); $("#pbBr").insertBefore(save,$("#pbHelp"));   // tight: save status moves to row 2, before the helper
-  if(left+Math.max(natW(".pb-tr"),sv+16+help)+gap<=room) return;
-  b.insertBefore(save,$(".pb-tr")); b.classList.remove("tight"); b.classList.add("stack"); }
-// collapse: the bar opens full size on every load; it opens again by itself when a new problem needs fixing
-function setMini(on){ const b=$("#pbar"), t=$("#pbTog"); b.classList.toggle("mini",on); t.setAttribute("aria-expanded",String(!on)); t.setAttribute("aria-label",on?"Expand the bar":"Collapse the bar"); t.title=on?"Expand":"Collapse"; placeBar(); }
-$("#barMode").addEventListener("change",e=>{ setLite(e.target.value==="lite"); renderQuote(); });
-$("#pbTog").addEventListener("click",()=>setMini(!$("#pbar").classList.contains("mini")));
-// collapsed, the whole bar expands on a click, like the folded side nav; its own buttons and links (the next step, "N to fix") still do their job. The tab stays the labelled, keyboard control.
-$("#pbar").addEventListener("click",e=>{ if($("#pbar").classList.contains("mini")&&!e.target.closest("button,a,input,select,[role='button']")) setMini(false); });
-try{ localStorage.removeItem("qom.barMini"); }catch(e){} // clear the old remembered setting
+function fitBar(){ const b=$("#pbar"), cs=getComputedStyle(b), room=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), gap=24;
+  b.classList.remove("tight","stack");
+  if(natW(".pb-left")+natW(".pb-tl")+natW(".pb-tr")+2*gap<=room) return; // one row: things to fix | total, save status, buttons
+  b.classList.add("stack"); } // the save status and buttons go to a second row
+$("#extBlk").addEventListener("change",e=>{ S.ext=e.target.value||null; renderQuote(); });
 function placeBar(){ fitBar(); const b=$("#pbar"), st=document.documentElement.style, r=S.expanded?$("#quotePane").getBoundingClientRect():{left:0,width:document.documentElement.clientWidth}; // full width, over the rail, at every screen size
   st.setProperty("--fb-left",Math.round(r.left)+"px"); st.setProperty("--fb-w",Math.round(r.width)+"px"); st.setProperty("--bar-h",b.offsetHeight+"px"); }
 new ResizeObserver(placeBar).observe($(".main")); new ResizeObserver(placeBar).observe($("#quotePane")); new ResizeObserver(placeBar).observe($("#pbar"));
@@ -3447,7 +3369,6 @@ document.addEventListener("click",e=>{
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     if(t.dataset.act==="finish"){ fcOpen({kind:"line",room,sku},document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)); return; } // Change finish from one line
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
-  if(t.dataset.tb){ tbAction(t.dataset.tb); return; } // descoped totals box and per-tab Save
   if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false,"issues"); return; }
   if(t.id==="pbChk"){ openSend(false,"check","#pbChk"); return; }
   // concept QOM-2561: the required-parts panel
@@ -3462,6 +3383,8 @@ document.addEventListener("click",e=>{
   if(t.dataset.sact){ sendAction(t.dataset.sact); return; }
   if(t.dataset.lfix){ lineFix(t.dataset.lfix); return; }
   if(t.id==="bdBtn"){ openSend(false,"breakdown"); return; }
+  if(t.id==="pbBdLink"){ SEND.open?closeSend():openSend(false,"breakdown","#pbBdLink"); return; }
+  if(t.id==="pbInfo"){ if(!quoteLines().length) return; SEND.open?closeSend():openSend(false,"breakdown","#pbInfo"); return; } // the total
   if(t.id==="bmLink"){ openSend(false,"breakdown","#bmLink"); const i=$("#blendIn"); if(i){ i.focus({preventScroll:true}); i.select(); i.scrollIntoView({block:"center"}); } return; } // the margin above the rooms opens the breakdown with its input ready to type in // Full breakdown opens the side panel at its breakdown section
   if(t.id==="simSpec"||t.id==="simPrice"){ simSave(t.id==="simSpec"?"spec":"price"); return; }
   if(t.id==="rmCancel"){ closeRemoveDialog(); return; }
@@ -3471,9 +3394,9 @@ document.addEventListener("click",e=>{
   if(t.id==="showDiscLink"||t.id==="hideDiscLink"){ S.disc=t.id==="showDiscLink"; $("#showDisc").checked=S.disc; S.focusDisc=S.disc?"#q":"#showDiscLink"; renderFilters(); search(); return; } // Show or Hide on the results count line (and "Show them" when nothing else matches)
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
   if(t.dataset.sideroom){ const n=t.dataset.sideroom; const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
-  if(t.id==="saveBtn"){ S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); // after saving there is no Undo
-    renderQuote(); return; }
-  if(t.id==="discardBtn"){ if(S.dirty) openDiscardDialog(); else showToast("No unsaved changes to discard"); return; }
+  if(t.id==="saveBtn"){ saveQuote(); return; } // after saving there is no Undo
+  if(t.id==="pbFailMsg"){ showToast(SEND.failed||SAVE_FAIL); return; } // M3's message again
+  if(t.id==="discardBtn"){ if(S.dirty||SEND.failed) openDiscardDialog(); return; }
   if(t.id==="undoBtn"&&S.undo?.kind==="room"){ const u=S.undo; S.quote.rooms.splice(Math.min(u.idx,S.quote.rooms.length),0,u.roomObj); if(u.wasActive) S.room=u.room; S.undo=null; renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); return; }
   if(t.id==="undoBtn"){ const u=S.undo; const rm=u&&S.quote.rooms.find(r=>r.name===u.room); if(rm) rm.lines.splice(Math.min(u.idx,rm.lines.length),0,u.line); S.undo=null; renderQuote(); renderRoomMenu(); return; }
   if(t.dataset.q){ S.query=t.dataset.q; $("#q").value=S.query; $("#clearQ").hidden=false; search(); return; }
@@ -3748,7 +3671,7 @@ const infoHtml=()=>{
       <div class="qmeta"><span>Quote <b>${QI.id}</b><button type="button" class="qcopy" data-qi="copy" aria-label="Copy quote number" title="Copy quote number"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg></button></span><span>Residential, domestic sales order</span></div></div>
     <div class="qstatus"><span class="draftpill"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h8l4 5-4 5H2z"/></svg>Draft</span><span class="qexp">Expires ${fDate(pDate(QI.expires))}</span></div>
   </div>
-  <div class="qsave ${saved?"ok":"dirty"}">${saved?SI.done:SI.dot}<span>${saved?`<b>All changes saved to M3</b> at ${SEND.savedAt}`:`<b>${plural(changeCount(),"unsaved change")}.</b> Save to update M3.`}</span></div>
+  <div class="qsave ${saved?"ok":"dirty"}">${saved?SI.done:SI.dot}<span>${saved?`<b>All changes saved to M3</b> at ${SEND.savedAt}`:`<b>${linesChanged()?plural(linesChanged(),"line")+" changed":"Unsaved changes"}.</b> Save to update M3.`}</span></div>
   <section class="qsec first" aria-labelledby="qiDates"><h3 id="qiDates">Dates</h3><ol class="tl">${tl}</ol>${alertHtml}</section>
   <div class="qsec qcols">
     <section aria-labelledby="qiPeople"><h3 id="qiPeople">People</h3>${qfield("Payer",esc(titleCase(QI.payer)))}${qfield("Sales consultant",esc(QI.consultant))}<div class="qf"><div class="ql">Designer or architect</div><button type="button" class="qadd" data-qi="person"><span aria-hidden="true">+</span> Add person</button></div></section>
