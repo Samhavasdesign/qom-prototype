@@ -3037,15 +3037,15 @@ function sendItems(){
   const miss=reqMissing(); miss.forEach(([k,lbl,tab])=>items.push({id:"f-"+k,st:blk,t:`${lbl} missing`,d:`Required on ${TAB_NAMES[tab]}`,a:["field:"+k,"Add"]}));
   if(!miss.length) items.push({id:"fields",st:"done",t:"Required fields and contacts",d:"All filled in"});
   if(!S.dirty&&badQty()) items.push({id:"qty",st:blk,t:"Quantity not in sold increments",d:"A saved line's quantity isn't a whole multiple. Fix the quantities marked in the quote."});
-  if(S.ext){ const x=EXT[S.ext]; items.push({id:"ext",st:"block",t:x.t,d:x.d,a:["recheck","Check again"]}); } // blocks even an empty quote: it isn't about the lines
+  if(S.ext){ const x=EXT[S.ext]; items.push({id:"ext",st:"block",t:x.t,d:x.d,a:x.a===undefined?["recheck","Check again"]:x.a}); } // blocks even an empty quote: it isn't about the lines
   const rank={block:0,prog:1,todo:2,done:3};
   return items.map((x,i)=>({...x,i})).sort((a,b)=>rank[a.st]-rank[b.st]||a.i-b.i);
 }
 // blockers QOM can't fix (QOM-3280 Q4). Placeholder copy: confirm each cause and what the SC should do with Pauline and Kelli
 const EXT={
   m3open:{t:"Quote is open in M3",d:"Someone has this quote open in M3, so QOM can't send it. Close it in M3, then check again."},
-  migrated:{t:"Migrated quote",d:"This quote was moved from the old system, so QOM can't send it. Ask your QOM admin how to send it."},
-  manual:{t:"Payment terms are Manual Terms",d:"QOM can't send a quote with Manual Terms. Ask finance to set the payment terms in M3, then check again."}
+  migrated:{t:"Migrated quote",d:"This quote must be copied before it can be sent.",a:["copyQuote","Copy this quote"]}, // Pauline, Nov 20: checking again never changes a migrated quote; today's tooltip says it must be copied
+  manual:{t:"Payment terms are Manual Terms",d:"This quote was taken off online payment. Work with your CSS to process payment.",a:null} // Pauline, Nov 20: usually on purpose, so nothing to check again; today's QOM wording
 };
 const REQ_FIELDS=[["sc","Sales Consultant",1],["payer","Payer",1],["status","Status",1],["svc","Service Level",2],["cost","Cost Center",2],["shipto","Delivery Contact",3],["billto","Payer Contact",3],["aspec","Primary Specifier Contact",3]];
 const TAB_NAMES=["Essential Quote Info","Header Information","Shipping Information","Associations"]; // PT_NAMES is declared later in the script
@@ -3071,7 +3071,7 @@ function renderSend(){
   const smh=SEND.saving?"Saving…":SEND.failed?`Save failed: <button type="button" class="tolink" id="pbFailMsg">see message</button>`:F.dirty?(n?plural(n,"line")+" changed":"Unsaved changes"):`Saved ${SEND.savedAt}`;
   if(sm._h!==smh||sm.innerHTML!==sm._s){ sm.innerHTML=smh; sm._h=smh; sm._s=sm.innerHTML; } // rewritten only when it changes (older code also writes here), so focus isn't lost
   $("#discardBtn").textContent="Discard changes"; $("#discardBtn").hidden=$("#pbDiscSep").hidden=!(F.dirty||SEND.failed); // only when there's something to discard; no Close (Sam, Nov 19)
-  const eb=$("#extBanner"), ex=S.ext&&EXT[S.ext], ebh=ex?`${SI.block}<span><b>${esc(ex.t)}.</b> ${esc(ex.d)}</span><button type="button" class="tolink" data-sact="recheck">Check again</button>`:"";
+  const eb=$("#extBanner"), ex=S.ext&&EXT[S.ext], ebh=ex?`${SI.block}<span><b>${esc(ex.t)}.</b> ${esc(ex.d)}</span>${ex.a===null?"":`<button type="button" class="tolink" data-sact="${ex.a?.[0]||"recheck"}">${ex.a?.[1]||"Check again"}</button>`}`:"";
   eb.hidden=!ex; if(eb._h!==ebh){ eb.innerHTML=ebh; eb._h=ebh; }
   // 2. total
   $("#pbTotal").textContent=money(total);
@@ -3142,6 +3142,7 @@ function sendAction(a){
   if(a==="addAddr"){ setPTab(2); const f=$("#pf-addr"); f?.focus(); f?.scrollIntoView({block:"center"}); return; } // goes to Shipping Information, Delivery Address
   if(a==="calc"){ runFreight(); return; }
   if(a.startsWith("field:")){ const k=a.slice(6), f=REQ_FIELDS.find(x=>x[0]===k); setPTab(f[2]); const el=$("#pf-"+k); el?.focus(); el?.scrollIntoView({block:"center"}); return; } // goes to the tab and field
+  if(a==="copyQuote"){ barToast("Copying a quote isn't built in the prototype","In QOM this makes a new quote you can send."); return; }
   if(a==="recheck"){ showToast(S.ext?`Still blocked: ${EXT[S.ext].t}.`:"Nothing outside QOM blocks sending now."); return; } // mock: clear it with the demo bar
   if(a==="addRoom"){ closeSend(); startAddRoom(); return; }
   if(a==="addProd"){ closeSend(); startAddProducts(S.room||S.quote.rooms[0].name); return; }
