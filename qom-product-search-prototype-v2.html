@@ -784,6 +784,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* like-items toast: bottom centre so it is seen wherever the edited line is */
 .ctoast{position:fixed;left:50%;bottom:calc(var(--bar-h,88px) + 16px);transform:translateX(-50%);z-index:211;width:600px;max-width:calc(100vw - 32px);display:flex;align-items:flex-start;gap:12px;background:#2D6A4F;color:#fff;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,.15);font-size:14px;animation:toastin .15s ease-out}
 .ctoast[hidden]{display:none}
+.ctoast.bad{background:var(--block)} .ctoast.bad .ctic{background:#7a3212} /* the bottom bar's problems use the same toast in the warning red */
 .ctoast .ctic{flex:none;width:24px;height:24px;border-radius:50%;background:#1B4332;display:flex;align-items:center;justify-content:center}
 .ctoast .ctx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .ctoast .ctx b{font-weight:500}
@@ -2424,7 +2425,7 @@ function discardChanges(){
   S.quote=structuredClone(S.base||S.quote); S.dirty=false; S.undo=null; S.lmenu=null; S.open=[]; FJ=null;
   if(S.room && !S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
   if(TF_BASE){ TF={...TF_BASE}; SEND.addr=!!TF.addr; renderPTab(); } // the tab fields go back too
-  renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); showToast("Changes discarded");
+  renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); barToast("Changes discarded","The quote is back to how it was last saved.");
 }
 // removes a line; taking out a room's last item removes the room as well, and Undo brings both back
 function dropLine(rm,idx,name){
@@ -2645,7 +2646,7 @@ function fcUndo(){ const J=FJ; if(!J) return; J.items.slice().reverse().forEach(
 // saving (any Save) makes the change part of the quote: the tags and the note go, and Undo with them. A breaking payment link breaks now
 function fcSaved(){ let had=false; S.quote.rooms.forEach(r=>r.lines.forEach(l=>{ if(l.fcTo){ delete l.fcTo; delete l.fcFrom; had=true; } })); FJ=null;
   if(had&&fcPayLink()){ const breaks=PAYDEMO.link==="breaks"; if(breaks){ PAYDEMO.broken=true; devPayNote(); }
-    setTimeout(()=>showToast(breaks?"Saved. The client's payment link no longer works: send them a new one.":"Saved. The client's payment link now shows the new total."),0); } }
+    setTimeout(()=>breaks?barToast("Saved. The client's payment link no longer works","Send them a new one.",true):barToast("Saved","The client's payment link now shows the new total."),0); } }
 function fcReset(){ FJ=null; }
 function fcCls(){ return ""; }
 function fcState(r,l){ return l.fcTo&&l.fcTo===l.sku?`<span class="fc-ls ok">${FC_CHECK}Changed</span>`:""; }
@@ -2782,8 +2783,13 @@ const CHECK_ICON='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" st
 function likeToast(r,l,changed,skipped,m){ const p=CAT.find(x=>x.sku===l.sku), others=changed.filter(n=>n!==r.name), total=new Set([r.name,...changed]).size;
   const what=m!=null?`${m.toFixed(2)}% margin`:money(l.unit);
   const title=total>2?`${what} applied in ${roomsWord(others.length)}`:others.length?`${what} applied in ${esc(r.name)} and ${esc(others[0])}`:`${what} applied to the same item in ${esc(r.name)}`;
-  const t=$("#ctoast"); t.innerHTML=`<span class="ctic">${CHECK_ICON}</span><div class="ctx"><b>${title}</b><span class="ctn" title="${esc(p.name)} in ${esc(p.fin)}">${esc(p.name)} in ${esc(p.fin)}</span>${skipped.map(n=>`<span class="cts">${esc(n)} not changed: priced by Item Management</span>`).join("")}</div>${changed.length?'<button type="button" class="ctundo" id="ctUndo">Undo</button>':""}<button type="button" class="ctx-x" id="ctClose" aria-label="Close message"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
+  const t=$("#ctoast"); t.className="ctoast"; t.innerHTML=`<span class="ctic">${CHECK_ICON}</span><div class="ctx"><b>${title}</b><span class="ctn" title="${esc(p.name)} in ${esc(p.fin)}">${esc(p.name)} in ${esc(p.fin)}</span>${skipped.map(n=>`<span class="cts">${esc(n)} not changed: priced by Item Management</span>`).join("")}</div>${changed.length?'<button type="button" class="ctundo" id="ctUndo">Undo</button>':""}<button type="button" class="ctx-x" id="ctClose" aria-label="Close message"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
   t.hidden=false; ctArm(7000); }
+// the bottom bar's messages use the green toast too (Sam, Nov 20); problems (save failed, can't send yet) use it in red
+const BANG_ICON='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 2.5v4.2M6 9.2v.1"/></svg>';
+function barToast(title,sub,bad){ LIKE_UNDO=null; const t=$("#ctoast"); t.className="ctoast"+(bad?" bad":"");
+  t.innerHTML=`<span class="ctic">${bad?BANG_ICON:CHECK_ICON}</span><div class="ctx"><b>${esc(title)}</b>${sub?`<span class="cts">${esc(sub)}</span>`:""}</div><button type="button" class="ctx-x" id="ctClose" aria-label="Close message"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg></button>`;
+  t.hidden=false; ctArm(bad?9000:5000); }
 function ctArm(ms){ clearTimeout(CT_TIMER); if(!CT_HOLD) CT_TIMER=setTimeout(hideCToast,ms); }
 function hideCToast(){ clearTimeout(CT_TIMER); const t=$("#ctoast"); if(!t) return; if(t.contains(document.activeElement)) document.activeElement.blur(); t.hidden=true; CT_HOLD=false; }
 function undoLike(){ if(!LIKE_UNDO) return; LIKE_UNDO.before.forEach((u,y)=>{ y.unit=u; });
@@ -3114,12 +3120,12 @@ function sendForward(){ const F=footState(); if(SEND.mode!=="first-forward"||SEN
 function resetSend(){ fcReset(); clearTimeout(SEND.timer); clearTimeout(SEND.saveTimer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null,stale:false,saving:false,failed:null}); }
 // Calculate freight and Send to client: when they're grey, a click explains instead of doing nothing
 function freightAction(){ const F=footState(); if(F.run) return;
-  if(F.calcOff){ if(F.others.length) openSend(false,"issues","#pbFreightBtn"); else showToast(F.help||"Calculate freight isn't available yet."); return; }
+  if(F.calcOff){ if(F.others.length) openSend(false,"issues","#pbFreightBtn"); else barToast(F.help||"Calculate freight isn't available yet.","",true); return; }
   runFreight(); }
 function sendClient(){ const F=footState();
-  if(F.canSend){ showToast("Quote and payment link sent to [Client name] (prototype)."); return; }
+  if(F.canSend){ barToast("Quote sent to [Client name]","The quote and payment link are on their way (prototype)."); return; }
   if(F.others.length){ openSend(false,"issues","#pbSend"); return; }
-  showToast(F.help||"Not ready to send yet."); }
+  barToast(F.help||"Not ready to send yet.","",true); }
 // Calculate freight saves first if there are unsaved changes, then M3 runs freight, then tax
 function runFreight(){
   S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; SEND.stale=false; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
@@ -3161,7 +3167,7 @@ function simSave(kind){
   if(kind==="spec") x.l.spec=false; else x.l.cp=true;
   S.dirty=false; S.undo=null; markSaved(); renderQuote();
   const p=CAT.find(c=>c.sku===x.l.sku);
-  showToast(`Saved. M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`);
+  barToast("Saved, with a problem from M3",`M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`,true);
 }
 // ---------- descoped (QOM-3280 lower-effort, Nov 13): a totals box next to the product list instead of a bar on every tab ----------
 // What engineering can build in about 8 to 11 dev-days of frontend, per Pauline's spike: save status (Unsaved / Saving / Saved / Failed: see message),
@@ -3202,7 +3208,7 @@ function applySendScenario(v){
   if(v==="s-calc") SEND.freight="run";
   if(v==="s-ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
   if(dv==="s-stale"){ const x=quoteLines().find(x=>x.l.sku==="HNBAR-N")||quoteLines()[0]; if(x){ x.l.qty+=CAT.find(p=>p.sku===x.l.sku).mult; S.dirty=true; } } // freight was done; one edit clears it
-  if(dv==="s-failed"){ SEND.failed=SAVE_FAIL; setTimeout(()=>showToast(SAVE_FAIL),60); } // M3's line errors arrive as toasts; the status points to it
+  if(dv==="s-failed"){ SEND.failed=SAVE_FAIL; setTimeout(()=>barToast("Save failed",SAVE_FAIL,true),60); } // M3's line errors arrive as toasts; the status points to it
   RISK=computeRisk();
 }
 // a click anywhere outside closes it; the footer's own controls and the line notes it points to don't count
@@ -3395,7 +3401,7 @@ document.addEventListener("click",e=>{
   if(t.id==="dismissNotice"){ S.notice=null; renderResults(); return; }
   if(t.dataset.sideroom){ const n=t.dataset.sideroom; const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; document.querySelector(`.rmblock[data-rm="${CSS.escape(n)}"]`)?.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"}); return; }
   if(t.id==="saveBtn"){ saveQuote(); return; } // after saving there is no Undo
-  if(t.id==="pbFailMsg"){ showToast(SEND.failed||SAVE_FAIL); return; } // M3's message again
+  if(t.id==="pbFailMsg"){ barToast("Save failed",SEND.failed||SAVE_FAIL,true); return; } // M3's message again
   if(t.id==="discardBtn"){ if(S.dirty||SEND.failed) openDiscardDialog(); return; }
   if(t.id==="undoBtn"&&S.undo?.kind==="room"){ const u=S.undo; S.quote.rooms.splice(Math.min(u.idx,S.quote.rooms.length),0,u.roomObj); if(u.wasActive) S.room=u.room; S.undo=null; renderRoom(); renderRoomMenu(); renderResults(); renderQuote(); return; }
   if(t.id==="undoBtn"){ const u=S.undo; const rm=u&&S.quote.rooms.find(r=>r.name===u.room); if(rm) rm.lines.splice(Math.min(u.idx,rm.lines.length),0,u.line); S.undo=null; renderQuote(); renderRoomMenu(); return; }
