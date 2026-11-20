@@ -12,7 +12,7 @@
   --bg:#ffffff;--amber:#8a5200;--amber-bg:#fdf1d6;--surface:#f5f5f5;--surface-2:#ebebeb;--panel:var(--surface);--panel-soft:var(--surface);--panel-line:var(--line);--panel-head:#d2d2d2; /* rooms you're not adding to: one step darker than the borders */--ink:#111111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;
   --line:#dcdcdc;--line-2:#ebebeb;--hdr-line:var(--line);--hdr-count:var(--ink-2);--rail:var(--ink);--rail-2:#262626;--rail-ink:#ffffff;--rail-muted:var(--control-line);
   --accent:#111111;--alert:var(--block);/* tab dots, Save failed and Change finish's can't-change text use the one warning red too (Sam, Nov 19; was #e0201b) */--warn:var(--block);--warn-bg:var(--block-bg);/* one warning red everywhere, the same as Before you send (Sam, Nov 19) */--ok:#2d6a4f;--ok-bg:#e8f3ed;--note:var(--ink-2);--note-bg:#f1efe9;
-  --done:#2E6B45;--block:#A8461A;--block-bg:#fcf1eb;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:var(--ink-3);--sp-w:400px;
+  --done:#2E6B45;--block:#C62828;--block-bg:#fdecea;--prog:#2B5C8A;--prog-bg:#eef3f8;--muted:var(--ink-3);--sp-w:400px;
   --pill:#f3d64b;--focus:#111111;--proto:#e4e4e4;--proto-ink:#111111;
   /* greys, one ramp: #fff bg · #f5f5f5 surface · #ebebeb surface-2/line-2 · #dcdcdc line · #d2d2d2 panel-head (other rooms) · #949494 control-line · #6f6f6f ink-3 · #4a4a4a ink-2 · #111 ink */
   --control-line:#949494; /* one border grey for every field, select, pill and outlined control (3:1 on white) */
@@ -784,7 +784,7 @@ button.thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 /* like-items toast: bottom centre so it is seen wherever the edited line is */
 .ctoast{position:fixed;left:50%;bottom:calc(var(--bar-h,88px) + 16px);transform:translateX(-50%);z-index:211;width:600px;max-width:calc(100vw - 32px);display:flex;align-items:flex-start;gap:12px;background:#2D6A4F;color:#fff;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,.15);font-size:14px;animation:toastin .15s ease-out}
 .ctoast[hidden]{display:none}
-.ctoast.bad{background:var(--block)} .ctoast.bad .ctic{background:#7a3212} /* the bottom bar's problems use the same toast in the warning red */
+.ctoast.bad{background:var(--block)} .ctoast.bad .ctic{background:#8e1b1b} /* the bottom bar's problems use the same toast in the warning red */
 .ctoast .ctic{flex:none;width:24px;height:24px;border-radius:50%;background:#1B4332;display:flex;align-items:center;justify-content:center}
 .ctoast .ctx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .ctoast .ctx b{font-weight:500}
