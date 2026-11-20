@@ -1749,7 +1749,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <div class="pb-tl"><span id="pbFixSlot"></span><span class="pb-tw"><button type="button" class="pb-totbtn" id="pbInfo" aria-describedby="pbNoteTip" aria-expanded="false" aria-controls="sendPanel"><span class="pb-totin"><span class="pb-lbl" id="pbLbl">Estimated total</span><span class="pb-amt" id="pbTotal"></span></span></button><span class="pb-tip left" id="pbNoteTip" role="tooltip"></span></span><button type="button" class="tolink pb-bdlink" id="pbBdLink" aria-expanded="false" aria-controls="sendPanel">See full breakdown</button></div>
   <div class="pb-bl">
     <span class="pb-note" id="pbNote"></span>
-    <span class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span>Calculating freight and tax in M3. Usually about 2 minutes. You can keep working.</span>
+    <span class="pb-prog" id="pbProg" hidden><span class="pb-progbar" aria-hidden="true"><i></i></span>Calculating freight and tax in M3. Usually about 2 minutes. You can keep reviewing the quote.</span>
     <span class="pb-sep" id="pbBdSep" aria-hidden="true">·</span><button type="button" class="tolink" id="bdBtn" aria-expanded="false" aria-controls="sendPanel">Full breakdown</button>
   </div>
   <div class="pb-tr">
@@ -3028,11 +3028,15 @@ function sendItems(){
   if(!disc.length&&!short.length&&!unav.length) items.push({id:"stock",st:"done",t:"Stock",d:"No discontinued, short or unavailable lines"});
   if(price.length){ const k=focusPos("price"); items.push({id:"price",st:blk,t:`Waiting on custom pricing for ${plural(price.length,"line")}`,d:k>=0?`Showing ${k+1} of ${price.length} in the quote`:"Needed to send",a:["nextPrice","Next line"]}); }
   else items.push({id:"price",st:"done",t:"Every line priced",d:"None waiting on custom pricing"});
-  if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes; you can keep working."});
+  if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes; you can keep reviewing the quote."});
   else if(SEND.freight==="done"&&!S.dirty) items.push({id:"freight",st:"done",t:"Freight and tax",d:`Calculated ${SEND.freightAt}`});
   else items.push({id:"freight",st:blk,t:"Freight not calculated",d:!SEND.addr?"Add the delivery address, then calculate freight":S.dirty?"Saves your changes first, then M3 calculates freight and tax":"M3 calculates freight, then tax. This can take a few minutes.",a:SEND.addr&&hasLines?["calc","Calculate freight"]:null});
   items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:SEND.savedAt}
     :{id:"saved",st:"todo",t:linesChanged()?plural(linesChanged(),"line")+" changed":"Unsaved changes",d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Calculate freight"});
+  // required fields and contacts on the other tabs (QOM today; Pauline Nov 20). Rush / RDD conflicts (QOM-2381) aren't mocked yet
+  const miss=reqMissing(); miss.forEach(([k,lbl,tab])=>items.push({id:"f-"+k,st:blk,t:`${lbl} missing`,d:`Required on ${TAB_NAMES[tab]}`,a:["field:"+k,"Add"]}));
+  if(!miss.length) items.push({id:"fields",st:"done",t:"Required fields and contacts",d:"All filled in"});
+  if(!S.dirty&&badQty()) items.push({id:"qty",st:blk,t:"Quantity not in sold increments",d:"A saved line's quantity isn't a whole multiple. Fix the quantities marked in the quote."});
   if(S.ext){ const x=EXT[S.ext]; items.push({id:"ext",st:"block",t:x.t,d:x.d,a:["recheck","Check again"]}); } // blocks even an empty quote: it isn't about the lines
   const rank={block:0,prog:1,todo:2,done:3};
   return items.map((x,i)=>({...x,i})).sort((a,b)=>rank[a.st]-rank[b.st]||a.i-b.i);
@@ -3043,7 +3047,10 @@ const EXT={
   migrated:{t:"Migrated quote",d:"This quote was moved from the old system, so QOM can't send it. Ask your QOM admin how to send it."},
   manual:{t:"Payment terms are Manual Terms",d:"QOM can't send a quote with Manual Terms. Ask finance to set the payment terms in M3, then check again."}
 };
-function blockerKeys(){ return [...(S.ext?["ext:"+S.ext]:[]),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
+const REQ_FIELDS=[["sc","Sales Consultant",1],["payer","Payer",1],["status","Status",1],["svc","Service Level",2],["cost","Cost Center",2],["shipto","Delivery Contact",3],["billto","Payer Contact",3],["aspec","Primary Specifier Contact",3]];
+const TAB_NAMES=["Essential Quote Info","Header Information","Shipping Information","Associations"]; // PT_NAMES is declared later in the script
+const reqMissing=()=>TF?REQ_FIELDS.filter(([k])=>!String(TF[k]||"").trim()):[];
+function blockerKeys(){ return [...(S.ext?["ext:"+S.ext]:[]),...reqMissing().map(([k])=>"field:"+k),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
 // the footer's state, worked out once: which button is the next step and what the helper line says
 function footState(items=sendItems()){
   const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight"); // descoped too: QOM-3280 found nearly every send rule is already checked in the browser
@@ -3054,7 +3061,7 @@ function footState(items=sendItems()){
 }
 let helpHtml="";
 function renderSend(){
-  if(S.dirty && SEND.freight!=="none"){ clearTimeout(SEND.timer); if(SEND.freight==="done") SEND.stale=true; SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again (stale: the bar says "out of date")
+  if(S.dirty && SEND.freight==="done"){ SEND.stale=true; SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again (stale: the bar says "out of date"); an edit while M3 runs doesn't stop it, but Save stays locked until it finishes (QOM today, Pauline Nov 20)
   if(!S.dirty) SEND.failed=null; // a save or discard clears a failed save
   const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx;
   // 1. save status
@@ -3070,7 +3077,7 @@ function renderSend(){
   $("#pbTotal").textContent=money(total);
   if(S.qview==="info"&&!qiEditConv) $("#qInfo").innerHTML=infoHtml();
   $("#pbLbl").textContent=F.done?"Total":"Estimated total";
-  $("#pbNote").textContent=F.run?"Calculating freight and tax in M3. Usually about 2 minutes. You can keep working.":!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:SEND.stale?"Freight out of date: your changes cleared it":"Freight and tax not calculated yet"; $("#pbNote").classList.toggle("stale",F.hasLines&&!F.done&&!!SEND.stale);
+  $("#pbNote").textContent=F.run?"Calculating freight and tax in M3. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:SEND.stale?"Freight out of date: your changes cleared it":"Freight and tax not calculated yet"; $("#pbNote").classList.toggle("stale",F.hasLines&&!F.done&&!!SEND.stale);
   // the note is the total's tooltip now; a click on the total opens Full breakdown
   const nt=esc($("#pbNote").textContent)+(F.hasLines?"<small>Select for the full breakdown</small>":""); if($("#pbNoteTip")._h!==nt){ $("#pbNoteTip").innerHTML=nt; $("#pbNoteTip")._h=nt; }
   $("#pbInfo").setAttribute("aria-expanded",String(SEND.open)); $("#pbBdLink").setAttribute("aria-expanded",String(SEND.open)); $("#pbBdLink").hidden=!F.hasLines; // nothing to break down on an empty quote
@@ -3078,15 +3085,15 @@ function renderSend(){
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
   $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?blendRow():""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
-  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad||!!SEND.saving; sv.classList.toggle("primary",F.dirty&&!F.bad&&!SEND.saving);
+  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad||!!SEND.saving||F.run; sv.classList.toggle("primary",F.dirty&&!F.bad&&!SEND.saving&&!F.run);
   const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
   fb.innerHTML=F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight";
   const sb=$("#pbSend"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
   // each button's tooltip: what it does, or why it's grey (the helper line's job when the bar had two rows)
   const nFix=F.others.length?F.issues.length:0; // the same count as the "Things to fix" list
   const bg=$("#pbSendBadge"); bg.textContent=nFix||""; bg.hidden=!nFix;
-  $("#tipSave").textContent=SEND.saving?"Saving to M3…":F.bad?"Fix the quantities marked in the quote to save":F.dirty?"Saves your changes to M3. Then calculate freight.":"No changes to save";
-  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep working.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated ${SEND.freightAt}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
+  $("#tipSave").textContent=SEND.saving?"Saving to M3…":F.run?"Save unlocks when freight is done":F.bad?"Fix the quantities marked in the quote to save":F.dirty?"Saves your changes to M3. Then calculate freight.":"No changes to save";
+  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated ${SEND.freightAt}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
   $("#tipSend").textContent=F.canSend?"Sends the quote and payment link to the client":nFix?`${plural(nFix,"thing")} to fix before sending`:F.run?"Sending unlocks when freight is ready":!F.hasLines?"Add products before sending":F.dirty?"Save and calculate freight before sending":"Calculate freight before sending";
   const W=F.hasLines?crWarn():[]; // concept QOM-2561: warnings ("to check") never block sending; always empty with the toggle off
   const chk=W.length?`<span aria-hidden="true"> · </span><button type="button" class="pb-chk" id="pbChk" aria-controls="sendPanel">${INFO_ICON}${W.length} to check</button>`:"";
@@ -3129,11 +3136,12 @@ function sendClient(){ const F=footState();
 // Calculate freight saves first if there are unsaved changes, then M3 runs freight, then tax
 function runFreight(){
   S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; SEND.stale=false; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
-  clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent="Freight and tax calculated. Ready to send."; },6000);
+  clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ const ed=S.dirty; SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent=ed?"Freight and tax calculated, but your changes since have put them out of date. Save, then calculate again.":"Freight and tax calculated."; },6000);
 }
 function sendAction(a){
   if(a==="addAddr"){ setPTab(2); const f=$("#pf-addr"); f?.focus(); f?.scrollIntoView({block:"center"}); return; } // goes to Shipping Information, Delivery Address
   if(a==="calc"){ runFreight(); return; }
+  if(a.startsWith("field:")){ const k=a.slice(6), f=REQ_FIELDS.find(x=>x[0]===k); setPTab(f[2]); const el=$("#pf-"+k); el?.focus(); el?.scrollIntoView({block:"center"}); return; } // goes to the tab and field
   if(a==="recheck"){ showToast(S.ext?`Still blocked: ${EXT[S.ext].t}.`:"Nothing outside QOM blocks sending now."); return; } // mock: clear it with the demo bar
   if(a==="addRoom"){ closeSend(); startAddRoom(); return; }
   if(a==="addProd"){ closeSend(); startAddProducts(S.room||S.quote.rooms[0].name); return; }
@@ -3178,7 +3186,7 @@ function linesChanged(){ if(!S.dirty) return 0;
   const m=q=>{ const o=new Map(); (q?.rooms||[]).forEach(r=>{ const id=roomId(r); r.lines.forEach(l=>o.set(id+"|"+(l.fcFrom||l.sku),r.name+"|"+JSON.stringify(l))); }); return o; };
   const a=m(S.base), b=m(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return n; }
 // Save: "Saving…" for a moment, then saved (in QOM it's the time M3 confirms the save)
-function saveQuote(){ const F=footState(); if(!F.dirty||F.bad||SEND.saving) return; SEND.saving=true; SEND.failed=null; renderSend(); $("#sendLive").textContent="Saving.";
+function saveQuote(){ const F=footState(); if(!F.dirty||F.bad||SEND.saving||F.run) return; SEND.saving=true; SEND.failed=null; renderSend(); $("#sendLive").textContent="Saving.";
   clearTimeout(SEND.saveTimer); SEND.saveTimer=setTimeout(()=>{ SEND.saving=false; S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); renderQuote(); $("#sendLive").textContent=`Saved ${SEND.savedAt}.`; },900); }
 const SAVE_FAIL="Line 1 (HNBAR-N) could not be updated: M3 rejected the change. Check the line and try again. (mock M3 message)";
 // footer states in the Scenario menu (Footer 1 to 7). Every scenario change first clears the mock Blocked line and status.
@@ -3775,9 +3783,9 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.fpop){ e.preve
 const PT_ADDRS=["12 Sample Street, Anytown MA 01000","QUALITY FINISHES warehouse, 400 Example Avenue, Anytown MA 01002"];
 const PT_CUST="10000418 - QUALITY FINISHES";
 TF={cust:PT_CUST,spec:"Dana Whitfield · Whitfield Design Studio",otype:S.view==="commercial"?"Commercial":"Residential",osub:"US Domestic",rdd:QI.delivery,conv:QI.conv,
-  sc:QI.consultant,proj:QI.project,payer:PT_CUST,same:"yes",status:"",resp:QI.consultant,exp:"04/27/2028",desc:"Henry bar and club house",
+  sc:QI.consultant,proj:QI.project,payer:PT_CUST,same:"yes",status:"Open",resp:QI.consultant,exp:"04/27/2028",desc:"Henry bar and club house",
   addr:"",po:"",svc:QI.service,cost:QI.cost,acc:"",
-  shipto:"",billto:"Pat Morgan-Ellis · pat.morgan-ellis@example.com",aspec:"Dana Whitfield · Whitfield Design Studio",p2:"",p3:"",p4:"",p5:"",p6:""};
+  shipto:"Pat Morgan-Ellis · pat.morgan-ellis@example.com",billto:"Pat Morgan-Ellis · pat.morgan-ellis@example.com",aspec:"Dana Whitfield · Whitfield Design Studio",p2:"",p3:"",p4:"",p5:"",p6:""};
 function syncAddr(){ if(!TF) return; if(SEND.addr&&!TF.addr) TF.addr=PT_ADDRS[0]; if(!SEND.addr) TF.addr=""; } // the address field and the "Delivery address missing" blocker agree
 syncAddr(); TF_BASE={...TF};
 const PI={
