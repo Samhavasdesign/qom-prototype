@@ -7,6 +7,7 @@ const P={on:true,fold:false,assoc:false};
 try{ P.on=localStorage.getItem("qom-v5-proposal")!=="off"; }catch(e){}
 const q=s=>document.querySelector(s);
 const IC={
+  warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', /* Lucide clock */
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
   form:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap="round"/></svg>',
   doc:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4v15H6z"/><path d="M14 2.5v4h4"/></svg>',
@@ -25,14 +26,18 @@ const fmtDate=t=>{ if(!t) return "—"; const d=pDate(t); return isNaN(d)?t:d.to
 const h1=q("#quoteTitle"), tabs=q(".main > .tabs"), more=q("#qMoreBtn");
 const tr=document.createElement("div"); tr.className="ptitle"; h1.before(tr); tr.append(h1);
 const acts=document.createElement("div"); acts.className="pacts"; acts.innerHTML=`<button type="button" class="btn ghost" id="pPdfBtn">${IC.doc}Preview PDF</button>`; tr.append(acts);
+const ptype=document.createElement("span"); ptype.className="ptype"; h1.after(ptype);
 const facts=document.createElement("div"); facts.className="pfacts"; facts.setAttribute("aria-label","Key facts about this quote"); q(".main > p.sub").after(facts);
+/* trimmed (Sam, Nov 23): only what tells the SC which quote this is. Order type is a tag by the title; expiry shows only when it needs action
+   (7 days or less, or past); requested delivery and status stay in Details, where the late-date alerts and Things to fix already point */
 function renderFacts(){
   if(!TF) return;
   const exp=pDate(QI.expires), days=Math.round((exp-new Date(new Date().toDateString()))/864e5);
   const cust=(TF.cust||"").split(" - ").pop();
-  const f=(k,l,v)=>`<button type="button" data-pgo="${k}">${l?l+" ":""}<b>${e_(v)}</b></button>`;
-  facts.innerHTML=f("cust","Customer",title(cust)+" (USC)")+f("proj","Project",TF.proj||"—")+f("rdd","Requested delivery",fmtDate(TF.rdd))
-    +`<button type="button" data-pgo="exp">Expires <b>${days>1?"in "+days+" days":days===1?"tomorrow":days===0?"today":"expired"}</b></button>`+f("otype","",TF.otype||"—")+f("status","Status",TF.status||"—");
+  const f=(k,l,v)=>`<button type="button" data-pgo="${k}" title="${l} · edit in Details" aria-label="${l}: ${e_(v)}"><b>${e_(v)}</b></button>`;
+  const ex=days>7?"":`<button type="button" class="pexp${days<0?" past":""}" data-pgo="exp" title="Expiration date · ${fmtDate(QI.expires)}">${IC.warn||""}${days>1?"Expires in "+days+" days":days===1?"Expires tomorrow":days===0?"Expires today":"Expired "+fmtDate(QI.expires)}</button>`;
+  facts.innerHTML=f("cust","Customer",title(cust)+" (USC)")+(TF.proj?`<span class="psep" aria-hidden="true">·</span>`+f("proj","Project",TF.proj):"")+ex;
+  const ot=S.view==="commercial"?"Commercial":S.view==="residential"?"Residential":(TF.otype||""); ptype.textContent=ot; ptype.hidden=!ot; /* follows the View switch, like the expiry */
 }
 
 /* ---------- the tool column: Search and Details ---------- */

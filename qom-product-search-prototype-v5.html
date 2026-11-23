@@ -4197,13 +4197,27 @@ body.proposal #qTop .qseg{display:none}
 .ptitle .pacts{display:none;align-items:center;gap:8px}
 body.proposal .ptitle .pacts{display:flex}
 body.proposal .ptitle .tabmore{margin:0}
+/* v2 styles the ••• only inside .tabs; in the title row it needs them too, or it gets the browser's grey outset button (Sam, Nov 23). 36px tall, like Preview PDF beside it */
+.ptitle .tabmore{display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;background:none;box-shadow:none;color:var(--ink);cursor:pointer;flex:none}
+.ptitle .tabmore svg circle:first-child{transition:fill .12s}
+.ptitle .tabmore:hover svg circle:first-child,.ptitle .tabmore[aria-expanded="true"] svg circle:first-child{fill:var(--surface-2)}
+.ptitle .tabmore:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:50%}
 
 /* key facts in the header, each a link to its field in Details */
 .pfacts{display:none}
-body.proposal .pfacts{display:flex;flex-wrap:wrap;gap:4px 20px;margin:2px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+body.proposal .pfacts{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:2px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
 .pfacts button{border:0;background:none;padding:2px 0;font:inherit;color:inherit;cursor:pointer;border-radius:var(--r-sm)}
 .pfacts button b{color:var(--ink);font-weight:500}
 .pfacts button:hover b{text-decoration:underline;text-underline-offset:3px}
+.pfacts .psep{color:var(--ink-3)}
+.pfacts .pexp{display:inline-flex;align-items:center;gap:6px;margin-left:12px;padding:2px 8px;border-radius:var(--r-sm);background:var(--amber-bg);color:var(--amber);font-weight:500}
+.pfacts .pexp.past{background:var(--block-bg);color:var(--block)}
+.pfacts .pexp svg{width:14px;height:14px;flex:none}
+.pfacts .pexp:hover{text-decoration:underline;text-underline-offset:3px}
+/* order type: a mode, not a fact, so a small tag by the title (like the Draft pill) */
+.ptype{display:none}
+body.proposal .ptitle .ptype:not([hidden]){display:inline-flex;align-items:center;height:22px;padding:0 8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);font-size:12px;font-weight:500;color:var(--ink-2);margin-right:auto}
+body.proposal .ptitle > h1{margin-right:0}
 
 /* the tool column: Search and Details, left of the open tool */
 .ptools{display:none}
@@ -4315,6 +4329,7 @@ const P={on:true,fold:false,assoc:false};
 try{ P.on=localStorage.getItem("qom-v5-proposal")!=="off"; }catch(e){}
 const q=s=>document.querySelector(s);
 const IC={
+  warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', /* Lucide clock */
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
   form:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap="round"/></svg>',
   doc:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4v15H6z"/><path d="M14 2.5v4h4"/></svg>',
@@ -4333,14 +4348,18 @@ const fmtDate=t=>{ if(!t) return "—"; const d=pDate(t); return isNaN(d)?t:d.to
 const h1=q("#quoteTitle"), tabs=q(".main > .tabs"), more=q("#qMoreBtn");
 const tr=document.createElement("div"); tr.className="ptitle"; h1.before(tr); tr.append(h1);
 const acts=document.createElement("div"); acts.className="pacts"; acts.innerHTML=`<button type="button" class="btn ghost" id="pPdfBtn">${IC.doc}Preview PDF</button>`; tr.append(acts);
+const ptype=document.createElement("span"); ptype.className="ptype"; h1.after(ptype);
 const facts=document.createElement("div"); facts.className="pfacts"; facts.setAttribute("aria-label","Key facts about this quote"); q(".main > p.sub").after(facts);
+/* trimmed (Sam, Nov 23): only what tells the SC which quote this is. Order type is a tag by the title; expiry shows only when it needs action
+   (7 days or less, or past); requested delivery and status stay in Details, where the late-date alerts and Things to fix already point */
 function renderFacts(){
   if(!TF) return;
   const exp=pDate(QI.expires), days=Math.round((exp-new Date(new Date().toDateString()))/864e5);
   const cust=(TF.cust||"").split(" - ").pop();
-  const f=(k,l,v)=>`<button type="button" data-pgo="${k}">${l?l+" ":""}<b>${e_(v)}</b></button>`;
-  facts.innerHTML=f("cust","Customer",title(cust)+" (USC)")+f("proj","Project",TF.proj||"—")+f("rdd","Requested delivery",fmtDate(TF.rdd))
-    +`<button type="button" data-pgo="exp">Expires <b>${days>1?"in "+days+" days":days===1?"tomorrow":days===0?"today":"expired"}</b></button>`+f("otype","",TF.otype||"—")+f("status","Status",TF.status||"—");
+  const f=(k,l,v)=>`<button type="button" data-pgo="${k}" title="${l} · edit in Details" aria-label="${l}: ${e_(v)}"><b>${e_(v)}</b></button>`;
+  const ex=days>7?"":`<button type="button" class="pexp${days<0?" past":""}" data-pgo="exp" title="Expiration date · ${fmtDate(QI.expires)}">${IC.warn||""}${days>1?"Expires in "+days+" days":days===1?"Expires tomorrow":days===0?"Expires today":"Expired "+fmtDate(QI.expires)}</button>`;
+  facts.innerHTML=f("cust","Customer",title(cust)+" (USC)")+(TF.proj?`<span class="psep" aria-hidden="true">·</span>`+f("proj","Project",TF.proj):"")+ex;
+  const ot=S.view==="commercial"?"Commercial":S.view==="residential"?"Residential":(TF.otype||""); ptype.textContent=ot; ptype.hidden=!ot; /* follows the View switch, like the expiry */
 }
 
 /* ---------- the tool column: Search and Details ---------- */

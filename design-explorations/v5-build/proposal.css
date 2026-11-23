@@ -14,13 +14,27 @@ body.proposal #qTop .qseg{display:none}
 .ptitle .pacts{display:none;align-items:center;gap:8px}
 body.proposal .ptitle .pacts{display:flex}
 body.proposal .ptitle .tabmore{margin:0}
+/* v2 styles the ••• only inside .tabs; in the title row it needs them too, or it gets the browser's grey outset button (Sam, Nov 23). 36px tall, like Preview PDF beside it */
+.ptitle .tabmore{display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;background:none;box-shadow:none;color:var(--ink);cursor:pointer;flex:none}
+.ptitle .tabmore svg circle:first-child{transition:fill .12s}
+.ptitle .tabmore:hover svg circle:first-child,.ptitle .tabmore[aria-expanded="true"] svg circle:first-child{fill:var(--surface-2)}
+.ptitle .tabmore:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:50%}
 
 /* key facts in the header, each a link to its field in Details */
 .pfacts{display:none}
-body.proposal .pfacts{display:flex;flex-wrap:wrap;gap:4px 20px;margin:2px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+body.proposal .pfacts{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:2px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
 .pfacts button{border:0;background:none;padding:2px 0;font:inherit;color:inherit;cursor:pointer;border-radius:var(--r-sm)}
 .pfacts button b{color:var(--ink);font-weight:500}
 .pfacts button:hover b{text-decoration:underline;text-underline-offset:3px}
+.pfacts .psep{color:var(--ink-3)}
+.pfacts .pexp{display:inline-flex;align-items:center;gap:6px;margin-left:12px;padding:2px 8px;border-radius:var(--r-sm);background:var(--amber-bg);color:var(--amber);font-weight:500}
+.pfacts .pexp.past{background:var(--block-bg);color:var(--block)}
+.pfacts .pexp svg{width:14px;height:14px;flex:none}
+.pfacts .pexp:hover{text-decoration:underline;text-underline-offset:3px}
+/* order type: a mode, not a fact, so a small tag by the title (like the Draft pill) */
+.ptype{display:none}
+body.proposal .ptitle .ptype:not([hidden]){display:inline-flex;align-items:center;height:22px;padding:0 8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);font-size:12px;font-weight:500;color:var(--ink-2);margin-right:auto}
+body.proposal .ptitle > h1{margin-right:0}
 
 /* the tool column: Search and Details, left of the open tool */
 .ptools{display:none}
