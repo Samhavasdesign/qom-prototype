@@ -100,3 +100,6 @@ rep('<label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Sto
 rep('</body>',open(D+'toggle.html').read().rstrip('\n'))
 open('qom-product-search-prototype-v4.html','w').write(s)
 print('spartan layer added')
+# ---- Lucide side nav icons (Nov 23; design.md: icons are Lucide) ----
+import subprocess
+subprocess.run([sys.executable,os.path.join(os.path.dirname(os.path.abspath(__file__)),'lucide_nav.py'),'qom-product-search-prototype-v4.html'],check=True)

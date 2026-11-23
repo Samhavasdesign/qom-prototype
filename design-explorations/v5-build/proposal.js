@@ -50,9 +50,9 @@ function fieldMap(){ const m={}, tmp=document.createElement("div");
 const secOf=k=>(SECS.find(s=>s[2].includes(k))||[])[0];
 function missingKeys(){ return [...(SEND.addr?[]:["addr"]),...reqMissing().map(x=>x[0])]; }
 PT_FORMS[5]=()=>{ const m=fieldMap(), miss=new Set(missingKeys().map(secOf));
-  const nav=`<div class="pf wide dnav" role="navigation" aria-label="Details sections">${SECS.map(([id,t])=>`<button type="button" data-dsec="${id}">${t}${miss.has(id)?'<span class="sdot" aria-label="needs a field before sending"></span>':""}</button>`).join("")}</div>`;
+  const nav=`<div class="pf wide dnav" role="navigation" aria-label="Details sections">${SECS.map(([id,t],i)=>`<button type="button" data-dsec="${id}"${i?"":' aria-current="true"'}>${t}${miss.has(id)?'<span class="sdot" aria-label="needs a field before sending"></span>':""}</button>`).join("")}</div>`;
   return nav+SECS.map(([id,t,keys])=>`<div class="pf wide dsech" id="dsec-${id}"><h3>${t}</h3></div>`+keys.map(k=>m[k]||"").join("")
-    +(id==="cust"?(P.assoc?["p2","p3","p4","p5","p6"].map(k=>m[k]||"").join(""):`<div class="pf wide"><button type="button" class="dmore" data-dassoc>+ Add associated party</button></div>`):"")).join(""); };
+    +(id==="cust"?(P.assoc?["p2","p3","p4","p5","p6"].map(k=>m[k]||"").join(""):`<div class="pf wide"><button type="button" class="dmore" data-dassoc>+ Add associated party</button></div>`):"")).join("")+`<div class="pf wide dspacer" aria-hidden="true"></div>`; };
 PT_NAMES[5]="Quote details";
 
 function refreshTools(){
@@ -81,10 +81,24 @@ document.addEventListener("click",ev=>{
     if(S.ptab===n&&!P.fold){ P.fold=true; applyFold(); } else { if(P.fold){ P.fold=false; applyFold(); } setPTab(n); if(n===4) q("#q")?.focus(); }
     t.focus(); return; }
   const g=ev.target.closest("[data-pgo]"); if(g){ goField(g.dataset.pgo); return; }
-  const s=ev.target.closest("[data-dsec]"); if(s){ const el=q("#dsec-"+s.dataset.dsec); el?.scrollIntoView({block:"start"}); return; }
+  const s=ev.target.closest("[data-dsec]"); if(s){ const el=q("#dsec-"+s.dataset.dsec); dPick={id:s.dataset.dsec,t:Date.now()}; fitDspacer(); if(s.dataset.dsec===SECS[0][0]){ const v=q("#ptView"); if(!v) return; if(v.scrollHeight>v.clientHeight&&getComputedStyle(v).overflowY!=="visible") v.scrollTop=0; else v.scrollIntoView({block:"start"}); } else el?.scrollIntoView({block:"start"}); syncDnav(); return; }
   if(ev.target.closest("[data-dassoc]")){ P.assoc=true; renderPTab(); q("#pf-p2")?.focus(); return; }
   if(ev.target.closest("#pPdfBtn")){ openPdf(); return; }
 },true);
+/* the tab for the section in view is current; a clicked tab stays current even when its section is too short to reach the top */
+let dPick=null;
+/* Team is the last and shortest section: a spacer after it lets it scroll up to the tabs like the others */
+function fitDspacer(){ const sp=q(".dspacer"), last=[...document.querySelectorAll(".dsech")].pop(); if(!sp||!last) return;
+  const v=q("#ptView"), own=v&&getComputedStyle(v).overflowY!=="visible"&&v.scrollHeight>v.clientHeight-1;
+  const view=own?v.clientHeight:window.innerHeight-(q("#pbar")?.offsetHeight||0);
+  sp.style.height="0px"; const h=sp.getBoundingClientRect().top-last.getBoundingClientRect().top;
+  sp.style.height=Math.max(0,view-h-parseFloat(getComputedStyle(last).scrollMarginTop||0))+"px"; }
+function syncDnav(){ const nav=q(".dnav"); if(!nav) return; const secs=[...document.querySelectorAll(".dsech")].filter(x=>x.getClientRects().length||x.id==="dsec-"+SECS[0][0]); if(!secs.length) return;
+  let id; if(dPick&&Date.now()-dPick.t<700) id=dPick.id;
+  else { const line=nav.getBoundingClientRect().bottom+20; id=secs[0].id.slice(5); secs.forEach(x=>{ if(x.getBoundingClientRect().top<=line) id=x.id.slice(5); });
+    const v=q("#ptView"); if(v&&v.scrollHeight>v.clientHeight&&v.scrollTop+v.clientHeight>=v.scrollHeight-2) id=secs[secs.length-1].id.slice(5); }
+  nav.querySelectorAll("[data-dsec]").forEach(b=>b.setAttribute("aria-current",b.dataset.dsec===id?"true":"false")); }
+let dRaf=0; document.addEventListener("scroll",()=>{ if(!P.on||dRaf) return; dRaf=requestAnimationFrame(()=>{ dRaf=0; syncDnav(); }); },true);
 function goField(k){ setPTab(5); const el=q("#pf-"+k); if(el){ el.scrollIntoView({block:"center"}); el.focus({preventScroll:true}); } }
 
 /* ---------- PDF preview: opens over the page ---------- */

@@ -42,13 +42,19 @@ body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important
 }
 
 /* Details: the four field tabs as one panel, grouped by what the sales consultant is filling in */
-.dnav{display:flex;flex-direction:row !important;flex-wrap:wrap;gap:4px;position:sticky;top:0;z-index:2;background:var(--surface);padding:4px 0 8px;border:0 !important;box-shadow:none !important}
-.dnav button{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid transparent;border-radius:var(--r-md);background:none;font:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
-.dnav button:hover{background:var(--surface)}
+.dnav{display:flex;flex-direction:row !important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px;position:sticky;top:-20px;margin-top:-20px;z-index:2;background:var(--surface);padding:24px 0 8px;border:0 !important;box-shadow:none !important} /* the panel (#ptView) has 20px top padding and sticky stops inside it, so the bar reaches up over that padding: no strip for fields to scroll through above it */
+/* section links as tabs (Sam, Nov 23): white squarish pills; the section in view is filled black, like a set filter pill */
+.dnav button{display:inline-flex;align-items:center;gap:6px;flex:none;height:30px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg);box-shadow:0 1px 2px rgb(0 0 0 / .05);font:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
+.dnav button:hover{border-color:var(--control-line)}
+.dnav button[aria-current="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .dnav .sdot{width:6px;height:6px;border-radius:50%;background:var(--block)}
-.dsech{padding-top:8px;border-top:1px solid var(--line);scroll-margin-top:48px}
+.dnav button[aria-current="true"] .sdot{box-shadow:0 0 0 1.5px #fff}
+/* no visible section headings: the tab in view names the section, so "Customer" isn't said three times; a line still splits the sections */
+.dsech{border-top:1px solid var(--line);scroll-margin-top:74px}
+#dsec-cust{display:none} /* the first section needs no line or anchor (its tab scrolls to the top), so it doesn't cost a grid row: tabs to first field is 34px, not 60 */
+.dspacer{padding:0 !important;margin:0 !important;border:0 !important}
 .dsech:first-of-type{border-top:0}
-.dsech h3{margin:0;font-family:var(--sans);font-size:15px;font-weight:500}
+.dsech h3{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
 .dmore{align-self:flex-start;border:0;background:none;padding:0;font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;text-underline-offset:4px}
 .dmore:hover{text-decoration:underline}
 
