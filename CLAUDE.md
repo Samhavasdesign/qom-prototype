@@ -8,6 +8,33 @@ A clickable, wireframe-level prototype of the Product Selection step in QOM (Wat
 
 ## File and stack
 - `qom-product-search-prototype-v3.html`: the current prototype. One file, vanilla JS and CSS, no build step, no dependencies except Google Fonts (Libre Caslon Text, Figtree). It's v2 plus the step-track footer and the mocked quote tabs (see "What changed in v3"). `qom-product-search-prototype-v2.html` keeps the old two-row footer for comparison (Nov 6: it also got v3's mocked quote tabs, so both versions can be compared on every tab), and `qom-product-search-prototype.html` is v1, kept for reference.
+- `qom-product-search-prototype-v4.html` (Nov 20): a copy of v2 with the Spartan theme v1 values (`~/waterworks/sp-fe/audit/theme.css` and `design.md`), to see the theme on a real screen. It's built from v2 by a script; nothing else differs. The changes:
+  - Colours: ink #121212; secondary text #666; borders #e5e5e5; field edges #8a8a8a; fills #f3f3f3. Status: caution #b45309, success #047857, info #1d4ed8, and the red stays #c62828.
+  - Corners: `--radius` 4px, with the steps sm 2.4px (controls), md 3.2px (menus, toasts) and lg 4px (dialogs).
+  - Focus: a 3px ring at 50%.
+  - Type: body 14/20 and `font-synthesis: none`. Weight 600 becomes 500, since Gotham Narrow has no 600; 700 stays as the Gotham heading stand-in. Fonts are still Figtree and Libre Caslon, loaded at 400/500/700 and 400 only.
+  - Control heights: 36px for search, room picker, filter pills, Change finish fields and dialog buttons; 40px for the empty quote's button.
+  
+  - Forms: the quote-tab forms, the quote actions menu, Change finish's current-finish box and the add-room row are 36px too.
+  - Spartan components layer (on by default): the demo bar's "Spartan components" switch, remembered in the browser. It's plain CSS under `html.sp` that copies the sandbox's helm classes (`libs/ui`). Off shows theme v1 on QOM's own controls.
+    - Buttons: sentence case, 14px medium, rounded-md, 36px; Send to client and the empty quote's button are 40px. Black is the default variant. Outline buttons have a light border and shadow-xs. Disabled is 50%.
+    - Fields: inputs and selects have a #8a8a8a border, shadow-xs and a 3px focus ring. The steppers are square-cornered input groups, not pills.
+    - Choices: checkboxes and radios are 16px. The switch is 32px.
+    - Tabs: the line variant, with a 2px underline.
+    - Overlays: menus and popovers get ring-1 and shadow-md with rounded items. Dialogs are rounded-xl, left-aligned, with buttons on the right.
+    - Badges and alerts: badges are full pills. Line alerts get rounded corners and a 30% status border; QOM's compact size is kept.
+    - Toasts: Sonner's rich colours (light green or red fill) instead of the solid green.
+    - Filter pills: outline buttons, black once set.
+  - How it's built: `design-explorations/v4-build/` (`mkv4.py` builds v4 from v2; `spartan.css` and `toggle.html` are the layer and its switch; the script reads them from $TMPDIR/v4src/, so copy them there first).
+
+  v2 changes don't carry over to v4: rebuild it if needed.
+- `qom-product-search-prototype-v5.html` (Nov 23): v4 plus the Quote Page Proposal (https://claude.ai/artifact/ETZsEJHA9ZPJiz2FYA8ALt) and global search, behind the demo bar's "Proposal layout and global search" switch (on by default, remembered in the browser). Built by `design-explorations/v5-build/mkv5.py` from v4 (run it from the prototype folder after rebuilding v4); the layer is `proposal.css` and `proposal.js`, which reuse and wrap v2's own functions (setPTab, PT_FORMS, sendItems, openSend, renderQuote, setPage, pdfHtml, QL). What it does:
+  - No page tabs and no Products / Quote information / PDF preview tabs. The title row has Preview PDF (opens the PDF over the page) and the quote actions (•••); a facts row under it (customer, project, requested delivery, expiry, order type, status) links each fact to its field in Details.
+  - A tool column left of the search side: Search and Details. Details is the four field tabs as one panel (`PT_FORMS[5]`, built from v2's own field markup), grouped Customer, Bill to, Ship to, Quote, Team, with section links and a red dot on any section, and on the Details tool, with a field needed before sending. Clicking the open tool folds it; clicking either tool brings it back.
+  - Before you send stays v2's right-side panel; opening it folds the open tool. Things to fix's "Add" links open Details at the field (their text reads "Required in Details · Ship to").
+  - Global search: a Search field at the top of the side nav and ⌘K / Ctrl+K anywhere open a palette over Clients, Projects, Quotes and Orders (all from the Quotes list's mock rows; Recent when empty), with arrow keys, Enter and Esc. Only quote 6000024967 opens; the rest show a toast. Leaving a quote with unsaved changes asks first (Stay, Discard and leave, Save and leave).
+  - New quote: the Quotes list's Create new opens the one-step form (five required fields, two optional, Filled in for you); Create shows "Creating the quote in M3…" for a moment, then opens the fresh quote on product search with a toast.
+  - Not built from the proposal: the empty quote's "Start with a room" chips and the full view's Rooms list changes.
 - `bottom-bar-handoff/`: the brief (`PROMPT.md`) and reference images (00–15) that v3's footer and tabs were built from.
 - Mock data only. Never add real client, quote or pricing data. Do not call QOM or M3.
 - `images/`: eight sample product photos saved from the public waterworks.com wall-mounted accessories page, used as dummy thumbnails (not matched to the mock products). Products with no photo show a grey placeholder; a missing file falls back to the failed-image state.

@@ -1,0 +1,7 @@
+<script>
+/* v4: the Spartan components layer is on unless turned off in the demo bar; remembered in the browser */
+(function(){var k="qom-v4-spartan",h=document.documentElement,c=document.getElementById("spSkin"),on=true;
+try{on=localStorage.getItem(k)!=="off"}catch(e){}
+h.classList.toggle("sp",on);if(c){c.checked=on;c.addEventListener("change",function(){h.classList.toggle("sp",c.checked);try{localStorage.setItem(k,c.checked?"on":"off")}catch(e){}window.dispatchEvent(new Event("resize"))})}})();
+</script>
+</body>

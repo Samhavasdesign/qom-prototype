@@ -1,0 +1,115 @@
+
+/* ==== v5 (Nov 23): the Quote Page Proposal and global search, on top of v4 ====
+   On while <body> has class "proposal" (the demo bar's "Proposal layout and global search" switch).
+   Proposal: https://claude.ai/artifact/ETZsEJHA9ZPJiz2FYA8ALt */
+
+/* no rows of tabs: the page tabs and the quote panel's Products / Quote information / PDF preview tabs go */
+body.proposal .main > .tabs{display:none}
+body.proposal .main > p.sub{display:none}
+body.proposal #qTop .qseg{display:none}
+
+/* title row: the quote's name, then Preview PDF and the quote actions (•••) on the right */
+.ptitle{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ptitle > h1{margin-right:auto}
+.ptitle .pacts{display:none;align-items:center;gap:8px}
+body.proposal .ptitle .pacts{display:flex}
+body.proposal .ptitle .tabmore{margin:0}
+
+/* key facts in the header, each a link to its field in Details */
+.pfacts{display:none}
+body.proposal .pfacts{display:flex;flex-wrap:wrap;gap:4px 20px;margin:2px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.pfacts button{border:0;background:none;padding:2px 0;font:inherit;color:inherit;cursor:pointer;border-radius:var(--r-sm)}
+.pfacts button b{color:var(--ink);font-weight:500}
+.pfacts button:hover b{text-decoration:underline;text-underline-offset:3px}
+
+/* the tool column: Search and Details, left of the open tool */
+.ptools{display:none}
+body.proposal .ptools{display:flex;flex-direction:column;gap:4px;align-self:start;position:sticky;top:12px}
+.ptool{position:relative;display:grid;justify-items:center;align-content:center;gap:4px;width:80px;min-height:56px;padding:8px 4px;border-radius:var(--r-md);color:var(--ink-2);font-size:12px;font-weight:500;text-decoration:none;text-align:center}
+.ptool:hover{background:var(--surface)}
+.ptool.cur{background:var(--surface);color:var(--ink)}
+body.prop-fold .ptool.cur{background:none;color:var(--ink-2)}
+.ptool .pdot{position:absolute;top:8px;right:20px;width:8px;height:8px;border-radius:50%;background:var(--block)}
+.ptool .pdot[hidden]{display:none}
+body.proposal .work[data-layout="split"]{grid-template-columns:80px minmax(300px,var(--left,.55fr)) 10px minmax(320px,1fr)}
+body.proposal.prop-fold .work[data-layout="split"]{grid-template-columns:80px minmax(0,1fr)}
+body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important}
+@media (width < 768px){ /* below md: the tools become a row above the open tool */
+  body.proposal .work[data-layout="split"],body.proposal.prop-fold .work[data-layout="split"]{grid-template-columns:1fr}
+  body.proposal .ptools{flex-direction:row;position:static}
+  .ptool{width:auto;min-height:40px;grid-auto-flow:column;padding:6px 12px}
+  .ptool .pdot{top:6px;right:6px}
+}
+
+/* Details: the four field tabs as one panel, grouped by what the sales consultant is filling in */
+.dnav{display:flex;flex-direction:row !important;flex-wrap:wrap;gap:4px;position:sticky;top:0;z-index:2;background:var(--surface);padding:4px 0 8px;border:0 !important;box-shadow:none !important}
+.dnav button{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid transparent;border-radius:var(--r-md);background:none;font:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
+.dnav button:hover{background:var(--surface)}
+.dnav .sdot{width:6px;height:6px;border-radius:50%;background:var(--block)}
+.dsech{padding-top:8px;border-top:1px solid var(--line);scroll-margin-top:48px}
+.dsech:first-of-type{border-top:0}
+.dsech h3{margin:0;font-family:var(--sans);font-size:15px;font-weight:500}
+.dmore{align-self:flex-start;border:0;background:none;padding:0;font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;text-underline-offset:4px}
+.dmore:hover{text-decoration:underline}
+
+/* PDF preview: a button that opens the PDF over the page and closes back to where you were */
+.pdfdlg{position:fixed;inset:0;z-index:230;background:rgb(0 0 0 / .5);display:flex;align-items:center;justify-content:center;padding:20px}
+.pdfdlg[hidden]{display:none}
+.pdfcard{background:var(--bg);width:min(760px,100%);height:min(94vh,1000px);display:grid;grid-template-rows:auto minmax(0,1fr);border-radius:calc(var(--radius)*1.4);box-shadow:0 0 0 1px rgb(18 18 18 / .1),0 10px 15px -3px rgb(0 0 0 / .1);overflow:hidden}
+.pdfhd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 12px 12px 20px;border-bottom:1px solid var(--line)}
+.pdfhd h2{margin:0;font-family:var(--sans);font-size:15px;font-weight:500}
+.pdfbody{overflow:auto;background:var(--surface);padding:16px}
+.xbtn{border:0;background:none;width:32px;height:32px;display:grid;place-items:center;border-radius:var(--r-md);color:var(--ink);cursor:pointer}
+.xbtn:hover{background:var(--surface)}
+
+/* ---- global search: in the side nav on every page, and ⌘K / Ctrl+K from anywhere ---- */
+.gsbtn{display:none}
+body.proposal .gsbtn{display:flex;white-space:nowrap;overflow:hidden;align-items:center;gap:10px;width:calc(100% - 28px);margin:0 14px 16px;height:36px;padding:0 10px;border:1px solid rgb(255 255 255 / .22);border-radius:var(--r-md);background:rgb(255 255 255 / .06);color:#c9c9c9;font:inherit;font-size:13px;cursor:pointer;text-align:left}
+.gsbtn:hover{background:rgb(255 255 255 / .12);color:#fff}
+.gsbtn kbd{margin-left:auto;font:inherit;font-size:11px;padding:1px 6px;border:1px solid rgb(255 255 255 / .25);border-radius:4px;color:#aaa}
+html.navstrip .rail:not(.open) .gsbtn{width:40px;margin:0 auto 16px;justify-content:center;padding:0}
+html.navstrip .rail:not(.open) .gsbtn :is(.gsl,kbd){display:none}
+html.topnav body.proposal .gsbtn{width:auto;margin:0 8px 0 auto;padding:0 12px;height:36px;flex:none}
+html.topnav .gsbtn kbd{display:none}
+
+.gsdlg{position:fixed;inset:0;z-index:240;background:rgb(0 0 0 / .5);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px}
+.gsdlg[hidden]{display:none}
+.gspal{width:min(640px,100%);max-height:72vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--bg);border-radius:calc(var(--radius)*1.4);box-shadow:0 0 0 1px rgb(18 18 18 / .1),0 10px 15px -3px rgb(0 0 0 / .1);overflow:hidden}
+.gsin{display:flex;align-items:center;gap:10px;padding:0 14px;height:48px;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.gsin input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:15px;color:var(--ink)}
+.gsin input:focus-visible{box-shadow:none}
+.gsin kbd,.gsfoot kbd{font:inherit;font-size:11px;padding:1px 6px;border:1px solid var(--line);border-radius:4px;color:var(--ink-2);background:var(--surface)}
+.gslist{overflow:auto;padding:6px}
+.gsgrp{padding:8px 8px 4px;font-size:12px;font-weight:500;color:var(--ink-2)}
+.gsit{display:flex;align-items:center;gap:10px;width:100%;padding:8px;border:0;border-radius:var(--r-md);background:none;font:inherit;font-size:14px;color:var(--ink);text-align:left;cursor:pointer}
+.gsit[aria-selected="true"]{background:var(--surface)}
+.gsit .gsic{flex:none;width:28px;height:28px;display:grid;place-items:center;border-radius:var(--r-md);background:var(--surface);color:var(--ink-2)}
+.gsit[aria-selected="true"] .gsic{background:var(--bg)}
+.gsit .gst{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gsit .gsm{flex:none;font-size:12px;color:var(--ink-2)}
+.gsit mark{background:none;color:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.gsnone{padding:24px 12px;text-align:center;color:var(--ink-2);font-size:14px}
+.gsfoot{display:flex;gap:16px;padding:8px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-2)}
+
+/* leaving a quote with unsaved changes */
+.gsguard .dlg{text-align:left}
+
+/* ---- new quote: one short step, from the Quotes list's Create new ---- */
+#ncPage{display:none}
+body.page-create .main > #ncPage{display:grid !important;justify-items:center;padding:8px 0 40px}
+body.page-create :is(.main > .pghead > #qCrumb,.ptitle,.pfacts,.main > p.sub,#extBanner,.main > .tabs,#quotesPage,#paneTabs,#quoteStrip,#work,#pbar,#sendPanel){display:none !important}
+.nccard{width:min(640px,100%);display:grid;gap:20px;padding:24px;border-radius:12px;box-shadow:0 0 0 1px rgb(18 18 18 / .1),0 1px 2px 0 rgb(0 0 0 / .05)}
+.nccard h1{margin:0;font-size:28px}
+.nccard .ncsub{margin:-12px 0 0;font-size:14px;color:var(--ink-2)}
+.ncgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 20px;align-items:start}
+@media (width < 640px){ .ncgrid{grid-template-columns:1fr} }
+.ncgrid .pf-hint,.ncnote{font-size:12px;color:var(--ink-2)}
+.ncgrid .pf-box.lock{background:var(--surface);border-color:var(--line)}
+.ncgrid .pf-box.lock input{color:var(--ink-2)}
+.ncdef{display:grid;gap:6px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--radius);font-size:13px;color:var(--ink-2)}
+.ncdef b{color:var(--ink);font-weight:500}
+.ncdef .dl{display:flex;flex-wrap:wrap;gap:4px 16px}
+.ncacts{display:flex;justify-content:flex-end;gap:8px}
+.ncspin{width:14px;height:14px;border:2px solid rgb(255 255 255 / .35);border-top-color:#fff;border-radius:50%;animation:ncs .8s linear infinite}
+@keyframes ncs{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){ .ncspin{animation:none} }

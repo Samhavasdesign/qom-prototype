@@ -1,0 +1,137 @@
+
+/* ==== Spartan components layer (Nov 20) ====
+   On while <html> has class "sp" (the demo bar's "Spartan components" switch).
+   Each rule mimics a Spartan helm component's classes (~/Desktop/qom-spartan-sandbox/libs/ui), using theme v1's values.
+   Plain CSS, not the real components: it shows the look at scale, so calls can be made before the Angular build. */
+html.sp{
+  --sp-ring:0 0 0 3px rgb(18 18 18 / .5);          /* focus-visible:ring-3 ring-ring/50 */
+  --sp-xs:0 1px 2px 0 rgb(0 0 0 / .05);            /* shadow-xs */
+  --sp-md:0 4px 6px -1px rgb(0 0 0 / .1),0 2px 4px -2px rgb(0 0 0 / .1);   /* shadow-md */
+  --sp-lg:0 10px 15px -3px rgb(0 0 0 / .1),0 4px 6px -4px rgb(0 0 0 / .1); /* shadow-lg */
+  --sp-edge:0 0 0 1px rgb(18 18 18 / .1);          /* ring-1 ring-foreground/10 on menus and dialogs */
+  --r-xl:calc(var(--radius)*1.4);
+}
+/* Focus: one ring everywhere (outline replaced by Spartan's 3px ring at 50%) */
+html.sp :is(button,a,input,select,textarea,[tabindex]):focus-visible{outline:none;box-shadow:var(--sp-ring)}
+
+/* Button: rounded-md, text-sm, font-medium, sentence case, h-9 (36px) */
+html.sp :is(.btn,.dbtn,.pb-act,.pf-add,.qlnew,.ctoast .ctundo,.menu > .act){display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;min-height:36px;padding:0 12px;border-radius:var(--r-md);font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;box-shadow:none}
+html.sp .empty-quote.none.xl .btn,html.sp .pb-act[id*="end"]{height:40px;min-height:40px;padding:0 16px} /* size lg: the page's single main action */
+/* variant default: black */
+html.sp :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.qlnew,.ctoast .ctundo,.menu > .act){background:var(--ink);color:#fff;border:1px solid transparent}
+html.sp :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.qlnew,.menu > .act):hover:not(:disabled,[aria-disabled="true"]){background:rgb(18 18 18 / .8)}
+html.sp .pf-add{box-shadow:none}
+/* variant outline: light border, white, shadow-xs, muted on hover */
+html.sp :is(.btn.ghost,.dbtn.cancel,.pb-act:not(.primary)){background:var(--bg);color:var(--ink);border:1px solid var(--line);box-shadow:var(--sp-xs)}
+html.sp :is(.btn.ghost,.dbtn.cancel,.pb-act:not(.primary)):hover:not(:disabled,[aria-disabled="true"]){background:var(--surface)}
+/* variant secondary and ghost */
+html.sp .btn.quiet{background:var(--surface);color:var(--ink);border:1px solid transparent}
+html.sp .btn.text{background:transparent;color:var(--ink);border:1px solid transparent}
+html.sp .btn.text:hover:not(:disabled){background:var(--surface)}
+/* disabled: opacity-50 (QOM keeps Send and Freight focusable with aria-disabled) */
+html.sp :is(.btn,.dbtn,.pb-act):is(:disabled,[aria-disabled="true"]),html.sp .btn.blocked{opacity:.5;cursor:not-allowed}
+html.sp .pb-act:is(:disabled,[aria-disabled="true"]){background:var(--bg);color:var(--ink);border-color:var(--line)}
+html.sp .btn.blocked{background:var(--surface);color:var(--ink);border:1px solid transparent}
+
+/* Input and native select: border-input, rounded-md, shadow-xs, h-9, focus border-ring + ring */
+html.sp :is(.search input,.fpsrch input,.cpx input[type=text],.shiprow input,.shiprow select,.sideform input,.sideform select,.menu form input,.menu form select,.qi .qalert input[type=date],.fc-f select,.qroom .room-btn){height:36px;border:1px solid var(--control-line);border-radius:var(--r-md);background:var(--bg);box-shadow:var(--sp-xs);font-size:14px}
+html.sp :is(.search input,.fpsrch input,.cpx input[type=text],.shiprow input,.shiprow select,.sideform input,.sideform select,.menu form input,.menu form select,.qi .qalert input[type=date],.fc-f select):focus-visible{border-color:var(--ink);box-shadow:var(--sp-ring)}
+html.sp :is(.pf-box,.lfilter){border:1px solid var(--control-line);border-radius:var(--r-md);box-shadow:var(--sp-xs);overflow:hidden}
+html.sp :is(.pf-box,.lfilter):focus-within{border-color:var(--ink);box-shadow:var(--sp-ring)}
+html.sp :is(.pf-box,.lfilter) :is(input,select):focus-visible{box-shadow:none}
+html.sp .pf-go{border-radius:0}
+html.sp .lfilter .fbtn{border-radius:var(--r-sm)}
+html.sp .lfilter .fbtn:hover:not(:disabled){background:var(--surface)}
+/* Input group stand-ins: the quantity steppers become square-cornered groups, not pills */
+html.sp :is(.qty .stepper,.addpill){border-radius:var(--r-md);border-color:var(--control-line);box-shadow:var(--sp-xs)}
+html.sp :is(.qty .stepper,.addpill):focus-within{border-color:var(--ink);box-shadow:var(--sp-ring)}
+html.sp :is(.qty .stepper,.addpill) :is(input,button):focus-visible{box-shadow:none;outline:2px solid var(--ink);outline-offset:-3px}
+html.sp .addpill .add{border-radius:0}
+
+/* Checkbox and radio: size-4, border-input, rounded 4px, black when checked (not the demo bar's own) */
+html.sp :is(input[type=checkbox]:not([role=switch]),input[type=radio]):not(.proto *,.devpanel *){appearance:none;-webkit-appearance:none;flex:none;display:inline-grid;place-content:center;width:16px;height:16px;margin:0;border:1px solid var(--control-line);border-radius:4px;background:var(--bg) no-repeat center/12px;box-shadow:var(--sp-xs);cursor:pointer;vertical-align:middle}
+html.sp input[type=radio]:not(.proto *,.devpanel *){border-radius:50%}
+html.sp input[type=checkbox]:not([role=switch],.proto *,.devpanel *):checked{background-color:var(--ink);border-color:var(--ink);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+html.sp input[type=checkbox]:not([role=switch],.proto *,.devpanel *):indeterminate{background-color:var(--ink);border-color:var(--ink);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E")}
+html.sp input[type=radio]:not(.proto *,.devpanel *):checked{border-color:var(--ink);background-image:radial-gradient(circle,var(--ink) 0 4px,transparent 4.5px);background-size:auto}
+html.sp :is(input[type=checkbox],input[type=radio]):not(.proto *,.devpanel *):disabled{opacity:.5;cursor:not-allowed}
+
+/* Switch: 32 x 18.4, bg-input off, primary on, 16px thumb */
+html.sp .swtrack{width:32px;height:18px;background:var(--control-line);box-shadow:var(--sp-xs)}
+html.sp .swtrack::after{top:1px;left:1px;width:16px;height:16px}
+html.sp .shipsw input:checked + .swtrack::after{transform:translateX(14px)}
+html.sp .shipsw input:focus-visible + .swtrack{outline:none;box-shadow:var(--sp-ring)}
+
+/* Tabs, line variant: muted text, foreground and a 2px underline when active, text-sm font-medium */
+html.sp :is(.tabs a.ptab,.qtab){font-size:14px;font-weight:500;color:var(--ink-2);border-bottom-width:2px}
+html.sp :is(.tabs a.ptab.cur,.qtab[aria-selected="true"]){color:var(--ink)}
+html.sp :is(.tabs a.ptab,.qtab):focus-visible{outline:none;box-shadow:var(--sp-ring);border-radius:var(--r-md)}
+
+/* Dropdown menu and popover: rounded-md, p-1, ring-1 foreground/10, shadow-md; items rounded-sm px-2 py-1.5 text-sm */
+html.sp :is(.menu,.lmenu,.qmore,.fpop,.costpop,.dtip){border:0;border-radius:var(--r-md);box-shadow:var(--sp-edge),var(--sp-md)}
+html.sp :is(.lmenu,.qmore){padding:4px}
+html.sp :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item){min-height:0;padding:6px 8px;gap:8px;border-radius:var(--r-sm);font-size:14px;letter-spacing:0}
+html.sp .menu > button:not([data-room]),html.sp .menu .rtcols button{width:calc(100% - 8px);margin:0 4px}
+html.sp :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item):is(:hover,:focus-visible):not([aria-disabled="true"]){background:var(--surface);box-shadow:none}
+html.sp :is(.lmenu button,.qm-item)[aria-disabled="true"]{opacity:.5;color:var(--ink)}
+html.sp .menu .grp{padding:8px 12px 4px;font-size:12px;font-weight:500;letter-spacing:0;color:var(--ink-2)} /* dropdown-menu-label */
+html.sp .lmenu .lmsep{margin:4px -4px;border-top-color:var(--line)}
+html.sp .qmore .qm-new{margin-bottom:0;padding-bottom:6px;min-height:0}
+
+/* Tooltip: bg-foreground, text-background, text-xs, px-3 py-1.5, rounded-md */
+html.sp .pb-tip{padding:6px 12px;font-size:12px;border-radius:var(--r-md)}
+html.sp .dtip{padding:12px 16px} /* the two-layer ATP tooltip is a hover card */
+
+/* Dialog and alert dialog: rounded-xl, p-6, ring-1 foreground/10, left-aligned, buttons right */
+html.sp .dlgwrap{background:rgb(0 0 0 / .5)}
+html.sp .dlg{border-radius:var(--r-xl);box-shadow:var(--sp-edge),var(--sp-lg)}
+html.sp .dlg:not(.fcdlg){padding:24px;text-align:left}
+html.sp .dlg:not(.fcdlg) h2{font-size:18px;font-weight:500;margin:0 0 16px}
+html.sp .dlgicon{width:40px;height:40px;margin:0 0 16px}
+html.sp .dlgicon svg{width:20px;height:20px}
+html.sp .dlg .dlgtx{margin:0 0 24px;font-size:14px;line-height:20px;color:var(--ink-2)}
+html.sp .dlgcard{margin:0 0 24px;max-width:none;box-shadow:none;border:1px solid var(--line);border-radius:var(--r-lg);font-size:14px}
+html.sp .dlgbtns{justify-content:flex-end;gap:8px}
+html.sp .dbtn{flex:none;max-width:none}
+html.sp .dlg .fc-head h2{font-size:18px}
+
+/* Badge: h-5, rounded-full, px-2, text-xs font-medium; status variants at 10% */
+html.sp .tag{height:20px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;line-height:1}
+html.sp .tag.ntag{border-color:var(--line);color:var(--ink)}
+html.sp .fcount,html.sp .fnsel,html.sp .pb-badge{font-weight:500}
+
+/* Alert: rounded-lg, status border at 30% (QOM's compact size is kept; Spartan's own is px-4 py-3 text-sm) */
+html.sp .rb{border-radius:var(--r-lg)}
+html.sp .rb.bad{border-color:rgb(198 40 40 / .3)}
+html.sp .rb.risk{border-color:rgb(180 83 9 / .3)}
+
+/* Toast (Sonner, rich colors): light status fill, coloured text, border, shadow-lg, rounded-lg */
+html.sp .ctoast{background:var(--ok-bg);color:var(--ok);border:1px solid rgb(4 120 87 / .3);box-shadow:var(--sp-lg);border-radius:var(--r-lg);padding:14px 16px}
+html.sp .ctoast.bad{background:var(--block-bg);color:var(--block);border-color:rgb(198 40 40 / .3)}
+html.sp .ctoast .ctic{background:var(--ok);color:#fff}
+html.sp .ctoast.bad .ctic{background:var(--block)}
+html.sp .ctoast :is(.ctx-x,.ctlink){color:inherit}
+html.sp .ctoast .ctx-x:hover{color:var(--ink)}
+html.sp .ctoast .ctn{opacity:1;color:var(--ink-2)}
+html.sp .toast{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sp-lg);padding:12px 16px}
+html.sp .toast.ok{background:var(--ok-bg);color:var(--ok);border-color:rgb(4 120 87 / .3)}
+html.sp .toast.warn{background:var(--block-bg);color:var(--block);border-color:rgb(198 40 40 / .3)}
+
+/* Filter pills: outline buttons; a set filter is the default (black) button */
+html.sp .fpill{border-radius:var(--r-md);border-color:var(--line);box-shadow:var(--sp-xs);overflow:visible}
+html.sp .fpill:hover{border-color:var(--line);background:var(--surface)}
+html.sp .fpill.on{background:var(--ink);border-color:var(--ink);box-shadow:none}
+html.sp .fpill.open{border-color:var(--ink);box-shadow:var(--sp-ring)}
+html.sp .fpill :is(.fpbtn,.fpx){font-weight:500}
+html.sp .fpill :is(.fpbtn,.fpx):focus-visible{outline:none;box-shadow:var(--sp-ring);border-radius:var(--r-md)}
+html.sp .chip{border-radius:var(--r-md);border-color:var(--line);box-shadow:var(--sp-xs);font-weight:500}
+html.sp .chip.on{border-color:var(--ink)}
+/* the empty quote's button sits on black: the white (secondary on dark) button */
+html.sp .empty-quote.none .btn{background:var(--bg);color:var(--ink);border:1px solid transparent}
+html.sp .empty-quote.none .btn:hover{background:var(--surface)}
+html.sp .empty-quote.none .btn:focus-visible{box-shadow:0 0 0 3px rgb(255 255 255 / .6)}
+/* footer: the same 50% look for disabled, but drawn on the text so Send's fix-count badge stays solid */
+html.sp .pb-act:is(:disabled,[aria-disabled="true"]){opacity:1;color:rgb(18 18 18 / .5);border-color:rgb(229 229 229 / .6);box-shadow:none}
+html.sp .tag{display:inline-block;line-height:18px;border:1px solid transparent}
+html.sp table.res .stk{display:table} /* v2: the stock tag on its own line */
+html.sp .tag.ntag{border-color:var(--line)}
