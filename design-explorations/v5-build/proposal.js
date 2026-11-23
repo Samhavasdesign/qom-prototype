@@ -193,7 +193,7 @@ nc.addEventListener("click",ev=>{ if(ev.target.closest("#ncDiscard")){ leaveCrea
 nc.addEventListener("submit",ev=>{ ev.preventDefault(); if(q("#ncCreate").getAttribute("aria-disabled")==="true") return; renderNc(true);
   setTimeout(()=>{ leaveCreate(); const sc=q("#scenario"); sc.value="fresh"; sc.dispatchEvent(new Event("change",{bubbles:true})); setPage("quote"); setPTab(4); q("#q")?.focus();
     barToast("Quote 6000024967 created","Add a room, then products. Details marks what's needed before you send."); },1400); }); // M3 confirms over a websocket a moment after Create
-document.addEventListener("click",ev=>{ if(P.on&&ev.target.closest("#qlNew")){ ev.preventDefault(); ev.stopPropagation(); openCreate(); } },true);
+document.addEventListener("click",ev=>{ if(ev.target.closest("#propNew")){ ev.preventDefault(); if(!P.on){ P.on=true; const w=q("#propOn"); if(w) w.checked=true; try{ localStorage.setItem("qom-v5-proposal","on"); }catch(e){} apply(); } openCreate(); return; } if(P.on&&ev.target.closest("#qlNew")){ ev.preventDefault(); ev.stopPropagation(); openCreate(); } },true);
 const oSetPage=setPage; setPage=function(p){ leaveCreate(); return oSetPage.apply(this,arguments); };
 
 /* ---------- the switch in the demo bar ---------- */
@@ -203,7 +203,21 @@ function apply(){
   if(P.on&&S.ptab>=0&&S.ptab<=3) setPTab(5);
   if(P.on&&S.qview!=="products"&&typeof setQView==="function") setQView("products");
   document.querySelectorAll("a.ptool").forEach(t=>t.classList.toggle("cur",+t.dataset.ptab===S.ptab));
-  applyFold(); renderQuote(); }
+  applyFold(); placeExpand(); renderQuote(); }
+/* the quote panel's expand button sits in the title row between Preview PDF and ••• (Sam, Nov 23), so the panel loses its empty top row.
+   In full view the title row is covered, so it goes back to v2's floating "Exit full view" spot */
+function placeExpand(){ const eb=q("#expandBtn"); if(!eb) return;
+  if(P.on&&!S.expanded){ if(more.parentNode===acts) acts.insertBefore(eb,more); else acts.append(eb); }
+  else if(eb.parentNode!==q("#qTop")) q("#qTop").append(eb); }
+const oSetExpanded=setExpanded;
+setExpanded=function(){ const r=oSetExpanded.apply(this,arguments); placeExpand(); if(!S.expanded&&P.on) q("#expandBtn")?.focus({preventScroll:true}); return r; };
+/* settled behaviour is the rule in v5, not a demo-bar choice (Sam, Nov 23): search runs as you type, Spartan components are on, stock shows
+   in results, price doesn't (it needs an M3 call per item), and discontinued and in-development items are hidden only by More filters' own
+   "Hide…" checkbox. The inputs stay (hidden) because v2's code reads and sets them */
+[["liveSearch",true],["spSkin",true],["showStock",true],["showPrice",false],["showDisc",null]].forEach(([id,v])=>{ const c=q("#"+id); if(!c) return;
+  if(v!==null&&c.checked!==v){ c.checked=v; c.dispatchEvent(new Event("change",{bubbles:true})); c.dispatchEvent(new Event("click",{bubbles:true})); }
+  const l=c.closest("label"); if(l) l.hidden=true; });
+document.documentElement.classList.add("sp"); S.stock=true; S.price=false;
 const sw=q("#propOn"); if(sw){ sw.checked=P.on; sw.addEventListener("change",()=>{ P.on=sw.checked; try{ localStorage.setItem("qom-v5-proposal",P.on?"on":"off"); }catch(e){} apply(); }); }
 apply();
 })();

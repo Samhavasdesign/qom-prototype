@@ -7,6 +7,9 @@
 body.proposal .main > .tabs{display:none}
 body.proposal .main > p.sub{display:none}
 body.proposal #qTop .qseg{display:none}
+body.proposal:not(.noscroll) #qTop{display:none} /* only held the expand button, which is in the title row now */
+.ptitle .expandbtn{width:36px;height:36px;border-radius:50%}
+.ptitle .expandbtn:hover{background:var(--surface-2)}
 
 /* title row: the quote's name, then Preview PDF and the quote actions (•••) on the right */
 .ptitle{display:flex;align-items:center;gap:12px;flex-wrap:wrap}

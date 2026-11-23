@@ -10,6 +10,9 @@ def rep(a,b):
 rep('<title>QOM product search prototype v4 (theme v1)</title>','<title>QOM prototype v5 (proposal and global search)</title>')
 rep('<label title="v4 only: restyles controls',
     '<label title="v5 only: the Quote Page Proposal (tool column, Details, no tabs, new quote in one step) and global search (side nav, ⌘K)."><input type="checkbox" id="propOn" checked autocomplete="off"> <strong>Proposal layout and global search</strong></label>\n  <label title="v4 only: restyles controls')
+# demo bar: a button beside Scenario that opens the one-step New quote form (same as Quotes list → Create new)
+j=s.index('<select id="scenario">'); j=s.index('</label>',j)+len('</label>')
+s=s[:j]+'\n  <button type="button" class="pbtn" id="propNew" title="v5 only: opens the one-step New quote form, as Quotes → Create new does. Create opens a fresh quote with no lines.">New quote form</button>'+s[j:]
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'proposal.css').read()+'</style>\n'+open(D+'proposal.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)
