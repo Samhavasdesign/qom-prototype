@@ -3663,7 +3663,7 @@ function startRename(name){ // the form sits under "Adding to", so leave full sc
 }
 document.addEventListener("input",e=>{ if(e.target.dataset?.fq){ S.fq[e.target.dataset.fq]=e.target.value; renderFilters(); } });
 // ---------- quote panel views: the hamburger swaps the panel for Quote Information or a PDF preview (all values are mock) ----------
-const QI={id:"6000024967",expires:"Apr 27, 2028",orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
+const QI={id:"6000024967",get expires(){ return S.view==="commercial"?"Apr 30, 2028":"Nov 29, 2026"; }, /* entered Oct 30, 2026: +30 days Residential, +18 months Commercial */orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
   consultant:"Alex Rivera",payer:"PAT MORGAN-ELLIS",service:"Standard Shipping (S01)",cost:"Sample Design Center",project:"Henry bar and club house",desc:"Bar and club house fittings and tile",
   entered:"10-30-26",revised:"10-30-26",addr:["12 Sample Street","ANYTOWN MA 01000","United States"],phone:"(555) 010-0100",email:"alex.rivera@example.com"};
 const qfield=(l,v)=>`<div class="qf"><div class="ql">${l}</div><div class="qv">${v}</div></div>`;
@@ -3794,7 +3794,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S.fpop){ e.preve
 const PT_ADDRS=["12 Sample Street, Anytown MA 01000","QUALITY FINISHES warehouse, 400 Example Avenue, Anytown MA 01002"];
 const PT_CUST="10000418 - QUALITY FINISHES";
 TF={cust:PT_CUST,spec:"Dana Whitfield · Whitfield Design Studio",otype:S.view==="commercial"?"Commercial":"Residential",osub:"US Domestic",rdd:QI.delivery,conv:QI.conv,
-  sc:QI.consultant,proj:QI.project,payer:PT_CUST,same:"yes",status:"Predictable (>95%)",resp:QI.consultant,exp:"04/27/2028",desc:"Henry bar and club house",
+  sc:QI.consultant,proj:QI.project,payer:PT_CUST,same:"yes",status:"Predictable (>95%)",resp:QI.consultant,exp:"",desc:"Henry bar and club house",
   addr:"",po:"",svc:QI.service,cost:QI.cost,acc:"",
   shipto:"Pat Morgan-Ellis · pat.morgan-ellis@example.com",billto:"Pat Morgan-Ellis · pat.morgan-ellis@example.com",aspec:"Dana Whitfield · Whitfield Design Studio",p2:"",p3:"",p4:"",p5:"",p6:""};
 function syncAddr(){ if(!TF) return; if(SEND.addr&&!TF.addr) TF.addr=PT_ADDRS[0]; if(!SEND.addr) TF.addr=""; } // the address field and the "Delivery address missing" blocker agree
@@ -3815,7 +3815,7 @@ function pf(k,label,kind,o={}){
   let box;
   if(kind==="select"){ const opts=o.opts.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("");
     box=`<div class="pf-box"><select id="${id}" data-tf="${k}" class="${v?"":"ph"}"${o.req?' aria-required="true"':""}><option value=""${v?"":" selected"} disabled hidden>${ph}</option>${opts}</select>${PI.caret}</div>`; }
-  else if(kind==="ro") box=`<div class="pf-box ro"><input id="${id}" value="${esc(v)}" readonly aria-readonly="true"></div>`; // shown, not editable (expiry)
+  else if(kind==="ro") box=`<div class="pf-box ro"><input id="${id}" value="${esc(o.val?o.val():v)}" readonly aria-readonly="true"></div>`; // shown, not editable (expiry)
   else if(kind==="date") box=`<div class="pf-box">${v?clr:""}${inp}<button type="button" class="pf-ic" data-tfcal="${k}" aria-label="Choose ${esc(label)}">${PI.cal}</button></div>`;
   else if(kind==="lookup"||kind==="clook") box=`<div class="pf-box">${kind==="clook"&&v?clr:""}${inp}<button type="button" class="pf-go" data-tfgo="${k}" aria-label="Search ${esc(label)}">${PI.go}</button>${k==="addr"?`<div class="menu pf-menu" id="addrMenu" hidden></div>`:""}</div>`;
   else box=`<div class="pf-box">${inp}</div>`;
@@ -3829,8 +3829,8 @@ const PT_FORMS={
     +`<div class="pf pf-addwrap"><button type="button" class="pf-add" data-tfadd="sc"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13"/></svg>Add sales consultant</button><span class="pf-hint">You can add up to three (3) consultants</span></div>`
     +(S.view==="commercial"?pf("proj","Project","clook",{req:1,ph:"Choose a Project"}):pf("proj","Project (Optional)","clook",{ph:"Choose a Project"}))+`<div class="pf" aria-hidden="true"></div>`
     +pf("payer",'Payer ("Bill To")',"clook",{req:1,ph:"Choose a Payer",extra:`<label class="pf-chk"><input type="checkbox" data-tf="same"${TF.same==="yes"?" checked":""}>Same as Customer</label>`})
-    +pf("status","Status","select",{req:1,opts:["Predictable (>95%)","Feasible (75–95%)","Possible (<75%)","Lead","On Hold","Duplicate Quote","Lost"],ph:"Select a Status"}) /* M3 forecast statuses; QOM sets Predictable at create (Nov 23 field check). "Lost" stands in for M3's Lost reasons */
-    +pf("resp","Responsible","clook",{req:1,ph:"Choose a Responsible"})+pf("exp","Expiration Date","ro",{after:`<span class="pf-hint">Set when the quote was created: 30 days for Residential, 18 months for Commercial. A GM can extend it.</span>`})
+    +pf("status","Status","select",{req:1,opts:["Predictable (>95%)","Feasible (75% - 95%)","Possible (<75%)","Lead","Duplicate","On Hold"],ph:"Select a Status"}) /* sp-fe PROJECT_STATUS (quote-constants.ts), M3 forecast statuses; QOM sets Predictable at create. Lost reasons are Archive Quote's, not a status */
+    +pf("resp","Responsible","clook",{req:1,ph:"Choose a Responsible"})+pf("exp","Expiration Date","ro",{val:()=>S.view==="commercial"?"04/30/2028":"11/29/2026",after:`<span class="pf-hint">Set when the quote was created: 30 days for Residential, 18 months for Commercial. A GM can extend it.</span>`})
     +pf("desc","Quote Description","text",{req:1,wide:1,max:30,ph:"Enter Quote Description",after:`<span class="pf-count" id="descCount" aria-live="polite">${TF.desc.length}/30</span>`}),
   2:()=>pf("addr","Delivery Address","lookup",{req:1,ph:"Choose a Delivery Address"})+pf("po","Customer PO Number","text",{ph:"Enter a Customer PO Number"})
     +pf("svc","Service Level","select",{req:1,opts:["Standard Shipping (S01)","Expedited Shipping (S02)","White Glove Delivery (S05)"],ph:"Select a Service Level"})
@@ -3941,7 +3941,7 @@ if(new URLSearchParams(location.search).get("view")==="commercial"&&S.view!=="co
 const QL=(()=>{ const ME="Alex Rivera", TEAM=[ME,"Jordan Lee","Casey Morgan"], SCS=[ME,"Jordan Lee","Casey Morgan","Riley Chen","Taylor Brooks","Morgan Patel","Jamie Ortiz","Sam Okafor"];
   const CUST=["HARBOR & VINE INTERIORS","NORTHFIELD BUILDERS","MAPLE ROW DESIGN","ORCHARD LANE HOMES","BLUE HERON STUDIO","STONEGATE RENOVATIONS","ASHFORD & KEMP ARCHITECTS","CEDAR POINT HOSPITALITY","LINDEN HOUSE DESIGN","GREY OWL CONSTRUCTION","WILLOW BROOK INTERIORS","FENWICK & STRAND","BAYSIDE KITCHEN & BATH","HOLLIS PARK DEVELOPMENT"];
   const DESC=["Primary bath remodel","Powder room","Guest suite and hall bath","Kitchen faucets","Lobby restrooms","Spa level fixtures","Pool house","20261102","20261028","Model unit A","Penthouse baths","Townhouse 4B"];
-  const rows=[{m3:"",id:"6000024967",status:"Not yet converted",project:"Henry bar and club house",cust:"QUALITY FINISHES",payer:"QUALITY FINISHES",desc:"Henry bar and club house",sc:ME,type:"Residential",exp:"04/27/2028",built:true}];
+  const rows=[{m3:"",id:"6000024967",status:"Not yet converted",project:"Henry bar and club house",cust:"QUALITY FINISHES",payer:"QUALITY FINISHES",desc:"Henry bar and club house",sc:ME,type:"Residential",exp:"11/29/2026",built:true}];
   let seed=7; const rnd=n=>{ seed=(seed*9301+49297)%233280; return Math.floor(seed/233280*n); };
   for(let i=1;i<=96;i++){ const c=CUST[rnd(CUST.length)], conv=rnd(6)===0, d=DESC[rnd(DESC.length)], mm=1+rnd(12), dd=1+rnd(28);
     rows.push({m3:conv?"41"+String(10000+rnd(89999)):"",id:String(6000024967-i*3-rnd(3)),status:conv?"Converted":"Not yet converted",project:conv?d:"-",cust:c,payer:rnd(5)===0?CUST[rnd(CUST.length)]:c,desc:d,
