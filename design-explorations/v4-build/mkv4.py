@@ -79,6 +79,13 @@ s=s[:i]+'''
 /* ---- theme v1 (Nov 20): overlays get Spartan's radius steps (sp-fe/audit/theme.css, design.md) ---- */
 .menu,.lmenu,.qmore,.costpop,.fpop,.dtip,.ctoast,.pb-tip{border-radius:var(--r-md)}
 .dlg,.dlgcard{border-radius:var(--r-lg)}
+/* a narrower side nav: 184px, down from 220 (Sam, Nov 23); the folded icon rail stays 56px */
+.app{grid-template-columns:184px 1fr}
+html:not(.topnav) .app{--rail-w:184px}
+html.navstrip .app{grid-template-columns:56px 1fr;--rail-w:56px}
+html.navmid .rail.open{width:184px;margin-right:-128px}
+.rail .mark{padding-left:18px;padding-right:18px;letter-spacing:.26em}
+.rail a.rlink{padding-left:18px;padding-right:12px}
 '''+s[i:]
 open('qom-product-search-prototype-v4.html','w').write(s)
 print("ok", len(s))

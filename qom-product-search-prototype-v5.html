@@ -1526,6 +1526,13 @@ body.ptab-other #searchPane,body.ptab-other #paneTabs,body.ptab-other #quoteStri
 /* ---- theme v1 (Nov 20): overlays get Spartan's radius steps (sp-fe/audit/theme.css, design.md) ---- */
 .menu,.lmenu,.qmore,.costpop,.fpop,.dtip,.ctoast,.pb-tip{border-radius:var(--r-md)}
 .dlg,.dlgcard{border-radius:var(--r-lg)}
+/* a narrower side nav: 184px, down from 220 (Sam, Nov 23); the folded icon rail stays 56px */
+.app{grid-template-columns:184px 1fr}
+html:not(.topnav) .app{--rail-w:184px}
+html.navstrip .app{grid-template-columns:56px 1fr;--rail-w:56px}
+html.navmid .rail.open{width:184px;margin-right:-128px}
+.rail .mark{padding-left:18px;padding-right:18px;letter-spacing:.26em}
+.rail a.rlink{padding-left:18px;padding-right:12px}
 
 /* ==== Spartan components layer (Nov 20) ====
    On while <html> has class "sp" (the demo bar's "Spartan components" switch).
@@ -4238,13 +4245,7 @@ body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important
 .xbtn{border:0;background:none;width:32px;height:32px;display:grid;place-items:center;border-radius:var(--r-md);color:var(--ink);cursor:pointer}
 .xbtn:hover{background:var(--surface)}
 
-/* a narrower side nav: 184px, down from 220 (Sam, Nov 23) */
-body.proposal .app{grid-template-columns:184px 1fr}
-html:not(.topnav) body.proposal .app{--rail-w:184px}
-html.navstrip body.proposal .app{grid-template-columns:56px 1fr;--rail-w:56px}
-html.navmid body.proposal .rail.open{width:184px;margin-right:-128px}
-body.proposal .rail .mark{padding-left:18px;padding-right:18px;letter-spacing:.26em}
-body.proposal .rail .rlink{padding-left:18px;padding-right:12px}
+/* the side nav is 184px wide from v4 on; the search field fits it */
 body.proposal .gsbtn{width:calc(100% - 24px);margin-left:12px;margin-right:12px}
 
 /* ---- global search: in the side nav on every page, and ⌘K / Ctrl+K from anywhere ---- */
