@@ -1938,7 +1938,7 @@ const crAfter=(r,l,p)=>{ const miss=crMissing(r,l); if(!miss.length) return ""; 
     return `<div class="rpp-row"><span class="rpp-nm">${esc(o.name)}</span>${has?`<span class="rpp-done">✓ Added</span>`:`<button type="button" class="rpp-add" data-croft="${k}|${j}" aria-label="Add ${esc(o.name)}">Add</button>`}</div>`; }).join("");
   return `<div class="rpp" role="group" aria-label="Parts for ${esc(p.name)}"><p class="rpp-lbl">Concept · QOM-2561 · Mock data</p><h4>Needed to install</h4>${req}${oft?`<h4>Often added</h4>${oft}`:""}<button type="button" class="tolink" data-crskip="${k}">Skip</button></div>`; };
 // add a part in the parent's room, at the parent's quantity, directly below the parent (after any parts already added for it)
-function crAdd(key,sku){ const [room,psku]=key.split("|"), r=S.quote.rooms.find(x=>x.name===room); if(!r) return; const pi=r.lines.findIndex(x=>x.sku===psku); if(pi<0) return;
+function crAdd(key,sku){ if(freightLock("add")) return; const [room,psku]=key.split("|"), r=S.quote.rooms.find(x=>x.name===room); if(!r) return; const pi=r.lines.findIndex(x=>x.sku===psku); if(pi<0) return;
   const pl=r.lines[pi], pp=CAT.find(x=>x.sku===psku), cp=CAT.find(x=>x.sku===sku), ex=r.lines.find(x=>x.sku===sku);
   if(ex) ex.qty+=pl.qty;
   else { let at=pi+1; while(at<r.lines.length&&crParentLine(r,r.lines[at])===pl) at++; r.lines.splice(at,0,{sku,qty:pl.qty,unit:S.view==="commercial"?listOf(cp):cp.price}); }
@@ -3029,11 +3029,11 @@ function sendItems(){
   if(price.length){ const k=focusPos("price"); items.push({id:"price",st:blk,t:`Waiting on custom pricing for ${plural(price.length,"line")}`,d:k>=0?`Showing ${k+1} of ${price.length} in the quote`:"Needed to send",a:["nextPrice","Next line"]}); }
   else items.push({id:"price",st:"done",t:"Every line priced",d:"None waiting on custom pricing"});
   if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes; you can keep reviewing the quote."});
-  else if(SEND.freight==="done"&&!S.dirty) items.push({id:"freight",st:"done",t:"Freight and tax",d:`Calculated ${SEND.freightAt}`});
+  else if(SEND.freight==="done"&&!S.dirty) items.push({id:"freight",st:"done",t:"Freight and tax",d:SEND.freightAt?`Calculated ${SEND.freightAt}`:"Calculated"});
   else items.push({id:"freight",st:blk,t:"Freight not calculated",d:!SEND.addr?"Add the delivery address, then calculate freight":S.dirty?"Saves your changes first, then M3 calculates freight and tax":"M3 calculates freight, then tax. This can take a few minutes.",a:SEND.addr&&hasLines?["calc","Calculate freight"]:null});
   items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:SEND.savedAt}
     :{id:"saved",st:"todo",t:linesChanged()?plural(linesChanged(),"line")+" changed":"Unsaved changes",d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Calculate freight"});
-  // required fields and contacts on the other tabs (QOM today; Pauline Nov 20). Rush / RDD conflicts (QOM-2381) aren't mocked yet
+  // required fields and contacts on the other tabs (QOM today; Pauline Nov 20 and 23). Rush / RDD conflicts (QOM-2381) are already in QOM but aren't mocked here
   const miss=reqMissing(); miss.forEach(([k,lbl,tab])=>items.push({id:"f-"+k,st:blk,t:`${lbl} missing`,d:`Required on ${TAB_NAMES[tab]}`,a:["field:"+k,"Add"]}));
   if(!miss.length) items.push({id:"fields",st:"done",t:"Required fields and contacts",d:"All filled in"});
   if(!S.dirty&&badQty()) items.push({id:"qty",st:blk,t:"Quantity not in sold increments",d:"A saved line's quantity isn't a whole multiple. Fix the quantities marked in the quote."});
@@ -3047,16 +3047,16 @@ const EXT={
   migrated:{t:"Migrated quote",d:"This quote must be copied before it can be sent.",a:["copyQuote","Copy this quote"]}, // Pauline, Nov 20: checking again never changes a migrated quote; today's tooltip says it must be copied
   manual:{t:"Payment terms are Manual Terms",d:"This quote was taken off online payment. Work with your CSS to process payment.",a:null} // Pauline, Nov 20: usually on purpose, so nothing to check again; today's QOM wording
 };
-const REQ_FIELDS=[["sc","Sales Consultant",1],["payer","Payer",1],["status","Status",1],["svc","Service Level",2],["cost","Cost Center",2],["shipto","Delivery Contact",3],["billto","Payer Contact",3],["aspec","Primary Specifier Contact",3]];
+const REQ_FIELDS=[["sc","Sales Consultant",1],["payer","Payer",1],["status","Status",1],["resp","Responsible",1],["proj","Project",1,"com"],["svc","Service Level",2],["cost","Cost Center",2],["shipto","Delivery Contact",3],["billto","Payer Contact",3],["aspec","Primary Specifier Contact",3]];
 const TAB_NAMES=["Essential Quote Info","Header Information","Shipping Information","Associations"]; // PT_NAMES is declared later in the script
-const reqMissing=()=>TF?REQ_FIELDS.filter(([k])=>!String(TF[k]||"").trim()):[];
+const reqMissing=()=>TF?REQ_FIELDS.filter(([k,,,only])=>(only!=="com"||S.view==="commercial")&&!String(TF[k]||"").trim()):[]; // Project is required on Commercial quotes only; Responsible only when the field is on (always, in the mock)
 function blockerKeys(){ return [...(S.ext?["ext:"+S.ext]:[]),...reqMissing().map(([k])=>"field:"+k),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
 // the footer's state, worked out once: which button is the next step and what the helper line says
 function footState(items=sendItems()){
   const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight"); // descoped too: QOM-3280 found nearly every send rule is already checked in the browser
   const dirty=S.dirty, bad=badQty(), run=SEND.freight==="run", done=SEND.freight==="done"&&!dirty;
   const calcOff=dirty||run||!hasLines||!SEND.addr, canSend=done&&hasLines&&!others.length;
-  const help=!hasLines?"Add products to calculate freight":dirty?(bad?"Fix the quantities marked in the quote to save":"Save to calculate freight"):others.length?null:run?"Sending unlocks when freight is ready":!done?"Calculate freight before sending":`Freight calculated ${SEND.freightAt}`;
+  const help=!hasLines?"Add products to calculate freight":dirty?(bad?"Fix the quantities marked in the quote to save":"Save to calculate freight"):others.length?null:run?"Sending unlocks when freight is ready":!done?"Calculate freight before sending":(SEND.freightAt?`Freight calculated ${SEND.freightAt}`:"Freight calculated");
   return {hasLines,issues,others,dirty,bad,run,done,calcOff,canSend,help};
 }
 let helpHtml="";
@@ -3093,7 +3093,7 @@ function renderSend(){
   const nFix=F.others.length?F.issues.length:0; // the same count as the "Things to fix" list
   const bg=$("#pbSendBadge"); bg.textContent=nFix||""; bg.hidden=!nFix;
   $("#tipSave").textContent=SEND.saving?"Saving to M3…":F.run?"Save unlocks when freight is done":F.bad?"Fix the quantities marked in the quote to save":F.dirty?"Saves your changes to M3. Then calculate freight.":"No changes to save";
-  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated ${SEND.freightAt}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
+  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated${SEND.freightAt?" "+SEND.freightAt:""}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
   $("#tipSend").textContent=F.canSend?"Sends the quote and payment link to the client":nFix?`${plural(nFix,"thing")} to fix before sending`:F.run?"Sending unlocks when freight is ready":!F.hasLines?"Add products before sending":F.dirty?"Save and calculate freight before sending":"Calculate freight before sending";
   const W=F.hasLines?crWarn():[]; // concept QOM-2561: warnings ("to check") never block sending; always empty with the toggle off
   const chk=W.length?`<span aria-hidden="true"> · </span><button type="button" class="pb-chk" id="pbChk" aria-controls="sendPanel">${INFO_ICON}${W.length} to check</button>`:"";
@@ -3124,7 +3124,7 @@ function openSend(auto,to,from){
 function closeSend(){ const inside=$("#sendPanel").contains(document.activeElement); SEND.open=false; renderSend(); if(inside){ const b=SEND.from&&$(SEND.from); (b&&!b.hidden&&b.offsetParent?b:$("#pbSend")).focus(); } }
 // B: the first time the SC heads for the end (PDF preview, or scrolling to the end of the lines) while something blocks sending
 function sendForward(){ const F=footState(); if(SEND.mode!=="first-forward"||SEND.forwarded||SEND.open||!F.hasLines||!F.others.length) return; SEND.forwarded=true; openSend(true,"issues"); }
-function resetSend(){ fcReset(); clearTimeout(SEND.timer); clearTimeout(SEND.saveTimer); Object.assign(SEND,{addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null,stale:false,saving:false,failed:null}); }
+function resetSend(){ fcReset(); clearTimeout(SEND.timer); clearTimeout(SEND.saveTimer); clearTimeout(SEND.taxTimer); Object.assign(SEND,{phase:null,addr:false,freight:"none",freightAt:null,open:false,forwarded:false,seen:null,focus:null,stale:false,saving:false,failed:null}); }
 // Calculate freight and Send to client: when they're grey, a click explains instead of doing nothing
 function freightAction(){ const F=footState(); if(F.run) return;
   if(F.calcOff){ if(F.others.length) openSend(false,"issues","#pbFreightBtn"); else barToast(F.help||"Calculate freight isn't available yet.","",true); return; }
@@ -3135,9 +3135,15 @@ function sendClient(){ const F=footState();
   barToast(F.help||"Not ready to send yet.","",true); }
 // Calculate freight saves first if there are unsaved changes, then M3 runs freight, then tax
 function runFreight(){
-  S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; SEND.stale=false; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
-  clearTimeout(SEND.timer); SEND.timer=setTimeout(()=>{ const ed=S.dirty; SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent=ed?"Freight and tax calculated, but your changes since have put them out of date. Save, then calculate again.":"Freight and tax calculated."; },6000);
+  S.dirty=false; S.undo=null; markSaved(); SEND.freight="run"; SEND.phase="freight"; SEND.stale=false; renderQuote(); $("#sendLive").textContent="Calculating freight and tax.";
+  clearTimeout(SEND.timer); clearTimeout(SEND.taxTimer); SEND.taxTimer=setTimeout(()=>{ if(SEND.freight==="run") SEND.phase="tax"; },3000); // mock: freight for 3 s, then tax for 3 s
+  SEND.timer=setTimeout(()=>{ const ed=S.dirty; SEND.phase=null; SEND.freight="done"; SEND.freightAt=nowTime(); renderQuote(); $("#sendLive").textContent=ed?"Freight and tax calculated, but your changes since have put them out of date. Save, then calculate again.":"Freight and tax calculated."; },6000);
 }
+// what's locked while M3 runs (QOM today): Save and adding products until it's done; Autospec and Join Product while tax runs
+function freightLock(what){ if(SEND.freight!=="run") return false;
+  if(what==="add"){ barToast("Adding products unlocks when freight is done","M3 is calculating freight and tax. Usually about 2 minutes.",true); return true; }
+  if(SEND.phase==="tax"){ barToast(`${what} unlocks when tax is done`,"M3 is calculating tax.",true); return true; }
+  return false; }
 function sendAction(a){
   if(a==="addAddr"){ setPTab(2); const f=$("#pf-addr"); f?.focus(); f?.scrollIntoView({block:"center"}); return; } // goes to Shipping Information, Delivery Address
   if(a==="calc"){ runFreight(); return; }
@@ -3165,7 +3171,7 @@ const lineFlag=(r,l)=>{ if(!lineFocus(r,l)) return ""; const f=SEND.focus, k=foc
   return f.kind==="spec"
     ? `<div class="lflag"><span class="lf-b">${SI.block}Autospec incomplete</span><span>· ${k} of ${n}</span><button type="button" class="tolink" data-lfix="spec|${key}">Complete autospec</button></div>`
     : `<div class="lflag"><span class="lf-b">${SI.block}Waiting on custom pricing</span><span>· ${k} of ${n}</span><button type="button" class="tolink" data-lfix="price|${key}">Pricing returned (prototype)</button></div>`; };
-function lineFix(v){ const [kind,room,sku]=v.split("|"); const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(!l) return;
+function lineFix(v){ const [kind,room,sku]=v.split("|"); if(kind==="spec"&&freightLock("Autospec")) return; const l=S.quote.rooms.find(r=>r.name===room)?.lines.find(x=>x.sku===sku); if(!l) return;
   if(kind==="spec"){ l.spec=true; S.dirty=true; } else delete l.cp;
   renderQuote(); $("#sendLive").textContent=kind==="spec"?"Autospec complete on this line.":"Pricing returned for this line.";
   const left=missingOf(kind).length; if(left){ nextLine(kind); } else ($("#pbFix")||$("#pbFreightBtn")).focus(); }
@@ -3176,7 +3182,8 @@ function simSave(kind){
   if(kind==="spec") x.l.spec=false; else x.l.cp=true;
   S.dirty=false; S.undo=null; markSaved(); renderQuote();
   const p=CAT.find(c=>c.sku===x.l.sku);
-  barToast("Saved, with a problem from M3",`M3 returned ${kind==="spec"?"incomplete autospec":"a custom pricing hold"} on ${p.name}.`,true);
+  $("#sendLive").textContent=`Saved ${SEND.savedAt}.`; // no red message after Save: QOM only finds line problems when the SC tries to send (Pauline, Nov 23); they show in Before you send. Whether the Send badge updates before then is still open
+  void p;
 }
 // ---------- descoped (QOM-3280 lower-effort, Nov 13): a totals box next to the product list instead of a bar on every tab ----------
 // What engineering can build in about 8 to 11 dev-days of frontend, per Pauline's spike: save status (Unsaved / Saving / Saved / Failed: see message),
@@ -3215,7 +3222,7 @@ function applySendScenario(v){
     S.dirty=true;
   }
   if(v==="s-calc") SEND.freight="run";
-  if(v==="s-ready"){ SEND.freight="done"; SEND.freightAt=nowTime(); }
+  if(v==="s-ready"){ SEND.freight="done"; SEND.freightAt=null; } // opened with freight done earlier: QOM doesn't remember when, so no time
   if(dv==="s-stale"){ const x=quoteLines().find(x=>x.l.sku==="HNBAR-N")||quoteLines()[0]; if(x){ x.l.qty+=CAT.find(p=>p.sku===x.l.sku).mult; S.dirty=true; } } // freight was done; one edit clears it
   if(dv==="s-failed"){ SEND.failed=SAVE_FAIL; setTimeout(()=>barToast("Save failed",SAVE_FAIL,true),60); } // M3's line errors arrive as toasts; the status points to it
   RISK=computeRisk();
@@ -3293,7 +3300,7 @@ const addCell=(p,canAdd,blocked)=>{
   const help=!canAdd?"":bad?`<span class="help err" id="${id}" role="alert">Enter a multiple of ${m}</span>`:rounded?`<span class="help" id="${id}" role="status">${esc(roundedNote(p,q))}</span>`:(m>1?`<span class="help" id="${id}">${esc(soldIn(p))}</span>`:"");
   return `<div class="addcell"><div class="addpill${bad&&canAdd?" bad":""}${canAdd?"":" off"}"><input type="number" inputmode="numeric" min="${m}" step="${m}" value="${q}" aria-label="Quantity of ${esc(p.name)} to add${unitShown?" in "+esc(p.uom):""}" ${help?`aria-describedby="${id}" `:""}aria-invalid="${bad}" data-rqty="${k}"${dis}><button type="button" class="add" data-add="${k}"${dis} aria-label="Add ${q} of ${esc(p.name)} in ${esc(p.fin)} to ${esc(S.room||'quote')}" title="${canAdd?'Add to '+esc(S.room):(blocked?'Can’t be added':'Choose a room first')}">${ICON.plus}</button></div>${help}</div>`;
 };
-function addLine(sku){
+function addLine(sku){ if(freightLock("add")) return;
   const p=CAT.find(x=>x.sku===sku); const r=S.quote.rooms.find(x=>x.name===S.room); if(!r) return;
   const why = p.whst===50 ? (p.wh||"Not stocked in this warehouse")+" (warehouse status "+p.whst+")" : (p.price==null ? "Waiting on a price" : null);
   if(why){ S.notice="Not added: "+p.name+" in "+p.fin+". "+why+". This is only known when the item is added."; renderResults(); return; }
@@ -3383,6 +3390,7 @@ document.addEventListener("click",e=>{
     if(t.dataset.act==="up"||t.dataset.act==="down"){ if(t.getAttribute("aria-disabled")==="true"){ document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; } moveLine(room,sku,t.dataset.act==="up"?-1:1); return; }
     if(t.dataset.act==="remove"){ openRemoveDialog(room,sku); return; }
     if(t.dataset.act==="finish"){ fcOpen({kind:"line",room,sku},document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)); return; } // Change finish from one line
+    if(t.dataset.act==="join"&&freightLock("Join Product")) return;
     const label=MENU_ITEMS.find(x=>x[0]===t.dataset.act)[1]; showToast(label+" isn't built in this prototype yet."); document.querySelector(`[data-more="${CSS.escape(room+"|"+sku)}"]`)?.focus(); return; }
   if(t.id==="pbFix"){ SEND.open?closeSend():openSend(false,"issues"); return; }
   if(t.id==="pbChk"){ openSend(false,"check","#pbChk"); return; }
@@ -3816,7 +3824,7 @@ const PT_FORMS={
     +pf("rdd","Requested Delivery Date","date",{req:1,ph:"MM/DD/YYYY"})+pf("conv","Est. Conv. Date","date",{req:1,ph:"MM/DD/YYYY"}),
   1:()=>pf("sc","Sales Consultant","clook",{req:1,ph:"Choose a Sales Consultant"})
     +`<div class="pf pf-addwrap"><button type="button" class="pf-add" data-tfadd="sc"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13"/></svg>Add sales consultant</button><span class="pf-hint">You can add up to three (3) consultants</span></div>`
-    +pf("proj","Project (Optional)","clook",{ph:"Choose a Project"})+`<div class="pf" aria-hidden="true"></div>`
+    +(S.view==="commercial"?pf("proj","Project","clook",{req:1,ph:"Choose a Project"}):pf("proj","Project (Optional)","clook",{ph:"Choose a Project"}))+`<div class="pf" aria-hidden="true"></div>`
     +pf("payer",'Payer ("Bill To")',"clook",{req:1,ph:"Choose a Payer",extra:`<label class="pf-chk"><input type="checkbox" data-tf="same"${TF.same==="yes"?" checked":""}>Same as Customer</label>`})
     +pf("status","Status","select",{req:1,opts:["Open","Quoted","Pending client approval"],ph:"Select a Status"})
     +pf("resp","Responsible","clook",{req:1,ph:"Choose a Responsible"})+pf("exp","Expiration Date","date",{req:1,ph:"MM/DD/YYYY"})
