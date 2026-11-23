@@ -34,6 +34,7 @@ A clickable, wireframe-level prototype of the Product Selection step in QOM (Wat
   - Before you send stays v2's right-side panel; opening it folds the open tool. Things to fix's "Add" links open Details at the field (their text reads "Required in Details · Ship to").
   - Global search: a Search field at the top of the side nav and ⌘K / Ctrl+K anywhere open a palette over Clients, Projects, Quotes and Orders (all from the Quotes list's mock rows; Recent when empty), with arrow keys, Enter and Esc. Only quote 6000024967 opens; the rest show a toast. Leaving a quote with unsaved changes asks first (Stay, Discard and leave, Save and leave).
   - New quote: the Quotes list's Create new opens the one-step form (five required fields, two optional, Filled in for you); Create shows "Creating the quote in M3…" for a moment, then opens the fresh quote on product search with a toast.
+  - The side nav is narrower, 184px instead of 220 (Sam, Nov 23), with tighter padding; the folded icon rail stays 56px.
   - Not built from the proposal: the empty quote's "Start with a room" chips and the full view's Rooms list changes.
 - `bottom-bar-handoff/`: the brief (`PROMPT.md`) and reference images (00–15) that v3's footer and tabs were built from.
 - Mock data only. Never add real client, quote or pricing data. Do not call QOM or M3.
