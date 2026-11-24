@@ -1574,7 +1574,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
       <option value="manual">Manual Terms</option>
     </select>
   </label>
-  <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button></span>
+  <span>Simulate a save that returns: <button type="button" class="pbtn" id="simSpec">Autospec problem</button> <button type="button" class="pbtn" id="simPrice">Pricing problem</button> <button type="button" class="pbtn" id="simCpSpec" title="Gives a line a custom price and an unfinished Autospec, so Calculate freight goes grey">Autospec on a custom-priced line</button></span>
   <label><input type="checkbox" id="liveSearch" checked autocomplete="off"> Search as you type</label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -2640,7 +2640,7 @@ function fcApply(){ const P=fcPlan(), chg=P.filter(x=>!x.cant&&x.ch&&x.ch!=="kee
 // a line moves to its new item in place: same room, order and quantity. Undo puts the original line back (keeping any quantity edited since)
 function fcSwap(it,back){ const r=S.quote.rooms.find(r=>r.name===it.room); if(!r) return; const i=r.lines.findIndex(x=>x.sku===(back?it.b:it.a)); if(i<0) return;
   if(back){ r.lines[i]={...structuredClone(it.prev),qty:r.lines[i].qty}; return; }
-  const l=r.lines[i]; it.prev=structuredClone(l); l.fcFrom=l.fcFrom||l.sku; l.sku=it.b; l.unit=it.bUnit; delete l.spec; delete l.cp; delete l.im; l.fcTo=it.b; }
+  const l=r.lines[i]; it.prev=structuredClone(l); l.fcFrom=l.fcFrom||l.sku; l.sku=it.b; l.unit=it.bUnit; delete l.spec; delete l.cp; delete l.im; delete l.cprice; l.fcTo=it.b; }
 function fcUndo(){ const J=FJ; if(!J) return; J.items.slice().reverse().forEach(it=>fcSwap(it,true)); FJ=null;
   S.dirty=JSON.stringify(S.quote.rooms)!==JSON.stringify(S.base?.rooms); // back to saved, unless something else was edited
   const msg=`Finish change undone. ${plural(J.items.length,"line")} ${J.items.length===1?"is":"are"} back${J.from?` to ${J.from}`:""}.`;
@@ -2988,6 +2988,8 @@ let QSUB=0;
 // mock M3 results: freight 2% of the subtotal, tax 6.8% of subtotal plus freight
 const mockFreight=()=>Math.round(QSUB*2)/100;
 const mockTax=()=>Math.round((QSUB+mockFreight())*6.8)/100;
+// before freight, the estimated total includes QOM's tax estimate, as today's screen does (Sam, Nov 24, QOM-3452 Option B); mock: 6.8% of the subtotal
+const estTax=()=>Math.round(QSUB*6.8)/100;
 const SI={
   block:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z" stroke-linejoin="round"/><path d="M12 8v5" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1" fill="currentColor" stroke="none"/></svg>`,
   done:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m7.8 12.3 2.8 2.8 5.6-5.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
@@ -3032,7 +3034,7 @@ function sendItems(){
   else items.push({id:"price",st:"done",t:"Every line priced",d:"None waiting on custom pricing"});
   if(SEND.freight==="run") items.push({id:"freight",st:"prog",t:"Calculating freight and tax",d:"M3 does freight first, then tax. This can take a few minutes; you can keep reviewing the quote."});
   else if(SEND.freight==="done"&&!S.dirty) items.push({id:"freight",st:"done",t:"Freight and tax",d:SEND.freightAt?`Calculated ${SEND.freightAt}`:"Calculated"});
-  else items.push({id:"freight",st:blk,t:"Freight not calculated",d:!SEND.addr?"Add the delivery address, then calculate freight":S.dirty?"Saves your changes first, then M3 calculates freight and tax":"M3 calculates freight, then tax. This can take a few minutes.",a:SEND.addr&&hasLines?["calc","Calculate freight"]:null});
+  else { const ess=S.dirty&&essMsg(), cps=cpSpec().length; items.push({id:"freight",st:blk,t:"Freight not calculated",d:!SEND.addr?"Add the delivery address, then calculate freight":noSvc()?"Add a service level, then calculate freight":cps?`Complete Autospec on ${plural(cps,"custom-priced line")}, then calculate freight`:ess?ess.replace(/ to save$/,", then calculate freight"):S.dirty?"Saves your changes first, then M3 calculates freight and tax":"M3 calculates freight, then tax. This can take a few minutes.",a:SEND.addr&&hasLines&&!noSvc()&&!cps&&!ess?["calc","Calculate freight"]:null}); }
   items.push(!S.dirty?{id:"saved",st:"done",t:"All changes saved",d:SEND.savedAt}
     :{id:"saved",st:"todo",t:linesChanged()?plural(linesChanged(),"line")+" changed":"Unsaved changes",d:badQty()?"Fix the quantities marked in the quote, then save":"Saved by Save or Calculate freight"});
   // required fields and contacts on the other tabs (QOM today; Pauline Nov 20 and 23). Rush / RDD conflicts (QOM-2381) are already in QOM but aren't mocked here
@@ -3052,20 +3054,31 @@ const EXT={
 const REQ_FIELDS=[["sc","Sales Consultant",1],["payer","Payer",1],["status","Status",1],["resp","Responsible",1],["proj","Project",1,"com"],["svc","Service Level",2],["cost","Cost Center",2],["shipto","Delivery Contact",3],["billto","Payer Contact",3],["aspec","Primary Specifier Contact",3]];
 const TAB_NAMES=["Essential Quote Info","Header Information","Shipping Information","Associations"]; // PT_NAMES is declared later in the script
 const reqMissing=()=>TF?REQ_FIELDS.filter(([k,,,only])=>(only!=="com"||S.view==="commercial")&&!String(TF[k]||"").trim()):[]; // Project is required on Commercial quotes only; Responsible only when the field is on (always, in the mock)
+// Nov 24 (Pauline found these in QOM today; QOM-3452): Save is grey while a required Essential Quote Info field is empty;
+// Calculate freight is grey with no service level, or while a custom-priced line has an unfinished Autospec
+const ESS_REQ=[["cust","Customer"],["spec","Primary Specifier Contact"],["otype","Order Type"],["osub","Order Subtype"],["rdd","Requested Delivery Date"],["conv","Est. Conv. Date"]];
+const essMissing=()=>TF?ESS_REQ.filter(([k])=>!String(TF[k]||"").trim()):[];
+const aOrAn=w=>/^[AEIOU]/i.test(w)?"an "+w:"a "+w;
+function essMsg(){ const m=essMissing(); if(!m.length) return null;
+  return m.length>2?`Fill in the ${m.length} required fields on Essential Quote Info to save`:`Add ${m.map(([,l])=>aOrAn(l)).join(" and ")} on Essential Quote Info to save`; }
+const noSvc=()=>!!TF&&!String(TF.svc||"").trim();
+const cpSpec=()=>quoteLines().filter(({l})=>l.spec===false&&(l.cp||l.im||l.cprice)); // mock: a custom price is l.cprice (set by the demo bar), an Item Management price l.im, or pricing pending l.cp
+function calcBlock(){ if(noSvc()) return "Add a service level on Shipping Information to calculate freight";
+  const n=cpSpec().length; return n?`Complete Autospec on ${plural(n,"custom-priced line")} to calculate freight`:null; }
 function blockerKeys(){ return [...(S.ext?["ext:"+S.ext]:[]),...reqMissing().map(([k])=>"field:"+k),...(SEND.addr?[]:["addr"]),...specMissing().map(x=>"spec:"+x.r.name+"|"+x.l.sku),...stockOf().map(x=>"stock:"+x.r.name+"|"+x.l.sku),...priceMissing().map(x=>"price:"+x.r.name+"|"+x.l.sku)]; }
 // the footer's state, worked out once: which button is the next step and what the helper line says
 function footState(items=sendItems()){
   const hasLines=quoteLines().length>0, issues=items.filter(x=>x.st==="block"), others=issues.filter(x=>x.id!=="freight"); // descoped too: QOM-3280 found nearly every send rule is already checked in the browser
-  const dirty=S.dirty, bad=badQty(), run=SEND.freight==="run", done=SEND.freight==="done"&&!dirty;
-  const calcOff=dirty||run||!hasLines||!SEND.addr, canSend=done&&hasLines&&!others.length;
-  const help=!hasLines?"Add products to calculate freight":dirty?(bad?"Fix the quantities marked in the quote to save":"Save to calculate freight"):others.length?null:run?"Sending unlocks when freight is ready":!done?"Calculate freight before sending":(SEND.freightAt?`Freight calculated ${SEND.freightAt}`:"Freight calculated");
-  return {hasLines,issues,others,dirty,bad,run,done,calcOff,canSend,help};
+  const dirty=S.dirty, bad=badQty(), run=SEND.freight==="run", done=SEND.freight==="done"&&!dirty, ess=essMsg(), cb=calcBlock();
+  const calcOff=dirty||run||!hasLines||!SEND.addr||!!cb, canSend=done&&hasLines&&!others.length;
+  const help=!hasLines?"Add products to calculate freight":dirty?(bad?"Fix the quantities marked in the quote to save":ess||"Save to calculate freight"):!others.length&&!run&&!done&&cb?cb:others.length?null:run?"Sending unlocks when freight is ready":!done?"Calculate freight before sending":(SEND.freightAt?`Freight calculated ${SEND.freightAt}`:"Freight calculated");
+  return {hasLines,issues,others,dirty,bad,run,done,calcOff,canSend,help,ess,cb};
 }
 let helpHtml="";
 function renderSend(){
   if(S.dirty && SEND.freight==="done"){ SEND.stale=true; SEND.freight="none"; SEND.freightAt=null; } // any edit means M3 has to run freight again (stale: the bar says "out of date"); an edit while M3 runs doesn't stop it, but Save stays locked until it finishes (QOM today, Pauline Nov 20)
   if(!S.dirty) SEND.failed=null; // a save or discard clears a failed save
-  const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx;
+  const items=sendItems(), F=footState(items), fr=F.done?mockFreight():0, tx=F.done?mockTax():F.hasLines?estTax():0, total=QSUB+fr+tx;
   // 1. save status
   // as QOM can report it now (QOM-3280): Saving…, "N lines changed" (each line knows whether it changed), "Save failed: see message" until QOM-2468 can say why
   const n=linesChanged(); $("#pbIc").innerHTML=SEND.saving?SI.prog:SEND.failed?SI.block:F.dirty?SI.dot:SI.done;
@@ -3079,23 +3092,23 @@ function renderSend(){
   $("#pbTotal").textContent=money(total);
   if(S.qview==="info"&&!qiEditConv) $("#qInfo").innerHTML=infoHtml();
   $("#pbLbl").textContent=F.done?"Total":"Estimated total";
-  $("#pbNote").textContent=F.run?"Calculating freight and tax in M3. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:SEND.stale?"Freight out of date: your changes cleared it":"Freight and tax not calculated yet"; $("#pbNote").classList.toggle("stale",F.hasLines&&!F.done&&!!SEND.stale);
+  $("#pbNote").textContent=F.run?"Calculating freight and tax in M3. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"No products yet":F.done?`Includes freight ${money(fr)} and tax ${money(tx)}`:SEND.stale?"Freight out of date: your changes cleared it":`Includes estimated tax ${money(tx)}. Freight not calculated yet.`; $("#pbNote").classList.toggle("stale",F.hasLines&&!F.done&&!!SEND.stale);
   // the note is the total's tooltip now; a click on the total opens Full breakdown
   const nt=esc($("#pbNote").textContent)+(F.hasLines?"<small>Select for the full breakdown</small>":""); if($("#pbNoteTip")._h!==nt){ $("#pbNoteTip").innerHTML=nt; $("#pbNoteTip")._h=nt; }
   $("#pbInfo").setAttribute("aria-expanded",String(SEND.open)); $("#pbBdLink").setAttribute("aria-expanded",String(SEND.open)); $("#pbBdLink").hidden=!F.hasLines; // nothing to break down on an empty quote
   $("#pbProg").hidden=!F.run; $("#pbar").classList.toggle("empty",!F.hasLines); $("#bdBtn").hidden=$("#pbBdSep").hidden=!F.hasLines||F.run; // nothing to break down on an empty quote, or while M3 is still working
   const nc=t=>`<span class="v nc">${t}</span>`, val=n=>`<span class="v">${money(n)}</span>`, wait=F.run?nc("Calculating…"):nc("Not calculated yet");
-  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?blendRow():""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):wait}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v nc">${F.run?"Calculating…":"Not calculated yet"}<small class="bdsub">${money(QSUB)} before freight and tax</small></span>`}`;
+  $("#totals").innerHTML=`<span class="lb">Subtotal</span>${val(QSUB)}${S.view==="commercial"&&F.hasLines?blendRow():""}<span class="lb">Freight</span>${F.done?val(fr):wait}<span class="lb">Tax</span>${F.done?val(tx):`<span class="v">${money(tx)} <span class="nc">estimated</span></span>`}<hr><span></span><span class="lb big">Total</span>${F.done?`<span class="v big">${money(total)}</span>`:`<span class="v big">${money(total)}<small class="bdsub">Estimated, before freight</small></span>`}`;
   // 3. actions: same three buttons in the same places; only their style changes
-  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad||!!SEND.saving||F.run; sv.classList.toggle("primary",F.dirty&&!F.bad&&!SEND.saving&&!F.run);
+  const sv=$("#saveBtn"); sv.disabled=!F.dirty||F.bad||!!F.ess||!!SEND.saving||F.run; sv.classList.toggle("primary",F.dirty&&!F.bad&&!F.ess&&!SEND.saving&&!F.run);
   const fb=$("#pbFreightBtn"); fb.setAttribute("aria-disabled",String(F.calcOff)); fb.classList.toggle("run",F.run); fb.classList.toggle("primary",!F.calcOff&&!F.done);
   fb.innerHTML=F.run?`${SI.prog}Calculating…`:F.done?"Recalculate freight":"Calculate freight";
   const sb=$("#pbSend"); sb.setAttribute("aria-disabled",String(!F.canSend)); sb.classList.toggle("primary",F.canSend);
   // each button's tooltip: what it does, or why it's grey (the helper line's job when the bar had two rows)
   const nFix=F.others.length?F.issues.length:0; // the same count as the "Things to fix" list
   const bg=$("#pbSendBadge"); bg.textContent=nFix||""; bg.hidden=!nFix;
-  $("#tipSave").textContent=SEND.saving?"Saving to M3…":F.run?"Save unlocks when freight is done":F.bad?"Fix the quantities marked in the quote to save":F.dirty?"Saves your changes to M3. Then calculate freight.":"No changes to save";
-  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated${SEND.freightAt?" "+SEND.freightAt:""}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
+  $("#tipSave").textContent=SEND.saving?"Saving to M3…":F.run?"Save unlocks when freight is done":F.bad?"Fix the quantities marked in the quote to save":F.dirty&&F.ess?F.ess:F.dirty?"Saves your changes to M3. Then calculate freight.":"No changes to save";
+  $("#tipFreight").textContent=F.run?"M3 is calculating freight, then tax. Usually about 2 minutes. You can keep reviewing the quote.":!F.hasLines?"Add products to calculate freight":!SEND.addr?"Add a delivery address to calculate freight":F.cb&&!F.done?F.cb:F.dirty?"Save your changes first, then calculate freight":F.done?`Freight calculated${SEND.freightAt?" "+SEND.freightAt:""}. Calculate again if something changed.`:"M3 calculates freight, then tax. Usually about 2 minutes.";
   $("#tipSend").textContent=F.canSend?"Sends the quote and payment link to the client":nFix?`${plural(nFix,"thing")} to fix before sending`:F.run?"Sending unlocks when freight is ready":!F.hasLines?"Add products before sending":F.dirty?"Save and calculate freight before sending":"Calculate freight before sending";
   const W=F.hasLines?crWarn():[]; // concept QOM-2561: warnings ("to check") never block sending; always empty with the toggle off
   const chk=W.length?`<span aria-hidden="true"> · </span><button type="button" class="pb-chk" id="pbChk" aria-controls="sendPanel">${INFO_ICON}${W.length} to check</button>`:"";
@@ -3148,7 +3161,7 @@ function freightLock(what){ if(SEND.freight!=="run") return false;
   return false; }
 function sendAction(a){
   if(a==="addAddr"){ setPTab(2); const f=$("#pf-addr"); f?.focus(); f?.scrollIntoView({block:"center"}); return; } // goes to Shipping Information, Delivery Address
-  if(a==="calc"){ runFreight(); return; }
+  if(a==="calc"){ const F=footState(), why=F.cb||(F.dirty&&F.ess?F.ess:null); if(why){ barToast(why,"",true); return; } runFreight(); return; } // Calculate freight saves first, so the Save and freight rules both apply
   if(a.startsWith("field:")){ const k=a.slice(6), f=REQ_FIELDS.find(x=>x[0]===k); setPTab(f[2]); const el=$("#pf-"+k); el?.focus(); el?.scrollIntoView({block:"center"}); return; } // goes to the tab and field
   if(a==="copyQuote"){ barToast("Copying a quote isn't built in the prototype","In QOM this makes a new quote you can send."); return; }
   if(a==="recheck"){ showToast(S.ext?`Still blocked: ${EXT[S.ext].t}.`:"Nothing outside QOM blocks sending now."); return; } // mock: clear it with the demo bar
@@ -3179,9 +3192,9 @@ function lineFix(v){ const [kind,room,sku]=v.split("|"); if(kind==="spec"&&freig
   const left=missingOf(kind).length; if(left){ nextLine(kind); } else ($("#pbFix")||$("#pbFreightBtn")).focus(); }
 // prototype: a save that comes back from M3 with a new autospec or pricing problem on one line
 function simSave(kind){
-  const x=quoteLines().find(x=>x.r.name===S.room&&(kind==="spec"?x.l.spec!==false:!x.l.cp))||quoteLines().find(x=>kind==="spec"?x.l.spec!==false:!x.l.cp);
+  const spec=kind!=="price", x=quoteLines().find(x=>x.r.name===S.room&&(spec?x.l.spec!==false:!x.l.cp))||quoteLines().find(x=>spec?x.l.spec!==false:!x.l.cp);
   if(!x){ showToast(quoteLines().length?"Every line already has that problem.":"Add a line to the quote first."); return; }
-  if(kind==="spec") x.l.spec=false; else x.l.cp=true;
+  if(kind==="cpspec"){ x.l.cprice=true; x.l.spec=false; } else if(spec) x.l.spec=false; else x.l.cp=true; // cpspec: mock custom price (the unit stays; only the flag matters here)
   S.dirty=false; S.undo=null; markSaved(); renderQuote();
   const p=CAT.find(c=>c.sku===x.l.sku);
   $("#sendLive").textContent=`Saved ${SEND.savedAt}.`; // no red message after Save: QOM only finds line problems when the SC tries to send (Pauline, Nov 23); they show in Before you send. Whether the Send badge updates before then is still open
@@ -3196,7 +3209,7 @@ function linesChanged(){ if(!S.dirty) return 0;
   const m=q=>{ const o=new Map(); (q?.rooms||[]).forEach(r=>{ const id=roomId(r); r.lines.forEach(l=>o.set(id+"|"+(l.fcFrom||l.sku),r.name+"|"+JSON.stringify(l))); }); return o; };
   const a=m(S.base), b=m(S.quote); let n=0; new Set([...a.keys(),...b.keys()]).forEach(k=>{ if(a.get(k)!==b.get(k)) n++; }); return n; }
 // Save: "Saving…" for a moment, then saved (in QOM it's the time M3 confirms the save)
-function saveQuote(){ const F=footState(); if(!F.dirty||F.bad||SEND.saving||F.run) return; SEND.saving=true; SEND.failed=null; renderSend(); $("#sendLive").textContent="Saving.";
+function saveQuote(){ const F=footState(); if(!F.dirty||F.bad||F.ess||SEND.saving||F.run) return; SEND.saving=true; SEND.failed=null; renderSend(); $("#sendLive").textContent="Saving.";
   clearTimeout(SEND.saveTimer); SEND.saveTimer=setTimeout(()=>{ SEND.saving=false; S.dirty=false; S.undo=null; LIKE_UNDO=null; hideCToast(); markSaved(); renderQuote(); $("#sendLive").textContent=`Saved ${SEND.savedAt}.`; },900); }
 const SAVE_FAIL="Line 1 (HNBAR-N) could not be updated: M3 rejected the change. Check the line and try again. (mock M3 message)";
 // footer states in the Scenario menu (Footer 1 to 7). Every scenario change first clears the mock Blocked line and status.
@@ -3213,7 +3226,7 @@ function applySendScenario(v){
   resetSend(); SEND.addr=true;
   S.quote=S.view==="commercial"?QUOTES.commercial():structuredClone(RES_QUOTE); if(!S.quote.rooms.some(r=>r.name===S.room)) S.room=S.quote.rooms[0]?.name||"";
   S.riskDemo=false; applyRiskDemo(false); $("#riskDemo").checked=false; // only the problems each state describes
-  quoteLines().forEach(({l})=>{ delete l.spec; delete l.cp; });
+  quoteLines().forEach(({l})=>{ delete l.spec; delete l.cp; delete l.cprice; });
   const bar=S.quote.rooms.find(r=>r.name==="Bar")||S.quote.rooms[0];
   if(v==="s-blocked"&&bar) bar.lines.push({sku:"HNTWL-DB",qty:1,unit:410,rdd:"12/19/2026",mock:true});
   S.dirty=false; S.undo=null; markSaved();
@@ -3411,7 +3424,7 @@ document.addEventListener("click",e=>{
   if(t.id==="pbBdLink"){ SEND.open?closeSend():openSend(false,"breakdown","#pbBdLink"); return; }
   if(t.id==="pbInfo"){ if(!quoteLines().length) return; SEND.open?closeSend():openSend(false,"breakdown","#pbInfo"); return; } // the total
   if(t.id==="bmLink"){ openSend(false,"breakdown","#bmLink"); const i=$("#blendIn"); if(i){ i.focus({preventScroll:true}); i.select(); i.scrollIntoView({block:"center"}); } return; } // the margin above the rooms opens the breakdown with its input ready to type in // Full breakdown opens the side panel at its breakdown section
-  if(t.id==="simSpec"||t.id==="simPrice"){ simSave(t.id==="simSpec"?"spec":"price"); return; }
+  if(t.id==="simSpec"||t.id==="simPrice"||t.id==="simCpSpec"){ simSave({simSpec:"spec",simPrice:"price",simCpSpec:"cpspec"}[t.id]); return; }
   if(t.id==="rmCancel"){ closeRemoveDialog(); return; }
   if(t.id==="rmYes"){ confirmRemove(); return; }
   if(t.id==="clearQ"){ S.query=""; $("#q").value=""; t.hidden=true; search(); return; }
@@ -3676,7 +3689,7 @@ var qiEditConv=false; // var: renderSend can run before this line on load
 // deposit: 50% of stocked items and kits, 100% of non-stocked items (mock rule, on the product lines before freight and tax)
 const qDeposit=()=>quoteLines().reduce((a,{l})=>{ const p=CAT.find(x=>x.sku===l.sku); const amt=l.qty*l.unit; return a+(p.kit||p.lt==="Stocked"?amt*.5:amt); },0);
 const infoHtml=()=>{
-  const F=footState(), fr=F.done?mockFreight():0, tx=F.done?mockTax():0, total=QSUB+fr+tx, has=F.hasLines;
+  const F=footState(), fr=F.done?mockFreight():0, tx=F.done?mockTax():F.hasLines?estTax():0, total=QSUB+fr+tx, has=F.hasLines;
   const today=new Date(); today.setHours(0,0,0,0);
   const conv=pDate(QI.conv), convLate=dayDiff(conv)<0;
   const pts=[{k:"Estimated conversion",d:conv,cls:convLate?"late":""},{k:"Today",d:today,cls:"today"},{k:"Requested delivery",d:pDate(QI.delivery),cls:""},{k:"Quote expires",d:pDate(QI.expires),cls:""}]
@@ -3701,7 +3714,7 @@ const infoHtml=()=>{
   <div class="qsec qcols">
     <section aria-labelledby="qiPeople"><h3 id="qiPeople">People</h3>${qfield("Payer",esc(titleCase(QI.payer)))}${qfield("Sales consultant",esc(QI.consultant))}<div class="qf"><div class="ql">Designer or architect</div><button type="button" class="qadd" data-qi="person"><span aria-hidden="true">+</span> Add person</button></div></section>
     <section aria-labelledby="qiPay"><h3 id="qiPay">Payment</h3>
-      <div class="pay"><span class="ql">Quote total</span><span class="amt">${has?money(total)+(F.done?"":`<small>before freight and tax</small>`):"—"}</span>
+      <div class="pay"><span class="ql">Quote total</span><span class="amt">${has?money(total)+(F.done?"":`<small>estimated, before freight</small>`):"—"}</span>
       <span class="ql">Deposit to convert</span><span class="amt">${has?money(qDeposit()):"—"}</span><hr>
       <span class="ql">Paid to date</span><span class="amt">${QI.payment}</span></div>
       <p class="paynote">Deposit is 50% of stocked items and kits, and 100% of non-stocked items.</p></section>
