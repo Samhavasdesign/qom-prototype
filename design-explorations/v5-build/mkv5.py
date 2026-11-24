@@ -15,5 +15,10 @@ j=s.index('<select id="scenario">'); j=s.index('</label>',j)+len('</label>')
 s=s[:j]+'\n  <button type="button" class="pbtn" id="propNew" title="v5 only: opens the one-step New quote form, as Quotes → Create new does. Create opens a fresh quote with no lines.">New quote form</button>'+s[j:]
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'proposal.css').read()+'</style>\n'+open(D+'proposal.js').read()+s[i:]
+# Quotes list redesign (QOM-3332, Nov 24): its own layer and switch, after the proposal layer
+rep('<strong>Proposal layout and global search</strong></label>',
+    '<strong>Proposal layout and global search</strong></label>\n  <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today\'s list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>')
+i=s.rindex('</body>')
+s=s[:i]+'<style>'+open(D+'quotes-list.css').read()+'</style>\n'+open(D+'quotes-list.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)
 print('ok',len(s))
