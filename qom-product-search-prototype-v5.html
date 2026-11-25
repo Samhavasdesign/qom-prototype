@@ -1767,8 +1767,8 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label title="v5 only: the Quote Page Proposal (tool column, Details, no tabs, new quote in one step) and global search (side nav, ⌘K)."><input type="checkbox" id="propOn" checked autocomplete="off"> <strong>Proposal layout and global search</strong></label>
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
   <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
-  <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the Quotes list's accent. Off shows it in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
-  <label title="v5 only: trial of a navy app frame (top bar, side nav) with warm greys and charcoal secondary text inside the page. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy frame and warm greys</label>
+  <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the accent: the Quotes list's links and selection marks, and text links on every page. Off shows them in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
+  <label title="v5 only: trial of a gold bar for the room being added to, with warm greys and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Gold room and warm greys</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -4383,9 +4383,9 @@ body.page-create :is(.main > .pghead > #qCrumb,.ptitle,.pfacts,.main > p.sub,#ex
 @media (prefers-reduced-motion:reduce){ .ncspin{animation:none} }
 
 /* Page margins on every page (Sam, Nov 25): design.md "Breakpoints and grid": internal pages 16 / 24 / 32px, 48px from 2xl;
-   24px above the content (40px under the top bar, Sam, Nov 25). The footer bar's sides match. Not tied to the proposal switch. */
-html body .main{padding:24px 32px 40px}
-html.tnav:not(.topnav) body .main{padding-top:40px}
+   16px above the content (20px under the top bar; tightened from 24 and 40, Sam, Nov 25). The footer bar's sides match. Not tied to the proposal switch. */
+html body .main{padding:16px 32px 40px}
+html.tnav:not(.topnav) body .main{padding-top:20px}
 html body .pbar{padding-left:32px;padding-right:32px}
 @media (width >= 1536px){ /* 2xl */ html body .main, html body .pbar{padding-left:48px;padding-right:48px} }
 @media (width < 1024px){ /* lg */ html body .main, html body .pbar{padding-left:24px;padding-right:24px} }
@@ -4403,6 +4403,24 @@ html body #quoteTitle{font-family:var(--serif);font-weight:400;font-size:30px;li
    The row carries that spacing instead, so everything centres on the title and the title doesn't move. */
 html body .ptitle:has(> #quoteTitle){padding:10px 0 2px}
 html body .ptitle > #quoteTitle{margin-top:0;margin-bottom:0}
+
+/* Tighter page header (Sam, Nov 25: "wasting a lot of space on the top"): no space above the quote's title row (it had 10px),
+   a 4px gap under the back link, and less space under the facts row. */
+html body .ptitle:has(> #quoteTitle){padding-top:0}
+html.tnav:not(.topnav) body:not(.page-quotes):not(.page-home):not(.page-create) .main>.qback{margin-bottom:4px}
+body.proposal .pfacts{margin-bottom:12px;padding-bottom:10px}
+html body.qlx-on .ql h1{margin-bottom:16px}
+
+/* Badges (Sam, Nov 25): one spec for every label badge, from the design audit's Badge (Spartan badge: full pill, 12px, medium,
+   status variants as a 10% tint with full-strength text, facts as outline). Height 20px and 10px each side: on a full pill
+   the 10px corner radius ate most of the old 7 to 8px, so text looked cramped. Sentence case, no tracking. Counts (the tab
+   counts, Send's red badge) keep their own tighter number shape. Applies to: stock, kit, service part and other .tag
+   labels, No quote and Order (.qlxsrc), Residential (.ptype), Expires (.pexp), a room's "need attention", "Adding here",
+   Change finish's badges (.fc-pill) and the New pill. */
+html body :is(.tag,.qlxsrc,.fc-pill,.newpill,.roomhdr .rwarn,.roomhdr .addtag,.pfacts .pexp,.ptitle .ptype:not([hidden])){display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;line-height:18px;white-space:nowrap;letter-spacing:normal;text-transform:none;vertical-align:middle}
+html body table.res .stk{display:flex;width:fit-content} /* still on its own line under the product name */
+html body :is(.roomhdr .rwarn,.pfacts .pexp) svg{width:12px;height:12px}
+html body.proposal .ptitle .ptype:not([hidden]){height:20px;padding:0 10px;border-radius:999px} /* beats the title row's own rule */
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
@@ -4858,6 +4876,22 @@ body.qlx-bronze .qlxquick button[aria-pressed="true"] em{color:var(--bronze)}
 body.qlx-bronze .qlxseg button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxpill.on .qlxpb{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxqvp{border-top:3px solid var(--bronze)}
+/* Text links everywhere in v5 (Sam, Nov 25): every underlined text link takes Home's "See all your quotes" style, bronze
+   and underlined. Not inside status-coloured places (line flags, the save-failed note, the outside-QOM banner, Change finish's
+   note, toasts, Things to fix), where a link keeps its status colour, and not on the room bars. */
+body.qlx-bronze :is(.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .bmlink,.backlink):not(:is(.fcb,.pb-st .fail,.lflag,.extbn,.ctoast) *){color:var(--bronze)}
+/* Links on a grey or warm fill take a darker bronze (Sam, Nov 25): --brand is 4.1:1 there, under AA for small text, and
+   --brand-on-fill (#7a6143, tokens.css) is 5.2:1. Set on the filled panes (search, quote, the quote tabs' forms) and the
+   Quotes list's grey header, so whatever uses --bronze inside them follows. White cards inside a pane take it too; it
+   passes on white as well (5.8:1). */
+body.qlx-bronze :is(#searchPane,#quotePane,#ptView,.rpp){--bronze:var(--brand-on-fill,#7a6143)}
+/* Table header in a deep gold (Sam, Nov 25): with the header and a hovered row both on the grey/warm fill they looked the
+   same, so the header goes --brand-deep (#5c4a33, a deeper shade of the brand bronze), with light text: the sorted column in
+   white (8.5:1) and the rest in a pale bronze #e8dece (6.5:1). Hovered rows keep the fill. */
+body.qlx-bronze .qlxt th{background:var(--brand-deep,#5c4a33);border-bottom-color:var(--brand-deep,#5c4a33)}
+body.qlx-bronze .qlxt th :is(button,.th){color:#e8dece}
+body.qlx-bronze .qlxt th button:hover,body.qlx-bronze .qlxt th[aria-sort] button,body.qlx-bronze .qlxt th .si.on{color:#fff}
+body.qlx-bronze .qlxt th button:focus-visible{outline-color:#fff;outline-offset:-3px}
 /* one nav item for quotes and orders: the Orders link hides (the nav links set display, so [hidden] needs help) */
 :is(.rail a.rlink,#tnBar .tnlinks a)[hidden]{display:none !important}
 
@@ -5551,16 +5585,18 @@ const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(t
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>
-<style>/* ==== v5 (Nov 25): "Navy frame and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
-   The lower-cost version of more color: navy only on the app frame (top bar, side nav, phone bar), never inside the page,
-   so bronze stays the page's only accent and navy can't be mistaken for info blue. Inside the page only two existing values
-   change: fills go warm (#f5f2ed for #f3f3f3) and secondary text goes to the brand charcoal (#68696f for #666666; 4.9:1 on
-   the warm fill, 5.5:1 on white). No new tokens. Not in the Design Audit yet: it goes in if the trial holds. */
-html.warm{--rail:#001e52;--rail-2:#123a7a;--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f}
-html.warm .tnav-acct .tnicon{background:rgb(255 255 255 / .14);color:#fff}
+<style>/* ==== v5 (Nov 25): "Gold room and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+   Sam, Nov 25: the app frame (top bar, side nav, phone bar) stays black, and so do the add (+) buttons and set filter
+   pills (navy on them read as messy beside the black ones). The room you're adding to (its bar and "Adding here") goes
+   a bright gold, the Sales Portal's #daa442, with black text and icons (8.4:1; white on it would be 2.2:1). The brand
+   bronze (#8c704e, white text) was tried first and read too dark. Fills go warm (#f5f2ed for #f3f3f3) and secondary
+   text goes to the brand charcoal (#68696f for #666666; 4.9:1 on the warm fill, 5.5:1 on white). Gold isn't in the
+   Design Audit (bronze is its only accent), so it goes in the audit first if the trial holds. */
+html.warm{--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f;--gold:#daa442}
+html.warm .roomhdr.active{--on-ink:var(--ink);background:var(--gold);border-color:var(--gold);color:var(--ink)}
 </style>
 <script>
-/* "Navy frame and warm greys" switch (Nov 25): off by default, remembered in the browser */
+/* "Gold room and warm greys" switch (Nov 25): off by default, remembered in the browser */
 (function(){
   let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
   document.documentElement.classList.toggle("warm",on);
