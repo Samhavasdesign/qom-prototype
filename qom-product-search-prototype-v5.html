@@ -5273,7 +5273,8 @@ html.tnav:not(.topnav) .protoshow{top:48px}
 const q=s=>document.querySelector(s);
 let on=false; try{ on=localStorage.getItem("qom-v5-topnav")==="on"; }catch(e){}
 const rail=q(".rail"); if(!rail) return;
-const icon=name=>{ const a=[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
+/* Quotes is found by data-nav: the Quotes list layer may already have renamed it "Quotes & orders" */
+const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-nav="quotes"]'))||[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
 const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
 bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
