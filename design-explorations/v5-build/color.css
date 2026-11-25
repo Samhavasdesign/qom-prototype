@@ -56,7 +56,9 @@ html.warm :is(.qlxt tbody tr[data-qlxrow]:not(.qvcur):hover td,.qltable tbody tr
 /* one rule for hover (Sam, Nov 25): rows in a list take the navy wash; tile buttons (Home's eight module tiles) take the
    pale bronze, which suits their bronze icons. Charcoal 4.8:1 on either. */
 html.warm .hm-row:is(:hover,:focus-visible){background:var(--navy-wash)}
-html.warm .hm-tile:is(:hover,:focus-visible){background:var(--brand-wash,#f9f5ef)} /* a step lighter than the selected row's #f4eee6 (Sam, Nov 25) */
+html.warm .hm-tile:is(:hover,:focus-visible){background:var(--brand-wash,#f9f5ef)}
+/* Recent quotes menu: "All quotes & orders" is a bronze link, so it hovers in the pale gold with the hover bronze, not the rows' navy wash (Sam, Nov 25) */
+html.warm body .tnrecent button[data-rq="all"]:is(:hover,:focus-visible):not(#x){background:var(--brand-wash,#f9f5ef);color:var(--brand-hover,#5f4b34)} /* a step lighter than the selected row's #f4eee6 (Sam, Nov 25) */
 /* bronze links on a hovered row take the darker link bronze, 5.1:1 on the wash (the brand bronze would be 4.1:1) */
 html.warm .qlxt tbody tr[data-qlxrow]:not(.qvcur):hover{--bronze:var(--brand-on-fill,#7a6143)}
 html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a6143)} /* Home's quote numbers on the wash: 5.1:1 */
