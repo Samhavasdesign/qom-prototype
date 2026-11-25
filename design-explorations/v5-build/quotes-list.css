@@ -1,6 +1,6 @@
 /* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332). On while body has .qlx-on (demo bar switch) ==== */
 body:not(.qlx-on) .qlx,body:not(.qlx-on) .qlxqv{display:none}
-body.qlx-on #quotesPage>:not(#qlTitle,.qlx){display:none !important}
+body.qlx-on #quotesPage>:not(#qlTitle,.qlx,.qlxhead){display:none !important}
 body.qlx-on #quotesPage{position:relative}
 body.qlx-on .ql h1{font-size:36px;margin:14px 0 20px}
 /* Page margins: set for every page in proposal.css (Nov 25); the title sits at the top of them */
@@ -345,3 +345,8 @@ html:not(#x) .qlx .qlxseg button:focus-visible{outline:2px solid var(--ink);outl
 .qlxqx:hover{background:rgb(0 0 0 / .06);color:var(--ink)}
 .qlxqx:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
 .qlxsearch .qlxqx svg{position:static;transform:none;color:currentColor;pointer-events:none}
+/* the title row (Sam, Nov 25): title left, New quote right, centred on each other; the button shows only with the redesign on */
+.qlxhead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 16px}
+.qlxhead #qlTitle{margin:0}
+html:not(#x) .qlxhead .qlxnew{position:static;margin:0;flex:none}
+body:not(.qlx-on) .qlxhead .qlxnew{display:none}

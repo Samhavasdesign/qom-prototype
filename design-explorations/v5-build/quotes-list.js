@@ -199,6 +199,9 @@ root.innerHTML=`
       <div class="qlxpop qlxsizepop" id="qlxSizePop" hidden role="listbox" aria-labelledby="qlxSizeL">${[25,50,100].map(n=>`<button type="button" class="qlxopt" role="option" data-qlxsize="${n}" aria-selected="${n===50}"><span>${n}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>`).join("")}</div></div></div></div>
   </div>`;
 q("#quotesPage").append(root);
+/* New quote sits in the title row, opposite the title and centred on it (Sam, Nov 25: beside the search it read oddly) */
+(function(){ const h=q("#qlTitle"), b=root.querySelector(".qlxnew"); if(!h||!b) return;
+  const row=document.createElement("div"); row.className="qlxhead"; h.before(row); row.append(h,b); })();
 /* Quick view: a panel from the right, over the list */
 const qv=document.createElement("div"); qv.className="qlxqv"; qv.hidden=true;
 qv.innerHTML=`<div class="qlxqvp" role="dialog" aria-modal="true" aria-labelledby="qlxQvT" id="qlxQvP"></div>`;
