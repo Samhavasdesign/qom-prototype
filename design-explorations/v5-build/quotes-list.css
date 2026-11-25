@@ -10,7 +10,7 @@ body.qlx-on.page-quotes .ql h1{margin-top:0}
 /* Create new: top right, level with the title */
 .qlx .qlxnew{position:absolute;top:18px;right:0;display:inline-flex;align-items:center;gap:6px}
 /* search: one wide field that says what it searches */
-.qlxsearch{position:relative;max-width:720px;margin-bottom:14px}
+.qlxsearch{position:relative;max-width:720px;margin-bottom:24px} /* 24px to the tabs, more than the 16px under them (Sam, Nov 25; was 14) */
 .qlxsearch svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-2);pointer-events:none}
 .qlxsearch input{width:100%;height:var(--control-h-lg,44px);padding:0 14px 0 42px;border:1px solid var(--control-line);border-radius:var(--r-md);background:var(--bg);font:inherit;font-size:15px;box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
 .qlxsearch input::placeholder{color:var(--ink-2)}
