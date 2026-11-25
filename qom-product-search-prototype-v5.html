@@ -4428,16 +4428,16 @@ html body :is(.roomhdr .rwarn,.pfacts .pexp) svg{width:12px;height:12px}
 html body.proposal .ptitle .ptype:not([hidden]){height:20px;padding:0 10px;border-radius:999px} /* beats the title row's own rule */
 
 /* Field focus (Sam, Nov 25: "more elegant"): a 1px bronze edge (--brand, 4.6:1 on white, so it carries the 3:1 a focus
-   indicator needs) and a soft 3px halo in the light bronze tint (--brand-mark), in place of the black edge and 3px grey ring
+   indicator needs) and a 1px halo in the light bronze tint (--brand-mark; 3px until Sam, Nov 25, as in the Design Audit), in place of the black edge and 3px grey ring
    at 50%. Bronze is the audit's "where you are" accent, which a focused field is. Gold (#daa442) was asked about and not
    used: 2.2:1 on white fails for a focus indicator. Every text field, select and text area in v5, on any focus (fields always
    show where you're typing), and the stepper and add-quantity boxes as a whole. Buttons, links and switches keep the
    theme's grey ring. A field marked invalid focuses in red, so an error never looks like focus.
    html:not(#a) (matches every page, ID weight) lifts these above the Spartan layer's long :focus-visible selector lists. */
-html:not(#a) body :is(input:not([type=checkbox],[type=radio],[type=range],[type=button],[type=submit],[type=reset],[type=color],[type=file]),select,textarea):focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mark)}
-html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):focus-within{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mark)}
+html:not(#a) body :is(input:not([type=checkbox],[type=radio],[type=range],[type=button],[type=submit],[type=reset],[type=color],[type=file]),select,textarea):focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 1px var(--brand-mark)}
+html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):focus-within{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand-mark)}
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox,.pf-box,.lfilter,.gsin) :is(input,select):focus{box-shadow:none}
-html:not(#a) body :is(input,select,textarea)[aria-invalid="true"]:focus,html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):has([aria-invalid="true"]):focus-within{border-color:var(--destructive);box-shadow:0 0 0 3px var(--block-bg)}
+html:not(#a) body :is(input,select,textarea)[aria-invalid="true"]:focus,html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):has([aria-invalid="true"]):focus-within{border-color:var(--destructive);box-shadow:0 0 0 1px var(--block-bg)}
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox) [aria-invalid="true"]:focus{box-shadow:none}
 
 /* Line alerts hug their text (Sam, Nov 25): stock, kit, late-date and status alerts on quote lines are as wide as their
