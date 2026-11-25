@@ -5689,6 +5689,14 @@ html body .tnlinks{margin-left:calc(-1 * var(--tn-pad))}
 @media (width < 1024px){ /* lg */ html body .tnbar{padding-left:24px;padding-right:24px} }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
 html.tnav:not(.topnav) .protoshow{top:56px}
+/* current page (Sam, Nov 25): the white underline sat on the bar's bottom edge, against the white page, so it read as the page
+   bulging into the bar, and it was drawn in two pieces (label, chevron) with a notch between. Now one 3px bar under the label
+   (and the chevron, for Quotes & orders), inset to the label, in bronze: the audit's colour for the current page (4.6:1 on the
+   black bar and on white). White with Bronze accent off. The label stays white */
+.tnlinks a[aria-current="page"],.tnsplit:has(>a[aria-current]) .tnchev{border-bottom-color:transparent}
+.tnlinks > a,.tnsplit{position:relative}
+.tnlinks > a[aria-current="page"]::after,.tnsplit:has(>a[aria-current])::after{content:"";position:absolute;left:var(--tn-pad);right:var(--tn-pad);bottom:0;height:3px;border-radius:2px 2px 0 0;background:var(--rail-ink)}
+body.qlx-bronze .tnlinks > a[aria-current="page"]::after,body.qlx-bronze .tnsplit:has(>a[aria-current])::after{background:var(--brand,#8c704e)}
 </style>
 <script>
 /* ==== v5 (Nov 25): top navigation bar, a trial (see topnav.css). The demo bar's "Top navigation bar" switch turns it on;
