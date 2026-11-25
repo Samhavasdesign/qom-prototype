@@ -258,3 +258,25 @@ body.qlx-bronze .qlxtab[aria-selected="true"] em{background:var(--bronze);color:
 .qlxt .p2.paid.held,.qlxqv .paidq.held{color:var(--destructive,#c62828)}
 .qlxqv .paidq{white-space:normal;align-items:flex-start}
 .qlxqv .paidq svg{flex:none;margin-top:2px}
+/* archived quotes (Nov 25): hidden by default; "Show n archived" in the count row brings them in. An archived row reads quieter
+   (secondary text, no expiry warning) and says so in words under the pipeline status, with the reason as a tooltip */
+.qlxcount .qlxarchb,.qlxarchb{background:none;border:0;padding:4px 2px;font:inherit;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;border-radius:var(--r-sm)}
+body.qlx-bronze .qlxarchb{color:var(--bronze)}
+body.qlx-bronze .qlxarchb:hover{color:var(--brand-hover,#5f4b34)}
+.qlxt .p2.archt{display:flex;align-items:center;gap:4px;color:var(--ink-2);font-weight:500;white-space:nowrap}
+.qlxt tr.arch .c-proj .p1,.qlxt tr.arch .c-desc .p1,.qlxt tr.arch .c-cust .p1,.qlxt tr.arch .c-tot,.qlxt tr.arch .c-sc,.qlxt tr.arch .c-exp .p1{color:var(--ink-2)}
+/* loading: skeleton rows on the first load; later loads dim the last rows under a thin bar (static with reduced motion) */
+.qlxt tr.qlxsk td{height:52px;vertical-align:middle}
+.qlxt .sk{display:block;height:10px;border-radius:4px;background:var(--surface,#f3f3f3);background:linear-gradient(90deg,#eeeeee 0%,#f7f7f7 50%,#eeeeee 100%);background-size:200% 100%;animation:qlxsk 1.4s ease-in-out infinite}
+.qlxt .sk.sm{height:8px;margin-top:8px;opacity:.7}
+@keyframes qlxsk{from{background-position:100% 0}to{background-position:-100% 0}}
+.qlx.qlx-busy #qlxBody{opacity:.45;transition:opacity .15s}
+.qlx.qlx-busy #qlxPanel{position:relative}
+.qlx.qlx-busy #qlxPanel::before{content:"";position:absolute;left:0;top:-1px;height:2px;width:30%;background:var(--ink);animation:qlxbar 1.1s ease-in-out infinite;z-index:2}
+@keyframes qlxbar{from{left:0;width:10%}50%{width:40%}to{left:100%;width:10%}}
+@media (prefers-reduced-motion: reduce){.qlxt .sk{animation:none}.qlx.qlx-busy #qlxPanel::before{animation:none;width:45%}}
+.qlxload{color:var(--ink-2)}
+/* error: in the table, like product search's error, with the warning red only on the icon and the count row's words */
+.qlxerri{display:flex;justify-content:center;color:var(--destructive,#c62828);margin-bottom:8px}
+.qlxerrc{color:var(--destructive,#c62828);font-weight:500}
+.qlx.qlx-nodata .qlxquick em{visibility:hidden}
