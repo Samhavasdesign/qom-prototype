@@ -33,5 +33,8 @@ rep('id="qlxBronze" checked autocomplete="off"> Bronze accent</label>',
     'id="qlxBronze" checked autocomplete="off"> Bronze accent</label>\n  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and greys</label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'color.css').read()+'</style>\n'+open(D+'color.js').read()+s[i:]
+# How a quote becomes an order (Nov 25, backend research): Convert to order for no-charge quotes, and paid, order pending. Its demo controls are added by orders.js
+i=s.rindex('</body>')
+s=s[:i]+'<style>'+open(D+'orders.css').read()+'</style>\n'+open(D+'orders.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)
 print('ok',len(s))

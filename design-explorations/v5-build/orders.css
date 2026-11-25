@@ -1,0 +1,37 @@
+/* ==== v5 (Nov 25): how a quote becomes an order (orders.js) ==== */
+/* the banner under the title: v2's outside-QOM banner, in the status colours. Info blue while M3 creates the order (it clears on its own),
+   green once there's an order, the warning red when M3 rejected it. Icon plus words, never color alone */
+.ordbn.info{background:var(--prog-bg,#e8edfb);border-left-color:var(--info,#1d4ed8)}
+.ordbn.info>svg{color:var(--info,#1d4ed8)}
+.ordbn.ok{background:var(--ok-bg,#e6f4ee);border-left-color:var(--success,#047857)}
+.ordbn.ok>svg{color:var(--success,#047857)}
+body.page-create #ordBanner,body.page-quotes #ordBanner,body.page-home #ordBanner{display:none !important}
+/* the facts row: the order or the deposit's state, as a status badge (10% tint, icon and words) */
+.pfacts .pord{display:inline-flex;align-items:center;gap:4px;height:20px;margin-left:12px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.pfacts .pord svg{width:13px;height:13px;flex:none}
+.pfacts .pord.ok{background:var(--ok-bg,#e6f4ee);color:var(--success,#047857)}
+.pfacts .pord.info{background:var(--prog-bg,#e8edfb);color:var(--info,#1d4ed8)}
+.pfacts .pord.bad{background:var(--block-bg);color:var(--destructive,#c62828)}
+/* "At no charge · Samples" by the title: an outline badge (a fact, not a status), like the order type */
+.ptitle .pnc{display:none}
+body.proposal .ptitle .pnc:not([hidden]){display:inline-flex;align-items:center;height:20px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:12px;font-weight:500;color:var(--ink-2);white-space:nowrap;margin-left:8px}
+/* the footer's button keeps its spot; only its icon and words change */
+#pbSend svg{flex:none}
+/* Convert to order: confirm, then the order number */
+.ocdlg{text-align:left}
+.ocdlg h2{margin:0 0 12px}
+.ocdlg .dlgwhat{margin:0 0 18px}
+.ocfacts{display:grid;grid-template-columns:auto 1fr;gap:8px 24px;margin:0 0 28px;padding:14px 16px;background:var(--surface);border-radius:var(--r-md,4px);font-size:14px}
+.ocfacts div{display:contents}
+.ocfacts dt{color:var(--ink-2)}
+.ocfacts dd{margin:0;font-weight:500;color:var(--ink)}
+.ocdlg .dlgbtns{justify-content:flex-end}
+.ocdlg .btn svg{margin-right:6px;vertical-align:-3px}
+.ocok{width:48px;height:48px;border-radius:50%;background:var(--ok-bg,#e6f4ee);color:var(--success,#047857);display:flex;align-items:center;justify-content:center;margin:0 0 16px}
+.ocok svg{width:26px;height:26px}
+.ocspin{animation:ocspin .9s linear infinite}
+@keyframes ocspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.ocspin{animation:none}}
+/* demo bar */
+.orddemo{display:contents}
+.pfacts .pexp[hidden]{display:none !important}

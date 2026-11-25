@@ -83,9 +83,9 @@ const pd=s=>new Date(+s.slice(6),+s.slice(0,2)-1,+s.slice(3,5));
 const fmt=s=>pd(s).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 const fmtS=s=>{ const d=pd(s); return d.toLocaleDateString("en-US",d.getFullYear()===TODAY.getFullYear()?{month:"short",day:"numeric"}:{month:"short",year:"numeric"}); }; /* "Oct 30" this year, "Dec 2025" before */
 const daysTo=s=>Math.round((pd(s)-TODAY)/864e5);
-const isStale=r=>!r.ord&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
+const isStale=r=>!r.ord&&!payOf(r)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
 /* the Sales Portal's "Closing in Next 2 Weeks": an open quote expected to convert in the next 14 days */
-const isSoon=r=>!r.ord&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&daysTo(rowConv(r))<=14;
+const isSoon=r=>!r.ord&&!payOf(r)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&daysTo(rowConv(r))<=14;
 /* Quotes and Orders tabs (Sam, Nov 25): one page, one search across both, each tab with its own columns and quick filters.
    Quotes: quotes not converted yet (Lost and Duplicate included). Orders: converted quotes and orders with no QOM quote.
    Mock order data: order date, and how much is paid and still to ship (production's Orders list adds Amount Paid and
@@ -178,10 +178,10 @@ let shown=[]; /* the current page's rows, for Quick view's previous and next */
 function pipeCell(x){ if(x.oo) return `<span class="qlxsrc">Order</span><span class="p2">${esc(x.src)}</span>`; const d=PIPE[RANK[x.pipe]];
   /* in the table the likelihood is a tooltip (it made the table too wide at 1440px); the filter shows it in full */
   return `<span class="qlxpipe ${d[2]}"${d[1]?` title="${x.pipe} (${d[1]})"`:""}><i aria-hidden="true"></i>${x.pipe}${d[1]?`<span class="sr"> (${d[1]})</span>`:""}</span>`
-    +(payOf(x)?payNote(payOf(x)):"")+(!payOf(x)&&isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
+    +(payOf(x)?payNote(payOf(x)):"")+(isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
 const payNote=p=>p.st==="held"
-  ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid · order on hold</span>`
-  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid · order pending</span>`;
+  ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid, order held</span>`
+  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid, no order</span>`;
 function render(){ if(!X.on) return; syncBuilt();
   const all=rowsX(), pages=Math.max(1,Math.ceil(all.length/X.size)); X.page=Math.min(X.page,pages);
   const rows=all.slice((X.page-1)*X.size,X.page*X.size), ws=words(); shown=rows;
