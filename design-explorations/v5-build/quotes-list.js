@@ -12,7 +12,7 @@
    link both ways); and an order with no QOM quote behind it (keyed in M3, or e-commerce), which needs its own row and opens the order. */
 (function(){
 const q=s=>document.querySelector(s);
-const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
+const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,paid:false,due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
   tab:"quotes",sortBy:{quotes:["id",-1],orders:["odate",-1]},found:""};
 try{ X.on=localStorage.getItem("qom-v5-qlx")!=="off"; if(localStorage.getItem("qom-v5-qlxtab")==="orders"){ X.tab="orders"; [X.sort,X.dir]=X.sortBy.orders; } }catch(e){}
 
@@ -43,6 +43,19 @@ const STALE_OK=p=>!["Lost","Duplicate"].includes(p); /* a passed date on a lost 
     const nr=1+rnd(3), names=[...ROOMS].sort(()=>rnd(3)-1).slice(0,nr), big=r.type==="Commercial"?4:1;
     r.rooms=names.map(n=>({name:n,lines:Array.from({length:1+rnd(4)},()=>{ const p=POOL[rnd(POOL.length)]; return {sku:p.sku,name:pname(p),qty:(1+rnd(3))*big,unit:p.price}; })})); }); })();
 
+/* paid, order pending (backend research, Nov 25): the customer pays the deposit on the checkout page, then QOM asks M3 to create the
+   order. Until M3 answers, the quote has no order number, so it still sits on the Quotes tab. "pending": M3 hasn't answered yet (QOM
+   retries every 5 minutes for up to 24 hours); "held": M3 rejected it and the payment waits for someone to release it by hand.
+   Mock: four open quotes (two of them Mine); the open quote 6000024967 reads the demo bar's Order state (orders.js, window.qomOrd) */
+(function seedPaid(){ const open=QL.rows.filter(r=>!r.built&&!r.ord&&["Predictable","Feasible"].includes(r.pipe));
+  const mine=open.filter(r=>r.sc===QL.ME), rest=open.filter(r=>r.sc!==QL.ME);
+  [[mine[1],"pending","11/25/2026","9:42 AM"],[mine[3],"held","11/23/2026","4:18 PM"],[rest[2],"pending","11/25/2026","11:05 AM"],[rest[6],"pending","11/24/2026","6:51 PM"]]
+    .forEach(([r,st,d,t])=>{ if(r) r.pay={st,date:d,time:t}; }); })();
+const payOf=r=>{ if(!r.built) return r.pay||null; const o=window.qomOrd; return o&&!o.ord&&(o.pay==="pending"||o.pay==="held")?{st:o.pay,date:o.paidDate,time:o.paidTime}:null; };
+const isPaid=r=>!!payOf(r);
+/* the open quote converts in the prototype (Convert to order, or M3 answering a paid quote): it moves to the Orders tab */
+function syncBuilt(){ const b=QL.rows.find(r=>r.built), o=window.qomOrd; if(!b||!o) return; const was=b.ord;
+  b.ord=o.ord||""; if(b.ord&&!was){ b.odate=o.ordDate||"11/25/2026"; b.nc=!!o.nc; b.paidR=o.nc?0:.5; b.shipR=1; } }
 /* orders with no QOM quote: m3-services takes in every M3 sales order, whether or not a QOM quote exists. Mock only */
 const ORD_ONLY=(()=>{ let seed=77; const rnd=n=>{ seed=(seed*9301+49297)%233280; return Math.floor(seed/233280*n); };
   const md=(y,m,d)=>String(m).padStart(2,"0")+"/"+String(d).padStart(2,"0")+"/"+y, out=[];
@@ -82,7 +95,7 @@ const isSoon=r=>!r.ord&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&d
   ALL().filter(x=>x.ord).forEach(x=>{ x.paidR=[1,1,1,.5,.5,.3,0][r2(7)]; x.shipR=x.paidR===1?[0,0,0,.25][r2(4)]:[1,1,.6,.3][r2(4)];
     if(x.oo){ x.odate=x.date; return; } const d=pd(x.date); d.setDate(d.getDate()+5+r2(30)); if(d>=TODAY) d.setTime(TODAY-864e5*(1+r2(4))); x.odate=md(d); }); })();
 const rowPaid=x=>Math.round(rowTotal(x)*(x.paidR??0)), rowShip=x=>Math.round(rowTotal(x)*(x.shipR??0));
-const isDue=x=>rowPaid(x)<Math.round(rowTotal(x)), isShip=x=>rowShip(x)>0;
+const isDue=x=>!x.nc&&rowPaid(x)<Math.round(rowTotal(x)), isShip=x=>rowShip(x)>0;
 const TABS={quotes:{name:"Quotes",one:"quote",
     icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h9a1.5 1.5 0 0 0 1.5-1.5V7z"/><path d="M14 3v4h4"/><path d="M13.7 11.1c-.3-.5-.9-.8-1.7-.8-.9 0-1.7.5-1.7 1.2 0 1.7 3.4.9 3.4 2.7 0 .7-.7 1.2-1.7 1.2-.8 0-1.5-.3-1.8-.9M12 9.4v.9M12 15.4v1"/></svg>'},
   orders:{name:"Orders",one:"order",
@@ -151,7 +164,7 @@ function matchesBase(x){ return (X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TE
 /* the search and the shared filters (whose, type, total) cover both tabs; each tab adds its own quick filters */
 function rowsFor(t){ const ws=words();
   return ALL().filter(x=>tabOk(x,t)&&matchesBase(x)&&(!X.val||rowTotal(x)>X.val)
-    &&(t==="quotes"?(!X.pipes.size||X.pipes.has(x.pipe))&&(!X.stale||isStale(x))&&(!X.soon||isSoon(x)):(!X.due||isDue(x))&&(!X.ship||isShip(x)))
+    &&(t==="quotes"?(!X.pipes.size||X.pipes.has(x.pipe))&&(!X.stale||isStale(x))&&(!X.soon||isSoon(x))&&(!X.paid||isPaid(x)):(!X.due||isDue(x))&&(!X.ship||isShip(x)))
     &&ws.every(w=>[x.id,x.ord,x.proj,rowAddr(x),x.desc,x.cust,x.payer,x.m3,x.sc].some(v=>String(v||"").toLowerCase().includes(w)))); }
 function rowsX(){ const ws=words(); let r=rowsFor(X.tab);
   const ymd=s=>s?s.slice(6)+s.slice(0,2)+s.slice(3,5):"";
@@ -165,8 +178,11 @@ let shown=[]; /* the current page's rows, for Quick view's previous and next */
 function pipeCell(x){ if(x.oo) return `<span class="qlxsrc">Order</span><span class="p2">${esc(x.src)}</span>`; const d=PIPE[RANK[x.pipe]];
   /* in the table the likelihood is a tooltip (it made the table too wide at 1440px); the filter shows it in full */
   return `<span class="qlxpipe ${d[2]}"${d[1]?` title="${x.pipe} (${d[1]})"`:""}><i aria-hidden="true"></i>${x.pipe}${d[1]?`<span class="sr"> (${d[1]})</span>`:""}</span>`
-    +(isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
-function render(){ if(!X.on) return;
+    +(payOf(x)?payNote(payOf(x)):"")+(!payOf(x)&&isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
+const payNote=p=>p.st==="held"
+  ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid · order on hold</span>`
+  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid · order pending</span>`;
+function render(){ if(!X.on) return; syncBuilt();
   const all=rowsX(), pages=Math.max(1,Math.ceil(all.length/X.size)); X.page=Math.min(X.page,pages);
   const rows=all.slice((X.page-1)*X.size,X.page*X.size), ws=words(); shown=rows;
   root.querySelectorAll("[data-qlxwho]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qlxwho===X.who)));
@@ -187,10 +203,10 @@ function render(){ if(!X.on) return;
   q("#qlxTypePop").innerHTML=[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxtype" data-qlxtype="${v}"${X.type===v?" checked":""}><span>${l}</span><em>${v?baseT.filter(x=>x.type===v).length:baseT.length}</em></label>`).join("");
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
   /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
-  const QF=X.tab==="quotes"?[["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"]]
+  const QF=X.tab==="quotes"?[["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order yet",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
     :[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"],["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
   q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
-  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
+  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.paid||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
   /* count */
   const mq=X.q?` matching “${esc(X.q)}”`:"", nOO=all.filter(x=>x.oo).length, n=all.length.toLocaleString("en-US");
   q("#qlxCount").innerHTML=(X.tab==="quotes"?`<b>${n}</b> ${all.length===1?"quote":"quotes"} not converted yet${mq}`
@@ -211,7 +227,7 @@ function render(){ if(!X.on) return;
     <td class="c-id">${x.oo?`<span class="qlxsrc">No quote</span><span class="p2">${esc(x.src)}</span>`:`${idCell(x)}<span class="p2" title="Quoted ${fmt(x.date)}">Quoted ${fmtS(x.date)}</span>`}</td>
     ${projCell(x)}${custCell(x)}
     <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
-    <td class="c-tot c-paid">${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span></td>
+    <td class="c-tot c-paid">${x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:`${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span>`}</td>
     <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
     <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
@@ -254,7 +270,7 @@ function qvRender(){ const x=ALL().find(r=>K(r)===X.qv); if(!x) return; if(x.oo)
         ${fact("Pipeline status",`<span class="qlxpipe ${d[2]}"><i aria-hidden="true"></i>${x.pipe}${d[1]?` <small>${d[1]}</small>`:""}</span>`)}
         ${fact("Est. conversion",cv?fmt(cv)+(isStale(x)?`<small class="stale">${IC.clock}Date passed. Update it or the status.</small>`:isSoon(x)?`<small>${IC.cal}In ${daysTo(cv)} ${daysTo(cv)===1?"day":"days"}</small>`:""):"—")}
         ${fact("Expires",fmt(x.exp))}
-        ${fact("Order",x.ord?esc(x.ord)+(x.m3?`<small>Project ${esc(x.m3)}</small>`:""):"Not converted")}
+        ${fact("Order",x.ord?esc(x.ord)+(x.m3?`<small>Project ${esc(x.m3)}</small>`:""):payOf(x)?(p=>p.st==="held"?`Not created<small class="paidq held">${IC.cash}Deposit paid ${fmtS(p.date)}. M3 rejected the order; it's on hold until someone releases it.</small>`:`Being created<small class="paidq">${IC.cash}Deposit paid ${fmtS(p.date)}, ${p.time}. M3 is creating the order.</small>`)(payOf(x)):"Not converted")}
       </dl>
       <h3>${nl?`${nl} ${nl===1?"line":"lines"} in ${rooms.length} ${rooms.length===1?"room":"rooms"}`:"No products yet"}</h3>
       ${rooms.map(r=>`<div class="qvroom"><div class="qvrn">${esc(r.name)}</div>${r.lines.map(l=>`<div class="qvline"><span class="qvq">${l.qty}</span><span class="qvn">${esc(l.name)}<small>${esc(l.sku)}</small></span><span class="qvp">${money(l.qty*l.unit)}</span></div>`).join("")||`<div class="qvline none">No lines</div>`}</div>`).join("")}
@@ -342,7 +358,7 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlx==="new"){ q("#qlNew").click(); return; }
   if(d.qlx==="clearpipe"){ X.pipes.clear(); render(); return; }
   if(d.qlx==="everyone"){ X.who="all"; X.page=1; render(); return; }
-  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
+  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.paid=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
   if(b) return;
   /* anywhere else on a row opens its Quick view (Sam, Nov 25; it opened the quote until then); the eye stays as the signifier,
      and the quote or order number still opens it directly. Text selection doesn't. */

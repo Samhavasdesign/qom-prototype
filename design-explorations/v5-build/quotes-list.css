@@ -252,3 +252,9 @@ body.qlx-bronze .qlxt th{--bronze:var(--brand-on-fill,#7a6143)}
 body.qlx-bronze .qlxtab[aria-selected="true"] em{background:var(--bronze);color:#fff} /* white on bronze 4.6:1 */
 .qlxdone{display:inline-flex;align-items:center;gap:4px;color:var(--success);font-weight:500}
 .qlxdone svg{flex:none}
+/* paid, order pending (Nov 25, backend research): the deposit is paid but M3 hasn't created the order yet. Info blue while it's on its
+   way (it clears on its own); the warning red when M3 rejected it and it waits for someone to release it. Icon plus words, never color alone */
+.qlxt .p2.paid,.qlxqv .paidq{display:flex;align-items:center;gap:4px;color:var(--info,#1d4ed8);font-weight:500;white-space:nowrap}
+.qlxt .p2.paid.held,.qlxqv .paidq.held{color:var(--destructive,#c62828)}
+.qlxqv .paidq{white-space:normal;align-items:flex-start}
+.qlxqv .paidq svg{flex:none;margin-top:2px}

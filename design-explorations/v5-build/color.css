@@ -61,6 +61,9 @@ html.warm .hm-tile:is(:hover,:focus-visible){background:var(--brand-wash,#f9f5ef
 html.warm body .tnrecent button[data-rq="all"]:is(:hover,:focus-visible):not(#x){background:var(--brand-wash,#f9f5ef);color:var(--brand-hover,#5f4b34)} /* a step lighter than the selected row's #f4eee6 (Sam, Nov 25) */
 /* bronze links on a hovered row take the darker link bronze, 5.1:1 on the wash (the brand bronze would be 4.1:1) */
 html.warm .qlxt tbody tr[data-qlxrow]:not(.qvcur):hover{--bronze:var(--brand-on-fill,#7a6143)}
+/* the row whose Quick view is open stays navy, like the rows' hover (Sam, Nov 25): the navy wash and a 3px navy bar instead of bronze */
+html.warm body.qlx-bronze .qlxt tbody tr.qvcur td{background:var(--navy-wash);--bronze:var(--brand-on-fill,#7a6143)}
+html.warm body.qlx-bronze .qlxt tbody tr.qvcur td:first-child{box-shadow:inset 3px 0 0 var(--navy)}
 html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a6143)} /* Home's quote numbers on the wash: 5.1:1 */
 
 /* Quotes list (Sam, Nov 25): its button-like controls share Home's tile hover, the pale bronze wash with a darker edge:
