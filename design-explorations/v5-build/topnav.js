@@ -7,10 +7,10 @@ const q=s=>document.querySelector(s);
 let on=false; try{ on=localStorage.getItem("qom-v5-topnav")==="on"; }catch(e){}
 const rail=q(".rail"); if(!rail) return;
 const icon=name=>{ const a=[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
-const LINKS=["Welcome","Clients","Projects","Quotes","Orders"];
+const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
-bar.innerHTML=`<a href="#" class="tnmark" data-tn="home" aria-label="Waterworks QOM, Welcome">WATERWORKS</a>
-  <div class="tnlinks">${LINKS.map(n=>`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':` data-tn="${n}"`}>${icon(n)}${n}</a>`).join("")}</div>
+bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
+  <div class="tnlinks">${LINKS.map(n=>`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`).join("")}</div>
   <button type="button" class="tnsearch" data-tn="search" aria-label="Search clients, projects, quotes and orders"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform)?"⌘":"Ctrl "}K</kbd></button>
   <div class="tnright">
     <span class="tnenv" title="You're on the staging environment">STAGING</span>
@@ -32,7 +32,7 @@ bar.addEventListener("click",ev=>{ const b=ev.target.closest("[data-tn]"); if(!b
   if(k==="acct"){ const open=menu.hidden; menu.hidden=!open; acct.setAttribute("aria-expanded",String(open)); if(open) menu.querySelector("button")?.focus(); return; }
   closeMenu();
   if(k==="logout"){ q("#logoutBtn")?.click(); return; }
-  const what={home:"Welcome",bell:"Notifications",import:"Import tools",prod:"Production"}[k]||k;
+  const what={bell:"Notifications",import:"Import tools",prod:"Production"}[k]||k;
   showToast(`${what} isn't built in the prototype.`); });
 document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnav-acct")) closeMenu(); });
 menu.addEventListener("keydown",ev=>{ const items=[...menu.querySelectorAll("button")], i=items.indexOf(document.activeElement);

@@ -25,5 +25,8 @@ rep('<strong>Quotes list redesign</strong></label>',
     '<strong>Quotes list redesign</strong></label>\n  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'topnav.css').read()+'</style>\n'+open(D+'topnav.js').read()+s[i:]
+# Home (Nov 25): production's Welcome screen, renamed Home; after the top bar so it can relabel both navs
+i=s.rindex('</body>')
+s=s[:i]+'<style>'+open(D+'home.css').read()+'</style>\n'+open(D+'home.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)
 print('ok',len(s))

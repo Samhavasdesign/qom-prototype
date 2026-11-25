@@ -1,0 +1,31 @@
+/* ==== v5 (Nov 25): Home, from production's Welcome screen. On while body has .page-home ====
+   Hides the quote page, footer bar and Before you send, like the Quotes list does. Colors from tokens.css. */
+#homePage{display:none}
+body.page-home .main>:not(#homePage){display:none !important}
+body.page-home :is(#pbar,#sendPanel){display:none !important}
+body.page-home #homePage{display:grid}
+#homePage{grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:32px;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
+.hm-main{display:flex;flex-direction:column;gap:28px;padding:28px 0 8px;min-width:0}
+.hm-mark{font-family:var(--serif);font-size:20px;letter-spacing:.3em;color:var(--foreground)}
+.hm-hello{display:flex;flex-direction:column;gap:18px}
+.hm-avatar{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;background:var(--surface-2);color:var(--foreground);font-size:22px;font-weight:500;letter-spacing:.02em}
+.hm-hello h1{margin:0;font-family:var(--serif);font-weight:400;font-size:56px;line-height:1.08;color:var(--foreground);outline:none;text-wrap:balance}
+.hm-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;max-width:680px;margin:8px 0 0;padding:0;list-style:none}
+.hm-tile{display:flex;align-items:center;gap:16px;width:100%;min-height:72px;padding:0 18px;border:1px solid var(--border);border-radius:var(--r-lg,4px);background:var(--bg);color:var(--foreground);font:inherit;font-size:15px;font-weight:500;text-align:left;cursor:pointer;box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
+.hm-tile:hover{border-color:var(--input);background:var(--surface)}
+.hm-tile:focus-visible{outline:none;box-shadow:0 0 0 3px rgb(18 18 18 / .5)}
+.hm-tile .hm-ic{display:inline-flex;flex:none;color:var(--brand)}
+.hm-tile .hm-l{flex:1;min-width:0}
+.hm-tile .hm-ext{flex:none;color:var(--muted-foreground)}
+.hm-tile small{display:block;font-size:12px;font-weight:400;color:var(--muted-foreground);margin-top:1px}
+.hm-note{font-size:12px;color:var(--muted-foreground);margin:0}
+.hm-photo{position:relative;min-height:420px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;margin-top:14px}
+.hm-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+@media (width < 1024px){ /* lg: one column, no photo */
+  #homePage{grid-template-columns:minmax(0,1fr)}
+  .hm-photo{display:none}
+}
+@media (width < 640px){ /* sm */
+  .hm-tiles{grid-template-columns:minmax(0,1fr)}
+  .hm-hello h1{font-size:40px}
+}
