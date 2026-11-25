@@ -4380,6 +4380,15 @@ body.page-create :is(.main > .pghead > #qCrumb,.ptitle,.pfacts,.main > p.sub,#ex
 .ncspin{width:14px;height:14px;border:2px solid rgb(255 255 255 / .35);border-top-color:#fff;border-radius:50%;animation:ncs .8s linear infinite}
 @keyframes ncs{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){ .ncspin{animation:none} }
+
+/* Page margins on every page (Sam, Nov 25): design.md "Breakpoints and grid": internal pages 16 / 24 / 32px, 48px from 2xl;
+   24px above the content (32px under the top bar). The footer bar's sides match. Not tied to the proposal switch. */
+html body .main{padding:24px 32px 40px}
+html.tnav:not(.topnav) body .main{padding-top:32px}
+html body .pbar{padding-left:32px;padding-right:32px}
+@media (width >= 1536px){ /* 2xl */ html body .main, html body .pbar{padding-left:48px;padding-right:48px} }
+@media (width < 1024px){ /* lg */ html body .main, html body .pbar{padding-left:24px;padding-right:24px} }
+@media (width < 768px){ /* md */ html body .main{padding:16px 16px 32px} html body .pbar{padding-left:16px;padding-right:16px} }
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
@@ -4617,13 +4626,8 @@ body:not(.qlx-on) .qlx,body:not(.qlx-on) .qlxqv{display:none}
 body.qlx-on #quotesPage>:not(#qlTitle,.qlx){display:none !important}
 body.qlx-on #quotesPage{position:relative}
 body.qlx-on .ql h1{font-size:36px;margin:14px 0 20px}
-/* Page margins (Nov 25, Sam): design.md "Breakpoints and grid" (internal pages 16 / 24 / 32px), plus 48px from 2xl (added to the audit Nov 25). 32px above the title once the breadcrumb row is gone (top bar on) */
-body.qlx-on.page-quotes .main{padding:24px 32px 40px}
-html.tnav:not(.topnav) body.qlx-on.page-quotes .main{padding-top:32px}
+/* Page margins: set for every page in proposal.css (Nov 25); the title sits at the top of them */
 body.qlx-on.page-quotes .ql h1{margin-top:0}
-@media (width >= 1536px){ /* 2xl */ body.qlx-on.page-quotes .main{padding-left:48px;padding-right:48px} }
-@media (width < 1024px){ /* lg */ body.qlx-on.page-quotes .main{padding-left:24px;padding-right:24px} }
-@media (width < 768px){ /* md */ body.qlx-on.page-quotes .main{padding:16px 16px 32px} }
 .qlx{--qlx-row:52px}
 .qlx mark{background:#ffe7a3;color:inherit;border-radius:2px;padding:0 1px}
 /* Create new: top right, level with the title */
