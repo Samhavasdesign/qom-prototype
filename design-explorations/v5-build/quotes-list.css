@@ -188,3 +188,5 @@ body.qlx-bronze .qlxquick button[aria-pressed="true"] em{color:var(--bronze)}
 body.qlx-bronze .qlxseg button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxpill.on .qlxpb{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxqvp{border-top:3px solid var(--bronze)}
+/* one nav item for quotes and orders: the Orders link hides (the nav links set display, so [hidden] needs help) */
+:is(.rail a.rlink,#tnBar .tnlinks a)[hidden]{display:none !important}

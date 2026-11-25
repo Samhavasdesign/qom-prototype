@@ -283,8 +283,20 @@ root.addEventListener("keydown",ev=>{ if(ev.key==="Escape"){ const open=root.que
 
 /* ---------- wrap v2 and the switch ---------- */
 const oRender=renderQL; renderQL=function(){ oRender.apply(this,arguments); render(); };
-const oSetPage=setPage; setPage=function(){ if(!qv.hidden) qvClose(); return oSetPage.apply(this,arguments); };
-function apply(){ document.body.classList.toggle("qlx-on",X.on); if(!X.on&&!qv.hidden) qvClose(); if(X.on) render(); }
+const oSetPage=setPage; setPage=function(){ if(!qv.hidden) qvClose(); const r=oSetPage.apply(this,arguments); if(document.body.classList.contains("page-quotes")) document.title=(X.on?NAME:"Quotes")+" · QOM"; return r; };
+/* one place for quotes and orders (Sam, Nov 25): with the redesign on, the nav has one item, "Quotes & orders", and no Orders;
+   the page title and breadcrumb follow. Off shows today's separate Quotes and Orders. The top bar is built after this layer,
+   so the labels are set again once the page has loaded */
+const NAME="Quotes & orders";
+function setText(el,t){ if(!el) return; const rl=el.querySelector(".rl"); if(rl){ rl.textContent=t; return; }
+  const n=[...el.childNodes].reverse().find(c=>c.nodeType===3&&c.textContent.trim()); if(n) n.textContent=t; else el.append(t); }
+function navLabels(){ const t=X.on?NAME:"Quotes";
+  document.querySelectorAll('.rail a.rlink[data-nav="quotes"], #tnBar .tnlinks a[data-nav="quotes"]').forEach(a=>setText(a,t));
+  [...document.querySelectorAll(".rail a.rlink, #tnBar .tnlinks a")].filter(a=>a.textContent.trim()==="Orders").forEach(a=>{ a.hidden=X.on; });
+  const h=q("#qlTitle"); if(h) h.textContent=t; setText(q("#qlCrumb")," "+t);
+  if(document.body.classList.contains("page-quotes")) document.title=t+" · QOM"; }
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",navLabels); else setTimeout(navLabels,0);
+function apply(){ document.body.classList.toggle("qlx-on",X.on); if(!X.on&&!qv.hidden) qvClose(); if(X.on) render(); navLabels(); }
 /* the Waterworks brand bronze as the accent (Jen's deck, Nov 25): on by default, remembered in the browser */
 let bronze=true; try{ bronze=localStorage.getItem("qom-v5-bronze")!=="off"; }catch(e){}
 document.body.classList.toggle("qlx-bronze",bronze);

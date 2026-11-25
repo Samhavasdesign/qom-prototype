@@ -52,6 +52,8 @@ const gsLeave=ev=>{ if(!document.body.classList.contains("page-home")) return; c
   if(it&&it.textContent.includes("6000024967")) leaveHome(); };
 document.addEventListener("click",ev=>{ if(ev.target.closest(".gsdlg")) gsLeave(ev); },true);
 document.addEventListener("keydown",ev=>{ if(ev.target.closest&&ev.target.closest(".gsdlg")) gsLeave(ev); },true);
+/* New quote (top bar, demo bar or Quotes list) opens the create form, so Home steps aside */
+document.addEventListener("click",ev=>{ if(ev.target.closest('#propNew,#qlNew,[data-tn="new"]')) leaveHome(); },true);
 const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(this,arguments); };
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();

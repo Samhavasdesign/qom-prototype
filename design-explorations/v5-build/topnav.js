@@ -1,7 +1,8 @@
 <script>
 /* ==== v5 (Nov 25): top navigation bar, a trial (see topnav.css). The demo bar's "Top navigation bar" switch turns it on;
    off by default, remembered in the browser. It reuses the side nav's own icons and actions: Quotes opens the Quotes list,
-   Search opens global search (the side nav's Search button), Log out opens the same sign-out dialog. */
+   Search opens global search (the side nav's Search button), New quote opens the one-step New quote form, Log out opens the same
+   sign-out dialog. Search and New quote sit in the right-hand group (Sam, Nov 25), so the links have room. */
 (function(){
 const q=s=>document.querySelector(s);
 let on=false; try{ on=localStorage.getItem("qom-v5-topnav")==="on"; }catch(e){}
@@ -11,8 +12,10 @@ const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
 bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
   <div class="tnlinks">${LINKS.map(n=>`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`).join("")}</div>
-  <button type="button" class="tnsearch" data-tn="search" aria-label="Search clients, projects, quotes and orders"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform)?"⌘":"Ctrl "}K</kbd></button>
   <div class="tnright">
+    <button type="button" class="tnsearch" data-tn="search" aria-label="Search clients, projects, quotes and orders"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform)?"⌘":"Ctrl "}K</kbd></button>
+    <button type="button" class="tncta" data-tn="new" title="Start a new quote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New quote</span></button>
+    <span class="tndiv" aria-hidden="true"></span>
     <span class="tnenv" title="You're on the staging environment">STAGING</span>
     <button type="button" class="tnicon" data-tn="bell" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button>
     <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Alex Rivera" title="Alex Rivera"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
@@ -29,6 +32,7 @@ const menu=q("#tnMenu"), acct=bar.querySelector('[data-tn="acct"]');
 function closeMenu(focus){ if(menu.hidden) return; menu.hidden=true; acct.setAttribute("aria-expanded","false"); if(focus) acct.focus(); }
 bar.addEventListener("click",ev=>{ const b=ev.target.closest("[data-tn]"); if(!b) return; ev.preventDefault(); const k=b.dataset.tn;
   if(k==="search"){ q("#gsBtn")?.click(); return; }
+  if(k==="new"){ q("#propNew")?.click(); return; } /* the one-step New quote form (proposal.js), as Quotes list → Create new */
   if(k==="acct"){ const open=menu.hidden; menu.hidden=!open; acct.setAttribute("aria-expanded",String(open)); if(open) menu.querySelector("button")?.focus(); return; }
   closeMenu();
   if(k==="logout"){ q("#logoutBtn")?.click(); return; }

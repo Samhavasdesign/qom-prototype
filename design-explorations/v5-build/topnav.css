@@ -14,12 +14,17 @@ html.tnav:not(.topnav) .pghead{display:none}
 .tnlinks a:hover{color:var(--rail-ink)}
 .tnlinks a[aria-current="page"]{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
 .tnlinks a:focus-visible,.tnbar button:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
-.tnsearch{display:flex;align-items:center;gap:8px;height:32px;width:min(300px,26vw);margin-left:16px;padding:0 8px 0 10px;border:1px solid rgb(255 255 255 / .22);border-radius:var(--r-md,4px);background:rgb(255 255 255 / .06);color:#c9c9c9;font:inherit;font-size:13px;cursor:pointer}
+.tnsearch{display:flex;align-items:center;gap:8px;height:32px;width:min(240px,18vw);padding:0 8px 0 10px;border:1px solid rgb(255 255 255 / .22);border-radius:var(--r-md,4px);background:rgb(255 255 255 / .06);color:#c9c9c9;font:inherit;font-size:13px;cursor:pointer}
 .tnsearch:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
 .tnsearch span{flex:1;text-align:left}
 .tnsearch kbd{font:inherit;font-size:11px;padding:1px 5px;border:1px solid rgb(255 255 255 / .22);border-radius:3px;color:#c9c9c9}
 body:not(.proposal) .tnsearch{display:none}
-.tnright{display:flex;align-items:center;gap:6px;margin-left:auto}
+.tnright{display:flex;align-items:center;gap:8px;margin-left:auto}
+/* New quote: the bar's one call to action, white on the black bar (the primary button turned over) */
+.tncta{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:0;border-radius:var(--r-md,4px);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer}
+.tncta:hover{background:#e5e5e5}
+body:not(.proposal) .tncta{display:none} /* the one-step form is part of the proposal layer */
+.tndiv{width:1px;height:20px;background:rgb(255 255 255 / .22);margin:0 4px}
 .tnenv{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:#e5852f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
 .tnicon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:#d6d6d6;cursor:pointer}
 .tnicon:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
@@ -38,7 +43,7 @@ body:not(.proposal) .tnsearch{display:none}
 }
 @media (width < 1024px){ /* lg */
   .tnmark{display:none}
-  .tnsearch{width:36px;padding:0;justify-content:center;margin-left:8px}
+  .tnsearch{width:32px;padding:0;justify-content:center}
   .tnsearch span,.tnsearch kbd{display:none}
 }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
