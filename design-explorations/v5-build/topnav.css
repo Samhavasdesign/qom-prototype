@@ -8,12 +8,14 @@ html.tnav:not(.topnav) .rail{display:none}
 html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
 html.tnav:not(.topnav) .pghead{display:none}
 /* 56px (Sam, Nov 25): 12px around the 32px search and New quote button instead of 8px, and room for a 13px wordmark (was 11px) */
-.tnbar{align-items:center;gap:6px;height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
-/* compact wordmark (Sam, Nov 25: removed, then back smaller): 11px, opens Home; hidden below xl, where width is tightest */
-.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:var(--rail-ink);margin-right:20px;white-space:nowrap;text-decoration:none}
+.tnbar{align-items:center;gap:0;height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+/* compact wordmark (Sam, Nov 25: removed, then back smaller): 13px, opens Home; hidden below xl, where width is tightest. 32px to Home's label (less the letter-spacing trailing the last letter) */
+.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:var(--rail-ink);margin-right:calc(32px - .2em);white-space:nowrap;text-decoration:none}
 .tnmark:focus-visible{outline:2px solid var(--rail-ink);outline-offset:4px}
-.tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
-.tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
+/* Links (Sam, Nov 25): labels only, 32px apart from xl (16px each side of each label), 24px below; the padding is the hover and
+   underline area, so the current page's underline runs 16px past its label */
+.tnlinks{display:flex;align-items:stretch;height:100%;gap:0;min-width:0;--tn-pad:16px}
+.tnlinks a{display:flex;align-items:center;gap:8px;padding:0 var(--tn-pad);color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
 .tnlinks a:hover{color:var(--rail-ink)}
 .tnlinks a[aria-current="page"]{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
 .tnlinks a:focus-visible,.tnbar button:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
@@ -22,12 +24,12 @@ html.tnav:not(.topnav) .pghead{display:none}
 .tnsearch span{flex:1;text-align:left}
 .tnsearch kbd{font:inherit;font-size:11px;padding:1px 5px;border:1px solid rgb(255 255 255 / .22);border-radius:3px;color:#c9c9c9}
 body:not(.proposal) .tnsearch{display:none}
-.tnright{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tnright{display:flex;align-items:center;gap:16px;margin-left:auto;padding-left:16px} /* 16px between utility controls (Sam, Nov 25) */
 /* New quote: the bar's one call to action, white on the black bar (the primary button turned over) */
 .tncta{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:0;border-radius:var(--r-md,4px);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer}
 .tncta:hover{background:#e5e5e5}
 body:not(.proposal) .tncta{display:none} /* the one-step form is part of the proposal layer */
-.tndiv{width:1px;height:20px;background:rgb(255 255 255 / .22);margin:0 4px}
+.tndiv{width:1px;height:20px;background:rgb(255 255 255 / .22)}
 .tnenv{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:#e5852f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
 .tnicon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:#d6d6d6;cursor:pointer}
 .tnicon:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
@@ -42,7 +44,7 @@ body:not(.proposal) .tncta{display:none} /* the one-step form is part of the pro
 /* Quotes & orders with its Recent chevron: one item with two targets; the current page's underline runs under both */
 .tnsplit{position:relative;display:flex;align-items:stretch}
 .tnlinks .tnsplit>a{padding-right:4px}
-.tnchev{display:flex;align-items:center;padding:0 8px 0 2px;border:0;border-top:2px solid transparent;border-bottom:2px solid transparent;background:none;color:#b8b8b8;cursor:pointer}
+.tnchev{display:flex;align-items:center;padding:0 var(--tn-pad) 0 2px;border:0;border-top:2px solid transparent;border-bottom:2px solid transparent;background:none;color:#b8b8b8;cursor:pointer}
 .tnchev:hover,.tnchev[aria-expanded="true"]{color:var(--rail-ink)}
 .tnchev[aria-expanded="true"] svg{transform:rotate(180deg)}
 .tnsplit:has(>a[aria-current]) .tnchev{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
@@ -63,19 +65,19 @@ html.tnav:not(.topnav) body:not(.page-quotes):not(.page-home):not(.page-create) 
 .qback:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 /* tight widths (lg to xl): icons go from the links, the search narrows to an icon */
 @media (width < 1280px){ /* xl */
-  .tnlinks a svg{display:none}
-  .tnlinks a{padding:0 10px}
+  .tnlinks{--tn-pad:12px}
 }
 @media (width < 1024px){ /* lg */
   .tnsearch{width:32px;padding:0;justify-content:center}
   .tnsearch span,.tnsearch kbd{display:none}
 }
 /* Same side margins as the page content (Sam, Nov 25; proposal.css "Page margins"): 32px, 48px from 2xl, 24px below lg.
-   The first link's own 12px padding (10px below xl) is pulled back so Home lines up with the content's left edge. */
+   The first link's own padding (16px, 12px below xl) is pulled back so Home lines up with the content's left edge,
+   and from xl Home's label starts 32px after the wordmark. */
 html body .tnbar{padding-left:32px;padding-right:32px}
-html body .tnlinks{margin-left:-12px}
+html body .tnlinks{margin-left:calc(-1 * var(--tn-pad))}
 @media (width >= 1536px){ /* 2xl */ html body .tnbar{padding-left:48px;padding-right:48px} }
-@media (width < 1280px){ /* xl */ html body .tnlinks{margin-left:-10px} html body .tnmark{display:none} }
+@media (width < 1280px){ /* xl */ html body .tnmark{display:none} }
 @media (width < 1024px){ /* lg */ html body .tnbar{padding-left:24px;padding-right:24px} }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
 html.tnav:not(.topnav) .protoshow{top:56px}

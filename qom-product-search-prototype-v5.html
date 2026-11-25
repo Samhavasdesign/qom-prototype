@@ -5465,12 +5465,14 @@ html.tnav:not(.topnav) .rail{display:none}
 html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
 html.tnav:not(.topnav) .pghead{display:none}
 /* 56px (Sam, Nov 25): 12px around the 32px search and New quote button instead of 8px, and room for a 13px wordmark (was 11px) */
-.tnbar{align-items:center;gap:6px;height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
-/* compact wordmark (Sam, Nov 25: removed, then back smaller): 11px, opens Home; hidden below xl, where width is tightest */
-.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:var(--rail-ink);margin-right:20px;white-space:nowrap;text-decoration:none}
+.tnbar{align-items:center;gap:0;height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+/* compact wordmark (Sam, Nov 25: removed, then back smaller): 13px, opens Home; hidden below xl, where width is tightest. 32px to Home's label (less the letter-spacing trailing the last letter) */
+.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:var(--rail-ink);margin-right:calc(32px - .2em);white-space:nowrap;text-decoration:none}
 .tnmark:focus-visible{outline:2px solid var(--rail-ink);outline-offset:4px}
-.tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
-.tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
+/* Links (Sam, Nov 25): labels only, 32px apart from xl (16px each side of each label), 24px below; the padding is the hover and
+   underline area, so the current page's underline runs 16px past its label */
+.tnlinks{display:flex;align-items:stretch;height:100%;gap:0;min-width:0;--tn-pad:16px}
+.tnlinks a{display:flex;align-items:center;gap:8px;padding:0 var(--tn-pad);color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
 .tnlinks a:hover{color:var(--rail-ink)}
 .tnlinks a[aria-current="page"]{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
 .tnlinks a:focus-visible,.tnbar button:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
@@ -5479,12 +5481,12 @@ html.tnav:not(.topnav) .pghead{display:none}
 .tnsearch span{flex:1;text-align:left}
 .tnsearch kbd{font:inherit;font-size:11px;padding:1px 5px;border:1px solid rgb(255 255 255 / .22);border-radius:3px;color:#c9c9c9}
 body:not(.proposal) .tnsearch{display:none}
-.tnright{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tnright{display:flex;align-items:center;gap:16px;margin-left:auto;padding-left:16px} /* 16px between utility controls (Sam, Nov 25) */
 /* New quote: the bar's one call to action, white on the black bar (the primary button turned over) */
 .tncta{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:0;border-radius:var(--r-md,4px);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer}
 .tncta:hover{background:#e5e5e5}
 body:not(.proposal) .tncta{display:none} /* the one-step form is part of the proposal layer */
-.tndiv{width:1px;height:20px;background:rgb(255 255 255 / .22);margin:0 4px}
+.tndiv{width:1px;height:20px;background:rgb(255 255 255 / .22)}
 .tnenv{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:#e5852f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
 .tnicon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:#d6d6d6;cursor:pointer}
 .tnicon:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
@@ -5499,7 +5501,7 @@ body:not(.proposal) .tncta{display:none} /* the one-step form is part of the pro
 /* Quotes & orders with its Recent chevron: one item with two targets; the current page's underline runs under both */
 .tnsplit{position:relative;display:flex;align-items:stretch}
 .tnlinks .tnsplit>a{padding-right:4px}
-.tnchev{display:flex;align-items:center;padding:0 8px 0 2px;border:0;border-top:2px solid transparent;border-bottom:2px solid transparent;background:none;color:#b8b8b8;cursor:pointer}
+.tnchev{display:flex;align-items:center;padding:0 var(--tn-pad) 0 2px;border:0;border-top:2px solid transparent;border-bottom:2px solid transparent;background:none;color:#b8b8b8;cursor:pointer}
 .tnchev:hover,.tnchev[aria-expanded="true"]{color:var(--rail-ink)}
 .tnchev[aria-expanded="true"] svg{transform:rotate(180deg)}
 .tnsplit:has(>a[aria-current]) .tnchev{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
@@ -5520,19 +5522,19 @@ html.tnav:not(.topnav) body:not(.page-quotes):not(.page-home):not(.page-create) 
 .qback:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 /* tight widths (lg to xl): icons go from the links, the search narrows to an icon */
 @media (width < 1280px){ /* xl */
-  .tnlinks a svg{display:none}
-  .tnlinks a{padding:0 10px}
+  .tnlinks{--tn-pad:12px}
 }
 @media (width < 1024px){ /* lg */
   .tnsearch{width:32px;padding:0;justify-content:center}
   .tnsearch span,.tnsearch kbd{display:none}
 }
 /* Same side margins as the page content (Sam, Nov 25; proposal.css "Page margins"): 32px, 48px from 2xl, 24px below lg.
-   The first link's own 12px padding (10px below xl) is pulled back so Home lines up with the content's left edge. */
+   The first link's own padding (16px, 12px below xl) is pulled back so Home lines up with the content's left edge,
+   and from xl Home's label starts 32px after the wordmark. */
 html body .tnbar{padding-left:32px;padding-right:32px}
-html body .tnlinks{margin-left:-12px}
+html body .tnlinks{margin-left:calc(-1 * var(--tn-pad))}
 @media (width >= 1536px){ /* 2xl */ html body .tnbar{padding-left:48px;padding-right:48px} }
-@media (width < 1280px){ /* xl */ html body .tnlinks{margin-left:-10px} html body .tnmark{display:none} }
+@media (width < 1280px){ /* xl */ html body .tnmark{display:none} }
 @media (width < 1024px){ /* lg */ html body .tnbar{padding-left:24px;padding-right:24px} }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
 html.tnav:not(.topnav) .protoshow{top:56px}
@@ -5551,7 +5553,7 @@ const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-na
 const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
 bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
-  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
+  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${n}</a>`; /* no icons on the links (Sam, Nov 25): type-led, as the brand; the chevron and the right-hand controls keep theirs */
     /* Quotes & orders has a chevron for the quotes you opened last (Sam, Nov 25): the label opens the list, the chevron opens Recent */
     return n!=="Quotes"?a:`<span class="tnsplit">${a}<button type="button" class="tnchev" id="tnRecentB" aria-haspopup="menu" aria-expanded="false" aria-controls="tnRecent" aria-label="Recent quotes" title="Recent quotes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="tnmenu tnrecent" id="tnRecent" role="menu" aria-label="Recent quotes" hidden></div></span>`; }).join("")}</div>
@@ -5560,7 +5562,7 @@ bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks
     <button type="button" class="tncta" data-tn="new" title="Start a new quote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New quote</span></button>
     <span class="tndiv" aria-hidden="true"></span>
     <span class="tnenv" title="You're on the staging environment">STAGING</span>
-    <button type="button" class="tnicon" data-tn="bell" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button>
+    <div class="tnav-bell"><button type="button" class="tnicon" id="tnBell" aria-haspopup="dialog" aria-expanded="false" aria-controls="tnNotif" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button><span class="tnbadge" id="tnBadge" hidden></span></div>
     <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Samantha Havas" title="Samantha Havas"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
       <div class="tnmenu" id="tnMenu" role="menu" aria-label="Account" hidden>
         <div class="who"><b>Samantha Havas</b>Sales consultant · USC</div>
@@ -5579,7 +5581,7 @@ bar.addEventListener("click",ev=>{ const b=ev.target.closest("[data-tn]"); if(!b
   if(k==="acct"){ const open=menu.hidden; menu.hidden=!open; acct.setAttribute("aria-expanded",String(open)); if(open) menu.querySelector("button")?.focus(); return; }
   closeMenu();
   if(k==="logout"){ q("#logoutBtn")?.click(); return; }
-  const what={bell:"Notifications",import:"Import tools",prod:"Production"}[k]||k;
+  const what={import:"Import tools",prod:"Production"}[k]||k;
   showToast(`${what} isn't built in the prototype.`); });
 document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnav-acct")) closeMenu(); });
 menu.addEventListener("keydown",ev=>{ const items=[...menu.querySelectorAll("button")], i=items.indexOf(document.activeElement);
@@ -5614,6 +5616,166 @@ back.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stro
 function apply(){ document.documentElement.classList.toggle("tnav",on); closeMenu(); closeRecent(); dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 const sw=q("#tnOn"); if(sw){ sw.checked=on; sw.addEventListener("change",()=>{ on=sw.checked; try{ localStorage.setItem("qom-v5-topnav",on?"on":"off"); }catch(e){} apply(); }); }
 apply();
+})();
+</script>
+<style>/* ==== v5 (Nov 25): notifications, the top bar's bell (notif.js). Production's behaviour in v5's styles ==== */
+.tnav-bell{position:relative}
+/* unread count: filled bronze like the Quotes list's current tab count (white 4.6:1), ringed in the bar's black so it parts from the bell */
+.tnbadge{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--brand,#8c704e);color:#fff;font-size:11px;font-weight:500;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--rail);pointer-events:none;font-variant-numeric:tabular-nums}
+.tnbadge[hidden]{display:none}
+body:not(.qlx-bronze) .tnbadge{background:#fff;color:var(--ink)}
+.tnicon.shake{animation:tnshake .9s ease-in-out}
+@keyframes tnshake{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}75%{transform:rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){ .tnicon.shake{animation:none} }
+/* the panel: the top bar's menu surface, 400px, scrolls inside */
+.tnmenu.tnnotif{width:400px;max-width:calc(100vw - 32px);padding:0;display:flex;flex-direction:column;max-height:min(520px,calc(100vh - 80px))}
+.tnmenu.tnnotif[hidden]{display:none}
+.tnnotif .nhead{display:flex;align-items:baseline;justify-content:space-between;padding:12px 16px 10px;border-bottom:1px solid var(--line)}
+.tnnotif .nhead h2{margin:0;font-size:14px;font-weight:500;font-family:inherit;color:var(--ink)}
+.tnnotif .nhead span{font-size:12px;color:var(--ink-2)}
+.tnnotif .nlist{list-style:none;margin:0;padding:4px;overflow:auto}
+.tnnotif .nrow{position:relative;display:flex;align-items:stretch;border-radius:var(--r-sm,3px)}
+.tnnotif .nrow+.nrow{border-top:1px solid var(--line)}
+html body .tnnotif .nmain{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;min-height:0;padding:10px 44px 10px 12px;border:0;border-radius:var(--r-sm,3px);background:none;color:var(--ink);font:inherit;text-align:left;cursor:default}
+html body .tnnotif button.nmain{cursor:pointer}
+.tnnotif div.nmain:focus{outline:none}
+.tnnotif .nrow:hover,.tnnotif .nrow:focus-within{background:var(--surface)}
+html.warm .tnnotif .nrow:hover,html.warm .tnnotif .nrow:focus-within{background:var(--navy-wash)}
+html.warm .tnnotif .nrow :is(.nmain,.ndel):is(:hover,:focus-visible){background:none}
+html body .tnnotif .nmain:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.tnnotif .nic{flex:none;display:inline-flex;margin-top:2px}
+.tnnotif .nic.ok{color:var(--success,#047857)}
+.tnnotif .nic.bad{color:var(--destructive,#c62828)}
+.tnnotif .ntx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tnnotif .nwhen{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tnnotif .ndot{width:8px;height:8px;border-radius:50%;background:var(--info,#1d4ed8)}
+.tnnotif .fresh .nwhen{color:var(--ink);font-weight:500}
+.tnnotif .nmsg{font-size:14px;line-height:20px}
+.tnnotif .nq{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+body.qlx-bronze .tnnotif button.nmain .nq{color:var(--brand-on-fill,#7a6143)}
+.tnnotif button.nmain:hover .nq{text-decoration:underline;text-underline-offset:3px}
+/* delete: shows on hover or keyboard focus, as production's */
+html body .tnnotif .ndel{position:absolute;top:8px;right:6px;display:inline-flex;align-items:center;justify-content:center;width:32px;min-height:32px;height:32px;padding:0;border:0;border-radius:var(--r-sm,3px);background:none;color:var(--ink-2);cursor:pointer;opacity:0}
+.tnnotif .nrow:hover .ndel,html body .tnnotif .ndel:focus-visible,.tnnotif .nrow:focus-within .ndel{opacity:1}
+html body .tnnotif .ndel:hover{color:var(--destructive,#c62828);background:var(--bg)}
+html body .tnnotif .ndel:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+@media (hover:none){ html body .tnnotif .ndel{opacity:1} }
+/* empty: production disables the bell; here it opens and says so */
+.tnnotif .nempty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 24px 36px;text-align:center;color:var(--ink-2);font-size:13px}
+.tnnotif .nempty svg{color:var(--ink-3,#8a8a8a);margin-bottom:4px}
+.tnnotif .nempty b{font-size:14px;font-weight:500;color:var(--ink)}
+.tnnotif:focus{outline:none}
+/* Get Freight Failed, in the left-aligned dialog style */
+.tnffdlg{text-align:left;width:min(440px,100%)}
+.tnffdlg h2{margin:0 0 8px}
+.tnffdlg .ffwhy{display:block;margin-top:12px;padding:10px 12px;border-radius:var(--r-md,4px);background:var(--surface);color:var(--ink)}
+.tnffdlg .ffwhy b{display:block;font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:2px}
+.ntdemo{display:contents}
+</style>
+<script>
+/* ==== v5 (Nov 25): notifications, the top bar's bell. Behaves as production's (sp-fe nav-bar and notifications component,
+   and sp-ux-service's inbox), in v5's styles:
+   - One inbox per user: the last 30 days, at most 12, newest first. The copy is QOM's own per type (the payload has no title).
+   - The bell shows a count of unread ones. Opening it marks them all read, so the count goes at once; the unread dots stay
+     until the panel closes, so you can see which are new.
+   - A row opens what it's about: the quote (created, duplicated, freight calculated, prepayment), the import page (imports),
+     or, for a freight failure, a dialog with M3's reason. The other types aren't clickable.
+   - Hover or focus shows a delete button; deleting updates the count too (production's badge misses it).
+   - A new notification shakes the bell and adds to the count (production does this only for some types).
+   Changed from today, on purpose: an empty state instead of a disabled bell, an outcome icon (done or failed) in place of the
+   read tick, and dates written out ("Nov 25, 2026 · 2:08 PM"). Mock data only; demo-bar "Notifications" sets the list. */
+(function(){
+const q=s=>document.querySelector(s);
+const bell=q("#tnBell"), badge=q("#tnBadge"), wrap=q(".tnav-bell"); if(!bell||!wrap) return;
+const BUILT="6000024967";
+/* production's copy per type (notifications.component.ts); go: "quote" | "import" | "freightfail" | null */
+const T={
+  quote_created:   {m:"The quote has been successfully created.",        ok:true,  go:"quote"},
+  quote_dup:       {m:"The quote has been successfully duplicated.",     ok:true,  go:"quote"},
+  quote_updated:   {m:"The quote has been successfully updated.",        ok:true,  go:null},
+  quote_upd_fail:  {m:"An error occurred while updating the quote.",     ok:false, go:null},
+  freight_ok:      {m:"Freight cost has been successfully calculated for", ok:true, go:"quote"},
+  freight_fail:    {m:"An error occurred when calculating the freight cost.", ok:false, go:"freightfail"},
+  docs_ok:         {m:"Document has been successfully created for",      ok:true,  go:null},
+  import_done:     {m:"Client import has been completed.",               ok:true,  go:"import"},
+};
+const d=(day,h,mi)=>new Date(2026,10,day,h,mi);
+const SEED=()=>[
+  {id:7,t:"freight_ok",   q:BUILT,        at:d(25,14,8),  read:false},
+  {id:6,t:"docs_ok",      q:"6000024922", at:d(25,11,42), read:false},
+  {id:5,t:"freight_fail", q:"6000024756", at:d(24,16,15), read:true, why:"No carrier service covers the delivery ZIP code."},
+  {id:4,t:"quote_upd_fail",q:BUILT,       at:d(24,9,40),  read:true},
+  {id:3,t:"import_done",  q:"",           at:d(21,17,2),  read:true},
+  {id:2,t:"quote_created",q:BUILT,        at:d(20,9,39),  read:true},
+  {id:1,t:"quote_dup",    q:"6000024922", at:d(18,15,20), read:true},
+];
+let N=SEED(), nextId=8, open=false;
+const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const when=t=>`${MO[t.getMonth()]} ${t.getDate()}, ${t.getFullYear()} · ${((t.getHours()+11)%12)+1}:${String(t.getMinutes()).padStart(2,"0")} ${t.getHours()<12?"AM":"PM"}`;
+const IC_OK=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></svg>`;
+const IC_BAD=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>`;
+const IC_DEL=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>`;
+const IC_BELL=`<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>`;
+const panel=document.createElement("div"); panel.className="tnmenu tnnotif"; panel.id="tnNotif"; panel.setAttribute("role","dialog"); panel.setAttribute("aria-label","Notifications"); panel.hidden=true;
+wrap.append(panel);
+const live=document.createElement("div"); live.className="sr"; live.setAttribute("aria-live","polite"); wrap.append(live);
+function setBadge(){ const n=N.filter(x=>!x.read).length; badge.hidden=!n; badge.textContent=n>9?"9+":n;
+  bell.setAttribute("aria-label",n?`Notifications, ${n} unread`:"Notifications"); bell.title=n?`${n} unread notification${n>1?"s":""}`:"Notifications"; }
+function render(){
+  const rows=N.map(x=>{ const k=T[x.t], go=k.go, label=`${k.m}${x.q?` Quote ${x.q}`:""}`;
+    const body=`<span class="nic ${k.ok?"ok":"bad"}">${k.ok?IC_OK:IC_BAD}<span class="sr">${k.ok?"Done: ":"Failed: "}</span></span>
+      <span class="ntx"><span class="nwhen">${x.fresh?`<i class="ndot" aria-hidden="true"></i><span class="sr">New, </span>`:""}${when(x.at)}</span>
+      <span class="nmsg">${k.m}</span>${x.q?`<span class="nq">#&nbsp;${x.q}</span>`:""}</span>`;
+    return `<li class="nrow${x.fresh?" fresh":""}" data-n="${x.id}">${go?`<button type="button" class="nmain" data-go="${go}" title="${go==="quote"?"Open quote "+x.q:go==="import"?"Open the import":"See why"}">${body}</button>`:`<div class="nmain" tabindex="-1">${body}</div>`}
+      <button type="button" class="ndel" data-del="${x.id}" aria-label="Delete notification: ${label}" title="Delete">${IC_DEL}</button></li>`; }).join("");
+  panel.innerHTML=`<div class="nhead"><h2>Notifications</h2><span>Last 30 days</span></div>`+
+    (N.length?`<ul class="nlist">${rows}</ul>`:`<div class="nempty">${IC_BELL}<b>No notifications</b><span>Quote, freight and import updates from the last 30 days show here.</span></div>`); }
+function openP(){ if(open) return; q("#tnMenu")&&!q("#tnMenu").hidden&&document.body.click();
+  N.forEach(x=>{ x.fresh=!x.read; x.read=true; }); /* production marks all read as the menu opens (one PATCH each) */
+  setBadge(); render(); panel.hidden=false; open=true; bell.setAttribute("aria-expanded","true");
+  (panel.querySelector(".nmain[data-go],.ndel")||panel).focus?.(); }
+function closeP(focus){ if(!open) return; open=false; panel.hidden=true; bell.setAttribute("aria-expanded","false"); N.forEach(x=>x.fresh=false); if(focus) bell.focus(); }
+bell.addEventListener("click",ev=>{ ev.stopPropagation(); open?closeP():openP(); });
+document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnav-bell")&&!ev.target.closest("#tnFfDlg")) closeP(); });
+panel.addEventListener("keydown",ev=>{ if(ev.key==="Escape"){ ev.preventDefault(); ev.stopPropagation(); closeP(true); return; }
+  if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ const items=[...panel.querySelectorAll("button")], i=items.indexOf(document.activeElement); if(!items.length) return;
+    ev.preventDefault(); items[(i+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length].focus(); } });
+panel.addEventListener("click",ev=>{ ev.stopPropagation();
+  const del=ev.target.closest("[data-del]");
+  if(del){ const id=+del.dataset.del, li=del.closest(".nrow"), nxt=li.nextElementSibling||li.previousElementSibling;
+    N=N.filter(x=>x.id!==id); setBadge(); li.remove(); live.textContent="Notification deleted";
+    if(!N.length){ render(); panel.focus(); } else (nxt?.querySelector(".nmain[data-go]")||nxt?.querySelector(".ndel"))?.focus(); return; }
+  const m=ev.target.closest(".nmain[data-go]"); if(!m) return; const x=N.find(y=>y.id===+m.closest(".nrow").dataset.n);
+  if(m.dataset.go==="import"){ closeP(); showToast("Import tools isn't built in the prototype."); return; }
+  if(m.dataset.go==="freightfail"){ freightDlg(x); return; }
+  closeP();
+  if(x.q!==BUILT){ showToast(`Only quote ${BUILT} is built in the prototype.`); return; }
+  if(!["page-quotes","page-home","page-create"].some(c=>document.body.classList.contains(c))){ showToast(`You're on quote ${BUILT}.`); return; }
+  document.body.classList.remove("page-create"); setPage("quote"); });
+/* production: "Get Freight Failed" (GeneralConfirmationComponent) with the message, M3's first error cause and OK */
+function freightDlg(x){ closeP(); let w=q("#tnFfDlg"); if(!w){ w=document.createElement("div"); w.className="dlgwrap"; w.id="tnFfDlg"; document.body.append(w); }
+  w.innerHTML=`<div class="dlg tnffdlg" role="alertdialog" aria-modal="true" aria-labelledby="ffT" aria-describedby="ffD"><h2 id="ffT">Freight wasn't calculated</h2>
+    <p class="dlgtx" id="ffD">M3 couldn't calculate freight for quote ${x.q}.<span class="ffwhy"><b>Reason from M3</b>${esc(x.why||"No reason given.")}</span></p>
+    <div class="dlgbtns"><button type="button" class="dbtn yes" id="ffOk">OK</button></div></div>`;
+  w.hidden=false; const done=()=>{ w.hidden=true; bell.focus(); };
+  q("#ffOk").onclick=done; q("#ffOk").focus();
+  w.onkeydown=e=>{ if(e.key==="Escape"||e.key==="Tab"){ e.preventDefault(); if(e.key==="Escape") done(); } };
+  w.onclick=e=>{ if(e.target===w) done(); }; }
+/* a new one arrives over the WebSocket: it goes on top (the list keeps 12), the count goes up and the bell shakes */
+const PUSH=[["quote_updated",BUILT],["freight_ok",BUILT],["quote_created",BUILT],["docs_ok",BUILT]]; let pi=0;
+function push(){ const [t,qn]=PUSH[pi++%PUSH.length]; N.unshift({id:nextId++,t,q:qn,at:new Date(),read:false}); N=N.slice(0,12); setBadge();
+  if(open){ N[0].fresh=true; N[0].read=true; setBadge(); render(); }
+  bell.classList.remove("shake"); void bell.offsetWidth; bell.classList.add("shake"); live.textContent=`New notification: ${T[t].m}`; }
+/* ---- demo bar: after "Top navigation bar" ---- */
+const tl=q("#tnOn")?.closest("label");
+if(tl){ const s=document.createElement("span"); s.className="ntdemo";
+  s.innerHTML=`<label title="v5 only, with the top navigation bar: the mock notifications. Production has no empty state; here the bell still opens.">Notifications
+    <select id="tnNSet" autocomplete="off"><option value="some">7 (2 unread)</option><option value="none">None</option></select></label>
+    <button type="button" class="pbtn" id="tnNPush" title="v5 only: a new notification arrives, as over production's WebSocket. Turn on the top navigation bar to see it.">New notification</button>`;
+  tl.after(s);
+  q("#tnNSet").addEventListener("change",e=>{ N=e.target.value==="none"?[]:SEED(); closeP(); setBadge(); });
+  q("#tnNPush").addEventListener("click",push); }
+setBadge();
 })();
 </script>
 <style>/* ==== v5 (Nov 25): Home, from production's Welcome screen. On while body has .page-home ====

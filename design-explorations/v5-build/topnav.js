@@ -12,7 +12,7 @@ const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-na
 const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
 bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
-  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
+  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${n}</a>`; /* no icons on the links (Sam, Nov 25): type-led, as the brand; the chevron and the right-hand controls keep theirs */
     /* Quotes & orders has a chevron for the quotes you opened last (Sam, Nov 25): the label opens the list, the chevron opens Recent */
     return n!=="Quotes"?a:`<span class="tnsplit">${a}<button type="button" class="tnchev" id="tnRecentB" aria-haspopup="menu" aria-expanded="false" aria-controls="tnRecent" aria-label="Recent quotes" title="Recent quotes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="tnmenu tnrecent" id="tnRecent" role="menu" aria-label="Recent quotes" hidden></div></span>`; }).join("")}</div>
@@ -21,7 +21,7 @@ bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks
     <button type="button" class="tncta" data-tn="new" title="Start a new quote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New quote</span></button>
     <span class="tndiv" aria-hidden="true"></span>
     <span class="tnenv" title="You're on the staging environment">STAGING</span>
-    <button type="button" class="tnicon" data-tn="bell" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button>
+    <div class="tnav-bell"><button type="button" class="tnicon" id="tnBell" aria-haspopup="dialog" aria-expanded="false" aria-controls="tnNotif" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button><span class="tnbadge" id="tnBadge" hidden></span></div>
     <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Samantha Havas" title="Samantha Havas"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
       <div class="tnmenu" id="tnMenu" role="menu" aria-label="Account" hidden>
         <div class="who"><b>Samantha Havas</b>Sales consultant · USC</div>
@@ -40,7 +40,7 @@ bar.addEventListener("click",ev=>{ const b=ev.target.closest("[data-tn]"); if(!b
   if(k==="acct"){ const open=menu.hidden; menu.hidden=!open; acct.setAttribute("aria-expanded",String(open)); if(open) menu.querySelector("button")?.focus(); return; }
   closeMenu();
   if(k==="logout"){ q("#logoutBtn")?.click(); return; }
-  const what={bell:"Notifications",import:"Import tools",prod:"Production"}[k]||k;
+  const what={import:"Import tools",prod:"Production"}[k]||k;
   showToast(`${what} isn't built in the prototype.`); });
 document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnav-acct")) closeMenu(); });
 menu.addEventListener("keydown",ev=>{ const items=[...menu.querySelectorAll("button")], i=items.indexOf(document.activeElement);

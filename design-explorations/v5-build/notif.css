@@ -1,0 +1,53 @@
+/* ==== v5 (Nov 25): notifications, the top bar's bell (notif.js). Production's behaviour in v5's styles ==== */
+.tnav-bell{position:relative}
+/* unread count: filled bronze like the Quotes list's current tab count (white 4.6:1), ringed in the bar's black so it parts from the bell */
+.tnbadge{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--brand,#8c704e);color:#fff;font-size:11px;font-weight:500;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--rail);pointer-events:none;font-variant-numeric:tabular-nums}
+.tnbadge[hidden]{display:none}
+body:not(.qlx-bronze) .tnbadge{background:#fff;color:var(--ink)}
+.tnicon.shake{animation:tnshake .9s ease-in-out}
+@keyframes tnshake{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}75%{transform:rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){ .tnicon.shake{animation:none} }
+/* the panel: the top bar's menu surface, 400px, scrolls inside */
+.tnmenu.tnnotif{width:400px;max-width:calc(100vw - 32px);padding:0;display:flex;flex-direction:column;max-height:min(520px,calc(100vh - 80px))}
+.tnmenu.tnnotif[hidden]{display:none}
+.tnnotif .nhead{display:flex;align-items:baseline;justify-content:space-between;padding:12px 16px 10px;border-bottom:1px solid var(--line)}
+.tnnotif .nhead h2{margin:0;font-size:14px;font-weight:500;font-family:inherit;color:var(--ink)}
+.tnnotif .nhead span{font-size:12px;color:var(--ink-2)}
+.tnnotif .nlist{list-style:none;margin:0;padding:4px;overflow:auto}
+.tnnotif .nrow{position:relative;display:flex;align-items:stretch;border-radius:var(--r-sm,3px)}
+.tnnotif .nrow+.nrow{border-top:1px solid var(--line)}
+html body .tnnotif .nmain{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0;min-height:0;padding:10px 44px 10px 12px;border:0;border-radius:var(--r-sm,3px);background:none;color:var(--ink);font:inherit;text-align:left;cursor:default}
+html body .tnnotif button.nmain{cursor:pointer}
+.tnnotif div.nmain:focus{outline:none}
+.tnnotif .nrow:hover,.tnnotif .nrow:focus-within{background:var(--surface)}
+html.warm .tnnotif .nrow:hover,html.warm .tnnotif .nrow:focus-within{background:var(--navy-wash)}
+html.warm .tnnotif .nrow :is(.nmain,.ndel):is(:hover,:focus-visible){background:none}
+html body .tnnotif .nmain:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.tnnotif .nic{flex:none;display:inline-flex;margin-top:2px}
+.tnnotif .nic.ok{color:var(--success,#047857)}
+.tnnotif .nic.bad{color:var(--destructive,#c62828)}
+.tnnotif .ntx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tnnotif .nwhen{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tnnotif .ndot{width:8px;height:8px;border-radius:50%;background:var(--info,#1d4ed8)}
+.tnnotif .fresh .nwhen{color:var(--ink);font-weight:500}
+.tnnotif .nmsg{font-size:14px;line-height:20px}
+.tnnotif .nq{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+body.qlx-bronze .tnnotif button.nmain .nq{color:var(--brand-on-fill,#7a6143)}
+.tnnotif button.nmain:hover .nq{text-decoration:underline;text-underline-offset:3px}
+/* delete: shows on hover or keyboard focus, as production's */
+html body .tnnotif .ndel{position:absolute;top:8px;right:6px;display:inline-flex;align-items:center;justify-content:center;width:32px;min-height:32px;height:32px;padding:0;border:0;border-radius:var(--r-sm,3px);background:none;color:var(--ink-2);cursor:pointer;opacity:0}
+.tnnotif .nrow:hover .ndel,html body .tnnotif .ndel:focus-visible,.tnnotif .nrow:focus-within .ndel{opacity:1}
+html body .tnnotif .ndel:hover{color:var(--destructive,#c62828);background:var(--bg)}
+html body .tnnotif .ndel:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+@media (hover:none){ html body .tnnotif .ndel{opacity:1} }
+/* empty: production disables the bell; here it opens and says so */
+.tnnotif .nempty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 24px 36px;text-align:center;color:var(--ink-2);font-size:13px}
+.tnnotif .nempty svg{color:var(--ink-3,#8a8a8a);margin-bottom:4px}
+.tnnotif .nempty b{font-size:14px;font-weight:500;color:var(--ink)}
+.tnnotif:focus{outline:none}
+/* Get Freight Failed, in the left-aligned dialog style */
+.tnffdlg{text-align:left;width:min(440px,100%)}
+.tnffdlg h2{margin:0 0 8px}
+.tnffdlg .ffwhy{display:block;margin-top:12px;padding:10px 12px;border-radius:var(--r-md,4px);background:var(--surface);color:var(--ink)}
+.tnffdlg .ffwhy b{display:block;font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:2px}
+.ntdemo{display:contents}
