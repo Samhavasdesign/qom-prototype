@@ -28,5 +28,10 @@ s=s[:i]+'<style>'+open(D+'topnav.css').read()+'</style>\n'+open(D+'topnav.js').r
 # Home (Nov 25): production's Welcome screen, renamed Home; after the top bar so it can relabel both navs
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'home.css').read()+'</style>\n'+open(D+'home.js').read()+s[i:]
+# Navy frame and warm greys (Nov 25): a color trial, off by default, with its own switch after Bronze accent
+rep('id="qlxBronze" checked autocomplete="off"> Bronze accent</label>',
+    'id="qlxBronze" checked autocomplete="off"> Bronze accent</label>\n  <label title="v5 only: trial of a navy app frame (top bar, side nav) with warm greys and charcoal secondary text inside the page. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy frame and warm greys</label>')
+i=s.rindex('</body>')
+s=s[:i]+'<style>'+open(D+'color.css').read()+'</style>\n'+open(D+'color.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)
 print('ok',len(s))

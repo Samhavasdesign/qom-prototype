@@ -96,6 +96,8 @@ const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Ove
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const words=()=>X.q.toLowerCase().split(/\s+/).filter(Boolean);
 const hl=(s,ws)=>{ let h=esc(s); ws.forEach(t=>{ h=h.replace(new RegExp("("+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"),"<mark>$1</mark>"); }); return h; };
+/* done = green, always with a check and the word (design audit, Color in use) */
+const DONE=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
 const IC={
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
   chev:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
@@ -205,8 +207,8 @@ function render(){ if(!X.on) return;
     <td class="c-id">${x.oo?`<span class="qlxsrc">No quote</span><span class="p2">${esc(x.src)}</span>`:`${idCell(x)}<span class="p2" title="Quoted ${fmt(x.date)}">Quoted ${fmtS(x.date)}</span>`}</td>
     ${projCell(x)}${custCell(x)}
     <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
-    <td class="c-tot c-paid">${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:"Paid in full"}</span></td>
-    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="none">Shipped</span>`}</td>
+    <td class="c-tot c-paid">${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span></td>
+    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
     <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
   q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);

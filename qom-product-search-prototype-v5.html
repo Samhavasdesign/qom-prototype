@@ -1768,6 +1768,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
   <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
   <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the Quotes list's accent. Off shows it in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
+  <label title="v5 only: trial of a navy app frame (top bar, side nav) with warm greys and charcoal secondary text inside the page. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy frame and warm greys</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -3870,8 +3871,8 @@ function startRename(name){ // the form sits under "Adding to", so leave full sc
 document.addEventListener("input",e=>{ if(e.target.dataset?.fq){ S.fq[e.target.dataset.fq]=e.target.value; renderFilters(); } });
 // ---------- quote panel views: the hamburger swaps the panel for Quote Information or a PDF preview (all values are mock) ----------
 const QI={id:"6000024967",get expires(){ return S.view==="commercial"?"Apr 30, 2028":"Nov 29, 2026"; }, /* entered Oct 30, 2026: +30 days Residential, +18 months Commercial */orderType:"Sales Order",subtype:"Residential Order Domestic",delivery:"12/19/2026",conv:"10/26/2026",payment:"$0.00",
-  consultant:"Alex Rivera",payer:"PAT MORGAN-ELLIS",service:"Standard Shipping (S01)",cost:"Sample Design Center",project:"Henry bar and club house",desc:"Bar and club house fittings and tile",
-  entered:"10-30-26",revised:"10-30-26",addr:["12 Sample Street","ANYTOWN MA 01000","United States"],phone:"(555) 010-0100",email:"alex.rivera@example.com"};
+  consultant:"Samantha Havas",payer:"PAT MORGAN-ELLIS",service:"Standard Shipping (S01)",cost:"Sample Design Center",project:"Henry bar and club house",desc:"Bar and club house fittings and tile",
+  entered:"10-30-26",revised:"10-30-26",addr:["12 Sample Street","ANYTOWN MA 01000","United States"],phone:"(555) 010-0100",email:"samantha.havas@example.com"};
 const qfield=(l,v)=>`<div class="qf"><div class="ql">${l}</div><div class="qv">${v}</div></div>`;
 const titleCase=t=>t.toLowerCase().replace(/(^|[\s-])\S/g,c=>c.toUpperCase());
 const pDate=t=>{ if(t.includes("/")){ const [m,d,y]=t.split("/").map(Number); return new Date(y,m-1,d); } return new Date(t); };
@@ -4144,7 +4145,7 @@ if(new URLSearchParams(location.search).get("view")==="commercial"&&S.view!=="co
 })();
 // Quotes list (Nov 16, from the production Quotes screen). Mock rows only: names, customers and IDs are made up.
 // Only 6000024967 (the prototype's quote) opens; the others say so. Search, Me / All / Team, Resi. / Com., sort, page size and paging all work on the mock rows.
-const QL=(()=>{ const ME="Alex Rivera", TEAM=[ME,"Jordan Lee","Casey Morgan"], SCS=[ME,"Jordan Lee","Casey Morgan","Riley Chen","Taylor Brooks","Morgan Patel","Jamie Ortiz","Sam Okafor"];
+const QL=(()=>{ const ME="Samantha Havas", TEAM=[ME,"Jordan Lee","Casey Morgan"], SCS=[ME,"Jordan Lee","Casey Morgan","Riley Chen","Taylor Brooks","Morgan Patel","Jamie Ortiz","Sam Okafor"];
   const CUST=["HARBOR & VINE INTERIORS","NORTHFIELD BUILDERS","MAPLE ROW DESIGN","ORCHARD LANE HOMES","BLUE HERON STUDIO","STONEGATE RENOVATIONS","ASHFORD & KEMP ARCHITECTS","CEDAR POINT HOSPITALITY","LINDEN HOUSE DESIGN","GREY OWL CONSTRUCTION","WILLOW BROOK INTERIORS","FENWICK & STRAND","BAYSIDE KITCHEN & BATH","HOLLIS PARK DEVELOPMENT"];
   const DESC=["Primary bath remodel","Powder room","Guest suite and hall bath","Kitchen faucets","Lobby restrooms","Spa level fixtures","Pool house","20261102","20261028","Model unit A","Penthouse baths","Townhouse 4B"];
   const rows=[{m3:"",id:"6000024967",status:"Not yet converted",project:"Henry bar and club house",cust:"QUALITY FINISHES",payer:"QUALITY FINISHES",desc:"Henry bar and club house",sc:ME,type:"Residential",exp:"11/29/2026",built:true}];
@@ -4589,7 +4590,7 @@ function renderNc(busy){ nc.innerHTML=`<form class="nccard" id="ncForm" aria-lab
     ${fld("rdd","Requested Delivery Date","12/19/2026",{req:1,note:"Orders entered after 3pm ET can't be requested for today."})}${fld("conv","Est. Conv. Date","11/30/2026",{req:1})}
     ${fld("proj","Project (optional)","",{ph:"Choose a project",note:"Needed before sending a Commercial quote"})}
   </div>
-  <div class="ncdef"><div><b>Filled in for you.</b> Change these later in Details. The expiry is fixed.</div><div class="dl"><span>Responsible <b>Alex Rivera (you)</b></span><span>Status <b>Predictable (&gt;95%)</b></span><span>Expires <b>in 30 days</b></span></div><div class="dl"><span>Sales Consultant and Payer <b>from the customer's record in M3</b></span><span>Cost Center <b>from that consultant's showroom</b></span></div><div class="ncnote">These show their real values once M3 sends the new quote back.</div></div>
+  <div class="ncdef"><div><b>Filled in for you.</b> Change these later in Details. The expiry is fixed.</div><div class="dl"><span>Responsible <b>Samantha Havas (you)</b></span><span>Status <b>Predictable (&gt;95%)</b></span><span>Expires <b>in 30 days</b></span></div><div class="dl"><span>Sales Consultant and Payer <b>from the customer's record in M3</b></span><span>Cost Center <b>from that consultant's showroom</b></span></div><div class="ncnote">These show their real values once M3 sends the new quote back.</div></div>
   <div class="ncacts"><button type="button" class="btn ghost" id="ncDiscard"${busy?" disabled":""}>Discard</button><button type="submit" class="btn" id="ncCreate"${busy?' aria-disabled="true"':""}>${busy?'<span class="ncspin" aria-hidden="true"></span>Creating the quote in M3…':"Create quote"}</button></div></form>`; }
 function openCreate(){ renderNc(false); document.body.classList.add("page-create"); scrollTo(0,0); q("#ncT").focus(); }
 function leaveCreate(){ document.body.classList.remove("page-create"); }
@@ -4764,7 +4765,7 @@ tr:hover .qlxcp,.qlxcp:focus-visible{opacity:1}
 .qlxpager button:disabled{color:var(--ink-2);opacity:.5;cursor:default}
 /* Total: right-aligned, whole dollars */
 /* an order with no QOM quote: a small grey "Order" tag where the pipeline status would be */
-.qlxsrc{display:inline-flex;align-items:center;height:20px;padding:0 7px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surface)}
+.qlxsrc{display:inline-flex;align-items:center;height:20px;padding:0 7px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--bg)} /* a fact, not a status: an outline tag (Nov 25) */
 .qlxt .c-ord a{color:var(--ink);font-weight:500;text-decoration:none}
 .qlxt tr:hover .c-ord a,.qlxt .c-ord a:focus-visible{text-decoration:underline;text-underline-offset:3px}
 body.qlx-bronze .qlxt .c-ord a{color:var(--bronze)}
@@ -4851,6 +4852,13 @@ body.qlx-bronze .qlxpill.on .qlxpb{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxqvp{border-top:3px solid var(--bronze)}
 /* one nav item for quotes and orders: the Orders link hides (the nav links set display, so [hidden] needs help) */
 :is(.rail a.rlink,#tnBar .tnlinks a)[hidden]{display:none !important}
+
+/* Color pass (Sam, Nov 25), within the audit's rules: the current tab's count is filled (bronze, or black with Bronze accent off),
+   and done is green with a check and the word ("Paid in full", "Shipped") */
+.qlxtab[aria-selected="true"] em{background:var(--ink);color:#fff}
+body.qlx-bronze .qlxtab[aria-selected="true"] em{background:var(--bronze);color:#fff} /* white on bronze 4.6:1 */
+.qlxdone{display:inline-flex;align-items:center;gap:4px;color:var(--success);font-weight:500}
+.qlxdone svg{flex:none}
 </style>
 <script>
 /* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332; brief "Improved Quote Search") ====
@@ -4950,6 +4958,8 @@ const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Ove
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const words=()=>X.q.toLowerCase().split(/\s+/).filter(Boolean);
 const hl=(s,ws)=>{ let h=esc(s); ws.forEach(t=>{ h=h.replace(new RegExp("("+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"),"<mark>$1</mark>"); }); return h; };
+/* done = green, always with a check and the word (design audit, Color in use) */
+const DONE=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
 const IC={
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
   chev:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
@@ -5059,8 +5069,8 @@ function render(){ if(!X.on) return;
     <td class="c-id">${x.oo?`<span class="qlxsrc">No quote</span><span class="p2">${esc(x.src)}</span>`:`${idCell(x)}<span class="p2" title="Quoted ${fmt(x.date)}">Quoted ${fmtS(x.date)}</span>`}</td>
     ${projCell(x)}${custCell(x)}
     <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
-    <td class="c-tot c-paid">${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:"Paid in full"}</span></td>
-    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="none">Shipped</span>`}</td>
+    <td class="c-tot c-paid">${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span></td>
+    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
     <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
   q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
@@ -5319,9 +5329,9 @@ bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks
     <span class="tndiv" aria-hidden="true"></span>
     <span class="tnenv" title="You're on the staging environment">STAGING</span>
     <button type="button" class="tnicon" data-tn="bell" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button>
-    <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Alex Rivera" title="Alex Rivera"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
+    <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Samantha Havas" title="Samantha Havas"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
       <div class="tnmenu" id="tnMenu" role="menu" aria-label="Account" hidden>
-        <div class="who"><b>Alex Rivera</b>Sales consultant · USC</div>
+        <div class="who"><b>Samantha Havas</b>Sales consultant · USC</div>
         <button type="button" role="menuitem" data-tn="import">${icon("Import Tools")}Import tools</button>
         <button type="button" role="menuitem" data-tn="prod">Go to production</button>
         <div class="sep" role="separator"></div>
@@ -5471,7 +5481,7 @@ page.innerHTML=`<div class="hm-main">
 q(".main").append(page);
 
 /* Pick up where you left off (Sam, Nov 25): the quotes you opened last, so getting back to one doesn't need a nav item.
-   The open quote first, from the quote itself; then two of Alex's other open quotes from the Quotes list's mock rows */
+   The open quote first, from the quote itself; then two of Samantha's other open quotes from the Quotes list's mock rows */
 const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo"};
 const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
 const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
@@ -5525,6 +5535,24 @@ document.addEventListener("keydown",ev=>{ if(ev.target.closest&&ev.target.closes
 document.addEventListener("click",ev=>{ if(ev.target.closest('#propNew,#qlNew,[data-tn="new"]')) leaveHome(); },true);
 const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(this,arguments); };
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
+})();
+</script>
+<style>/* ==== v5 (Nov 25): "Navy frame and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+   The lower-cost version of more color: navy only on the app frame (top bar, side nav, phone bar), never inside the page,
+   so bronze stays the page's only accent and navy can't be mistaken for info blue. Inside the page only two existing values
+   change: fills go warm (#f5f2ed for #f3f3f3) and secondary text goes to the brand charcoal (#68696f for #666666; 4.9:1 on
+   the warm fill, 5.5:1 on white). No new tokens. Not in the Design Audit yet: it goes in if the trial holds. */
+html.warm{--rail:#001e52;--rail-2:#123a7a;--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f}
+html.warm .tnav-acct .tnicon{background:rgb(255 255 255 / .14);color:#fff}
+</style>
+<script>
+/* "Navy frame and warm greys" switch (Nov 25): off by default, remembered in the browser */
+(function(){
+  let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
+  document.documentElement.classList.toggle("warm",on);
+  const sw=document.getElementById("warmOn"); if(!sw) return;
+  sw.checked=on;
+  sw.addEventListener("change",()=>{ on=sw.checked; try{ localStorage.setItem("qom-v5-warm",on?"on":"off"); }catch(e){} document.documentElement.classList.toggle("warm",on); });
 })();
 </script>
 </body>

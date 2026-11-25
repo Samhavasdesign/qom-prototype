@@ -1,0 +1,7 @@
+/* ==== v5 (Nov 25): "Navy frame and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+   The lower-cost version of more color: navy only on the app frame (top bar, side nav, phone bar), never inside the page,
+   so bronze stays the page's only accent and navy can't be mistaken for info blue. Inside the page only two existing values
+   change: fills go warm (#f5f2ed for #f3f3f3) and secondary text goes to the brand charcoal (#68696f for #666666; 4.9:1 on
+   the warm fill, 5.5:1 on white). No new tokens. Not in the Design Audit yet: it goes in if the trial holds. */
+html.warm{--rail:#001e52;--rail-2:#123a7a;--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f}
+html.warm .tnav-acct .tnicon{background:rgb(255 255 255 / .14);color:#fff}
