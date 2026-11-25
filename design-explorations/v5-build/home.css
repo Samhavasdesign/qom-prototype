@@ -82,7 +82,7 @@ html.navstrip .rail:not(.open) a.mark.hm-link{display:none}
    Create new moves from the title row to the right of the search ("find" and "create" side by side), and while the
    list shows, the tabs' rule stops short of it. Below xl it stays above the search, as on Home. */
 @media (width >= 1280px){ /* xl */
-  #quotesPage{--qlr-w:440px}
+  #quotesPage{--qlr-w:0px} /* no recent list beside the search any more (Sam, Nov 25); New quote stays beside the search */
   #quotesPage .qlx .ql-recent{position:absolute;top:0;right:0;width:var(--qlr-w);max-width:none;margin:0}
   #quotesPage .ql-recent .hm-row{grid-template-columns:96px minmax(0,1fr) 84px 16px;min-height:40px;padding:4px}
   #quotesPage .ql-recent .hm-row small,#quotesPage .ql-recent .hm-rs{display:none}
@@ -91,4 +91,4 @@ html.navstrip .rail:not(.open) a.mark.hm-link{display:none}
   #quotesPage .qlx .qlxnew{top:52px;right:auto;left:calc(min(720px,calc(100% - var(--qlr-w) - 185px)) + 16px)} /* .lg: as tall as the search beside it */
   #quotesPage:has(.ql-recent:not([hidden])) .qlxtabs{margin-right:calc(var(--qlr-w) + 32px)}
 }
-@media (width >= 1536px){ /* 2xl */ #quotesPage{--qlr-w:520px} }
+

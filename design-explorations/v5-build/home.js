@@ -83,33 +83,9 @@ document.addEventListener("keydown",ev=>{ if(ev.target.closest&&ev.target.closes
 /* New quote (top bar, demo bar or Quotes list) opens the create form, so Home steps aside */
 document.addEventListener("click",ev=>{ if(ev.target.closest('#propNew,#qlNew,[data-tn="new"]')) leaveHome(); },true);
 const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(this,arguments); };
-/* Quotes & orders opens with the same "Pick up where you left off" list as Home (Sam, Nov 25): it's QOM's own home, so the
-   last quotes you opened come first. It hides while you search or filter, or look at the Orders tab, so results come
-   straight up under the search. */
-const qlx=q(".qlx .qlxsearch");
-if(qlx){
-  const sec=document.createElement("section"); sec.className="hm-recent ql-recent"; sec.setAttribute("aria-labelledby","qlRecentT");
-  sec.innerHTML=`<div class="hm-rh"><h2 id="qlRecentT">Pick up where you left off</h2></div><ul class="hm-rlist" id="qlRecent"></ul>`;
-  qlx.before(sec);
-  const fill=()=>{ const L=q("#qlRecent"); if(L&&typeof QL!=="undefined") L.innerHTML=recentRows(); };
-  /* hidden only while you're looking for something: a search, a Pipeline status or Total filter, a quick filter, or the
-     Orders tab. Mine / My team / Everyone and the type toggles are views, and "recent" means quotes you opened, so it stays. */
-  const busy=()=>{ const v=q("#qlxQ")?.value.trim(), pill=q(".qlxpill.on"), ord=q('.qlxtab[aria-selected="true"]')?.textContent.includes("Orders"),
-    chip=q('.qlxquick button[aria-pressed="true"]'); return !!(v||pill||ord||chip); };
-  /* also hidden when it would only repeat the table: every recent quote is already in the table's first rows (Nov 25 audit: on
-     Mine, newest first, the three recent quotes were the table's first three rows) */
-  const dup=()=>{ const ids=[...sec.querySelectorAll("[data-hmq]")].map(b=>b.dataset.hmq); if(!ids.length) return false;
-    const top=[...document.querySelectorAll("#qlxBody tr[data-qlxrow]")].slice(0,ids.length+1).map(t=>t.dataset.qlxrow);
-    return ids.every(id=>top.includes(id)); };
-  const sync=()=>{ const h=busy()||dup(); if(sec.hidden!==h) sec.hidden=h; };
-  sec.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]"); if(!r) return;
-    if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); });
-  /* the list re-renders a moment after typing stops, so watch it rather than the keystrokes */
-  const box=q(".qlx"); ["input","click","change","keyup"].forEach(t=>box.addEventListener(t,()=>setTimeout(sync,0)));
-  new MutationObserver(sync).observe(box,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","aria-pressed","aria-selected","class"]});
-  const oSP=setPage; setPage=function(p){ const r=oSP.apply(this,arguments); if(p==="quotes"){ fill(); setTimeout(sync,0); } return r; };
-  fill(); sync();
-}
+/* Quotes & orders had its own copy of "Pick up where you left off" (Nov 25) until Sam removed it the same day: the same three
+   quotes were already on Home, in the top bar's Recent menu and in ⌘K's Recent, and on the list page it competed with the
+   search and the table. Home keeps it */
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>
