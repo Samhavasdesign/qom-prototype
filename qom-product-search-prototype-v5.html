@@ -4389,6 +4389,11 @@ html body .pbar{padding-left:32px;padding-right:32px}
 @media (width >= 1536px){ /* 2xl */ html body .main, html body .pbar{padding-left:48px;padding-right:48px} }
 @media (width < 1024px){ /* lg */ html body .main, html body .pbar{padding-left:24px;padding-right:24px} }
 @media (width < 768px){ /* md */ html body .main{padding:16px 16px 32px} html body .pbar{padding-left:16px;padding-right:16px} }
+
+/* Page titles (Sam, Nov 25): every page's H1 is one style, design.md's page title role: serif, regular, 36px, line height 1.1
+   (the quote page was 24px, New quote 28, Home 48). 28px below md. Each page keeps its own margins. */
+html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.1;letter-spacing:normal;color:var(--foreground)}
+@media (width < 768px){ /* md */ html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-size:28px} }
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
