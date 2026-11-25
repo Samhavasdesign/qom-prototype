@@ -4,8 +4,8 @@
    Proposal: https://claude.ai/artifact/ETZsEJHA9ZPJiz2FYA8ALt */
 
 /* Control sizes (Sam, Nov 25; tokens.css --control-h, --control-h-lg): a button beside a field takes the field's height.
-   .lg is the large size, 44px, for a page's main search and the button next to it. Fallbacks until v4 is rebuilt. */
-html .btn.lg,html.sp .btn.lg{height:var(--control-h-lg,44px);min-height:var(--control-h-lg,44px);padding:0 16px}
+   .lg is the large size, 40px, for a page's main search and the button next to it, or a main action on its own. Fallbacks until v4 is rebuilt. */
+html .btn.lg,html.sp .btn.lg{height:var(--control-h-lg,40px);min-height:var(--control-h-lg,40px);padding:0 16px}
 /* the footer bar's Send to client was 40px beside 36px Save and Calculate freight; it's primary by its fill, not its height */
 html.sp .pb-act[id*="end"]{height:var(--control-h,36px);min-height:var(--control-h,36px)}
 

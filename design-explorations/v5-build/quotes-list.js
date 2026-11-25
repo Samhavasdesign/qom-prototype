@@ -1,7 +1,7 @@
 <script>
 /* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332; brief "Improved Quote Search") ====
    A layer over v2's Quotes list (QL, renderQL, setPage). The demo bar's "Quotes list redesign" switch turns it on (default) or off (today's list).
-   From the brief's requirements: a Pipeline status column you can sort and filter; no Actions column; the whole row opens the quote;
+   From the brief's requirements: a Pipeline status column you can sort and filter; no Actions column; the whole row opens its Quick view (the quote until Nov 25);
    a Project column for every quote; no Converted / Not yet converted Status column. Quotes and orders share one list here
    (open decision 1, pending Max): a converted quote shows its order number in Order, and the Converted filter narrows it.
    From the Sales Portal demo (Jen, Nov 24): a Total column with a value filter, a flag when the estimated conversion date has passed
@@ -344,8 +344,9 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlx==="everyone"){ X.who="all"; X.page=1; render(); return; }
   if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
   if(b) return;
-  /* anywhere else on a row opens its quote (text selection doesn't) */
-  const tr=ev.target.closest("tr[data-qlxrow]"); if(tr&&!String(getSelection())) openQuote(tr.dataset.qlxgo||tr.dataset.qlxrow); });
+  /* anywhere else on a row opens its Quick view (Sam, Nov 25; it opened the quote until then); the eye stays as the signifier,
+     and the quote or order number still opens it directly. Text selection doesn't. */
+  const tr=ev.target.closest("tr[data-qlxrow]"); if(tr&&!String(getSelection())) qvOpen(tr.dataset.qlxrow,tr.querySelector(".qlxqvb")); });
 document.addEventListener("click",ev=>{ if(!ev.target.closest(".qlxpill")) closePops(); });
 root.addEventListener("keydown",ev=>{ if(ev.key==="Escape"){ const open=root.querySelector(".qlxpop:not([hidden])"); if(open){ ev.stopPropagation(); closePops(); open.parentNode.querySelector(".qlxpb").focus(); } } });
 

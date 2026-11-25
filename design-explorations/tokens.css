@@ -11,11 +11,13 @@
   --border: var(--line);               /* #e5e5e5, decorative */
   --input: var(--control-line);        /* #8a8a8a, 3.5:1: field edges */
 
-  /* Control heights (Sam, Nov 25). One rule: controls that sit side by side share a height, so a button next to a field
-     uses the field's size. Default: 36px (buttons, fields, selects, pills). Large: 44px, for a page's main search and the
-     button beside it (the Quotes list's search and Create new): give the button .lg. Use these, never a typed height. */
+  /* Control heights (Sam, Nov 25; the Design Audit's rule). Controls that sit side by side share one height, so a button
+     next to a field takes the field's size; emphasis comes from the fill, not the height. 32px compact, 36px default
+     (buttons, fields, selects, pills), 40px large: a page's main search and the button beside it (the Quotes list's search
+     and Create new, which has .lg), or a main action that stands alone. Use these, never a typed height. */
+  --control-h-sm: 32px;
   --control-h: 36px;
-  --control-h-lg: 44px;
+  --control-h-lg: 40px;
 
   /* Status: red blocks or destroys, amber is a risk, green is done, blue informs */
   --destructive: var(--block);         /* #c62828, 5.6:1 */
