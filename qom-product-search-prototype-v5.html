@@ -1768,7 +1768,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
   <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
   <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the accent: the Quotes list's links and selection marks, and text links on every page. Off shows them in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
-  <label title="v5 only: trial of a gold bar for the room being added to, with warm greys and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Gold room and warm greys</label>
+  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a gold bar for the room being added to, with warm greys and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and warm greys</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -4421,6 +4421,19 @@ html body :is(.tag,.qlxsrc,.fc-pill,.newpill,.roomhdr .rwarn,.roomhdr .addtag,.p
 html body table.res .stk{display:flex;width:fit-content} /* still on its own line under the product name */
 html body :is(.roomhdr .rwarn,.pfacts .pexp) svg{width:12px;height:12px}
 html body.proposal .ptitle .ptype:not([hidden]){height:20px;padding:0 10px;border-radius:999px} /* beats the title row's own rule */
+
+/* Field focus (Sam, Nov 25: "more elegant"): a 1px bronze edge (--brand, 4.6:1 on white, so it carries the 3:1 a focus
+   indicator needs) and a soft 3px halo in the light bronze tint (--brand-mark), in place of the black edge and 3px grey ring
+   at 50%. Bronze is the audit's "where you are" accent, which a focused field is. Gold (#daa442) was asked about and not
+   used: 2.2:1 on white fails for a focus indicator. Every text field, select and text area in v5, on any focus (fields always
+   show where you're typing), and the stepper and add-quantity boxes as a whole. Buttons, links and switches keep the
+   theme's grey ring. A field marked invalid focuses in red, so an error never looks like focus.
+   html:not(#a) (matches every page, ID weight) lifts these above the Spartan layer's long :focus-visible selector lists. */
+html:not(#a) body :is(input:not([type=checkbox],[type=radio],[type=range],[type=button],[type=submit],[type=reset],[type=color],[type=file]),select,textarea):focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mark)}
+html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):focus-within{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mark)}
+html:not(#a) body :is(.qty .stepper,.addpill,.bmbox,.pf-box,.lfilter,.gsin) :is(input,select):focus{box-shadow:none}
+html:not(#a) body :is(input,select,textarea)[aria-invalid="true"]:focus,html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):has([aria-invalid="true"]):focus-within{border-color:var(--destructive);box-shadow:0 0 0 3px var(--block-bg)}
+html:not(#a) body :is(.qty .stepper,.addpill,.bmbox) [aria-invalid="true"]:focus{box-shadow:none}
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
@@ -4885,13 +4898,11 @@ body.qlx-bronze :is(.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .
    Quotes list's grey header, so whatever uses --bronze inside them follows. White cards inside a pane take it too; it
    passes on white as well (5.8:1). */
 body.qlx-bronze :is(#searchPane,#quotePane,#ptView,.rpp){--bronze:var(--brand-on-fill,#7a6143)}
-/* Table header in a deep gold (Sam, Nov 25): with the header and a hovered row both on the grey/warm fill they looked the
-   same, so the header goes --brand-deep (#5c4a33, a deeper shade of the brand bronze), with light text: the sorted column in
-   white (8.5:1) and the rest in a pale bronze #e8dece (6.5:1). Hovered rows keep the fill. */
-body.qlx-bronze .qlxt th{background:var(--brand-deep,#5c4a33);border-bottom-color:var(--brand-deep,#5c4a33)}
-body.qlx-bronze .qlxt th :is(button,.th){color:#e8dece}
-body.qlx-bronze .qlxt th button:hover,body.qlx-bronze .qlxt th[aria-sort] button,body.qlx-bronze .qlxt th .si.on{color:#fff}
-body.qlx-bronze .qlxt th button:focus-visible{outline-color:#fff;outline-offset:-3px}
+/* Table header in a plain grey (Sam, Nov 25): the header and a hovered row were both on the fill and looked the same. Deep
+   gold, then navy, were tried and highlighted it too much; it's now a slightly darker neutral, --surface-header (#ebebeb),
+   with the usual secondary text (4.6:1) and the sorted column in the darker link bronze (4.9:1). Hovered rows keep the fill. */
+.qlxt th{background:var(--surface-header,#ebebeb)}
+body.qlx-bronze .qlxt th{--bronze:var(--brand-on-fill,#7a6143)}
 /* one nav item for quotes and orders: the Orders link hides (the nav links set display, so [hidden] needs help) */
 :is(.rail a.rlink,#tnBar .tnlinks a)[hidden]{display:none !important}
 
@@ -5281,7 +5292,7 @@ apply();
 })();
 </script>
 <style>/* ==== v5 (Nov 25): top navigation bar, a trial. On while <html> has .tnav (demo bar switch "Top navigation bar") ====
-   From md up the side nav goes and one black 48px bar runs across the top: wordmark, the app's places, global search,
+   From md up the side nav goes and one black 48px bar runs across the top: the app's places (no wordmark since Nov 25; Home is the first link), global search,
    then Staging, notifications and the account menu. It replaces the breadcrumb row (36px), so the page keeps nearly
    the same height and gains the rail's width. Below md the existing black top bar and drawer stay as they are. */
 .tnbar{display:none}
@@ -5290,7 +5301,6 @@ html.tnav:not(.topnav) .rail{display:none}
 html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
 html.tnav:not(.topnav) .pghead{display:none}
 .tnbar{align-items:center;gap:6px;height:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
-.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.26em;color:var(--rail-ink);margin-right:18px;white-space:nowrap;text-decoration:none}
 .tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
 .tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
 .tnlinks a:hover{color:var(--rail-ink)}
@@ -5346,7 +5356,6 @@ html.tnav:not(.topnav) body:not(.page-quotes):not(.page-home):not(.page-create) 
   .tnlinks a{padding:0 10px}
 }
 @media (width < 1024px){ /* lg */
-  .tnmark{display:none}
   .tnsearch{width:32px;padding:0;justify-content:center}
   .tnsearch span,.tnsearch kbd{display:none}
 }
@@ -5366,8 +5375,7 @@ const rail=q(".rail"); if(!rail) return;
 const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-nav="quotes"]'))||[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
 const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
-bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
-  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
+bar.innerHTML=`<div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
     /* Quotes & orders has a chevron for the quotes you opened last (Sam, Nov 25): the label opens the list, the chevron opens Recent */
     return n!=="Quotes"?a:`<span class="tnsplit">${a}<button type="button" class="tnchev" id="tnRecentB" aria-haspopup="menu" aria-expanded="false" aria-controls="tnRecent" aria-label="Recent quotes" title="Recent quotes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="tnmenu tnrecent" id="tnRecent" role="menu" aria-label="Recent quotes" hidden></div></span>`; }).join("")}</div>
@@ -5585,18 +5593,32 @@ const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(t
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>
-<style>/* ==== v5 (Nov 25): "Gold room and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
-   Sam, Nov 25: the app frame (top bar, side nav, phone bar) stays black, and so do the add (+) buttons and set filter
-   pills (navy on them read as messy beside the black ones). The room you're adding to (its bar and "Adding here") goes
-   a bright gold, the Sales Portal's #daa442, with black text and icons (8.4:1; white on it would be 2.2:1). The brand
-   bronze (#8c704e, white text) was tried first and read too dark. Fills go warm (#f5f2ed for #f3f3f3) and secondary
-   text goes to the brand charcoal (#68696f for #666666; 4.9:1 on the warm fill, 5.5:1 on white). Gold isn't in the
-   Design Audit (bronze is its only accent), so it goes in the audit first if the trial holds. */
-html.warm{--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f;--gold:#daa442}
+<style>/* ==== v5 (Nov 25): "Navy buttons and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+   Sam, Nov 25: navy is kept for dark elements. The app frame (top bar, side nav, phone bar) stays black, and inside the
+   page every black filled control goes brand navy (--navy #001e52, tokens.css; white on it 16:1, hovered #123a7a 11:1):
+   filled buttons and calls to action (Create new, Send to client, Save, dialog buttons, the add (+) buttons), set filter
+   pills, selected toggles, current page numbers, count badges, checked checkboxes and switches. Toasts and tooltips stay
+   black. Navy on the frame was tried first and read as almost black; navy on only some controls read as messy.
+   The room you're adding to (its bar and "Adding here") is a bright gold, the Sales Portal's #daa442, with black text
+   (8.4:1); the brand bronze (white text) was tried first and read too dark.
+   Fills go warm (#f5f2ed for #f3f3f3) and secondary text goes to the brand charcoal (#68696f; 4.9:1 on the warm fill).
+   Gold and navy-in-the-page aren't in the Design Audit yet (bronze is its only accent and it keeps navy out of the page),
+   so they go in the audit first if the trial holds. */
+html.warm{--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f;--gold:#daa442;--navy:#001e52;--navy-hover:#123a7a}
 html.warm .roomhdr.active{--on-ink:var(--ink);background:var(--gold);border-color:var(--gold);color:var(--ink)}
+
+/* dark controls: their black comes from var(--ink), so point --ink at navy on the control itself */
+html.warm :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.pf-go,.qlnew,.ctoast .ctundo,.menu > .act,
+  .add,.fpill.on,.qlxpill.on .qlxpb,.qlxseg button[aria-pressed="true"],.chip.on,.qlchip[aria-pressed="true"],
+  .fntab[aria-pressed="true"],.fnsel,.fcount,.rpp-size button[aria-pressed="true"],.pager .pgnum[aria-current="page"],
+  .qlpager button[aria-current="page"],.dnav button[aria-current="true"],.qi .qalert form .btn.go,.qlxtab[aria-selected="true"] em,
+  input[type=checkbox]:not([role=switch],.proto *,.devpanel *):is(:checked,:indeterminate),.shipsw input:checked + .swtrack){--ink:var(--navy)}
+html.warm :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.pf-go,.qlnew,.menu > .act,.add):hover:not(:disabled,[aria-disabled="true"]){background:var(--navy-hover)}
+/* the demo bar's own controls stay as they are */
+html.warm :is(.proto,.devpanel,[class*=demo]) :is(.btn,input[type=checkbox]){--ink:#121212}
 </style>
 <script>
-/* "Gold room and warm greys" switch (Nov 25): off by default, remembered in the browser */
+/* "Navy buttons and warm greys" switch (Nov 25): off by default, remembered in the browser */
 (function(){
   let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
   document.documentElement.classList.toggle("warm",on);
