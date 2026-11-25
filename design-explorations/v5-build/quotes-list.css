@@ -350,3 +350,6 @@ html:not(#x) .qlx .qlxseg button:focus-visible{outline:2px solid var(--ink);outl
 .qlxhead #qlTitle{margin:0}
 html:not(#x) .qlxhead .qlxnew{position:static;margin:0;flex:none}
 body:not(.qlx-on) .qlxhead .qlxnew{display:none}
+/* with the top bar on, its New quote is the one (Sam, Nov 25): it's on every page, so the list's own copy only doubled it.
+   With the side nav there's no other, so the title row keeps it */
+html.topnav .qlxhead .qlxnew,html.tnav .qlxhead .qlxnew{display:none !important}
