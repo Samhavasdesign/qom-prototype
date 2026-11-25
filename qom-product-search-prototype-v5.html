@@ -5830,6 +5830,9 @@ html body .tnnotif .ndel:focus-visible{outline:2px solid var(--ink);outline-offs
 .tnffdlg .ffwhy{display:block;margin-top:12px;padding:10px 12px;border-radius:var(--r-md,4px);background:var(--surface);color:var(--ink)}
 .tnffdlg .ffwhy b{display:block;font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:2px}
 .ntdemo{display:contents}
+/* unread count in red (Sam, Nov 25): the convention people read as "new" at a glance; white on the one red is 5.6:1, ringed in the
+   bar's black. A named exception to the audit's "red blocks or destroys", whatever the Bronze accent switch says */
+.tnbadge,body:not(.qlx-bronze) .tnbadge{background:var(--destructive,var(--block,#c62828));color:#fff}
 </style>
 <script>
 /* ==== v5 (Nov 25): notifications, the top bar's bell. Behaves as production's (sp-fe nav-bar and notifications component,
