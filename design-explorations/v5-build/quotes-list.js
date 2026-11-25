@@ -36,6 +36,9 @@ const STALE_OK=p=>!["Lost","Duplicate","Crossover Order"].includes(p); /* a pass
     r.ord=conv?String(1000400000+rnd(99999)):"";
     const qd=new Date(2026,9,30-Math.round((6000024967-+r.id)/3*2.2)); r.date=md(qd.getFullYear(),qd.getMonth()+1,qd.getDate());
     if(r.built) return; /* the open quote's own data is read live, below */
+    /* expiry follows QOM's rule (Header Information): 30 days after entry for Residential, 18 months for Commercial (Nov 25 audit:
+       random dates had Resi quotes expiring in 2028). Older open Resi quotes are expired, so they're hidden behind "Show n expired" */
+    const xd=new Date(qd); if(r.type==="Commercial") xd.setMonth(xd.getMonth()+18); else xd.setDate(xd.getDate()+30); r.exp=md(xd.getFullYear(),xd.getMonth()+1,xd.getDate());
     r.addr=r.proj==="Ocean View 127"?"127 Ocean View Road, "+TOWNS[rnd(TOWNS.length)]:(10+rnd(480))+" "+STREETS[rnd(STREETS.length)]+", "+TOWNS[rnd(TOWNS.length)];
     /* estimated conversion: Jul 2026 to Jun 2027, so about a third of open quotes have a date that's passed */
     const m=7+rnd(12); r.conv=md(m>12?2027:2026,m>12?m-12:m,1+rnd(28));
@@ -69,10 +72,7 @@ const lostShort=l=>l==="Lost for Other Reasons"?"Other reasons":l.replace(/^Lost
     else if(!r.pay&&xo<3&&["Possible","Lead"].includes(r.pipe)&&!rnd(6)){ r.pipe="Crossover Order"; xo++; }
     else if(!r.pay&&["Predictable","Feasible","Possible"].includes(r.pipe)&&!rnd(5)){ const d=new Date(2026,10,24-2-rnd(20));
       r.sent={date:String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear(),depR:.5}; } });
-  /* expired: Residential quotes expire 30 days after they're entered, so older open ones would be past it. Mock: about one in eight
-     open quotes, expired between Sep and last week */
-  QL.rows.forEach(r=>{ if(r.built||r.ord||r.pay||r.sent||rnd(8)) return; const d=new Date(2026,8,1+rnd(80)); if(d>new Date(2026,10,20)) d.setDate(10);
-    r.exp=String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear(); }); })();
+  /* expired: set by the rule in seedRows (30 days Resi, 18 months Com.), no longer seeded here */ })();
 (function seedArch(){ let s=13; const rnd=n=>{ s=(s*9301+49297)%233280; return Math.floor(s/233280*n); };
   const END=new Date(2026,10,20);
   QL.rows.forEach(r=>{ if(r.built||r.ord||r.pay) return; const p=r.pipe;
@@ -113,7 +113,7 @@ const fmtS=s=>{ const d=pd(s); return d.toLocaleDateString("en-US",d.getFullYear
 const daysTo=s=>Math.round((pd(s)-TODAY)/864e5);
 const isStale=r=>!r.ord&&!r.arch&&!payOf(r)&&!(r.exp&&daysTo(r.exp)<0)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
 /* the Sales Portal's "Closing in Next 2 Weeks": an open quote expected to convert in the next 14 days */
-const isExp=r=>!r.ord&&!r.arch&&!r.oo&&!!r.exp&&daysTo(r.exp)<0; /* expired: hidden by default, like archived */
+const isExp=r=>!r.ord&&!r.arch&&!r.oo&&!payOf(r)&&!!r.exp&&daysTo(r.exp)<0; /* expired: hidden by default, like archived; a paid deposit means the client accepted, so a paid quote never reads as expired */
 const isSent=r=>!!r.sent&&!r.ord&&!r.arch&&!payOf(r);
 const vis=x=>(X.arch||!x.arch)&&(X.expd||!isExp(x));
 const pipeName=x=>x.pipe==="Lost"&&x.lost?"Lost · "+lostShort(x.lost):x.pipe;
@@ -170,7 +170,7 @@ const IC={
 /* ---------- markup: sits inside #quotesPage, after v2's own title (which stays: setPage focuses it) ---------- */
 const root=document.createElement("div"); root.className="qlx"; root.id="qlx";
 root.innerHTML=`
-  <button type="button" class="btn lg qlxnew" data-qlx="new">${IC.plus}Create new</button>
+  <button type="button" class="btn lg qlxnew" data-qlx="new">${IC.plus}New quote</button>
   <div class="qlxsearch">${IC.search}<input type="search" id="qlxQ" placeholder="Search by quote #, order #, project, customer or description" aria-label="Search quotes and orders" autocomplete="off"></div>
   <div class="qlxtabs" role="tablist" aria-label="Quotes or orders">${Object.entries(TABS).map(([k,t])=>`<button type="button" role="tab" class="qlxtab" id="qlxTab-${k}" data-qlxtab="${k}" aria-controls="qlxPanel">${t.icon}<span>${t.name}</span><em id="qlxTabN-${k}"></em></button>`).join("")}</div>
   <div id="qlxPanel" role="tabpanel">
@@ -290,7 +290,7 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
     <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
     <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
-  q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp&&!x.arch?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
+  q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp&&!x.arch&&!payOf(x)?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
     return `<tr data-qlxrow="${K(x)}" class="${x.built?"built":""}${x.oo?" oo":""}${x.arch?" arch":""}">
     <td class="c-id">${idCell(x)}<span class="p2" title="${x.oo?"Ordered":"Quoted"} ${fmt(x.date)} · ${esc(x.type)}">${fmtS(x.date)} · ${x.type==="Commercial"?"Com.":"Resi."}</span></td>
     ${projCell(x)}

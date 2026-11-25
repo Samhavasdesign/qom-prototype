@@ -96,7 +96,12 @@ if(qlx){
      Orders tab. Mine / My team / Everyone and the type toggles are views, and "recent" means quotes you opened, so it stays. */
   const busy=()=>{ const v=q("#qlxQ")?.value.trim(), pill=q(".qlxpill.on"), ord=q('.qlxtab[aria-selected="true"]')?.textContent.includes("Orders"),
     chip=q('.qlxquick button[aria-pressed="true"]'); return !!(v||pill||ord||chip); };
-  const sync=()=>{ const h=busy(); if(sec.hidden!==h) sec.hidden=h; };
+  /* also hidden when it would only repeat the table: every recent quote is already in the table's first rows (Nov 25 audit: on
+     Mine, newest first, the three recent quotes were the table's first three rows) */
+  const dup=()=>{ const ids=[...sec.querySelectorAll("[data-hmq]")].map(b=>b.dataset.hmq); if(!ids.length) return false;
+    const top=[...document.querySelectorAll("#qlxBody tr[data-qlxrow]")].slice(0,ids.length+1).map(t=>t.dataset.qlxrow);
+    return ids.every(id=>top.includes(id)); };
+  const sync=()=>{ const h=busy()||dup(); if(sec.hidden!==h) sec.hidden=h; };
   sec.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]"); if(!r) return;
     if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); });
   /* the list re-renders a moment after typing stops, so watch it rather than the keystrokes */
