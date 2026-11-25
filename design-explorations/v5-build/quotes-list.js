@@ -12,7 +12,7 @@
    link both ways); and an order with no QOM quote behind it (keyed in M3, or e-commerce), which needs its own row and opens the order. */
 (function(){
 const q=s=>document.querySelector(s);
-const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,paid:false,sent:false,arch:false,expd:false,com:true,lostX:new Set(),due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
+const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,paid:false,sent:false,arch:false,expd:false,com:true,tot:true,lostX:new Set(),due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
   tab:"quotes",sortBy:{quotes:["id",-1],orders:["odate",-1]},found:""};
 try{ X.on=localStorage.getItem("qom-v5-qlx")!=="off"; if(localStorage.getItem("qom-v5-qlxtab")==="orders"){ X.tab="orders"; [X.sort,X.dir]=X.sortBy.orders; } }catch(e){}
 
@@ -136,7 +136,11 @@ const tabOk=(x,t)=>t==="quotes"?!x.ord:!!x.ord;
 const COLSQ=[["id","Quote"],["proj","Project"],["desc","Description"],["cust","Customer"],["pipe","Pipeline status"],["tot","Total"],["sc","Sales consultant"],["exp","Expires"]];
 const COLSO=[["odate","Order"],["id","Quote"],["proj","Project"],["cust","Customer"],["tot","Total"],["paid","Paid"],["ship","Unshipped"],["sc","Sales consultant"]];
 const SORTS={quotes:["id","pipe","tot","exp"],orders:["odate","tot","paid","ship"]};
-const COLS=()=>X.tab==="orders"?COLSO:COLSQ;
+/* no-total version (Nov 25): QOM stores no quote total today (QOM-3336), so if the build can't add one for v1, the list drops the Total
+   column, the Total filter, its sort, and anything worked out from a total (Orders' "$X due" / "Paid in full" and the Balance due chip).
+   Amount paid and unshipped value stay (both are stored on orders). Quick view keeps its subtotal: it loads the quote's lines anyway */
+const COLS=()=>(X.tab==="orders"?COLSO:COLSQ).filter(c=>X.tot||c[0]!=="tot");
+const sortsFor=t=>SORTS[t].filter(k=>X.tot||k!=="tot");
 const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Over $100,000"]];
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const words=()=>X.q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -214,9 +218,9 @@ function pipeCell(x){ if(x.oo) return `<span class="qlxsrc">Order</span><span cl
   /* in the table the likelihood is a tooltip (it made the table too wide at 1440px); the filter shows it in full */
   return `<span class="qlxpipe ${d[2]}"${d[1]?` title="${x.pipe} (${d[1]})"`:x.lost?` title="${esc(x.lost)}"`:""}><i aria-hidden="true"></i>${esc(pipeName(x))}${d[1]?`<span class="sr"> (${d[1]})</span>`:""}</span>`
     /* one note under the status, the one that needs attention first */
-    +(x.arch?`<span class="p2 archt" title="Archived ${fmt(x.arch.date)}">${IC.arch}Archived</span>`
+    +(x.arch?`<span class="p2 archt" title="Archived ${fmt(x.arch.date)}">${IC.arch}Archived<span class="sr"> ${fmt(x.arch.date)}</span></span>`
     :payOf(x)?payNote(payOf(x))
-    :isSent(x)?`<span class="p2 sentn" title="Sent to the client ${fmt(x.sent.date)} with a payment link. Deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid yet.">${IC.send}Awaiting payment</span>`
+    :isSent(x)?`<span class="p2 sentn" title="Sent to the client ${fmt(x.sent.date)} with a payment link. Deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid yet.">${IC.send}Awaiting payment<span class="sr">: sent ${fmt(x.sent.date)}, deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid</span></span>`
     :isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
 const payNote=p=>p.st==="held"
   ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid, order held</span>`
@@ -226,8 +230,8 @@ const payNote=p=>p.st==="held"
    thin progress bar, so the table doesn't jump while you type. An error keeps the search and filters and offers Try again (which works
    the second time, as a dropped connection would). Screen readers hear "Loading quotes" and the result count through the count row */
 const LD={mode:"ok",busy:false,err:false,sig:null,errSig:null,want:null,retried:false,prev:null,t:null};
-const lsig=()=>JSON.stringify([X.tab,X.q,X.who,X.type,[...X.pipes],[...X.lostX],X.stale,X.soon,X.paid,X.sent,X.arch,X.expd,X.com,X.due,X.ship,X.val,X.sort,X.dir,X.size,X.page]);
-function render(){ if(!X.on) return; syncBuilt();
+const lsig=()=>JSON.stringify([X.tab,X.q,X.who,X.type,[...X.pipes],[...X.lostX],X.stale,X.soon,X.paid,X.sent,X.arch,X.expd,X.com,X.tot,X.due,X.ship,X.val,X.sort,X.dir,X.size,X.page]);
+function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.sort,X.dir]=X.tab==="orders"?["odate",-1]:["id",-1];
   if(LD.mode!=="ok"){ const sg=lsig(); if(sg!==LD.sig&&!LD.busy&&!(LD.err&&sg===LD.errSig)){ LD.busy=true; LD.err=false; LD.want=sg; clearTimeout(LD.t);
     LD.t=setTimeout(()=>{ LD.busy=false; if(LD.mode==="error"&&!LD.retried){ LD.err=true; LD.errSig=LD.want; } else { LD.sig=LD.want; LD.err=false; } render(); },LD.mode==="error"?900:1300); } }
   const all=rowsX(), pages=Math.max(1,Math.ceil(all.length/X.size)); X.page=Math.min(X.page,pages);
@@ -243,6 +247,7 @@ function render(){ if(!X.on) return; syncBuilt();
   q("#qlxPipeW").classList.toggle("on",np>0); q("#qlxPipeL").textContent=np===0?"Pipeline status":np===1?[...X.pipes][0]:`Pipeline status · ${np}`;
   q("#qlxTypeW").hidden=!X.com; /* only SCs with commercial access see commercial quotes, so only they get the Type filter */
   q("#qlxTypeW").classList.toggle("on",!!X.type); q("#qlxTypeL").textContent=X.type||"All types";
+  q("#qlxValW").hidden=!X.tot;
   q("#qlxValW").classList.toggle("on",X.val>0); q("#qlxValL").textContent=X.val?VALS.find(v=>v[0]===X.val)[1]:"Total";
   const base=ALL().filter(x=>matchesBase(x)&&tabOk(x,X.tab)&&(X.tab!=="quotes"||vis(x)));
   /* Lost is eight M3 statuses; ticking Lost shows its reasons, all ticked, to narrow it */
@@ -254,12 +259,12 @@ function render(){ if(!X.on) return; syncBuilt();
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
   /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
   const QF=X.tab==="quotes"?[["sent",IC.send,"Awaiting payment",isSent,"Sent to the client with a payment link; the deposit isn't paid yet"],["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order yet",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
-    :[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"],["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
+    :[...(X.tot?[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"]]:[]),["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
   q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
   root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.paid||X.sent||X.arch||X.expd||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
   /* count */
   const allQ=X.tab==="quotes"?rowsFor("quotes",true):[], nArch=allQ.filter(x=>x.arch).length, nExp=allQ.filter(isExp).length;
-  const hideLink=(k,n,l)=>n?(X[k]?` · including ${n} ${l} · <button type="button" class="qlxarchb" data-qlxhide="${k}" aria-pressed="true">Hide ${l}</button>`:` · <button type="button" class="qlxarchb" data-qlxhide="${k}" aria-pressed="false">Show ${n} ${l}</button>`):"";
+  const hideLink=(k,n,l)=>n?(X[k]?` · including ${n} ${l} · <button type="button" class="qlxarchb" data-qlxhide="${k}">Hide ${l}</button>`:` · <button type="button" class="qlxarchb" data-qlxhide="${k}">Show ${n} ${l}</button>`):"";
   const nHid=(X.expd?0:nExp)+(X.arch?0:nArch);
   const mq=X.q?` matching “${esc(X.q)}”`:"", nOO=all.filter(x=>x.oo).length, n=all.length.toLocaleString("en-US");
   q("#qlxCount").innerHTML=(X.tab==="quotes"?`<b>${n}</b> ${all.length===1?"quote":"quotes"} not converted yet${mq}`
@@ -269,7 +274,7 @@ function render(){ if(!X.on) return; syncBuilt();
   /* head */
   const COLS_=COLS();
   /* only the columns worth sorting sort (Sam, Nov 25): names and descriptions are found by search, not by scrolling A to Z */
-  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}>${SORTS[X.tab].includes(k)?`<button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button>`:`<span class="th">${l}</span>`}</th>`).join("");
+  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}>${sortsFor(X.tab).includes(k)?`<button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button>`:`<span class="th">${l}</span>`}</th>`).join("");
   /* body */
   const idCell=x=>`<span class="qlxid"><a href="#" data-qlxopen="${x.id}">${hl(x.id,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.id}" aria-label="Copy quote number ${x.id}" title="Copy">${IC.copy}</button></span>`;
   const qvb=x=>`<button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button>`;
@@ -280,8 +285,8 @@ function render(){ if(!X.on) return; syncBuilt();
     <td class="c-ord"><span class="qlxid"><a href="#" data-qlxopen="o${x.ord}">${hl(x.ord,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.ord}" aria-label="Copy order number ${x.ord}" title="Copy">${IC.copy}</button></span><span class="p2" title="Ordered ${fmt(x.odate)} · ${esc(x.type)}">${fmtS(x.odate)} · ${x.type==="Commercial"?"Com.":"Resi."}</span></td>
     <td class="c-id">${x.oo?`<span class="qlxsrc">No quote</span><span class="p2">${esc(x.src)}</span>`:`${idCell(x)}<span class="p2" title="Quoted ${fmt(x.date)}">Quoted ${fmtS(x.date)}</span>`}</td>
     ${projCell(x)}${custCell(x)}
-    <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
-    <td class="c-tot c-paid">${x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:`${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span>`}</td>
+    ${X.tot?`<td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>`:""}
+    <td class="c-tot c-paid">${!X.tot?(x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:usd0(paid)):x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:`${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span>`}</td>
     <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
     <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
@@ -292,7 +297,7 @@ function render(){ if(!X.on) return; syncBuilt();
     <td class="c-desc"><span class="p1" title="${esc(x.desc)}">${hl(x.desc,ws)}</span></td>
     ${custCell(x)}
     <td class="c-pipe">${pipeCell(x)}</td>
-    <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
+    ${X.tot?`<td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>`:""}
     <td class="c-sc">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}</td>
     <td class="c-exp c-qv">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
       ${qvb(x)}</td></tr>`; })()).join("")
@@ -469,6 +474,9 @@ lsw.innerHTML=`List data <select id="qlxData" autocomplete="off"><option value="
 q("#qlxOn")?.closest("label")?.after(lsw);
 const csw=document.createElement("label"); csw.title="v5 only: the SC's commercial-access flag. Off hides commercial quotes and orders, and the Type filter, as production does.";
 csw.innerHTML=`<input type="checkbox" id="qlxCom" checked autocomplete="off"> Commercial access`; lsw.after(csw);
+const tsw=document.createElement("label"); tsw.title="v5 only: off shows the list as v1 would be if the backend can't add a quote total (QOM-3336): no Total column, Total filter or sort, and no balance due on Orders.";
+tsw.innerHTML=`<input type="checkbox" id="qlxTot" checked autocomplete="off"> Quote totals in list`; csw.after(tsw);
+q("#qlxTot").addEventListener("change",e=>{ X.tot=e.target.checked; document.body.classList.toggle("qlx-nototal",!X.tot); if(!X.tot){ X.val=0; X.due=false; if(X.sort==="tot"){ [X.sort,X.dir]=X.tab==="orders"?["odate",-1]:["id",-1]; } } X.page=1; render(); });
 q("#qlxCom").addEventListener("change",e=>{ X.com=e.target.checked; if(!X.com) X.type=""; X.page=1; render(); });
 q("#qlxData").addEventListener("change",e=>{ LD.mode=e.target.value; clearTimeout(LD.t); Object.assign(LD,{busy:false,err:false,sig:null,errSig:null,retried:false,prev:null}); render(); });
 const sw=q("#qlxOn"); if(sw){ sw.checked=X.on; sw.addEventListener("change",()=>{ X.on=sw.checked; try{ localStorage.setItem("qom-v5-qlx",X.on?"on":"off"); }catch(e){} apply(); }); }

@@ -30,7 +30,7 @@ q(".main").append(page);
 
 /* Pick up where you left off (Sam, Nov 25): the quotes you opened last, so getting back to one doesn't need a nav item.
    The open quote first, from the quote itself; then two of Samantha's other open quotes from the Quotes list's mock rows */
-const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo"};
+const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo","Crossover Order":"xo"};
 const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
 const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
