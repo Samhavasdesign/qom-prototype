@@ -298,7 +298,7 @@ qv.addEventListener("keydown",ev=>{
     const a=f[0], z=f[f.length-1]; if(ev.shiftKey&&(document.activeElement===a||!f.includes(document.activeElement))){ ev.preventDefault(); z.focus(); } else if(!ev.shiftKey&&document.activeElement===z){ ev.preventDefault(); a.focus(); } } });
 
 /* ---------- events ---------- */
-function openQuote(id){ if(id==="6000024967") setPage("quote"); else if(id[0]==="o") showToast(`Opens order ${id.slice(1)} (the order page isn't built in the prototype).`); else showToast("Only quote 6000024967 is built in the prototype."); }
+function openQuote(id){ if(id==="6000024967"){ fillOpenQuote(); setPage("quote"); } else if(id[0]==="o") showToast(`Opens order ${id.slice(1)} (the order page isn't built in the prototype).`); else showToast("Only quote 6000024967 is built in the prototype."); }
 function closePops(){ root.querySelectorAll(".qlxpop").forEach(p=>{ p.hidden=true; p.parentNode.querySelector(".qlxpb").setAttribute("aria-expanded","false"); }); }
 function setTab(t,focus){ if(t===X.tab) return; X.sortBy[X.tab]=[X.sort,X.dir]; X.tab=t; [X.sort,X.dir]=X.sortBy[t]; X.page=1; X.found=""; closePops();
   try{ localStorage.setItem("qom-v5-qlxtab",t); }catch(e){} render(); if(focus) q("#qlxTab-"+t).focus(); }
@@ -347,6 +347,12 @@ root.addEventListener("keydown",ev=>{ if(ev.key==="Escape"){ const open=root.que
 
 /* ---------- wrap v2 and the switch ---------- */
 const oRender=renderQL; renderQL=function(){ oRender.apply(this,arguments); render(); };
+/* Opening quote 6000024967 from the list or Home (a row, Quick view's Open quote, Home's recent quotes) opens it with its lines (Sam, Nov 25):
+   the prototype starts on the empty "Fresh quote" scenario, so an empty quote switches to Normal's mock lines first.
+   New quote's own flow (from the create form) isn't affected. */
+function fillOpenQuote(){ if(quoteLines().length) return; const sc=document.getElementById("scenario"); if(!sc) return;
+  sc.value="normal"; sc.dispatchEvent(new Event("change",{bubbles:true})); }
+document.addEventListener("click",ev=>{ if(ev.target.closest?.('[data-hmq="6000024967"]')) fillOpenQuote(); },true); // Home's recent quotes
 const oSetPage=setPage; setPage=function(){ if(!qv.hidden) qvClose(); const r=oSetPage.apply(this,arguments); if(document.body.classList.contains("page-quotes")) document.title=(X.on?NAME:"Quotes")+" · QOM"; return r; };
 /* one place for quotes and orders (Sam, Nov 25): with the redesign on, the nav has one item, "Quotes & orders", and no Orders;
    the page title and breadcrumb follow. Off shows today's separate Quotes and Orders. The top bar is built after this layer,
