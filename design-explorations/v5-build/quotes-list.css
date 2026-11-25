@@ -324,3 +324,15 @@ html.warm body .qlxbar .qlxquick button[aria-pressed="true"] em{color:var(--navy
 .qlxx{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:0;border-radius:var(--r-sm);background:none;color:var(--ink-2);cursor:pointer}
 .qlxx:hover{background:rgb(0 0 0 / .06);color:var(--ink)}
 .qlxx:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+/* Scope as the Design Audit's segmented control (Sam, Nov 25): a grey track with the chosen option as a white segment, a soft
+   shadow and black text; the others in charcoal. One is always on, so it shows where you are quietly, like tabs, and the only
+   coloured active states in the row are the filters. Same in the navy trial (html:not(#x) lifts it over color.css) */
+html:not(#x) .qlx .qlxseg{gap:2px;height:var(--control-h,36px);padding:3px;border:0;border-radius:var(--r-md);background:var(--surface,#f3f3f3);box-shadow:none;overflow:visible}
+html:not(#x) .qlx .qlxseg button{height:100%;padding:0 12px;border:0;border-radius:var(--r-sm);background:none;color:var(--ink-2);box-shadow:none;font-weight:500}
+html:not(#x) .qlx .qlxseg button:hover{color:var(--ink);background:rgb(255 255 255 / .55)}
+html:not(#x) .qlx .qlxseg button[aria-pressed="true"]{background:var(--bg,#fff);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12),0 0 0 1px rgb(0 0 0 / .04)}
+html:not(#x) .qlx .qlxseg button:focus-visible{outline:2px solid var(--ink);outline-offset:1px;position:relative;z-index:1}
+/* Column headings in black, not charcoal (Sam, Nov 25): grey medium text on the tinted header read as disabled, and the bronze
+   sorted column ended up the darkest heading. The audit treats table headers as labels (14 / 20 medium, the text colour).
+   The sorted column keeps its bronze and arrow; sortable ones show their faint arrow on hover */
+.qlxt th button,.qlxt th .th{color:var(--ink)}
