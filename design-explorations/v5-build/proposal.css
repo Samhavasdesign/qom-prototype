@@ -48,6 +48,10 @@ body.proposal .ptools{display:flex;flex-direction:column;gap:4px;align-self:star
 body.prop-fold .ptool.cur{background:none;color:var(--ink-2)}
 .ptool .pdot{position:absolute;top:8px;right:20px;width:8px;height:8px;border-radius:50%;background:var(--block)}
 .ptool .pdot[hidden]{display:none}
+/* hide or show the panel (Nov 25): a 36px icon button under the tools, after a short divider; it never moves */
+.ptfold{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;margin:8px auto 0;padding:0;border:0;border-radius:var(--r-md);background:none;color:var(--ink-2);cursor:pointer}
+.ptfold::before{content:"";position:absolute;top:-6px;left:-14px;right:-14px;border-top:1px solid var(--line)}
+.ptfold:hover{background:var(--surface);color:var(--ink)}
 body.proposal .work[data-layout="split"]{grid-template-columns:80px minmax(300px,var(--left,.55fr)) 10px minmax(320px,1fr)}
 body.proposal.prop-fold .work[data-layout="split"]{grid-template-columns:80px minmax(0,1fr)}
 body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important}
@@ -56,6 +60,7 @@ body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important
   body.proposal .ptools{flex-direction:row;position:static}
   .ptool{width:auto;min-height:40px;grid-auto-flow:column;padding:6px 12px}
   .ptool .pdot{top:6px;right:6px}
+  .ptfold{display:none}
 }
 
 /* Details: the four field tabs as one panel, grouped by what the sales consultant is filling in */

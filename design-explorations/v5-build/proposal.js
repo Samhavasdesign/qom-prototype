@@ -44,6 +44,13 @@ function renderFacts(){
 const tools=document.createElement("nav"); tools.className="ptools"; tools.setAttribute("aria-label","Quote tools");
 tools.innerHTML=`<a href="#" class="ptab ptool" data-ptab="4">${IC.search}<span>Search</span></a><a href="#" class="ptab ptool" data-ptab="5" aria-describedby="pDotLbl">${IC.form}<span>Details</span><span class="pdot" id="pDot" hidden></span><span class="sr" id="pDotLbl"></span></a>`;
 q("#work").prepend(tools);
+/* hide or show the panel (Sam, Nov 25): Lucide's panel-left-close / panel-left-open as a button under the tools. It stays in the same
+   place whether the panel is open or folded. Clicking the open tool still folds it too (VS Code's pattern), as a shortcut */
+const PANEL_IC=open=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="${open?"m16 15-3-3 3-3":"m14 9 3 3-3 3"}"/></svg>`;
+const ftab=document.createElement("button"); ftab.type="button"; ftab.className="ptfold"; ftab.id="ptFold";
+tools.append(ftab);
+ftab.addEventListener("click",ev=>{ ev.preventDefault(); ev.stopPropagation(); P.fold=!P.fold; applyFold(); if(!P.fold&&S.ptab===4) q("#q")?.focus(); });
+function syncFtab(){ const l=P.fold?"Show panel":"Hide panel"; ftab.innerHTML=PANEL_IC(!P.fold); ftab.setAttribute("aria-expanded",String(!P.fold)); ftab.setAttribute("aria-label",l); ftab.title=l; }
 
 /* Details: every field from the four tabs, grouped by job. Each field's markup comes from v2's own forms, so it stays in step with them */
 const SECS=[["cust","Customer",["cust","aspec"]],["bill","Bill to",["payer","billto","po"]],["ship","Ship to",["addr","shipto","svc","acc"]],
@@ -64,7 +71,7 @@ function refreshTools(){
   const n=missingKeys().length, d=q("#pDot"); d.hidden=!n; q("#pDotLbl").textContent=n?`${n} field${n>1?"s":""} needed before you send`:"";
   renderFacts();
 }
-function applyFold(){ document.body.classList.toggle("prop-fold",P.on&&P.fold); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
+function applyFold(){ document.body.classList.toggle("prop-fold",P.on&&P.fold); syncFtab(); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 
 /* wrap v2: the field tabs all open Details; opening a tool unfolds the column */
 const oSetPTab=setPTab;

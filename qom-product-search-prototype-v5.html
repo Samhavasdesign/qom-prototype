@@ -4247,6 +4247,10 @@ body.proposal .ptools{display:flex;flex-direction:column;gap:4px;align-self:star
 body.prop-fold .ptool.cur{background:none;color:var(--ink-2)}
 .ptool .pdot{position:absolute;top:8px;right:20px;width:8px;height:8px;border-radius:50%;background:var(--block)}
 .ptool .pdot[hidden]{display:none}
+/* hide or show the panel (Nov 25): a 36px icon button under the tools, after a short divider; it never moves */
+.ptfold{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;margin:8px auto 0;padding:0;border:0;border-radius:var(--r-md);background:none;color:var(--ink-2);cursor:pointer}
+.ptfold::before{content:"";position:absolute;top:-6px;left:-14px;right:-14px;border-top:1px solid var(--line)}
+.ptfold:hover{background:var(--surface);color:var(--ink)}
 body.proposal .work[data-layout="split"]{grid-template-columns:80px minmax(300px,var(--left,.55fr)) 10px minmax(320px,1fr)}
 body.proposal.prop-fold .work[data-layout="split"]{grid-template-columns:80px minmax(0,1fr)}
 body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important}
@@ -4255,6 +4259,7 @@ body.proposal.prop-fold :is(#searchPane,#ptView,#gutter){display:none !important
   body.proposal .ptools{flex-direction:row;position:static}
   .ptool{width:auto;min-height:40px;grid-auto-flow:column;padding:6px 12px}
   .ptool .pdot{top:6px;right:6px}
+  .ptfold{display:none}
 }
 
 /* Details: the four field tabs as one panel, grouped by what the sales consultant is filling in */
@@ -4385,6 +4390,13 @@ function renderFacts(){
 const tools=document.createElement("nav"); tools.className="ptools"; tools.setAttribute("aria-label","Quote tools");
 tools.innerHTML=`<a href="#" class="ptab ptool" data-ptab="4">${IC.search}<span>Search</span></a><a href="#" class="ptab ptool" data-ptab="5" aria-describedby="pDotLbl">${IC.form}<span>Details</span><span class="pdot" id="pDot" hidden></span><span class="sr" id="pDotLbl"></span></a>`;
 q("#work").prepend(tools);
+/* hide or show the panel (Sam, Nov 25): Lucide's panel-left-close / panel-left-open as a button under the tools. It stays in the same
+   place whether the panel is open or folded. Clicking the open tool still folds it too (VS Code's pattern), as a shortcut */
+const PANEL_IC=open=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="${open?"m16 15-3-3 3-3":"m14 9 3 3-3 3"}"/></svg>`;
+const ftab=document.createElement("button"); ftab.type="button"; ftab.className="ptfold"; ftab.id="ptFold";
+tools.append(ftab);
+ftab.addEventListener("click",ev=>{ ev.preventDefault(); ev.stopPropagation(); P.fold=!P.fold; applyFold(); if(!P.fold&&S.ptab===4) q("#q")?.focus(); });
+function syncFtab(){ const l=P.fold?"Show panel":"Hide panel"; ftab.innerHTML=PANEL_IC(!P.fold); ftab.setAttribute("aria-expanded",String(!P.fold)); ftab.setAttribute("aria-label",l); ftab.title=l; }
 
 /* Details: every field from the four tabs, grouped by job. Each field's markup comes from v2's own forms, so it stays in step with them */
 const SECS=[["cust","Customer",["cust","aspec"]],["bill","Bill to",["payer","billto","po"]],["ship","Ship to",["addr","shipto","svc","acc"]],
@@ -4405,7 +4417,7 @@ function refreshTools(){
   const n=missingKeys().length, d=q("#pDot"); d.hidden=!n; q("#pDotLbl").textContent=n?`${n} field${n>1?"s":""} needed before you send`:"";
   renderFacts();
 }
-function applyFold(){ document.body.classList.toggle("prop-fold",P.on&&P.fold); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
+function applyFold(){ document.body.classList.toggle("prop-fold",P.on&&P.fold); syncFtab(); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 
 /* wrap v2: the field tabs all open Details; opening a tool unfolds the column */
 const oSetPTab=setPTab;
