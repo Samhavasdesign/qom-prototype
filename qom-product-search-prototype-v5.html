@@ -5120,6 +5120,15 @@ html:not(#x) .qlx .qlxseg button:focus-visible{outline:2px solid var(--ink);outl
    sorted column ended up the darkest heading. The audit treats table headers as labels (14 / 20 medium, the text colour).
    The sorted column keeps its bronze and arrow; sortable ones show their faint arrow on hover */
 .qlxt th button,.qlxt th .th{color:var(--ink)}
+/* the search's clear button (Sam, Nov 25): Chrome's own × is bold and blue, unlike anything else here, so it's hidden and this
+   one, the set filters' ×, sits in its place: grey, darker on hover, a 28px target inside the field */
+.qlxsearch input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+.qlxsearch input{padding-right:44px}
+.qlxqx{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--r-sm);background:none;color:var(--ink-2);cursor:pointer}
+.qlxqx[hidden]{display:none}
+.qlxqx:hover{background:rgb(0 0 0 / .06);color:var(--ink)}
+.qlxqx:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.qlxsearch .qlxqx svg{position:static;transform:none;color:currentColor;pointer-events:none}
 </style>
 <script>
 /* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332; brief "Improved Quote Search") ====
@@ -5298,7 +5307,7 @@ const IC={
 const root=document.createElement("div"); root.className="qlx"; root.id="qlx";
 root.innerHTML=`
   <button type="button" class="btn lg qlxnew" data-qlx="new">${IC.plus}New quote</button>
-  <div class="qlxsearch">${IC.search}<input type="search" id="qlxQ" placeholder="Search by quote #, order #, project, customer or description" aria-label="Search quotes and orders" autocomplete="off"></div>
+  <div class="qlxsearch">${IC.search}<input type="search" id="qlxQ" placeholder="Search by quote #, order #, project, customer or description" aria-label="Search quotes and orders" autocomplete="off"><button type="button" class="qlxqx" id="qlxQx" aria-label="Clear search" title="Clear search" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
   <div class="qlxtabs" role="tablist" aria-label="Quotes or orders">${Object.entries(TABS).map(([k,t])=>`<button type="button" role="tab" class="qlxtab" id="qlxTab-${k}" data-qlxtab="${k}" aria-controls="qlxPanel">${t.icon}<span>${t.name}</span><em id="qlxTabN-${k}"></em></button>`).join("")}</div>
   <div id="qlxPanel" role="tabpanel">
   <div class="qlxbar">
@@ -5535,7 +5544,13 @@ function search(v){ X.q=v.trim(); X.page=1; X.found=""; const ws=words();
     if(hit){ setTab(o); X.found=o==="orders"&&hit.id===ws[0]?`Quote ${hit.id} was converted to order ${hit.ord}`:`Found in ${TABS[o].name}`; } }
   render(); }
 let tq=null; q("#qlxQ").addEventListener("input",ev=>{ clearTimeout(tq); tq=setTimeout(()=>search(ev.target.value),200); });
-q("#qlxQ").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ clearTimeout(tq); search(ev.target.value); } });
+q("#qlxQ").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ clearTimeout(tq); search(ev.target.value); }
+  else if(ev.key==="Escape"&&ev.target.value){ ev.preventDefault(); ev.stopPropagation(); clearQ(); } });
+/* our own clear button (Sam, Nov 25), the filters' × in place of Chrome's blue one; shows once there's text, Esc does the same */
+const syncQx=()=>{ q("#qlxQx").hidden=!q("#qlxQ").value; };
+function clearQ(){ const i=q("#qlxQ"); i.value=""; clearTimeout(tq); syncQx(); search(""); i.focus(); }
+q("#qlxQ").addEventListener("input",syncQx);
+q("#qlxQx").addEventListener("click",clearQ);
 /* tabs: arrow keys move between them (automatic activation), Home and End jump */
 root.querySelector(".qlxtabs").addEventListener("keydown",ev=>{ if(!["ArrowLeft","ArrowRight","Home","End"].includes(ev.key)) return; ev.preventDefault();
   const ks=Object.keys(TABS), i=ks.indexOf(X.tab); setTab(ev.key==="Home"?ks[0]:ev.key==="End"?ks[ks.length-1]:ks[(i+(ev.key==="ArrowRight"?1:ks.length-1))%ks.length],true); });
@@ -5571,7 +5586,7 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlx==="showhidden"){ X.arch=true; X.expd=true; X.page=1; render(); return; }
   if(d.qlx==="retry"){ LD.err=false; LD.errSig=null; LD.retried=true; render(); q("#qlxQ").focus(); return; }
   if(d.qlx==="everyone"){ X.who="all"; X.page=1; render(); return; }
-  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.paid=false; X.sent=false; X.arch=false; X.expd=false; X.lostX.clear(); X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
+  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.paid=false; X.sent=false; X.arch=false; X.expd=false; X.lostX.clear(); X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; syncQx(); X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
   if(b) return;
   /* anywhere else on a row opens its Quick view (Sam, Nov 25; it opened the quote until then); the eye stays as the signifier,
      and the quote or order number still opens it directly. Text selection doesn't. */

@@ -336,3 +336,12 @@ html:not(#x) .qlx .qlxseg button:focus-visible{outline:2px solid var(--ink);outl
    sorted column ended up the darkest heading. The audit treats table headers as labels (14 / 20 medium, the text colour).
    The sorted column keeps its bronze and arrow; sortable ones show their faint arrow on hover */
 .qlxt th button,.qlxt th .th{color:var(--ink)}
+/* the search's clear button (Sam, Nov 25): Chrome's own × is bold and blue, unlike anything else here, so it's hidden and this
+   one, the set filters' ×, sits in its place: grey, darker on hover, a 28px target inside the field */
+.qlxsearch input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+.qlxsearch input{padding-right:44px}
+.qlxqx{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--r-sm);background:none;color:var(--ink-2);cursor:pointer}
+.qlxqx[hidden]{display:none}
+.qlxqx:hover{background:rgb(0 0 0 / .06);color:var(--ink)}
+.qlxqx:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.qlxsearch .qlxqx svg{position:static;transform:none;color:currentColor;pointer-events:none}
