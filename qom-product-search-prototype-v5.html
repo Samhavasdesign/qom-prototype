@@ -5236,9 +5236,11 @@ const fmtS=s=>{ const d=pd(s); return d.toLocaleDateString("en-US",d.getFullYear
 const daysTo=s=>Math.round((pd(s)-TODAY)/864e5);
 const isStale=r=>!r.ord&&!r.arch&&!payOf(r)&&!(r.exp&&daysTo(r.exp)<0)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
 /* the Sales Portal's "Closing in Next 2 Weeks": an open quote expected to convert in the next 14 days */
-const isExp=r=>!r.ord&&!r.arch&&!r.oo&&!payOf(r)&&!!r.exp&&daysTo(r.exp)<0; /* expired: hidden by default, like archived; a paid deposit means the client accepted, so a paid quote never reads as expired */
+const isExp=r=>!r.ord&&!r.arch&&!r.oo&&!payOf(r)&&!!r.exp&&daysTo(r.exp)<0; /* a paid deposit means the client accepted, so a paid quote never reads as expired.
+   Expired quotes show in the list (Sam, Nov 25), marked "Expired" under the date: production keeps them, Refresh Quote exists to
+   revive them, and Residential quotes expire after 30 days, so hiding them would hide much of an SC's working list */
 const isSent=r=>!!r.sent&&!r.ord&&!r.arch&&!payOf(r);
-const vis=x=>(X.arch||!x.arch)&&(X.expd||!isExp(x));
+const vis=x=>X.arch||!x.arch; /* only archived quotes are hidden by default */
 const pipeName=x=>x.pipe==="Lost"&&x.lost?"Lost · "+lostShort(x.lost):x.pipe;
 const isSoon=r=>!r.ord&&!r.arch&&!payOf(r)&&!(r.exp&&daysTo(r.exp)<0)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&daysTo(rowConv(r))<=14;
 /* Quotes and Orders tabs (Sam, Nov 25): one page, one search across both, each tab with its own columns and quick filters.
@@ -5396,11 +5398,11 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
   /* count */
   const allQ=X.tab==="quotes"?rowsFor("quotes",true):[], nArch=allQ.filter(x=>x.arch).length, nExp=allQ.filter(isExp).length;
   const hideLink=(k,n,l)=>n?(X[k]?` · including ${n} ${l} · <button type="button" class="qlxarchb" data-qlxhide="${k}">Hide ${l}</button>`:` · <button type="button" class="qlxarchb" data-qlxhide="${k}">Show ${n} ${l}</button>`):"";
-  const nHid=(X.expd?0:nExp)+(X.arch?0:nArch);
+  const nHid=X.arch?0:nArch;
   const mq=X.q?` matching “${esc(X.q)}”`:"", nOO=all.filter(x=>x.oo).length, n=all.length.toLocaleString("en-US");
   q("#qlxCount").innerHTML=(X.tab==="quotes"?`<b>${n}</b> ${all.length===1?"quote":"quotes"} not converted yet${mq}`
     :`<b>${n}</b> ${all.length===1?"order":"orders"}${mq}${all.length?` · ${all.length-nOO} from quotes · ${nOO} with no quote`:""}`)
-    +hideLink("expd",nExp,"expired")+hideLink("arch",nArch,"archived")
+    +hideLink("arch",nArch,"archived")
     +(X.found?` · <span class="qlxfound">${X.found}</span>`:"");
   /* head */
   const COLS_=COLS();
@@ -5433,7 +5435,7 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
     <td class="c-exp c-qv">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
       ${qvb(x)}</td></tr>`; })()).join("")
     /* empty: point to the other tab when the search finds something there */
-    :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.tab==="quotes"&&nHid?`${nHid} expired or archived ${nHid===1?"quote matches":"quotes match"}. <button type="button" data-qlx="showhidden">Show ${nHid===1?"it":"them"}</button>`:nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
+    :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.tab==="quotes"&&nHid?`${nHid} archived ${nHid===1?"quote matches":"quotes match"}. <button type="button" data-qlx="showhidden">Show ${nHid===1?"it":"them"}</button>`:nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
       :X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's ${tName}</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
   q(".qlxsize").hidden=all.length<=25; /* Rows per page only matters once there's more than the smallest page (Nov 25 audit) */
