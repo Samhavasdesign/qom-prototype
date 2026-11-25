@@ -20,5 +20,10 @@ rep('<strong>Proposal layout and global search</strong></label>',
     '<strong>Proposal layout and global search</strong></label>\n  <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today\'s list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>\n  <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen\'s deck) as the Quotes list\'s accent. Off shows it in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'quotes-list.css').read()+'</style>\n'+open(D+'quotes-list.js').read()+s[i:]
+# Top navigation bar (Nov 25): a trial, off by default, with its own switch
+rep('<strong>Quotes list redesign</strong></label>',
+    '<strong>Quotes list redesign</strong></label>\n  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>')
+i=s.rindex('</body>')
+s=s[:i]+'<style>'+open(D+'topnav.css').read()+'</style>\n'+open(D+'topnav.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)
 print('ok',len(s))

@@ -1766,6 +1766,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label><input type="checkbox" id="liveSearch" checked autocomplete="off"> Search as you type</label>
   <label title="v5 only: the Quote Page Proposal (tool column, Details, no tabs, new quote in one step) and global search (side nav, ⌘K)."><input type="checkbox" id="propOn" checked autocomplete="off"> <strong>Proposal layout and global search</strong></label>
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
+  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
   <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the Quotes list's accent. Off shows it in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
@@ -5094,6 +5095,97 @@ let bronze=true; try{ bronze=localStorage.getItem("qom-v5-bronze")!=="off"; }cat
 document.body.classList.toggle("qlx-bronze",bronze);
 const bsw=q("#qlxBronze"); if(bsw){ bsw.checked=bronze; bsw.addEventListener("change",()=>{ bronze=bsw.checked; try{ localStorage.setItem("qom-v5-bronze",bronze?"on":"off"); }catch(e){} document.body.classList.toggle("qlx-bronze",bronze); }); }
 const sw=q("#qlxOn"); if(sw){ sw.checked=X.on; sw.addEventListener("change",()=>{ X.on=sw.checked; try{ localStorage.setItem("qom-v5-qlx",X.on?"on":"off"); }catch(e){} apply(); }); }
+apply();
+})();
+</script>
+<style>/* ==== v5 (Nov 25): top navigation bar, a trial. On while <html> has .tnav (demo bar switch "Top navigation bar") ====
+   From md up the side nav goes and one black 48px bar runs across the top: wordmark, the app's places, global search,
+   then Staging, notifications and the account menu. It replaces the breadcrumb row (36px), so the page keeps nearly
+   the same height and gains the rail's width. Below md the existing black top bar and drawer stay as they are. */
+.tnbar{display:none}
+html.tnav:not(.topnav) .tnbar{display:flex}
+html.tnav:not(.topnav) .rail{display:none}
+html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
+html.tnav:not(.topnav) .pghead{display:none}
+.tnbar{align-items:center;gap:6px;height:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.26em;color:var(--rail-ink);margin-right:18px;white-space:nowrap;text-decoration:none}
+.tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
+.tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
+.tnlinks a:hover{color:var(--rail-ink)}
+.tnlinks a[aria-current="page"]{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
+.tnlinks a:focus-visible,.tnbar button:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
+.tnsearch{display:flex;align-items:center;gap:8px;height:32px;width:min(300px,26vw);margin-left:16px;padding:0 8px 0 10px;border:1px solid rgb(255 255 255 / .22);border-radius:var(--r-md,4px);background:rgb(255 255 255 / .06);color:#c9c9c9;font:inherit;font-size:13px;cursor:pointer}
+.tnsearch:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
+.tnsearch span{flex:1;text-align:left}
+.tnsearch kbd{font:inherit;font-size:11px;padding:1px 5px;border:1px solid rgb(255 255 255 / .22);border-radius:3px;color:#c9c9c9}
+body:not(.proposal) .tnsearch{display:none}
+.tnright{display:flex;align-items:center;gap:6px;margin-left:auto}
+.tnenv{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:#e5852f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.tnicon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:#d6d6d6;cursor:pointer}
+.tnicon:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
+.tnav-acct{position:relative}
+.tnav-acct .tnicon{background:#3a3a3a;color:#cfcfcf}
+.tnmenu{position:absolute;top:calc(100% + 6px);right:0;min-width:220px;padding:4px;background:var(--bg);color:var(--ink);border-radius:var(--r-md,4px);box-shadow:0 0 0 1px rgb(18 18 18 / .1),0 4px 6px -1px rgb(0 0 0 / .1),0 2px 4px -2px rgb(0 0 0 / .1);z-index:60}
+.tnmenu .who{padding:8px 10px 6px;font-size:13px;color:var(--ink-2);border-bottom:1px solid var(--line);margin-bottom:4px}
+.tnmenu .who b{display:block;color:var(--ink);font-weight:500;font-size:14px}
+.tnmenu button{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;padding:0 10px;border:0;border-radius:var(--r-sm,3px);background:none;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.tnmenu button:hover,.tnmenu button:focus-visible{background:var(--surface);outline:none}
+.tnmenu .sep{height:1px;background:var(--line);margin:4px -4px}
+/* tight widths (lg to xl): icons go from the links, the search narrows to an icon */
+@media (width < 1280px){ /* xl */
+  .tnlinks a svg{display:none}
+  .tnlinks a{padding:0 10px}
+}
+@media (width < 1024px){ /* lg */
+  .tnmark{display:none}
+  .tnsearch{width:36px;padding:0;justify-content:center;margin-left:8px}
+  .tnsearch span,.tnsearch kbd{display:none}
+}
+/* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
+html.tnav:not(.topnav) .protoshow{top:48px}
+</style>
+<script>
+/* ==== v5 (Nov 25): top navigation bar, a trial (see topnav.css). The demo bar's "Top navigation bar" switch turns it on;
+   off by default, remembered in the browser. It reuses the side nav's own icons and actions: Quotes opens the Quotes list,
+   Search opens global search (the side nav's Search button), Log out opens the same sign-out dialog. */
+(function(){
+const q=s=>document.querySelector(s);
+let on=false; try{ on=localStorage.getItem("qom-v5-topnav")==="on"; }catch(e){}
+const rail=q(".rail"); if(!rail) return;
+const icon=name=>{ const a=[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
+const LINKS=["Welcome","Clients","Projects","Quotes","Orders"];
+const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
+bar.innerHTML=`<a href="#" class="tnmark" data-tn="home" aria-label="Waterworks QOM, Welcome">WATERWORKS</a>
+  <div class="tnlinks">${LINKS.map(n=>`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':` data-tn="${n}"`}>${icon(n)}${n}</a>`).join("")}</div>
+  <button type="button" class="tnsearch" data-tn="search" aria-label="Search clients, projects, quotes and orders"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform)?"⌘":"Ctrl "}K</kbd></button>
+  <div class="tnright">
+    <span class="tnenv" title="You're on the staging environment">STAGING</span>
+    <button type="button" class="tnicon" data-tn="bell" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button>
+    <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Alex Rivera" title="Alex Rivera"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
+      <div class="tnmenu" id="tnMenu" role="menu" aria-label="Account" hidden>
+        <div class="who"><b>Alex Rivera</b>Sales consultant · USC</div>
+        <button type="button" role="menuitem" data-tn="import">${icon("Import Tools")}Import tools</button>
+        <button type="button" role="menuitem" data-tn="prod">Go to production</button>
+        <div class="sep" role="separator"></div>
+        <button type="button" role="menuitem" data-tn="logout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Log out</button>
+      </div></div>
+  </div>`;
+q(".app").before(bar);
+const menu=q("#tnMenu"), acct=bar.querySelector('[data-tn="acct"]');
+function closeMenu(focus){ if(menu.hidden) return; menu.hidden=true; acct.setAttribute("aria-expanded","false"); if(focus) acct.focus(); }
+bar.addEventListener("click",ev=>{ const b=ev.target.closest("[data-tn]"); if(!b) return; ev.preventDefault(); const k=b.dataset.tn;
+  if(k==="search"){ q("#gsBtn")?.click(); return; }
+  if(k==="acct"){ const open=menu.hidden; menu.hidden=!open; acct.setAttribute("aria-expanded",String(open)); if(open) menu.querySelector("button")?.focus(); return; }
+  closeMenu();
+  if(k==="logout"){ q("#logoutBtn")?.click(); return; }
+  const what={home:"Welcome",bell:"Notifications",import:"Import tools",prod:"Production"}[k]||k;
+  showToast(`${what} isn't built in the prototype.`); });
+document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnav-acct")) closeMenu(); });
+menu.addEventListener("keydown",ev=>{ const items=[...menu.querySelectorAll("button")], i=items.indexOf(document.activeElement);
+  if(ev.key==="Escape"){ ev.preventDefault(); closeMenu(true); }
+  else if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); items[(i+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length].focus(); } });
+function apply(){ document.documentElement.classList.toggle("tnav",on); closeMenu(); dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
+const sw=q("#tnOn"); if(sw){ sw.checked=on; sw.addEventListener("change",()=>{ on=sw.checked; try{ localStorage.setItem("qom-v5-topnav",on?"on":"off"); }catch(e){} apply(); }); }
 apply();
 })();
 </script>

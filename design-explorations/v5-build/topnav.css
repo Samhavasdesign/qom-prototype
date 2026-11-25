@@ -1,0 +1,45 @@
+/* ==== v5 (Nov 25): top navigation bar, a trial. On while <html> has .tnav (demo bar switch "Top navigation bar") ====
+   From md up the side nav goes and one black 48px bar runs across the top: wordmark, the app's places, global search,
+   then Staging, notifications and the account menu. It replaces the breadcrumb row (36px), so the page keeps nearly
+   the same height and gains the rail's width. Below md the existing black top bar and drawer stay as they are. */
+.tnbar{display:none}
+html.tnav:not(.topnav) .tnbar{display:flex}
+html.tnav:not(.topnav) .rail{display:none}
+html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
+html.tnav:not(.topnav) .pghead{display:none}
+.tnbar{align-items:center;gap:6px;height:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.26em;color:var(--rail-ink);margin-right:18px;white-space:nowrap;text-decoration:none}
+.tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
+.tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
+.tnlinks a:hover{color:var(--rail-ink)}
+.tnlinks a[aria-current="page"]{color:var(--rail-ink);border-bottom-color:var(--rail-ink)}
+.tnlinks a:focus-visible,.tnbar button:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
+.tnsearch{display:flex;align-items:center;gap:8px;height:32px;width:min(300px,26vw);margin-left:16px;padding:0 8px 0 10px;border:1px solid rgb(255 255 255 / .22);border-radius:var(--r-md,4px);background:rgb(255 255 255 / .06);color:#c9c9c9;font:inherit;font-size:13px;cursor:pointer}
+.tnsearch:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
+.tnsearch span{flex:1;text-align:left}
+.tnsearch kbd{font:inherit;font-size:11px;padding:1px 5px;border:1px solid rgb(255 255 255 / .22);border-radius:3px;color:#c9c9c9}
+body:not(.proposal) .tnsearch{display:none}
+.tnright{display:flex;align-items:center;gap:6px;margin-left:auto}
+.tnenv{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:#e5852f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.tnicon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:#d6d6d6;cursor:pointer}
+.tnicon:hover{background:rgb(255 255 255 / .1);color:var(--rail-ink)}
+.tnav-acct{position:relative}
+.tnav-acct .tnicon{background:#3a3a3a;color:#cfcfcf}
+.tnmenu{position:absolute;top:calc(100% + 6px);right:0;min-width:220px;padding:4px;background:var(--bg);color:var(--ink);border-radius:var(--r-md,4px);box-shadow:0 0 0 1px rgb(18 18 18 / .1),0 4px 6px -1px rgb(0 0 0 / .1),0 2px 4px -2px rgb(0 0 0 / .1);z-index:60}
+.tnmenu .who{padding:8px 10px 6px;font-size:13px;color:var(--ink-2);border-bottom:1px solid var(--line);margin-bottom:4px}
+.tnmenu .who b{display:block;color:var(--ink);font-weight:500;font-size:14px}
+.tnmenu button{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;padding:0 10px;border:0;border-radius:var(--r-sm,3px);background:none;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.tnmenu button:hover,.tnmenu button:focus-visible{background:var(--surface);outline:none}
+.tnmenu .sep{height:1px;background:var(--line);margin:4px -4px}
+/* tight widths (lg to xl): icons go from the links, the search narrows to an icon */
+@media (width < 1280px){ /* xl */
+  .tnlinks a svg{display:none}
+  .tnlinks a{padding:0 10px}
+}
+@media (width < 1024px){ /* lg */
+  .tnmark{display:none}
+  .tnsearch{width:36px;padding:0;justify-content:center;margin-left:8px}
+  .tnsearch span,.tnsearch kbd{display:none}
+}
+/* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
+html.tnav:not(.topnav) .protoshow{top:48px}
