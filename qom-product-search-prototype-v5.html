@@ -1768,7 +1768,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
   <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
   <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the accent: the Quotes list's links and selection marks, and text links on every page. Off shows them in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
-  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a gold bar for the room being added to, with warm greys and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and warm greys</label>
+  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with cool grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and cool greys</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -4434,6 +4434,10 @@ html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):focus-within{border-color:v
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox,.pf-box,.lfilter,.gsin) :is(input,select):focus{box-shadow:none}
 html:not(#a) body :is(input,select,textarea)[aria-invalid="true"]:focus,html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):has([aria-invalid="true"]):focus-within{border-color:var(--destructive);box-shadow:0 0 0 3px var(--block-bg)}
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox) [aria-invalid="true"]:focus{box-shadow:none}
+
+/* Line alerts hug their text (Sam, Nov 25): stock, kit, late-date and status alerts on quote lines are as wide as their
+   copy, up to the row's width, instead of stretching across the whole line. */
+html body .line .rb{justify-self:start;width:fit-content;max-width:100%}
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
@@ -4898,6 +4902,9 @@ body.qlx-bronze :is(.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .
    Quotes list's grey header, so whatever uses --bronze inside them follows. White cards inside a pane take it too; it
    passes on white as well (5.8:1). */
 body.qlx-bronze :is(#searchPane,#quotePane,#ptView,.rpp){--bronze:var(--brand-on-fill,#7a6143)}
+/* the quote page's facts row (customer, project; each opens its field in Details) reads as links too (Sam, Nov 25):
+   bronze and underlined like See full breakdown. The expiry tag keeps its amber. */
+body.qlx-bronze .pfacts button[data-pgo] b{color:var(--bronze);text-decoration:underline;text-underline-offset:3px}
 /* Table header in a plain grey (Sam, Nov 25): the header and a hovered row were both on the fill and looked the same. Deep
    gold, then navy, were tried and highlighted it too much; it's now a slightly darker neutral, --surface-header (#ebebeb),
    with the usual secondary text (4.6:1) and the sorted column in the darker link bronze (4.9:1). Hovered rows keep the fill. */
@@ -5292,7 +5299,7 @@ apply();
 })();
 </script>
 <style>/* ==== v5 (Nov 25): top navigation bar, a trial. On while <html> has .tnav (demo bar switch "Top navigation bar") ====
-   From md up the side nav goes and one black 48px bar runs across the top: the app's places (no wordmark since Nov 25; Home is the first link), global search,
+   From md up the side nav goes and one black 48px bar runs across the top: a compact wordmark (xl and up), the app's places, global search,
    then Staging, notifications and the account menu. It replaces the breadcrumb row (36px), so the page keeps nearly
    the same height and gains the rail's width. Below md the existing black top bar and drawer stay as they are. */
 .tnbar{display:none}
@@ -5301,6 +5308,9 @@ html.tnav:not(.topnav) .rail{display:none}
 html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
 html.tnav:not(.topnav) .pghead{display:none}
 .tnbar{align-items:center;gap:6px;height:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+/* compact wordmark (Sam, Nov 25: removed, then back smaller): 11px, opens Home; hidden below xl, where width is tightest */
+.tnmark{font-family:var(--serif);font-size:11px;letter-spacing:.2em;color:var(--rail-ink);margin-right:20px;white-space:nowrap;text-decoration:none}
+.tnmark:focus-visible{outline:2px solid var(--rail-ink);outline-offset:4px}
 .tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
 .tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
 .tnlinks a:hover{color:var(--rail-ink)}
@@ -5359,6 +5369,13 @@ html.tnav:not(.topnav) body:not(.page-quotes):not(.page-home):not(.page-create) 
   .tnsearch{width:32px;padding:0;justify-content:center}
   .tnsearch span,.tnsearch kbd{display:none}
 }
+/* Same side margins as the page content (Sam, Nov 25; proposal.css "Page margins"): 32px, 48px from 2xl, 24px below lg.
+   The first link's own 12px padding (10px below xl) is pulled back so Home lines up with the content's left edge. */
+html body .tnbar{padding-left:32px;padding-right:32px}
+html body .tnlinks{margin-left:-12px}
+@media (width >= 1536px){ /* 2xl */ html body .tnbar{padding-left:48px;padding-right:48px} }
+@media (width < 1280px){ /* xl */ html body .tnlinks{margin-left:-10px} html body .tnmark{display:none} }
+@media (width < 1024px){ /* lg */ html body .tnbar{padding-left:24px;padding-right:24px} }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
 html.tnav:not(.topnav) .protoshow{top:48px}
 </style>
@@ -5375,7 +5392,8 @@ const rail=q(".rail"); if(!rail) return;
 const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-nav="quotes"]'))||[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
 const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
-bar.innerHTML=`<div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
+bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
+  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
     /* Quotes & orders has a chevron for the quotes you opened last (Sam, Nov 25): the label opens the list, the chevron opens Recent */
     return n!=="Quotes"?a:`<span class="tnsplit">${a}<button type="button" class="tnchev" id="tnRecentB" aria-haspopup="menu" aria-expanded="false" aria-controls="tnRecent" aria-label="Recent quotes" title="Recent quotes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="tnmenu tnrecent" id="tnRecent" role="menu" aria-label="Recent quotes" hidden></div></span>`; }).join("")}</div>
@@ -5593,32 +5611,52 @@ const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(t
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>
-<style>/* ==== v5 (Nov 25): "Navy buttons and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+<style>/* ==== v5 (Nov 25): "Navy buttons and cool greys", a trial behind a demo-bar switch (off by default; html.warm) ====
    Sam, Nov 25: navy is kept for dark elements. The app frame (top bar, side nav, phone bar) stays black, and inside the
    page every black filled control goes brand navy (--navy #001e52, tokens.css; white on it 16:1, hovered #123a7a 11:1):
-   filled buttons and calls to action (Create new, Send to client, Save, dialog buttons, the add (+) buttons), set filter
-   pills, selected toggles, current page numbers, count badges, checked checkboxes and switches. Toasts and tooltips stay
+   filled buttons and calls to action (Create new, Send to client, Save, dialog buttons, the add (+) buttons), selected toggles, current page numbers, count badges, checked checkboxes and switches. Toasts and tooltips stay
    black. Navy on the frame was tried first and read as almost black; navy on only some controls read as messy.
-   The room you're adding to (its bar and "Adding here") is a bright gold, the Sales Portal's #daa442, with black text
-   (8.4:1); the brand bronze (white text) was tried first and read too dark.
-   Fills go warm (#f5f2ed for #f3f3f3) and secondary text goes to the brand charcoal (#68696f; 4.9:1 on the warm fill).
-   Gold and navy-in-the-page aren't in the Design Audit yet (bronze is its only accent and it keeps navy out of the page),
-   so they go in the audit first if the trial holds. */
-html.warm{--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f;--gold:#daa442;--navy:#001e52;--navy-hover:#123a7a}
-html.warm .roomhdr.active{--on-ink:var(--ink);background:var(--gold);border-color:var(--gold);color:var(--ink)}
+   Set filter pills (search side and Quotes list) are light instead (Sam, Nov 25: filled navy pills read too heavy): white with a
+   2px navy edge and navy text (16:1); a pale navy fill got lost on the cool grey (Sam, Nov 25). The other room bars are the table header's grey #ebebeb (Sam, Nov 25), and
+   the room you're adding to (its bar and "Adding here") is navy with white text (Sam, Nov 25), as a dark element; the
+   brand bronze and then a bright gold (#daa442) were tried first.
+   Fills go a cool grey (#f4f5f7 for #f3f3f3; Sam, Nov 25: the warm #f5f2ed was too much beige beside the gold) and
+   secondary text goes to the brand charcoal (#68696f; 5.0:1 on the cool fill, 5.5:1 on white).
+   Navy in the page isn't in the Design Audit yet (bronze is its only accent and it keeps navy out of the page),
+   so it goes in the audit first if the trial holds. */
+html.warm{--surface:#f4f5f7;--ink-2:#68696f;--ink-3:#68696f;--navy:#001e52;--navy-hover:#123a7a}
+html.warm .roomhdr.active{background:var(--navy);border-color:var(--navy)} /* the room you're adding to: navy, white text (16:1) */
 
 /* dark controls: their black comes from var(--ink), so point --ink at navy on the control itself */
 html.warm :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.pf-go,.qlnew,.ctoast .ctundo,.menu > .act,
-  .add,.fpill.on,.qlxpill.on .qlxpb,.qlxseg button[aria-pressed="true"],.chip.on,.qlchip[aria-pressed="true"],
+  .add,.qlxseg button[aria-pressed="true"],.chip.on,.qlchip[aria-pressed="true"],
   .fntab[aria-pressed="true"],.fnsel,.fcount,.rpp-size button[aria-pressed="true"],.pager .pgnum[aria-current="page"],
   .qlpager button[aria-current="page"],.dnav button[aria-current="true"],.qi .qalert form .btn.go,.qlxtab[aria-selected="true"] em,
   input[type=checkbox]:not([role=switch],.proto *,.devpanel *):is(:checked,:indeterminate),.shipsw input:checked + .swtrack){--ink:var(--navy)}
 html.warm :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.pf-go,.qlnew,.menu > .act,.add):hover:not(:disabled,[aria-disabled="true"]){background:var(--navy-hover)}
 /* the demo bar's own controls stay as they are */
 html.warm :is(.proto,.devpanel,[class*=demo]) :is(.btn,input[type=checkbox]){--ink:#121212}
+
+/* set filter pills: white with a 2px navy edge (the 1px border plus an inset ring) and navy text, so they stand out from the
+   unset white pills and the grey panel; a pale navy fill (#e8ecf4) was tried first and got lost on the cool grey */
+html.warm :is(.fpill.on,.qlxpill.on .qlxpb){background:var(--bg);border-color:var(--navy);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+html.warm .fpill.on :is(.fpbtn,.fpx){color:var(--navy)}
+html.warm .fpill.on :is(.fpbtn,.fpx):focus-visible{outline-color:var(--navy)}
+html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
+
+/* room bars: the other rooms are the same grey as the Quotes list's table header (--surface-header #ebebeb; Sam, Nov 25,
+   after a navy try), with black names and charcoal counts (4.6:1); the room you're adding to is navy (above). */
+html.warm .roomhdr:not(.active){background:var(--surface-header,#ebebeb);border-color:var(--surface-header,#ebebeb);color:var(--ink)}
+
+/* room picker (Sam, Nov 25): the quote's rooms rest on the light fill and go a step darker on hover or keyboard focus (they
+   used to go lighter, since the fill changed under them); "+ Add room" stays navy with white text on hover and focus. */
+html.warm .menu > button[data-room]{background:var(--surface)}
+html.warm.sp .menu > button[data-room]:is(:hover,:focus-visible):not([aria-disabled="true"]),
+html.warm .menu > button[data-room]:is(:hover,:focus-visible){background:var(--surface-2)}
+html.warm.sp .menu > .act:is(:hover,:focus-visible):not([aria-disabled="true"]),html.warm .menu > .act:is(:hover,:focus-visible){background:var(--navy-hover);color:#fff}
 </style>
 <script>
-/* "Navy buttons and warm greys" switch (Nov 25): off by default, remembered in the browser */
+/* "Navy buttons and cool greys" switch (Nov 25): off by default, remembered in the browser */
 (function(){
   let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
   document.documentElement.classList.toggle("warm",on);

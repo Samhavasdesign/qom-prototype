@@ -197,3 +197,7 @@ html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):focus-within{border-color:v
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox,.pf-box,.lfilter,.gsin) :is(input,select):focus{box-shadow:none}
 html:not(#a) body :is(input,select,textarea)[aria-invalid="true"]:focus,html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):has([aria-invalid="true"]):focus-within{border-color:var(--destructive);box-shadow:0 0 0 3px var(--block-bg)}
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox) [aria-invalid="true"]:focus{box-shadow:none}
+
+/* Line alerts hug their text (Sam, Nov 25): stock, kit, late-date and status alerts on quote lines are as wide as their
+   copy, up to the row's width, instead of stretching across the whole line. */
+html body .line .rb{justify-self:start;width:fit-content;max-width:100%}
