@@ -12,12 +12,12 @@
    link both ways); and an order with no QOM quote behind it (keyed in M3, or e-commerce), which needs its own row and opens the order. */
 (function(){
 const q=s=>document.querySelector(s);
-const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,paid:false,arch:false,due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
+const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,paid:false,sent:false,arch:false,expd:false,com:true,lostX:new Set(),due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
   tab:"quotes",sortBy:{quotes:["id",-1],orders:["odate",-1]},found:""};
 try{ X.on=localStorage.getItem("qom-v5-qlx")!=="off"; if(localStorage.getItem("qom-v5-qlxtab")==="orders"){ X.tab="orders"; [X.sort,X.dir]=X.sortBy.orders; } }catch(e){}
 
 /* pipeline status: sp-fe's PROJECT_STATUS (quote-constants.ts) plus Lost; rank sets the sort order */
-const PIPE=[["Predictable",">95%","pr"],["Feasible","75–95%","fe"],["Possible","<75%","po"],["Lead","","le"],["On Hold","","oh"],["Duplicate","","du"],["Lost","","lo"]]; /* colours: the Sales Portal's, see quotes-list.css */
+const PIPE=[["Predictable",">95%","pr"],["Feasible","75–95%","fe"],["Possible","<75%","po"],["Lead","","le"],["On Hold","","oh"],["Duplicate","","du"],["Lost","","lo"],["Crossover Order","","xo"]]; /* colours: the Sales Portal's, see quotes-list.css */
 const RANK=Object.fromEntries(PIPE.map((p,i)=>[p[0],i]));
 const PROJ=["Henry bar and club house","Hudson Street residence","Ocean View 127","Maple Row townhouse","Lakeside spa","Park Avenue penthouse","Hotel Linden","Bayside model units","Cedar Point lodge","Greenwich renovation","Tribeca loft","Harbor house","Chelsea office","Orchard Lane phase 2","Stonegate kitchen","Willow Brook cottage","Fenwick hotel lobby","Grey Owl duplex","Ashford residence","Linden Street brownstone"];
 const STREETS=["Ocean View Road","Harbor Lane","Main Street","Elm Avenue","Shore Drive","Hill Road","Park Place","Mill Street","Bay Road","Orchard Way"];
@@ -25,7 +25,7 @@ const TOWNS=["Anytown NY 01001","Sampleville CT 06001","Exampleton NJ 07001","Mo
 const ROOMS=["Primary Bath","Guest Bath","Powder Room","Kitchen","Bar","Laundry","Lobby Restroom","Spa"];
 const POOL=CAT.filter(p=>p.price>0&&p.st===20&&!p.part);
 const pname=p=>p.name+(p.fin?" in "+p.fin:"");
-const STALE_OK=p=>!["Lost","Duplicate"].includes(p); /* a passed date on a lost or duplicate quote doesn't matter */
+const STALE_OK=p=>!["Lost","Duplicate","Crossover Order"].includes(p); /* a passed date on a lost or duplicate quote doesn't matter */
 (function seedRows(){ let seed=31; const rnd=n=>{ seed=(seed*9301+49297)%233280; return Math.floor(seed/233280*n); };
   const W=[[0,14],[1,20],[2,24],[3,16],[4,8],[5,7],[6,11]], tot=W.reduce((a,b)=>a+b[1],0);
   const pick=()=>{ let r=rnd(tot); for(const [i,w] of W){ if(r<w) return PIPE[i][0]; r-=w; } return "Possible"; };
@@ -55,12 +55,30 @@ const STALE_OK=p=>!["Lost","Duplicate"].includes(p); /* a passed date on a lost 
    inactivate the quote so it cannot be converted"; its dialog says it can be unarchived "on the Quote Search page", which today's list
    doesn't offer. An archived quote opens read-only. Here: hidden by default, "Show n archived" brings them back, Quick view unarchives.
    Mock: most Lost and Duplicate quotes and a third of On Hold ones, with archive reasons from sp-fe's list */
+/* M3's pipeline statuses (Nov 25, sp-fe quote-constants.ts PROJECT_STATUS, today's master): 15 in all. Lost is eight statuses, one per
+   reason ("Lost due to Lead Time" and so on), and Crossover Order marks a quote from the migration. The list groups the eight under Lost
+   (the filter can narrow to reasons) and the row keeps the reason: "Lost · Lead Time". Mock: a reason for every Lost quote, and three
+   open quotes as Crossover Order.
+   Sent, awaiting payment (Nov 25): a quote sent to the client with its payment link, deposit not paid. The row carries the deposit
+   terms. Mock: about one in six open Predictable, Feasible or Possible quotes, deposit 50% of the subtotal */
+const LOST=["Lost due to Lead Time","Lost due to Product Pricing","Lost due to Non-Responsive Client","Lost due to Freight Pricing","Lost due to Product Assortment","Lost due to Inventory Availability","Lost due to Specification","Lost for Other Reasons"];
+const lostShort=l=>l==="Lost for Other Reasons"?"Other reasons":l.replace(/^Lost due to /,"");
+(function seedStatus(){ let s=29; const rnd=n=>{ s=(s*9301+49297)%233280; return Math.floor(s/233280*n); }; let xo=0;
+  QL.rows.forEach(r=>{ if(r.built||r.ord) return;
+    if(r.pipe==="Lost") r.lost=LOST[rnd(LOST.length)];
+    else if(!r.pay&&xo<3&&["Possible","Lead"].includes(r.pipe)&&!rnd(6)){ r.pipe="Crossover Order"; xo++; }
+    else if(!r.pay&&["Predictable","Feasible","Possible"].includes(r.pipe)&&!rnd(5)){ const d=new Date(2026,10,24-2-rnd(20));
+      r.sent={date:String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear(),depR:.5}; } });
+  /* expired: Residential quotes expire 30 days after they're entered, so older open ones would be past it. Mock: about one in eight
+     open quotes, expired between Sep and last week */
+  QL.rows.forEach(r=>{ if(r.built||r.ord||r.pay||r.sent||rnd(8)) return; const d=new Date(2026,8,1+rnd(80)); if(d>new Date(2026,10,20)) d.setDate(10);
+    r.exp=String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear(); }); })();
 (function seedArch(){ let s=13; const rnd=n=>{ s=(s*9301+49297)%233280; return Math.floor(s/233280*n); };
-  const LOST=["Lost due to Lead Time","Lost due to Product Pricing","Lost due to Non-Responsive Client","Lost due to Freight Pricing","Lost due to Product Assortment","Lost for Other Reasons"], END=new Date(2026,10,20);
+  const END=new Date(2026,10,20);
   QL.rows.forEach(r=>{ if(r.built||r.ord||r.pay) return; const p=r.pipe;
     if(!((p==="Lost"&&rnd(4))||(p==="Duplicate"&&rnd(3))||(p==="On Hold"&&!rnd(3)))) return;
     const d=new Date(+r.date.slice(6),+r.date.slice(0,2)-1,+r.date.slice(3,5)+20+rnd(60)); if(d>END) d.setTime(END-864e5*rnd(10));
-    r.arch={reason:p==="Lost"?LOST[rnd(LOST.length)]:p==="Duplicate"?"Duplicate Quote":"On Hold",date:String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear()}; }); })();
+    r.arch={reason:p==="Lost"?(r.lost||LOST[rnd(LOST.length)]):p==="Duplicate"?"Duplicate Quote":"On Hold",date:String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear()}; }); })();
 const payOf=r=>{ if(!r.built) return r.pay||null; const o=window.qomOrd; return o&&!o.ord&&(o.pay==="pending"||o.pay==="held")?{st:o.pay,date:o.paidDate,time:o.paidTime}:null; };
 const isPaid=r=>!!payOf(r);
 /* the open quote converts in the prototype (Convert to order, or M3 answering a paid quote): it moves to the Orders tab */
@@ -93,9 +111,13 @@ const pd=s=>new Date(+s.slice(6),+s.slice(0,2)-1,+s.slice(3,5));
 const fmt=s=>pd(s).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 const fmtS=s=>{ const d=pd(s); return d.toLocaleDateString("en-US",d.getFullYear()===TODAY.getFullYear()?{month:"short",day:"numeric"}:{month:"short",year:"numeric"}); }; /* "Oct 30" this year, "Dec 2025" before */
 const daysTo=s=>Math.round((pd(s)-TODAY)/864e5);
-const isStale=r=>!r.ord&&!r.arch&&!payOf(r)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
+const isStale=r=>!r.ord&&!r.arch&&!payOf(r)&&!(r.exp&&daysTo(r.exp)<0)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
 /* the Sales Portal's "Closing in Next 2 Weeks": an open quote expected to convert in the next 14 days */
-const isSoon=r=>!r.ord&&!r.arch&&!payOf(r)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&daysTo(rowConv(r))<=14;
+const isExp=r=>!r.ord&&!r.arch&&!r.oo&&!!r.exp&&daysTo(r.exp)<0; /* expired: hidden by default, like archived */
+const isSent=r=>!!r.sent&&!r.ord&&!r.arch&&!payOf(r);
+const vis=x=>(X.arch||!x.arch)&&(X.expd||!isExp(x));
+const pipeName=x=>x.pipe==="Lost"&&x.lost?"Lost · "+lostShort(x.lost):x.pipe;
+const isSoon=r=>!r.ord&&!r.arch&&!payOf(r)&&!(r.exp&&daysTo(r.exp)<0)&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&daysTo(rowConv(r))<=14;
 /* Quotes and Orders tabs (Sam, Nov 25): one page, one search across both, each tab with its own columns and quick filters.
    Quotes: quotes not converted yet (Lost and Duplicate included). Orders: converted quotes and orders with no QOM quote.
    Mock order data: order date, and how much is paid and still to ship (production's Orders list adds Amount Paid and
@@ -135,6 +157,7 @@ const IC={
   cal:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   cash:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
   truck:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h2M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
+  send:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 3 3 10.5l7.5 3L13.5 21z"/><path d="M21 3 10.5 13.5"/></svg>',
   arch:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>', /* Lucide archive */
   alert:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5h.01"/></svg>',
   clock:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
@@ -172,11 +195,11 @@ qv.innerHTML=`<div class="qlxqvp" role="dialog" aria-modal="true" aria-labelledb
 document.body.append(qv);
 
 /* ---------- rows ---------- */
-function matchesBase(x){ return (X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))&&(!X.type||x.type===X.type); }
+function matchesBase(x){ return (X.com||x.type!=="Commercial")&&(X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))&&(!X.type||x.type===X.type); }
 /* the search and the shared filters (whose, type, total) cover both tabs; each tab adds its own quick filters */
-function rowsFor(t,withArch){ const ws=words();
-  return ALL().filter(x=>tabOk(x,t)&&(X.arch||withArch||!x.arch)&&matchesBase(x)&&(!X.val||rowTotal(x)>X.val)
-    &&(t==="quotes"?(!X.pipes.size||X.pipes.has(x.pipe))&&(!X.stale||isStale(x))&&(!X.soon||isSoon(x))&&(!X.paid||isPaid(x)):(!X.due||isDue(x))&&(!X.ship||isShip(x)))
+function rowsFor(t,withHidden){ const ws=words();
+  return ALL().filter(x=>tabOk(x,t)&&(t!=="quotes"||withHidden||vis(x))&&matchesBase(x)&&(!X.val||rowTotal(x)>X.val)
+    &&(t==="quotes"?(!X.pipes.size||X.pipes.has(x.pipe))&&!(x.pipe==="Lost"&&X.lostX.has(x.lost))&&(!X.sent||isSent(x))&&(!X.stale||isStale(x))&&(!X.soon||isSoon(x))&&(!X.paid||isPaid(x)):(!X.due||isDue(x))&&(!X.ship||isShip(x)))
     &&ws.every(w=>[x.id,x.ord,x.proj,rowAddr(x),x.desc,x.cust,x.payer,x.m3,x.sc].some(v=>String(v||"").toLowerCase().includes(w)))); }
 function rowsX(){ const ws=words(); let r=rowsFor(X.tab);
   const ymd=s=>s?s.slice(6)+s.slice(0,2)+s.slice(3,5):"";
@@ -189,9 +212,12 @@ let shown=[]; /* the current page's rows, for Quick view's previous and next */
 
 function pipeCell(x){ if(x.oo) return `<span class="qlxsrc">Order</span><span class="p2">${esc(x.src)}</span>`; const d=PIPE[RANK[x.pipe]];
   /* in the table the likelihood is a tooltip (it made the table too wide at 1440px); the filter shows it in full */
-  return `<span class="qlxpipe ${d[2]}"${d[1]?` title="${x.pipe} (${d[1]})"`:""}><i aria-hidden="true"></i>${x.pipe}${d[1]?`<span class="sr"> (${d[1]})</span>`:""}</span>`
-    +(x.arch?`<span class="p2 archt" title="Archived ${fmt(x.arch.date)}: ${esc(x.arch.reason)}">${IC.arch}Archived</span>`:"")
-    +(payOf(x)?payNote(payOf(x)):"")+(isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
+  return `<span class="qlxpipe ${d[2]}"${d[1]?` title="${x.pipe} (${d[1]})"`:x.lost?` title="${esc(x.lost)}"`:""}><i aria-hidden="true"></i>${esc(pipeName(x))}${d[1]?`<span class="sr"> (${d[1]})</span>`:""}</span>`
+    /* one note under the status, the one that needs attention first */
+    +(x.arch?`<span class="p2 archt" title="Archived ${fmt(x.arch.date)}">${IC.arch}Archived</span>`
+    :payOf(x)?payNote(payOf(x))
+    :isSent(x)?`<span class="p2 sentn" title="Sent to the client ${fmt(x.sent.date)} with a payment link. Deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid yet.">${IC.send}Awaiting payment</span>`
+    :isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
 const payNote=p=>p.st==="held"
   ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid, order held</span>`
   :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid, no order</span>`;
@@ -200,7 +226,7 @@ const payNote=p=>p.st==="held"
    thin progress bar, so the table doesn't jump while you type. An error keeps the search and filters and offers Try again (which works
    the second time, as a dropped connection would). Screen readers hear "Loading quotes" and the result count through the count row */
 const LD={mode:"ok",busy:false,err:false,sig:null,errSig:null,want:null,retried:false,prev:null,t:null};
-const lsig=()=>JSON.stringify([X.tab,X.q,X.who,X.type,[...X.pipes],X.stale,X.soon,X.paid,X.arch,X.due,X.ship,X.val,X.sort,X.dir,X.size,X.page]);
+const lsig=()=>JSON.stringify([X.tab,X.q,X.who,X.type,[...X.pipes],[...X.lostX],X.stale,X.soon,X.paid,X.sent,X.arch,X.expd,X.com,X.due,X.ship,X.val,X.sort,X.dir,X.size,X.page]);
 function render(){ if(!X.on) return; syncBuilt();
   if(LD.mode!=="ok"){ const sg=lsig(); if(sg!==LD.sig&&!LD.busy&&!(LD.err&&sg===LD.errSig)){ LD.busy=true; LD.err=false; LD.want=sg; clearTimeout(LD.t);
     LD.t=setTimeout(()=>{ LD.busy=false; if(LD.mode==="error"&&!LD.retried){ LD.err=true; LD.errSig=LD.want; } else { LD.sig=LD.want; LD.err=false; } render(); },LD.mode==="error"?900:1300); } }
@@ -215,25 +241,30 @@ function render(){ if(!X.on) return; syncBuilt();
   q("#qlxPipeW").hidden=X.tab!=="quotes";
   const np=X.tab==="quotes"?X.pipes.size:0;
   q("#qlxPipeW").classList.toggle("on",np>0); q("#qlxPipeL").textContent=np===0?"Pipeline status":np===1?[...X.pipes][0]:`Pipeline status · ${np}`;
+  q("#qlxTypeW").hidden=!X.com; /* only SCs with commercial access see commercial quotes, so only they get the Type filter */
   q("#qlxTypeW").classList.toggle("on",!!X.type); q("#qlxTypeL").textContent=X.type||"All types";
   q("#qlxValW").classList.toggle("on",X.val>0); q("#qlxValL").textContent=X.val?VALS.find(v=>v[0]===X.val)[1]:"Total";
-  const base=ALL().filter(x=>matchesBase(x)&&tabOk(x,X.tab));
-  q("#qlxPipePop").innerHTML=PIPE.map(([n,s,c])=>`<label class="qlxopt"><input type="checkbox" data-qlxpipe="${n}"${X.pipes.has(n)?" checked":""}><span class="qlxpipe ${c}"><i aria-hidden="true"></i>${n}${s?` <small>${s}</small>`:""}</span><em>${base.filter(x=>x.pipe===n).length}</em></label>`).join("")
+  const base=ALL().filter(x=>matchesBase(x)&&tabOk(x,X.tab)&&(X.tab!=="quotes"||vis(x)));
+  /* Lost is eight M3 statuses; ticking Lost shows its reasons, all ticked, to narrow it */
+  q("#qlxPipePop").innerHTML=PIPE.map(([n,s,c])=>`<label class="qlxopt"><input type="checkbox" data-qlxpipe="${n}"${X.pipes.has(n)?" checked":""}><span class="qlxpipe ${c}"><i aria-hidden="true"></i>${n}${s?` <small>${s}</small>`:n==="Lost"?` <small>8 reasons</small>`:""}</span><em>${base.filter(x=>x.pipe===n).length}</em></label>`
+    +(n==="Lost"&&X.pipes.has("Lost")?`<div class="qlxsub" role="group" aria-label="Lost reasons">${LOST.map(l=>`<label class="qlxopt sub"><input type="checkbox" data-qlxlost="${l}"${X.lostX.has(l)?"":" checked"}><span>${lostShort(l)}</span><em>${base.filter(x=>x.lost===l).length}</em></label>`).join("")}</div>`:"")).join("")
     +(np?`<div class="qlxpopf"><button type="button" data-qlx="clearpipe">Clear</button></div>`:"");
-  const baseT=ALL().filter(x=>tabOk(x,X.tab)&&(X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))); /* counts for Type ignore the type itself */
+  const baseT=ALL().filter(x=>tabOk(x,X.tab)&&(X.tab!=="quotes"||vis(x))&&(X.com||x.type!=="Commercial")&&(X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))); /* counts for Type ignore the type itself */
   q("#qlxTypePop").innerHTML=[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxtype" data-qlxtype="${v}"${X.type===v?" checked":""}><span>${l}</span><em>${v?baseT.filter(x=>x.type===v).length:baseT.length}</em></label>`).join("");
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
   /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
-  const QF=X.tab==="quotes"?[["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order yet",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
+  const QF=X.tab==="quotes"?[["sent",IC.send,"Awaiting payment",isSent,"Sent to the client with a payment link; the deposit isn't paid yet"],["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order yet",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
     :[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"],["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
   q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
-  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.paid||X.arch||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
+  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.paid||X.sent||X.arch||X.expd||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
   /* count */
-  const nArch=X.tab==="quotes"?rowsFor("quotes",true).filter(x=>x.arch).length:0;
+  const allQ=X.tab==="quotes"?rowsFor("quotes",true):[], nArch=allQ.filter(x=>x.arch).length, nExp=allQ.filter(isExp).length;
+  const hideLink=(k,n,l)=>n?(X[k]?` · including ${n} ${l} · <button type="button" class="qlxarchb" data-qlxhide="${k}" aria-pressed="true">Hide ${l}</button>`:` · <button type="button" class="qlxarchb" data-qlxhide="${k}" aria-pressed="false">Show ${n} ${l}</button>`):"";
+  const nHid=(X.expd?0:nExp)+(X.arch?0:nArch);
   const mq=X.q?` matching “${esc(X.q)}”`:"", nOO=all.filter(x=>x.oo).length, n=all.length.toLocaleString("en-US");
   q("#qlxCount").innerHTML=(X.tab==="quotes"?`<b>${n}</b> ${all.length===1?"quote":"quotes"} not converted yet${mq}`
     :`<b>${n}</b> ${all.length===1?"order":"orders"}${mq}${all.length?` · ${all.length-nOO} from quotes · ${nOO} with no quote`:""}`)
-    +(X.tab==="quotes"&&nArch?(X.arch?` · including ${nArch} archived · <button type="button" class="qlxarchb" data-qlx="arch" aria-pressed="true">Hide archived</button>`:` · <button type="button" class="qlxarchb" data-qlx="arch" aria-pressed="false">Show ${nArch} archived</button>`):"")
+    +hideLink("expd",nExp,"expired")+hideLink("arch",nArch,"archived")
     +(X.found?` · <span class="qlxfound">${X.found}</span>`:"");
   /* head */
   const COLS_=COLS();
@@ -266,7 +297,7 @@ function render(){ if(!X.on) return; syncBuilt();
     <td class="c-exp c-qv">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
       ${qvb(x)}</td></tr>`; })()).join("")
     /* empty: point to the other tab when the search finds something there */
-    :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.tab==="quotes"&&!X.arch&&nArch?`${nArch} archived ${nArch===1?"quote matches":"quotes match"}. <button type="button" data-qlx="arch">Show archived</button>`:nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
+    :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.tab==="quotes"&&nHid?`${nHid} expired or archived ${nHid===1?"quote matches":"quotes match"}. <button type="button" data-qlx="showhidden">Show ${nHid===1?"it":"them"}</button>`:nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
       :X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's ${tName}</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
   q("#qlxRange").textContent=all.length?`Showing ${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
@@ -299,10 +330,10 @@ function qvRender(){ const x=ALL().find(r=>K(r)===X.qv); if(!x) return; if(x.oo)
         ${fact("Customer",esc(title(x.cust))+(x.payer!==x.cust?`<small>Payer: ${esc(title(x.payer))}</small>`:""))}
         ${fact("Sales consultant",esc(x.sc))}
         ${fact("Quoted",fmt(x.date))}
-        ${fact("Pipeline status",`<span class="qlxpipe ${d[2]}"><i aria-hidden="true"></i>${x.pipe}${d[1]?` <small>${d[1]}</small>`:""}</span>`)}
+        ${fact("Pipeline status",`<span class="qlxpipe ${d[2]}"><i aria-hidden="true"></i>${x.lost?esc(x.lost):x.pipe}${d[1]?` <small>${d[1]}</small>`:""}</span>`)}
         ${fact("Est. conversion",cv?fmt(cv)+(isStale(x)?`<small class="stale">${IC.clock}Date passed. Update it or the status.</small>`:isSoon(x)?`<small>${IC.cal}In ${daysTo(cv)} ${daysTo(cv)===1?"day":"days"}</small>`:""):"—")}
-        ${x.arch?fact("Archived",`${fmt(x.arch.date)}<small>${esc(x.arch.reason)}. Opens read-only.</small>`):fact("Expires",fmt(x.exp))}
-        ${fact("Order",x.ord?esc(x.ord)+(x.m3?`<small>Project ${esc(x.m3)}</small>`:""):payOf(x)?(p=>p.st==="held"?`Not created<small class="paidq held">${IC.cash}Deposit paid ${fmtS(p.date)}. M3 rejected the order; it's on hold until someone releases it.</small>`:`Being created<small class="paidq">${IC.cash}Deposit paid ${fmtS(p.date)}, ${p.time}. M3 is creating the order.</small>`)(payOf(x)):"Not converted")}
+        ${x.arch?fact("Archived",`${fmt(x.arch.date)}<small>${x.arch.reason===(x.lost||x.pipe)||x.arch.reason==="Duplicate Quote"?"":esc(x.arch.reason)+". "}Opens read-only.</small>`):fact("Expires",fmt(x.exp))}
+        ${fact("Order",x.ord?esc(x.ord)+(x.m3?`<small>Project ${esc(x.m3)}</small>`:""):payOf(x)?(p=>p.st==="held"?`Not created<small class="paidq held">${IC.cash}Deposit paid ${fmtS(p.date)}. M3 rejected the order; it's on hold until someone releases it.</small>`:`Being created<small class="paidq">${IC.cash}Deposit paid ${fmtS(p.date)}, ${p.time}. M3 is creating the order.</small>`)(payOf(x)):isSent(x)?`Not converted<small class="sentq">${IC.send}Sent ${fmtS(x.sent.date)} with a payment link. Deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid yet.</small>`:"Not converted")}
       </dl>
       <h3>${nl?`${nl} ${nl===1?"line":"lines"} in ${rooms.length} ${rooms.length===1?"room":"rooms"}`:"No products yet"}</h3>
       ${rooms.map(r=>`<div class="qvroom"><div class="qvrn">${esc(r.name)}</div>${r.lines.map(l=>`<div class="qvline"><span class="qvq">${l.qty}</span><span class="qvn">${esc(l.name)}<small>${esc(l.sku)}</small></span><span class="qvp">${money(l.qty*l.unit)}</span></div>`).join("")||`<div class="qvline none">No lines</div>`}</div>`).join("")}
@@ -360,8 +391,8 @@ function setTab(t,focus){ if(t===X.tab) return; X.sortBy[X.tab]=[X.sort,X.dir]; 
    (a converted quote's number finds its order) */
 function search(v){ X.q=v.trim(); X.page=1; X.found=""; const ws=words();
   if(ws.length===1&&/^\d{8,}$/.test(ws[0])&&!rowsFor(X.tab).length){ const o=X.tab==="quotes"?"orders":"quotes", hit=rowsFor(o).find(x=>x.id===ws[0]||x.ord===ws[0]);
-    const ah=o&&rowsFor("quotes",true).find(x=>x.arch&&x.id===ws[0]);
-    if(ah&&X.tab==="quotes"){ X.arch=true; X.found=`Quote ${ah.id} is archived: ${esc(ah.arch.reason)}`; render(); return; }
+    const ah=o&&rowsFor("quotes",true).find(x=>!vis(x)&&x.id===ws[0]);
+    if(ah&&X.tab==="quotes"){ if(ah.arch){ X.arch=true; X.found=`Quote ${ah.id} is archived: ${esc(ah.arch.reason)}`; } else { X.expd=true; X.found=`Quote ${ah.id} expired ${fmt(ah.exp)}`; } render(); return; }
     if(hit){ setTab(o); X.found=o==="orders"&&hit.id===ws[0]?`Quote ${hit.id} was converted to order ${hit.ord}`:`Found in ${TABS[o].name}`; } }
   render(); }
 let tq=null; q("#qlxQ").addEventListener("input",ev=>{ clearTimeout(tq); tq=setTimeout(()=>search(ev.target.value),200); });
@@ -375,7 +406,8 @@ q("#qlxSizePop").addEventListener("keydown",ev=>{ const o=[...q("#qlxSizePop").c
   else if(ev.key==="Home"||ev.key==="End"){ ev.preventDefault(); o[ev.key==="Home"?0:o.length-1].focus(); }
   else if(ev.key==="Tab") closePops(); });
 root.addEventListener("change",ev=>{ const d=ev.target.dataset;
-  if(d.qlxpipe){ ev.target.checked?X.pipes.add(d.qlxpipe):X.pipes.delete(d.qlxpipe); X.page=1; render(); q(`[data-qlxpipe="${d.qlxpipe}"]`)?.focus(); return; }
+  if(d.qlxlost){ ev.target.checked?X.lostX.delete(d.qlxlost):X.lostX.add(d.qlxlost); if(X.lostX.size===LOST.length){ X.pipes.delete("Lost"); X.lostX.clear(); } X.page=1; render(); q(`[data-qlxlost="${d.qlxlost}"]`)?.focus(); return; }
+  if(d.qlxpipe){ ev.target.checked?X.pipes.add(d.qlxpipe):X.pipes.delete(d.qlxpipe); if(d.qlxpipe==="Lost") X.lostX.clear(); X.page=1; render(); q(`[data-qlxpipe="${d.qlxpipe}"]`)?.focus(); return; }
   if(d.qlxstale){ X.stale=ev.target.checked; X.page=1; render(); q("[data-qlxstale]")?.focus(); return; }
   if(d.qlxtype!==undefined){ X.type=d.qlxtype; X.page=1; render(); q(`[data-qlxtype="${d.qlxtype}"]`)?.focus(); return; }
   if(d.qlxval!==undefined){ X.val=+d.qlxval; X.page=1; render(); q(`[data-qlxval="${d.qlxval}"]`)?.focus(); return; } });
@@ -392,11 +424,12 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlxsort){ if(X.sort===d.qlxsort) X.dir=-X.dir; else { X.sort=d.qlxsort; X.dir=["id","tot"].includes(d.qlxsort)?-1:1; } render(); q(`[data-qlxsort="${d.qlxsort}"]`).focus(); return; }
   if(d.qlxpage){ X.page=+d.qlxpage; render(); q("#qlxPager [aria-current]")?.focus(); q("#qlTitle").scrollIntoView({block:"start"}); return; }
   if(d.qlx==="new"){ q("#qlNew").click(); return; }
-  if(d.qlx==="clearpipe"){ X.pipes.clear(); render(); return; }
-  if(d.qlx==="arch"){ X.arch=!X.arch; X.page=1; render(); root.querySelector(".qlxarchb")?.focus(); return; }
+  if(d.qlx==="clearpipe"){ X.pipes.clear(); X.lostX.clear(); render(); return; }
+  if(d.qlxhide){ const k=d.qlxhide; X[k]=!X[k]; X.page=1; render(); root.querySelector(`[data-qlxhide="${k}"]`)?.focus(); return; }
+  if(d.qlx==="showhidden"){ X.arch=true; X.expd=true; X.page=1; render(); return; }
   if(d.qlx==="retry"){ LD.err=false; LD.errSig=null; LD.retried=true; render(); q("#qlxQ").focus(); return; }
   if(d.qlx==="everyone"){ X.who="all"; X.page=1; render(); return; }
-  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.paid=false; X.arch=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
+  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.paid=false; X.sent=false; X.arch=false; X.expd=false; X.lostX.clear(); X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
   if(b) return;
   /* anywhere else on a row opens its Quick view (Sam, Nov 25; it opened the quote until then); the eye stays as the signifier,
      and the quote or order number still opens it directly. Text selection doesn't. */
@@ -434,6 +467,9 @@ const bsw=q("#qlxBronze"); if(bsw){ bsw.checked=bronze; bsw.addEventListener("ch
 const lsw=document.createElement("label"); lsw.title="v5 only: how the Quotes & orders list answers. Slow shows loading; Error shows the error state (Try again works the second time).";
 lsw.innerHTML=`List data <select id="qlxData" autocomplete="off"><option value="ok">Normal</option><option value="slow">Slow (loading)</option><option value="error">Error</option></select>`;
 q("#qlxOn")?.closest("label")?.after(lsw);
+const csw=document.createElement("label"); csw.title="v5 only: the SC's commercial-access flag. Off hides commercial quotes and orders, and the Type filter, as production does.";
+csw.innerHTML=`<input type="checkbox" id="qlxCom" checked autocomplete="off"> Commercial access`; lsw.after(csw);
+q("#qlxCom").addEventListener("change",e=>{ X.com=e.target.checked; if(!X.com) X.type=""; X.page=1; render(); });
 q("#qlxData").addEventListener("change",e=>{ LD.mode=e.target.value; clearTimeout(LD.t); Object.assign(LD,{busy:false,err:false,sig:null,errSig:null,retried:false,prev:null}); render(); });
 const sw=q("#qlxOn"); if(sw){ sw.checked=X.on; sw.addEventListener("change",()=>{ X.on=sw.checked; try{ localStorage.setItem("qom-v5-qlx",X.on?"on":"off"); }catch(e){} apply(); }); }
 apply();
