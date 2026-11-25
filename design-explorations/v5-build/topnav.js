@@ -12,7 +12,10 @@ const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-na
 const LINKS=["Home","Clients","Projects","Quotes","Orders"]; /* Home was Welcome (Nov 25); home.js opens it */
 const bar=document.createElement("nav"); bar.className="tnbar"; bar.id="tnBar"; bar.setAttribute("aria-label","QOM navigation");
 bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks QOM, Home">WATERWORKS</a>
-  <div class="tnlinks">${LINKS.map(n=>`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`).join("")}</div>
+  <div class="tnlinks">${LINKS.map(n=>{ const a=`<a href="#"${n==="Quotes"?' data-nav="quotes" aria-current="page"':n==="Home"?' data-nav="home"':` data-tn="${n}"`}>${icon(n==="Home"?"Welcome":n)||icon(n)}${n}</a>`;
+    /* Quotes & orders has a chevron for the quotes you opened last (Sam, Nov 25): the label opens the list, the chevron opens Recent */
+    return n!=="Quotes"?a:`<span class="tnsplit">${a}<button type="button" class="tnchev" id="tnRecentB" aria-haspopup="menu" aria-expanded="false" aria-controls="tnRecent" aria-label="Recent quotes" title="Recent quotes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="tnmenu tnrecent" id="tnRecent" role="menu" aria-label="Recent quotes" hidden></div></span>`; }).join("")}</div>
   <div class="tnright">
     <button type="button" class="tnsearch" data-tn="search" aria-label="Search clients, projects, quotes and orders"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform)?"⌘":"Ctrl "}K</kbd></button>
     <button type="button" class="tncta" data-tn="new" title="Start a new quote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New quote</span></button>
@@ -43,7 +46,33 @@ document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnav-acct")) clo
 menu.addEventListener("keydown",ev=>{ const items=[...menu.querySelectorAll("button")], i=items.indexOf(document.activeElement);
   if(ev.key==="Escape"){ ev.preventDefault(); closeMenu(true); }
   else if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); items[(i+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length].focus(); } });
-function apply(){ document.documentElement.classList.toggle("tnav",on); closeMenu(); dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
+/* ---- Recent quotes: the same list as Home's "Pick up where you left off" (home.js, window.qomRecent) ---- */
+const rec=q("#tnRecent"), recB=q("#tnRecentB");
+const onQuotePage=()=>!["page-quotes","page-home","page-create"].some(c=>document.body.classList.contains(c));
+function closeRecent(focus){ if(rec.hidden) return; rec.hidden=true; recB.setAttribute("aria-expanded","false"); if(focus) recB.focus(); }
+function openRecent(){ const list=(window.qomRecent?.()||[]), here=onQuotePage(), dirty=typeof S!=="undefined"&&S.dirty;
+  rec.innerHTML=`<div class="rh" aria-hidden="true">Recent</div>`+list.map(r=>{ const cur=r.built&&here, uns=r.built&&dirty;
+    return `<button type="button" role="menuitem" data-rq="${r.id}"${cur?' aria-current="page"':""}><span class="rq">${r.id}</span><span class="rp">${esc(r.proj)}<small>${esc(r.cust)}</small></span><span class="rw">${uns?`<i class="udot" aria-hidden="true"></i><span class="sr">Unsaved changes, </span>`:""}${cur?"Open now":r.when}</span></button>`; }).join("")
+    +`<div class="sep" role="separator"></div><button type="button" role="menuitem" data-rq="all">All quotes &amp; orders</button>`;
+  closeMenu(); rec.hidden=false; recB.setAttribute("aria-expanded","true"); rec.querySelector("button")?.focus(); }
+recB.addEventListener("click",ev=>{ ev.preventDefault(); ev.stopPropagation(); rec.hidden?openRecent():closeRecent(); });
+rec.addEventListener("click",ev=>{ const b=ev.target.closest("[data-rq]"); if(!b) return; ev.preventDefault(); ev.stopPropagation(); const id=b.dataset.rq; closeRecent();
+  if(id==="all"){ document.body.classList.remove("page-create"); setPage("quotes"); return; }
+  if(id!=="6000024967"){ showToast("Only quote 6000024967 is built in the prototype."); return; }
+  if(onQuotePage()){ showToast("You're on quote 6000024967."); return; }
+  document.body.classList.remove("page-create"); setPage("quote"); });
+rec.addEventListener("keydown",ev=>{ const items=[...rec.querySelectorAll("button")], i=items.indexOf(document.activeElement);
+  if(ev.key==="Escape"){ ev.preventDefault(); ev.stopPropagation(); closeRecent(true); }
+  else if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); items[(i+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length].focus(); }
+  else if(ev.key==="Home"||ev.key==="End"){ ev.preventDefault(); items[ev.key==="Home"?0:items.length-1].focus(); }
+  else if(ev.key==="Tab") closeRecent(); });
+document.addEventListener("click",ev=>{ if(!ev.target.closest(".tnsplit")) closeRecent(); });
+/* back to the list from a quote: the top bar removes the breadcrumb row, so the quote page says where it sits (Sam, Nov 25).
+   data-nav="quotes" opens the list as the user left it (v2's own handler) */
+const back=document.createElement("a"); back.href="#"; back.className="qback"; back.dataset.nav="quotes";
+back.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Quotes &amp; orders`;
+(q(".ptitle")||q("#quoteTitle"))?.before(back);
+function apply(){ document.documentElement.classList.toggle("tnav",on); closeMenu(); closeRecent(); dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 const sw=q("#tnOn"); if(sw){ sw.checked=on; sw.addEventListener("change",()=>{ on=sw.checked; try{ localStorage.setItem("qom-v5-topnav",on?"on":"off"); }catch(e){} apply(); }); }
 apply();
 })();

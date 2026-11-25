@@ -90,6 +90,7 @@ const TABS={quotes:{name:"Quotes",one:"quote",
 const tabOk=(x,t)=>t==="quotes"?!x.ord:!!x.ord;
 const COLSQ=[["id","Quote"],["proj","Project"],["desc","Description"],["cust","Customer"],["pipe","Pipeline status"],["tot","Total"],["sc","Sales consultant"],["exp","Expires"]];
 const COLSO=[["odate","Order"],["id","Quote"],["proj","Project"],["cust","Customer"],["tot","Total"],["paid","Paid"],["ship","Unshipped"],["sc","Sales consultant"]];
+const SORTS={quotes:["id","pipe","tot","exp"],orders:["odate","tot","paid","ship"]};
 const COLS=()=>X.tab==="orders"?COLSO:COLSQ;
 const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Over $100,000"]];
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
@@ -191,7 +192,8 @@ function render(){ if(!X.on) return;
     +(X.found?` · <span class="qlxfound">${X.found}</span>`:"");
   /* head */
   const COLS_=COLS();
-  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}><button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button></th>`).join("");
+  /* only the columns worth sorting sort (Sam, Nov 25): names and descriptions are found by search, not by scrolling A to Z */
+  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}>${SORTS[X.tab].includes(k)?`<button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button>`:`<span class="th">${l}</span>`}</th>`).join("");
   /* body */
   const idCell=x=>`<span class="qlxid"><a href="#" data-qlxopen="${x.id}">${hl(x.id,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.id}" aria-label="Copy quote number ${x.id}" title="Copy">${IC.copy}</button></span>`;
   const qvb=x=>`<button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button>`;

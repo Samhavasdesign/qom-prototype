@@ -34,6 +34,9 @@ const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":
 const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
 const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
+/* one list of recent quotes for Home, and the top bar's Quotes & orders dropdown (topnav.js), so the two agree */
+window.qomRecent=()=>{ if(typeof QL==="undefined") return []; const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
+  return [built,...mine].filter(Boolean).map((r,i)=>({id:r.id,proj:r.proj||r.project||"",cust:tcase(r.cust),when:WHEN[i]||"",built:!!r.built})); };
 function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return;
   const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
   const tot=r=>r.built?S.quote.rooms.reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0):(r.rooms||[]).reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0);
