@@ -4617,6 +4617,13 @@ body:not(.qlx-on) .qlx,body:not(.qlx-on) .qlxqv{display:none}
 body.qlx-on #quotesPage>:not(#qlTitle,.qlx){display:none !important}
 body.qlx-on #quotesPage{position:relative}
 body.qlx-on .ql h1{font-size:36px;margin:14px 0 20px}
+/* Page margins (Nov 25, Sam): design.md "Breakpoints and grid" (internal pages 16 / 24 / 32px), plus 48px from 2xl, a proposal not yet in the audit. 32px above the title once the breadcrumb row is gone (top bar on) */
+body.qlx-on.page-quotes .main{padding:24px 32px 40px}
+html.tnav:not(.topnav) body.qlx-on.page-quotes .main{padding-top:32px}
+body.qlx-on.page-quotes .ql h1{margin-top:0}
+@media (width >= 1536px){ /* 2xl */ body.qlx-on.page-quotes .main{padding-left:48px;padding-right:48px} }
+@media (width < 1024px){ /* lg */ body.qlx-on.page-quotes .main{padding-left:24px;padding-right:24px} }
+@media (width < 768px){ /* md */ body.qlx-on.page-quotes .main{padding:16px 16px 32px} }
 .qlx{--qlx-row:52px}
 .qlx mark{background:#ffe7a3;color:inherit;border-radius:2px;padding:0 1px}
 /* Create new: top right, level with the title */
@@ -4647,7 +4654,7 @@ body.qlx-on .ql h1{font-size:36px;margin:14px 0 20px}
 .qlxpopf button,.qlxclear,.qlxempty button{background:none;border:0;padding:6px 8px;font:inherit;font-size:14px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;border-radius:var(--r-sm)}
 .qlxpopf button:hover,.qlxclear:hover{background:var(--surface)}
 .qlxmeta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px}
-.qlxcount{font-size:14px;color:var(--ink-2)}
+.qlxcount{font-size:12px;line-height:16px;color:var(--muted-foreground)} /* the Caption role (12/16): meta, not body text */
 /* quick filters, as in the Sales Portal's pipeline ("Past Due", "Closing in Next 2 Weeks") */
 .qlxquick{display:flex;flex-wrap:wrap;gap:8px}
 .qlxquick button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font:inherit;font-size:13px;font-weight:500;color:var(--ink)}
@@ -4712,16 +4719,25 @@ tr:hover .qlxcp,.qlxcp:focus-visible{opacity:1}
 .qlxempty b{display:block;font-weight:500;margin-bottom:4px}
 .qlxempty span{color:var(--ink-2)}
 .qlxempty button{padding:0 2px}
-/* footer: rows per page, range, pages */
-.qlxfoot{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px 24px;margin:16px 0 40px;font-size:14px;color:var(--ink-2)}
-.qlxsize{display:inline-flex;align-items:center;gap:8px}
-.qlxsize select{height:32px;padding:0 8px;border:1px solid var(--control-line);border-radius:var(--r-md);background:var(--bg);font:inherit;font-size:14px;color:var(--ink)}
+/* footer (Nov 25): range on the left, up to 5 pages centred under the table, rows per page on the right */
+.qlxfoot{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px 24px;margin:16px 0 40px;font-size:14px;color:var(--ink-2)}
+.qlxrange{font-variant-numeric:tabular-nums}
+.qlxsize{justify-self:end;display:inline-flex;align-items:center;gap:8px}
+.qlxsizeb{min-width:76px;justify-content:space-between;font-weight:400;font-variant-numeric:tabular-nums}
+.qlxsizeb[aria-expanded="true"] svg{transform:rotate(180deg)}
+.qlxsizepop{top:auto;bottom:calc(100% + 6px);left:auto;right:0;min-width:100%}
+.qlxsizepop .qlxopt{width:100%;border:0;background:none;font:inherit;font-size:14px;color:var(--ink);text-align:left;font-variant-numeric:tabular-nums}
+.qlxsizepop .qlxopt svg{visibility:hidden}
+.qlxsizepop .qlxopt[aria-selected="true"]{font-weight:500}
+.qlxsizepop .qlxopt[aria-selected="true"] svg{visibility:visible}
+.qlxsizepop .qlxopt:focus-visible{outline:none;background:var(--surface)}
 .qlxpager{display:flex;align-items:center;gap:4px}
-.qlxpager button{min-width:32px;height:32px;padding:0 6px;border:1px solid transparent;border-radius:var(--r-md);background:none;font:inherit;font-size:14px;color:var(--ink)}
+.qlxpager button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:36px;height:36px;padding:0 8px;border:1px solid transparent;border-radius:var(--r-md);background:none;font:inherit;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.qlxpager .qlxstep{padding:0 10px 0 6px}
+.qlxpager .qlxstep:last-child{flex-direction:row-reverse;padding:0 6px 0 10px}
 .qlxpager button:hover:not(:disabled){background:var(--surface)}
 .qlxpager button[aria-current="page"]{border-color:var(--line);box-shadow:0 1px 2px 0 rgb(0 0 0 / .05);font-weight:500}
-.qlxpager button:disabled{opacity:.35}
-.qlxpager .gap{min-width:24px;text-align:center}
+.qlxpager button:disabled{color:var(--ink-2);opacity:.5;cursor:default}
 /* Total: right-aligned, whole dollars */
 /* an order with no QOM quote: a small grey "Order" tag where the pipeline status would be */
 .qlxsrc{display:inline-flex;align-items:center;height:20px;padding:0 7px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surface)}
@@ -4780,6 +4796,12 @@ tr:hover .qlxqvb,.qlxqvb:focus-visible,tr.qvcur .qlxqvb{opacity:1}
 .qvfoot .btn{display:inline-flex;align-items:center;gap:6px}
 @media (width < 1280px){ /* xl: Create new moves above the search so the two never touch */
   .qlx .qlxnew{position:static;margin-bottom:14px}
+}
+@media (width < 768px){ /* md: pages on their own row, range and rows per page under them */
+  .qlxfoot{grid-template-columns:1fr auto}
+  .qlxpager{grid-column:1 / -1;order:-1;justify-content:center}
+  .qlxpager .qlxstep span{display:none}
+  .qlxpager .qlxstep,.qlxpager .qlxstep:last-child{padding:0}
 }
 @media (width < 640px){ /* sm */
   .qlxseg button{padding:0 10px}
@@ -4920,7 +4942,9 @@ root.innerHTML=`
   <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div>
     <div class="qlxquick" role="group" aria-label="Quick filters"><button type="button" data-qlxquick="stale" aria-pressed="false" title="Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."></button><button type="button" data-qlxquick="soon" aria-pressed="false" title="Open quotes expected to convert in the next 14 days"></button></div></div>
   <div class="qlxwrap"><table class="qlxt"><caption class="sr">Quotes and orders. Select a row to open the quote, or Quick view to see what's on it.</caption><thead><tr id="qlxHead"></tr></thead><tbody id="qlxBody"></tbody></table></div>
-  <div class="qlxfoot"><label class="qlxsize">Rows per page <select id="qlxSize">${[25,50,100].map(n=>`<option${n===50?" selected":""}>${n}</option>`).join("")}</select></label><span id="qlxRange"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav></div>`;
+  <div class="qlxfoot"><span id="qlxRange" class="qlxrange" aria-live="polite"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav>
+    <div class="qlxsize"><span id="qlxSizeL">Rows per page</span><div class="qlxpill"><button type="button" class="qlxpb qlxsizeb" data-qlxpop="size" aria-haspopup="listbox" aria-expanded="false" aria-controls="qlxSizePop" aria-labelledby="qlxSizeL qlxSizeV"><span id="qlxSizeV">50</span>${IC.chev}</button>
+      <div class="qlxpop qlxsizepop" id="qlxSizePop" hidden role="listbox" aria-labelledby="qlxSizeL">${[25,50,100].map(n=>`<button type="button" class="qlxopt" role="option" data-qlxsize="${n}" aria-selected="${n===50}"><span>${n}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>`).join("")}</div></div></div></div>`;
 q("#quotesPage").append(root);
 /* Quick view: a panel from the right, over the list */
 const qv=document.createElement("div"); qv.className="qlxqv"; qv.hidden=true;
@@ -4986,10 +5010,11 @@ function render(){ if(!X.on) return;
       <button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button></td></tr>`; }).join("")
     :`<tr><td colspan="${COLS.length}" class="qlxempty"><b>No quotes match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's quotes</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
-  q("#qlxRange").textContent=all.length?`${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
-  const nums=[]; if(pages<=7){ for(let i=1;i<=pages;i++) nums.push(i); } else { let a=Math.max(1,Math.min(X.page-2,pages-5)), b=a+4; for(let i=a;i<=b;i++) nums.push(i); if(a>1) nums.unshift(1,a>2?"…":null); if(b<pages) nums.push(b<pages-1?"…":null,pages); }
-  const arrow=(d,dis,l)=>`<button type="button" data-qlxpage="${X.page+d}" ${dis?"disabled":""} aria-label="${l} page"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6"}"/></svg></button>`;
-  q("#qlxPager").innerHTML=pages<2?"":arrow(-1,X.page===1,"Previous")+nums.filter(n=>n!==null).map(n=>n==="…"?`<span class="gap" aria-hidden="true">…</span>`:`<button type="button" data-qlxpage="${n}"${n===X.page?' aria-current="page"':""} aria-label="Page ${n}">${n}</button>`).join("")+arrow(1,X.page===pages,"Next");
+  q("#qlxRange").textContent=all.length?`Showing ${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
+  /* up to 5 page numbers, a window that keeps the current page in the middle where it can */
+  const nums=[], a=Math.max(1,Math.min(X.page-2,pages-4)); for(let i=a;i<=Math.min(pages,a+4);i++) nums.push(i);
+  const arrow=(d,dis,l)=>`<button type="button" data-qlxpage="${X.page+d}" ${dis?"disabled":""} aria-label="${l} page" class="qlxstep"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6"}"/></svg><span>${l}</span></button>`;
+  q("#qlxPager").innerHTML=pages<2?"":arrow(-1,X.page===1,"Previous")+nums.map(n=>`<button type="button" data-qlxpage="${n}"${n===X.page?' aria-current="page"':""} aria-label="Page ${n}">${n}</button>`).join("")+arrow(1,X.page===pages,"Next");
 }
 
 /* ---------- Quick view: what's on the quote, without opening it ---------- */
@@ -5061,18 +5086,23 @@ function openQuote(id){ if(id==="6000024967") setPage("quote"); else if(id[0]===
 function closePops(){ root.querySelectorAll(".qlxpop").forEach(p=>{ p.hidden=true; p.parentNode.querySelector(".qlxpb").setAttribute("aria-expanded","false"); }); }
 let tq=null; q("#qlxQ").addEventListener("input",ev=>{ clearTimeout(tq); tq=setTimeout(()=>{ X.q=ev.target.value.trim(); X.page=1; render(); },200); });
 q("#qlxQ").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ clearTimeout(tq); X.q=ev.target.value.trim(); X.page=1; render(); } });
-q("#qlxSize").addEventListener("change",ev=>{ X.size=+ev.target.value; X.page=1; render(); });
+/* rows per page: a listbox like the filter pills' popovers, opening upward; arrows move, Enter or a click picks, Esc closes */
+q("#qlxSizePop").addEventListener("keydown",ev=>{ const o=[...q("#qlxSizePop").children], i=o.indexOf(document.activeElement);
+  if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); o[(i+(ev.key==="ArrowDown"?1:o.length-1))%o.length].focus(); }
+  else if(ev.key==="Home"||ev.key==="End"){ ev.preventDefault(); o[ev.key==="Home"?0:o.length-1].focus(); }
+  else if(ev.key==="Tab") closePops(); });
 root.addEventListener("change",ev=>{ const d=ev.target.dataset;
   if(d.qlxpipe){ ev.target.checked?X.pipes.add(d.qlxpipe):X.pipes.delete(d.qlxpipe); X.page=1; render(); q(`[data-qlxpipe="${d.qlxpipe}"]`)?.focus(); return; }
   if(d.qlxstale){ X.stale=ev.target.checked; X.page=1; render(); q("[data-qlxstale]")?.focus(); return; }
   if(d.qlxval!==undefined){ X.val=+d.qlxval; X.page=1; render(); q(`[data-qlxval="${d.qlxval}"]`)?.focus(); return; }
   if(d.qlxconv){ X.conv=d.qlxconv; X.page=1; render(); q(`[data-qlxconv="${d.qlxconv}"]`)?.focus(); } });
-const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",conv:"#qlxConvPop"};
+const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",conv:"#qlxConvPop",size:"#qlxSizePop"};
 root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const d=b?b.dataset:{};
   if(d.qlxcopy){ ev.stopPropagation(); navigator.clipboard?.writeText(d.qlxcopy).catch(()=>{}); showToast("Copied "+d.qlxcopy,"ok"); return; }
   if(d.qlxqv){ ev.stopPropagation(); qvOpen(d.qlxqv,b); return; }
   if(d.qlxopen){ ev.preventDefault(); openQuote(d.qlxopen); return; }
-  if(d.qlxpop){ const p=q(POPS[d.qlxpop]), was=!p.hidden; closePops(); if(!was){ p.hidden=false; b.setAttribute("aria-expanded","true"); p.querySelector("input")?.focus(); } return; }
+  if(d.qlxpop){ const p=q(POPS[d.qlxpop]), was=!p.hidden; closePops(); if(!was){ p.hidden=false; b.setAttribute("aria-expanded","true"); (p.querySelector("input")||p.querySelector('[aria-selected="true"]'))?.focus(); } return; }
+  if(d.qlxsize){ X.size=+d.qlxsize; X.page=1; q("#qlxSizeV").textContent=d.qlxsize; q("#qlxSizePop").querySelectorAll("[data-qlxsize]").forEach(o=>o.setAttribute("aria-selected",o===b)); closePops(); render(); q(".qlxsizeb").focus(); return; }
   if(d.qlxquick){ X[d.qlxquick]=!X[d.qlxquick]; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
   if(d.qlxwho!==undefined){ X.who=d.qlxwho; X.page=1; render(); return; }
   if(d.qlxtype!==undefined){ X.type=d.qlxtype; X.page=1; render(); return; }
@@ -5223,6 +5253,28 @@ body.page-home #homePage{display:grid}
 .hm-hello{display:flex;align-items:center;gap:20px}
 .hm-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:64px;height:64px;border-radius:50%;background:var(--surface-2);color:var(--foreground);font-size:22px;font-weight:500;letter-spacing:.02em}
 .hm-hello h1{margin:0;font-family:var(--serif);font-weight:400;font-size:48px;line-height:1.1;color:var(--foreground);outline:none;text-wrap:balance}
+/* Pick up where you left off: one bordered list, a row per quote */
+.hm-recent{display:flex;flex-direction:column;gap:10px;max-width:680px}
+.hm-rh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.hm-rh h2{margin:0;font-family:var(--sans);font-size:16px;font-weight:500;color:var(--foreground)}
+.hm-all{border:0;background:none;padding:0;font:inherit;font-size:14px;font-weight:500;color:var(--brand);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.hm-rlist{margin:0;padding:0;list-style:none;border:1px solid var(--border);border-radius:var(--r-lg,4px);background:var(--bg);overflow:hidden}
+.hm-rlist li+li{border-top:1px solid var(--border)}
+.hm-row{display:grid;grid-template-columns:96px minmax(0,1fr) auto 76px 16px;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 14px;border:0;background:none;font:inherit;font-size:14px;color:var(--foreground);text-align:left;cursor:pointer}
+.hm-row:hover{background:var(--surface)}
+.hm-row:focus-visible{outline:none;box-shadow:inset 0 0 0 3px rgb(18 18 18 / .5)}
+.hm-row small{display:block;font-size:12px;line-height:16px;color:var(--muted-foreground);font-weight:400}
+.hm-rq{font-weight:500;color:var(--brand);font-variant-numeric:tabular-nums}
+.hm-rp{min-width:0}
+.hm-rp b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-rp small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-rs{font-size:13px;white-space:nowrap}
+.hm-rt{text-align:right;font-variant-numeric:tabular-nums}
+.hm-rc{display:inline-flex;color:var(--muted-foreground)}
+@media (width < 640px){ /* sm: number and project only */
+  .hm-row{grid-template-columns:84px minmax(0,1fr) 16px}
+  .hm-rs,.hm-rt{display:none}
+}
 .hm-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;max-width:680px;margin:8px 0 0;padding:0;list-style:none}
 .hm-tile{display:flex;align-items:center;gap:16px;width:100%;min-height:72px;padding:0 18px;border:1px solid var(--border);border-radius:var(--r-lg,4px);background:var(--bg);color:var(--foreground);font:inherit;font-size:15px;font-weight:500;text-align:left;cursor:pointer;box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
 .hm-tile:hover{border-color:var(--input);background:var(--surface)}
@@ -5243,6 +5295,16 @@ body.page-home #homePage{display:grid}
   .hm-hello h1{font-size:34px}
   .hm-avatar{width:48px;height:48px;font-size:17px}
 }
+/* the wordmark is the way Home (Sam, Nov 25): a link that looks like the wordmark */
+.rail a.hm-link{text-decoration:none;color:var(--rail-ink)}
+.rail a.mark.hm-link{display:block}
+.rail a.hm-link:hover{opacity:.8}
+.rail a.hm-link:focus-visible{outline:2px solid var(--rail-ink);outline-offset:-2px}
+:is(.rail a.rlink,#tnBar .tnlinks a)[hidden]{display:none !important}
+/* the folded rail's "W" shows only when the rail is folded, link or not */
+.rail a.markmin.hm-link{display:none}
+html.navstrip .rail:not(.open) a.markmin.hm-link{display:block}
+html.navstrip .rail:not(.open) a.mark.hm-link{display:none}
 </style>
 <script>
 /* ==== v5 (Nov 25): Home, from production's Welcome screen (Sam's screenshot). The side nav's Welcome becomes Home and opens it,
@@ -5267,30 +5329,55 @@ const TILES=[["Sales Dashboard","dash"],["Account Profiles","card"],["Sales Pres
 const page=document.createElement("section"); page.id="homePage"; page.setAttribute("aria-labelledby","hmTitle");
 page.innerHTML=`<div class="hm-main">
     <div class="hm-hello"><span class="hm-avatar" aria-hidden="true">AR</span><h1 id="hmTitle" tabindex="-1">Welcome, Alex</h1></div>
+    <section class="hm-recent" aria-labelledby="hmRecentT"><div class="hm-rh"><h2 id="hmRecentT">Pick up where you left off</h2><button type="button" class="hm-all" data-hm="mine">See all your quotes</button></div><ul class="hm-rlist" id="hmRecent"></ul></section>
     <ul class="hm-tiles">${TILES.map(([l,i,k])=>`<li><button type="button" class="hm-tile" data-hm="${k||l}"><span class="hm-ic">${svg(IC[i])}</span><span class="hm-l">${l}${k?"<small>Quotes and orders</small>":""}</span>${k?"":`<span class="hm-ext" title="Opens in the Sales Portal">${svg(IC.ext,14)}</span>`}</button></li>`).join("")}</ul>
     <p class="hm-note">The other tiles open the Sales Portal’s modules; only QOM is built in the prototype.</p>
   </div>
   <div class="hm-photo"><img src="images/easton-bath-faucet.jpg" alt="Easton bath faucet in nickel with Royal Delft handles"></div>`;
 q(".main").append(page);
 
+/* Pick up where you left off (Sam, Nov 25): the quotes you opened last, so getting back to one doesn't need a nav item.
+   The open quote first, from the quote itself; then three of Alex's other open quotes from the Quotes list's mock rows */
+const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo"};
+const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
+const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
+function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return;
+  const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,3);
+  const tot=r=>r.built?S.quote.rooms.reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0):(r.rooms||[]).reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0);
+  L.innerHTML=[built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
+    <span class="hm-rq">${r.id}<small>${WHEN[i]||""}</small></span>
+    <span class="hm-rp"><b>${esc(r.proj||r.project||"")}</b><small>${esc(tcase(r.cust))}</small></span>
+    <span class="hm-rs">${r.pipe?`<span class="qlxpipe ${PIPECLS[r.pipe]||""}"><i aria-hidden="true"></i>${r.pipe}</span>`:""}</span>
+    <span class="hm-rt">${usd(tot(r))}</span>
+    <span class="hm-rc" aria-hidden="true">${svg('<path d="m9 18 6-6-6-6"/>',16)}</span></button></li>`).join(""); }
+
 /* the side nav's Welcome becomes Home */
 const railHome=[...document.querySelectorAll(".rail a.rlink")].find(a=>a.textContent.trim()==="Welcome");
 if(railHome){ const t=railHome.querySelector(".rl"); if(t) t.textContent="Home"; railHome.dataset.nav="home"; }
 const railQuotes=document.querySelector('.rail a.rlink[data-nav="quotes"]');
+/* no Home item (Sam, Nov 25): the WATERWORKS wordmark opens Home instead, in the side nav (and its folded "W") and the top bar */
+if(railHome) railHome.hidden=true;
+document.querySelectorAll(".rail .mark, .rail .markmin").forEach(el=>{ const a=document.createElement("a"); a.href="#"; a.className=el.className+" hm-link"; a.dataset.nav="home";
+  a.setAttribute("aria-label","Waterworks QOM, Home"); a.title="Home"; a.innerHTML=el.innerHTML; el.replaceWith(a); });
+const hideTopHome=()=>{ const t=q('#tnBar .tnlinks [data-nav="home"]'); if(t) t.hidden=true; }; hideTopHome();
 function setCur(home){
   [[railHome,home],[railQuotes,!home],[q('#tnBar [data-nav="home"]:not(.tnmark)'),home],[q('#tnBar .tnlinks [data-nav="quotes"]'),!home]].forEach(([a,on])=>{ if(!a) return;
     a.classList.toggle("cur",on); if(on) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
 let prevTitle=document.title;
 function openHome(){ if(document.body.classList.contains("page-home")){ q("#hmTitle").focus(); return; }
   prevTitle=document.title; document.body.classList.remove("page-create");
-  document.body.classList.add("page-home"); setCur(true); document.title="Home · QOM";
+  renderRecent(); document.body.classList.add("page-home"); setCur(true); document.title="Home · QOM";
   scrollTo(0,0); document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px");
   q("#hmTitle").focus({preventScroll:true}); }
 function leaveHome(){ if(!document.body.classList.contains("page-home")) return; document.body.classList.remove("page-home"); setCur(false); document.title=prevTitle;
   dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 document.addEventListener("click",ev=>{ const a=ev.target.closest("[data-nav='home']"); if(!a) return; ev.preventDefault(); ev.stopPropagation(); openHome(); },true);
-page.addEventListener("click",ev=>{ const b=ev.target.closest("[data-hm]"); if(!b) return;
+page.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]");
+  if(r){ if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); return; }
+  const b=ev.target.closest("[data-hm]"); if(!b) return;
   if(b.dataset.hm==="qom"){ setPage("quotes"); return; }
+  if(b.dataset.hm==="mine"){ setPage("quotes"); q('[data-qlxwho="me"]')?.click(); return; }
   showToast(`Opens ${b.dataset.hm} in the Sales Portal (not built in the prototype).`); });
 /* global search: opening the built quote from Home goes to the quote (proposal.js decides by the page classes) */
 const gsLeave=ev=>{ if(!document.body.classList.contains("page-home")) return; const it=ev.type==="click"?ev.target.closest(".gsit"):(ev.key==="Enter"?q('.gsit[aria-selected="true"]'):null);

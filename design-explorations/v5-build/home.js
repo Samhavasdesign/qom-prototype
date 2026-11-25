@@ -21,30 +21,55 @@ const TILES=[["Sales Dashboard","dash"],["Account Profiles","card"],["Sales Pres
 const page=document.createElement("section"); page.id="homePage"; page.setAttribute("aria-labelledby","hmTitle");
 page.innerHTML=`<div class="hm-main">
     <div class="hm-hello"><span class="hm-avatar" aria-hidden="true">AR</span><h1 id="hmTitle" tabindex="-1">Welcome, Alex</h1></div>
+    <section class="hm-recent" aria-labelledby="hmRecentT"><div class="hm-rh"><h2 id="hmRecentT">Pick up where you left off</h2><button type="button" class="hm-all" data-hm="mine">See all your quotes</button></div><ul class="hm-rlist" id="hmRecent"></ul></section>
     <ul class="hm-tiles">${TILES.map(([l,i,k])=>`<li><button type="button" class="hm-tile" data-hm="${k||l}"><span class="hm-ic">${svg(IC[i])}</span><span class="hm-l">${l}${k?"<small>Quotes and orders</small>":""}</span>${k?"":`<span class="hm-ext" title="Opens in the Sales Portal">${svg(IC.ext,14)}</span>`}</button></li>`).join("")}</ul>
     <p class="hm-note">The other tiles open the Sales Portal’s modules; only QOM is built in the prototype.</p>
   </div>
   <div class="hm-photo"><img src="images/easton-bath-faucet.jpg" alt="Easton bath faucet in nickel with Royal Delft handles"></div>`;
 q(".main").append(page);
 
+/* Pick up where you left off (Sam, Nov 25): the quotes you opened last, so getting back to one doesn't need a nav item.
+   The open quote first, from the quote itself; then three of Alex's other open quotes from the Quotes list's mock rows */
+const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo"};
+const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
+const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
+function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return;
+  const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,3);
+  const tot=r=>r.built?S.quote.rooms.reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0):(r.rooms||[]).reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0);
+  L.innerHTML=[built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
+    <span class="hm-rq">${r.id}<small>${WHEN[i]||""}</small></span>
+    <span class="hm-rp"><b>${esc(r.proj||r.project||"")}</b><small>${esc(tcase(r.cust))}</small></span>
+    <span class="hm-rs">${r.pipe?`<span class="qlxpipe ${PIPECLS[r.pipe]||""}"><i aria-hidden="true"></i>${r.pipe}</span>`:""}</span>
+    <span class="hm-rt">${usd(tot(r))}</span>
+    <span class="hm-rc" aria-hidden="true">${svg('<path d="m9 18 6-6-6-6"/>',16)}</span></button></li>`).join(""); }
+
 /* the side nav's Welcome becomes Home */
 const railHome=[...document.querySelectorAll(".rail a.rlink")].find(a=>a.textContent.trim()==="Welcome");
 if(railHome){ const t=railHome.querySelector(".rl"); if(t) t.textContent="Home"; railHome.dataset.nav="home"; }
 const railQuotes=document.querySelector('.rail a.rlink[data-nav="quotes"]');
+/* no Home item (Sam, Nov 25): the WATERWORKS wordmark opens Home instead, in the side nav (and its folded "W") and the top bar */
+if(railHome) railHome.hidden=true;
+document.querySelectorAll(".rail .mark, .rail .markmin").forEach(el=>{ const a=document.createElement("a"); a.href="#"; a.className=el.className+" hm-link"; a.dataset.nav="home";
+  a.setAttribute("aria-label","Waterworks QOM, Home"); a.title="Home"; a.innerHTML=el.innerHTML; el.replaceWith(a); });
+const hideTopHome=()=>{ const t=q('#tnBar .tnlinks [data-nav="home"]'); if(t) t.hidden=true; }; hideTopHome();
 function setCur(home){
   [[railHome,home],[railQuotes,!home],[q('#tnBar [data-nav="home"]:not(.tnmark)'),home],[q('#tnBar .tnlinks [data-nav="quotes"]'),!home]].forEach(([a,on])=>{ if(!a) return;
     a.classList.toggle("cur",on); if(on) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
 let prevTitle=document.title;
 function openHome(){ if(document.body.classList.contains("page-home")){ q("#hmTitle").focus(); return; }
   prevTitle=document.title; document.body.classList.remove("page-create");
-  document.body.classList.add("page-home"); setCur(true); document.title="Home · QOM";
+  renderRecent(); document.body.classList.add("page-home"); setCur(true); document.title="Home · QOM";
   scrollTo(0,0); document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px");
   q("#hmTitle").focus({preventScroll:true}); }
 function leaveHome(){ if(!document.body.classList.contains("page-home")) return; document.body.classList.remove("page-home"); setCur(false); document.title=prevTitle;
   dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 document.addEventListener("click",ev=>{ const a=ev.target.closest("[data-nav='home']"); if(!a) return; ev.preventDefault(); ev.stopPropagation(); openHome(); },true);
-page.addEventListener("click",ev=>{ const b=ev.target.closest("[data-hm]"); if(!b) return;
+page.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]");
+  if(r){ if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); return; }
+  const b=ev.target.closest("[data-hm]"); if(!b) return;
   if(b.dataset.hm==="qom"){ setPage("quotes"); return; }
+  if(b.dataset.hm==="mine"){ setPage("quotes"); q('[data-qlxwho="me"]')?.click(); return; }
   showToast(`Opens ${b.dataset.hm} in the Sales Portal (not built in the prototype).`); });
 /* global search: opening the built quote from Home goes to the quote (proposal.js decides by the page classes) */
 const gsLeave=ev=>{ if(!document.body.classList.contains("page-home")) return; const it=ev.type==="click"?ev.target.closest(".gsit"):(ev.key==="Enter"?q('.gsit[aria-selected="true"]'):null);

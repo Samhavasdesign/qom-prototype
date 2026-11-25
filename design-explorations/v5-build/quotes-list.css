@@ -3,6 +3,13 @@ body:not(.qlx-on) .qlx,body:not(.qlx-on) .qlxqv{display:none}
 body.qlx-on #quotesPage>:not(#qlTitle,.qlx){display:none !important}
 body.qlx-on #quotesPage{position:relative}
 body.qlx-on .ql h1{font-size:36px;margin:14px 0 20px}
+/* Page margins (Nov 25, Sam): design.md "Breakpoints and grid" (internal pages 16 / 24 / 32px), plus 48px from 2xl, a proposal not yet in the audit. 32px above the title once the breadcrumb row is gone (top bar on) */
+body.qlx-on.page-quotes .main{padding:24px 32px 40px}
+html.tnav:not(.topnav) body.qlx-on.page-quotes .main{padding-top:32px}
+body.qlx-on.page-quotes .ql h1{margin-top:0}
+@media (width >= 1536px){ /* 2xl */ body.qlx-on.page-quotes .main{padding-left:48px;padding-right:48px} }
+@media (width < 1024px){ /* lg */ body.qlx-on.page-quotes .main{padding-left:24px;padding-right:24px} }
+@media (width < 768px){ /* md */ body.qlx-on.page-quotes .main{padding:16px 16px 32px} }
 .qlx{--qlx-row:52px}
 .qlx mark{background:#ffe7a3;color:inherit;border-radius:2px;padding:0 1px}
 /* Create new: top right, level with the title */
@@ -33,7 +40,7 @@ body.qlx-on .ql h1{font-size:36px;margin:14px 0 20px}
 .qlxpopf button,.qlxclear,.qlxempty button{background:none;border:0;padding:6px 8px;font:inherit;font-size:14px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;border-radius:var(--r-sm)}
 .qlxpopf button:hover,.qlxclear:hover{background:var(--surface)}
 .qlxmeta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px}
-.qlxcount{font-size:14px;color:var(--ink-2)}
+.qlxcount{font-size:12px;line-height:16px;color:var(--muted-foreground)} /* the Caption role (12/16): meta, not body text */
 /* quick filters, as in the Sales Portal's pipeline ("Past Due", "Closing in Next 2 Weeks") */
 .qlxquick{display:flex;flex-wrap:wrap;gap:8px}
 .qlxquick button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font:inherit;font-size:13px;font-weight:500;color:var(--ink)}
@@ -98,16 +105,25 @@ tr:hover .qlxcp,.qlxcp:focus-visible{opacity:1}
 .qlxempty b{display:block;font-weight:500;margin-bottom:4px}
 .qlxempty span{color:var(--ink-2)}
 .qlxempty button{padding:0 2px}
-/* footer: rows per page, range, pages */
-.qlxfoot{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px 24px;margin:16px 0 40px;font-size:14px;color:var(--ink-2)}
-.qlxsize{display:inline-flex;align-items:center;gap:8px}
-.qlxsize select{height:32px;padding:0 8px;border:1px solid var(--control-line);border-radius:var(--r-md);background:var(--bg);font:inherit;font-size:14px;color:var(--ink)}
+/* footer (Nov 25): range on the left, up to 5 pages centred under the table, rows per page on the right */
+.qlxfoot{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px 24px;margin:16px 0 40px;font-size:14px;color:var(--ink-2)}
+.qlxrange{font-variant-numeric:tabular-nums}
+.qlxsize{justify-self:end;display:inline-flex;align-items:center;gap:8px}
+.qlxsizeb{min-width:76px;justify-content:space-between;font-weight:400;font-variant-numeric:tabular-nums}
+.qlxsizeb[aria-expanded="true"] svg{transform:rotate(180deg)}
+.qlxsizepop{top:auto;bottom:calc(100% + 6px);left:auto;right:0;min-width:100%}
+.qlxsizepop .qlxopt{width:100%;border:0;background:none;font:inherit;font-size:14px;color:var(--ink);text-align:left;font-variant-numeric:tabular-nums}
+.qlxsizepop .qlxopt svg{visibility:hidden}
+.qlxsizepop .qlxopt[aria-selected="true"]{font-weight:500}
+.qlxsizepop .qlxopt[aria-selected="true"] svg{visibility:visible}
+.qlxsizepop .qlxopt:focus-visible{outline:none;background:var(--surface)}
 .qlxpager{display:flex;align-items:center;gap:4px}
-.qlxpager button{min-width:32px;height:32px;padding:0 6px;border:1px solid transparent;border-radius:var(--r-md);background:none;font:inherit;font-size:14px;color:var(--ink)}
+.qlxpager button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:36px;height:36px;padding:0 8px;border:1px solid transparent;border-radius:var(--r-md);background:none;font:inherit;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.qlxpager .qlxstep{padding:0 10px 0 6px}
+.qlxpager .qlxstep:last-child{flex-direction:row-reverse;padding:0 6px 0 10px}
 .qlxpager button:hover:not(:disabled){background:var(--surface)}
 .qlxpager button[aria-current="page"]{border-color:var(--line);box-shadow:0 1px 2px 0 rgb(0 0 0 / .05);font-weight:500}
-.qlxpager button:disabled{opacity:.35}
-.qlxpager .gap{min-width:24px;text-align:center}
+.qlxpager button:disabled{color:var(--ink-2);opacity:.5;cursor:default}
 /* Total: right-aligned, whole dollars */
 /* an order with no QOM quote: a small grey "Order" tag where the pipeline status would be */
 .qlxsrc{display:inline-flex;align-items:center;height:20px;padding:0 7px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surface)}
@@ -166,6 +182,12 @@ tr:hover .qlxqvb,.qlxqvb:focus-visible,tr.qvcur .qlxqvb{opacity:1}
 .qvfoot .btn{display:inline-flex;align-items:center;gap:6px}
 @media (width < 1280px){ /* xl: Create new moves above the search so the two never touch */
   .qlx .qlxnew{position:static;margin-bottom:14px}
+}
+@media (width < 768px){ /* md: pages on their own row, range and rows per page under them */
+  .qlxfoot{grid-template-columns:1fr auto}
+  .qlxpager{grid-column:1 / -1;order:-1;justify-content:center}
+  .qlxpager .qlxstep span{display:none}
+  .qlxpager .qlxstep,.qlxpager .qlxstep:last-child{padding:0}
 }
 @media (width < 640px){ /* sm */
   .qlxseg button{padding:0 10px}

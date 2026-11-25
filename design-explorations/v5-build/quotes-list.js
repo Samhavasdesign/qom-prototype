@@ -113,7 +113,9 @@ root.innerHTML=`
   <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div>
     <div class="qlxquick" role="group" aria-label="Quick filters"><button type="button" data-qlxquick="stale" aria-pressed="false" title="Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."></button><button type="button" data-qlxquick="soon" aria-pressed="false" title="Open quotes expected to convert in the next 14 days"></button></div></div>
   <div class="qlxwrap"><table class="qlxt"><caption class="sr">Quotes and orders. Select a row to open the quote, or Quick view to see what's on it.</caption><thead><tr id="qlxHead"></tr></thead><tbody id="qlxBody"></tbody></table></div>
-  <div class="qlxfoot"><label class="qlxsize">Rows per page <select id="qlxSize">${[25,50,100].map(n=>`<option${n===50?" selected":""}>${n}</option>`).join("")}</select></label><span id="qlxRange"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav></div>`;
+  <div class="qlxfoot"><span id="qlxRange" class="qlxrange" aria-live="polite"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav>
+    <div class="qlxsize"><span id="qlxSizeL">Rows per page</span><div class="qlxpill"><button type="button" class="qlxpb qlxsizeb" data-qlxpop="size" aria-haspopup="listbox" aria-expanded="false" aria-controls="qlxSizePop" aria-labelledby="qlxSizeL qlxSizeV"><span id="qlxSizeV">50</span>${IC.chev}</button>
+      <div class="qlxpop qlxsizepop" id="qlxSizePop" hidden role="listbox" aria-labelledby="qlxSizeL">${[25,50,100].map(n=>`<button type="button" class="qlxopt" role="option" data-qlxsize="${n}" aria-selected="${n===50}"><span>${n}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>`).join("")}</div></div></div></div>`;
 q("#quotesPage").append(root);
 /* Quick view: a panel from the right, over the list */
 const qv=document.createElement("div"); qv.className="qlxqv"; qv.hidden=true;
@@ -179,10 +181,11 @@ function render(){ if(!X.on) return;
       <button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button></td></tr>`; }).join("")
     :`<tr><td colspan="${COLS.length}" class="qlxempty"><b>No quotes match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's quotes</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
-  q("#qlxRange").textContent=all.length?`${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
-  const nums=[]; if(pages<=7){ for(let i=1;i<=pages;i++) nums.push(i); } else { let a=Math.max(1,Math.min(X.page-2,pages-5)), b=a+4; for(let i=a;i<=b;i++) nums.push(i); if(a>1) nums.unshift(1,a>2?"…":null); if(b<pages) nums.push(b<pages-1?"…":null,pages); }
-  const arrow=(d,dis,l)=>`<button type="button" data-qlxpage="${X.page+d}" ${dis?"disabled":""} aria-label="${l} page"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6"}"/></svg></button>`;
-  q("#qlxPager").innerHTML=pages<2?"":arrow(-1,X.page===1,"Previous")+nums.filter(n=>n!==null).map(n=>n==="…"?`<span class="gap" aria-hidden="true">…</span>`:`<button type="button" data-qlxpage="${n}"${n===X.page?' aria-current="page"':""} aria-label="Page ${n}">${n}</button>`).join("")+arrow(1,X.page===pages,"Next");
+  q("#qlxRange").textContent=all.length?`Showing ${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
+  /* up to 5 page numbers, a window that keeps the current page in the middle where it can */
+  const nums=[], a=Math.max(1,Math.min(X.page-2,pages-4)); for(let i=a;i<=Math.min(pages,a+4);i++) nums.push(i);
+  const arrow=(d,dis,l)=>`<button type="button" data-qlxpage="${X.page+d}" ${dis?"disabled":""} aria-label="${l} page" class="qlxstep"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6"}"/></svg><span>${l}</span></button>`;
+  q("#qlxPager").innerHTML=pages<2?"":arrow(-1,X.page===1,"Previous")+nums.map(n=>`<button type="button" data-qlxpage="${n}"${n===X.page?' aria-current="page"':""} aria-label="Page ${n}">${n}</button>`).join("")+arrow(1,X.page===pages,"Next");
 }
 
 /* ---------- Quick view: what's on the quote, without opening it ---------- */
@@ -254,18 +257,23 @@ function openQuote(id){ if(id==="6000024967") setPage("quote"); else if(id[0]===
 function closePops(){ root.querySelectorAll(".qlxpop").forEach(p=>{ p.hidden=true; p.parentNode.querySelector(".qlxpb").setAttribute("aria-expanded","false"); }); }
 let tq=null; q("#qlxQ").addEventListener("input",ev=>{ clearTimeout(tq); tq=setTimeout(()=>{ X.q=ev.target.value.trim(); X.page=1; render(); },200); });
 q("#qlxQ").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ clearTimeout(tq); X.q=ev.target.value.trim(); X.page=1; render(); } });
-q("#qlxSize").addEventListener("change",ev=>{ X.size=+ev.target.value; X.page=1; render(); });
+/* rows per page: a listbox like the filter pills' popovers, opening upward; arrows move, Enter or a click picks, Esc closes */
+q("#qlxSizePop").addEventListener("keydown",ev=>{ const o=[...q("#qlxSizePop").children], i=o.indexOf(document.activeElement);
+  if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); o[(i+(ev.key==="ArrowDown"?1:o.length-1))%o.length].focus(); }
+  else if(ev.key==="Home"||ev.key==="End"){ ev.preventDefault(); o[ev.key==="Home"?0:o.length-1].focus(); }
+  else if(ev.key==="Tab") closePops(); });
 root.addEventListener("change",ev=>{ const d=ev.target.dataset;
   if(d.qlxpipe){ ev.target.checked?X.pipes.add(d.qlxpipe):X.pipes.delete(d.qlxpipe); X.page=1; render(); q(`[data-qlxpipe="${d.qlxpipe}"]`)?.focus(); return; }
   if(d.qlxstale){ X.stale=ev.target.checked; X.page=1; render(); q("[data-qlxstale]")?.focus(); return; }
   if(d.qlxval!==undefined){ X.val=+d.qlxval; X.page=1; render(); q(`[data-qlxval="${d.qlxval}"]`)?.focus(); return; }
   if(d.qlxconv){ X.conv=d.qlxconv; X.page=1; render(); q(`[data-qlxconv="${d.qlxconv}"]`)?.focus(); } });
-const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",conv:"#qlxConvPop"};
+const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",conv:"#qlxConvPop",size:"#qlxSizePop"};
 root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const d=b?b.dataset:{};
   if(d.qlxcopy){ ev.stopPropagation(); navigator.clipboard?.writeText(d.qlxcopy).catch(()=>{}); showToast("Copied "+d.qlxcopy,"ok"); return; }
   if(d.qlxqv){ ev.stopPropagation(); qvOpen(d.qlxqv,b); return; }
   if(d.qlxopen){ ev.preventDefault(); openQuote(d.qlxopen); return; }
-  if(d.qlxpop){ const p=q(POPS[d.qlxpop]), was=!p.hidden; closePops(); if(!was){ p.hidden=false; b.setAttribute("aria-expanded","true"); p.querySelector("input")?.focus(); } return; }
+  if(d.qlxpop){ const p=q(POPS[d.qlxpop]), was=!p.hidden; closePops(); if(!was){ p.hidden=false; b.setAttribute("aria-expanded","true"); (p.querySelector("input")||p.querySelector('[aria-selected="true"]'))?.focus(); } return; }
+  if(d.qlxsize){ X.size=+d.qlxsize; X.page=1; q("#qlxSizeV").textContent=d.qlxsize; q("#qlxSizePop").querySelectorAll("[data-qlxsize]").forEach(o=>o.setAttribute("aria-selected",o===b)); closePops(); render(); q(".qlxsizeb").focus(); return; }
   if(d.qlxquick){ X[d.qlxquick]=!X[d.qlxquick]; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
   if(d.qlxwho!==undefined){ X.who=d.qlxwho; X.page=1; render(); return; }
   if(d.qlxtype!==undefined){ X.type=d.qlxtype; X.page=1; render(); return; }
