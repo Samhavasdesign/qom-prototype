@@ -12,7 +12,7 @@
    link both ways); and an order with no QOM quote behind it (keyed in M3, or e-commerce), which needs its own row and opens the order. */
 (function(){
 const q=s=>document.querySelector(s);
-const X={on:true,q:"",who:"all",type:"",pipes:new Set(),stale:false,soon:false,due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
+const X={on:true,q:"",who:"me",type:"",pipes:new Set(),stale:false,soon:false,due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
   tab:"quotes",sortBy:{quotes:["id",-1],orders:["odate",-1]},found:""};
 try{ X.on=localStorage.getItem("qom-v5-qlx")!=="off"; if(localStorage.getItem("qom-v5-qlxtab")==="orders"){ X.tab="orders"; [X.sort,X.dir]=X.sortBy.orders; } }catch(e){}
 
@@ -118,13 +118,15 @@ const IC={
 /* ---------- markup: sits inside #quotesPage, after v2's own title (which stays: setPage focuses it) ---------- */
 const root=document.createElement("div"); root.className="qlx"; root.id="qlx";
 root.innerHTML=`
-  <button type="button" class="btn qlxnew" data-qlx="new">${IC.plus}Create new</button>
+  <button type="button" class="btn lg qlxnew" data-qlx="new">${IC.plus}Create new</button>
   <div class="qlxsearch">${IC.search}<input type="search" id="qlxQ" placeholder="Search by quote #, order #, project, customer or description" aria-label="Search quotes and orders" autocomplete="off"></div>
   <div class="qlxtabs" role="tablist" aria-label="Quotes or orders">${Object.entries(TABS).map(([k,t])=>`<button type="button" role="tab" class="qlxtab" id="qlxTab-${k}" data-qlxtab="${k}" aria-controls="qlxPanel">${t.icon}<span>${t.name}</span><em id="qlxTabN-${k}"></em></button>`).join("")}</div>
   <div id="qlxPanel" role="tabpanel">
   <div class="qlxbar">
     <div class="qlxseg" role="group" aria-label="Whose quotes">${[["me","Mine"],["team","My team"],["all","Everyone"]].map(([v,l])=>`<button type="button" data-qlxwho="${v}" aria-pressed="false">${l}</button>`).join("")}</div>
-    <div class="qlxseg" role="group" aria-label="Type">${[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<button type="button" data-qlxtype="${v}" aria-pressed="false">${l}</button>`).join("")}</div>
+    ${''/* Type is a filter pill like Total, not a toggle group (Sam, Nov 25): "All types" is the default, so it reads as a filter only once set */}
+    <div class="qlxpill" id="qlxTypeW"><button type="button" class="qlxpb" data-qlxpop="type" aria-expanded="false" aria-controls="qlxTypePop"><span id="qlxTypeL">All types</span>${IC.chev}</button>
+      <div class="qlxpop" id="qlxTypePop" hidden role="radiogroup" aria-label="Type"></div></div>
     <div class="qlxpill" id="qlxPipeW"><button type="button" class="qlxpb" data-qlxpop="pipe" aria-expanded="false" aria-controls="qlxPipePop"><span id="qlxPipeL">Pipeline status</span>${IC.chev}</button>
       <div class="qlxpop" id="qlxPipePop" hidden role="group" aria-label="Pipeline status"></div></div>
     <div class="qlxpill" id="qlxValW"><button type="button" class="qlxpb" data-qlxpop="val" aria-expanded="false" aria-controls="qlxValPop"><span id="qlxValL">Total</span>${IC.chev}</button>
@@ -168,7 +170,6 @@ function render(){ if(!X.on) return;
   const all=rowsX(), pages=Math.max(1,Math.ceil(all.length/X.size)); X.page=Math.min(X.page,pages);
   const rows=all.slice((X.page-1)*X.size,X.page*X.size), ws=words(); shown=rows;
   root.querySelectorAll("[data-qlxwho]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qlxwho===X.who)));
-  root.querySelectorAll("[data-qlxtype]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qlxtype===X.type)));
   /* pills: black once set, the label says what's set */
   const other=X.tab==="quotes"?"orders":"quotes", nOther=rowsFor(other).length;
   Object.keys(TABS).forEach(k=>{ const b=q("#qlxTab-"+k), n=k===X.tab?all.length:nOther; b.setAttribute("aria-selected",String(k===X.tab)); b.tabIndex=k===X.tab?0:-1;
@@ -177,16 +178,19 @@ function render(){ if(!X.on) return;
   q("#qlxPipeW").hidden=X.tab!=="quotes";
   const np=X.tab==="quotes"?X.pipes.size:0;
   q("#qlxPipeW").classList.toggle("on",np>0); q("#qlxPipeL").textContent=np===0?"Pipeline status":np===1?[...X.pipes][0]:`Pipeline status · ${np}`;
+  q("#qlxTypeW").classList.toggle("on",!!X.type); q("#qlxTypeL").textContent=X.type||"All types";
   q("#qlxValW").classList.toggle("on",X.val>0); q("#qlxValL").textContent=X.val?VALS.find(v=>v[0]===X.val)[1]:"Total";
   const base=ALL().filter(x=>matchesBase(x)&&tabOk(x,X.tab));
   q("#qlxPipePop").innerHTML=PIPE.map(([n,s,c])=>`<label class="qlxopt"><input type="checkbox" data-qlxpipe="${n}"${X.pipes.has(n)?" checked":""}><span class="qlxpipe ${c}"><i aria-hidden="true"></i>${n}${s?` <small>${s}</small>`:""}</span><em>${base.filter(x=>x.pipe===n).length}</em></label>`).join("")
     +(np?`<div class="qlxpopf"><button type="button" data-qlx="clearpipe">Clear</button></div>`:"");
+  const baseT=ALL().filter(x=>tabOk(x,X.tab)&&(X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))); /* counts for Type ignore the type itself */
+  q("#qlxTypePop").innerHTML=[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxtype" data-qlxtype="${v}"${X.type===v?" checked":""}><span>${l}</span><em>${v?baseT.filter(x=>x.type===v).length:baseT.length}</em></label>`).join("");
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
   /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
   const QF=X.tab==="quotes"?[["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"]]
     :[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"],["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
   q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
-  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.due||X.ship||X.val||X.type||X.who!=="all"||X.q);
+  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
   /* count */
   const mq=X.q?` matching “${esc(X.q)}”`:"", nOO=all.filter(x=>x.oo).length, n=all.length.toLocaleString("en-US");
   q("#qlxCount").innerHTML=(X.tab==="quotes"?`<b>${n}</b> ${all.length===1?"quote":"quotes"} not converted yet${mq}`
@@ -321,8 +325,9 @@ q("#qlxSizePop").addEventListener("keydown",ev=>{ const o=[...q("#qlxSizePop").c
 root.addEventListener("change",ev=>{ const d=ev.target.dataset;
   if(d.qlxpipe){ ev.target.checked?X.pipes.add(d.qlxpipe):X.pipes.delete(d.qlxpipe); X.page=1; render(); q(`[data-qlxpipe="${d.qlxpipe}"]`)?.focus(); return; }
   if(d.qlxstale){ X.stale=ev.target.checked; X.page=1; render(); q("[data-qlxstale]")?.focus(); return; }
+  if(d.qlxtype!==undefined){ X.type=d.qlxtype; X.page=1; render(); q(`[data-qlxtype="${d.qlxtype}"]`)?.focus(); return; }
   if(d.qlxval!==undefined){ X.val=+d.qlxval; X.page=1; render(); q(`[data-qlxval="${d.qlxval}"]`)?.focus(); return; } });
-const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",size:"#qlxSizePop"};
+const POPS={type:"#qlxTypePop",pipe:"#qlxPipePop",val:"#qlxValPop",size:"#qlxSizePop"};
 root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const d=b?b.dataset:{};
   if(d.qlxcopy){ ev.stopPropagation(); navigator.clipboard?.writeText(d.qlxcopy).catch(()=>{}); showToast("Copied "+d.qlxcopy,"ok"); return; }
   if(d.qlxqv){ ev.stopPropagation(); qvOpen(d.qlxqv,b); return; }
@@ -332,13 +337,12 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlxtab){ setTab(d.qlxtab,true); return; }
   if(d.qlxquick){ X[d.qlxquick]=!X[d.qlxquick]; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
   if(d.qlxwho!==undefined){ X.who=d.qlxwho; X.page=1; render(); return; }
-  if(d.qlxtype!==undefined){ X.type=d.qlxtype; X.page=1; render(); return; }
   if(d.qlxsort){ if(X.sort===d.qlxsort) X.dir=-X.dir; else { X.sort=d.qlxsort; X.dir=["id","tot"].includes(d.qlxsort)?-1:1; } render(); q(`[data-qlxsort="${d.qlxsort}"]`).focus(); return; }
   if(d.qlxpage){ X.page=+d.qlxpage; render(); q("#qlxPager [aria-current]")?.focus(); q("#qlTitle").scrollIntoView({block:"start"}); return; }
   if(d.qlx==="new"){ q("#qlNew").click(); return; }
   if(d.qlx==="clearpipe"){ X.pipes.clear(); render(); return; }
   if(d.qlx==="everyone"){ X.who="all"; X.page=1; render(); return; }
-  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="all"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
+  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="me"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
   if(b) return;
   /* anywhere else on a row opens its quote (text selection doesn't) */
   const tr=ev.target.closest("tr[data-qlxrow]"); if(tr&&!String(getSelection())) openQuote(tr.dataset.qlxgo||tr.dataset.qlxrow); });

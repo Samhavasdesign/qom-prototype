@@ -84,20 +84,24 @@ document.addEventListener("keydown",ev=>{ if(ev.target.closest&&ev.target.closes
 document.addEventListener("click",ev=>{ if(ev.target.closest('#propNew,#qlNew,[data-tn="new"]')) leaveHome(); },true);
 const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(this,arguments); };
 /* Quotes & orders opens with the same "Pick up where you left off" list as Home (Sam, Nov 25): it's QOM's own home, so the
-   last quotes opened come first, between the title and the search. It hides while you search, set a filter or a quick
-   filter, or look at the Orders tab, so results come straight up under the search. */
+   last quotes you opened come first. It hides while you search or filter, or look at the Orders tab, so results come
+   straight up under the search. */
 const qlx=q(".qlx .qlxsearch");
 if(qlx){
   const sec=document.createElement("section"); sec.className="hm-recent ql-recent"; sec.setAttribute("aria-labelledby","qlRecentT");
   sec.innerHTML=`<div class="hm-rh"><h2 id="qlRecentT">Pick up where you left off</h2></div><ul class="hm-rlist" id="qlRecent"></ul>`;
   qlx.before(sec);
   const fill=()=>{ const L=q("#qlRecent"); if(L&&typeof QL!=="undefined") L.innerHTML=recentRows(); };
-  const busy=()=>{ const v=q("#qlxQ")?.value.trim(), clr=q(".qlxclear"), ord=q('.qlxtab[aria-selected="true"]')?.textContent.includes("Orders"),
-    chip=q('.qlxquick button[aria-pressed="true"]'); return !!(v||(clr&&!clr.hidden&&clr.offsetParent)||ord||chip); };
-  const sync=()=>{ sec.hidden=busy(); };
+  /* hidden only while you're looking for something: a search, a Pipeline status or Total filter, a quick filter, or the
+     Orders tab. Mine / My team / Everyone and the type toggles are views, and "recent" means quotes you opened, so it stays. */
+  const busy=()=>{ const v=q("#qlxQ")?.value.trim(), pill=q(".qlxpill.on"), ord=q('.qlxtab[aria-selected="true"]')?.textContent.includes("Orders"),
+    chip=q('.qlxquick button[aria-pressed="true"]'); return !!(v||pill||ord||chip); };
+  const sync=()=>{ const h=busy(); if(sec.hidden!==h) sec.hidden=h; };
   sec.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]"); if(!r) return;
     if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); });
+  /* the list re-renders a moment after typing stops, so watch it rather than the keystrokes */
   const box=q(".qlx"); ["input","click","change","keyup"].forEach(t=>box.addEventListener(t,()=>setTimeout(sync,0)));
+  new MutationObserver(sync).observe(box,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","aria-pressed","aria-selected","class"]});
   const oSP=setPage; setPage=function(p){ const r=oSP.apply(this,arguments); if(p==="quotes"){ fill(); setTimeout(sync,0); } return r; };
   fill(); sync();
 }

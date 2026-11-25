@@ -63,3 +63,8 @@ html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a
    navy wash; set and pressed controls keep their own look. */
 html.warm .qlxpill:not(.on) .qlxpb:hover,html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
 html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef)}
+
+/* Quotes list's table header in a light gold (Sam, Nov 25): the pale bronze --brand-tint #f4eee6 instead of the grey
+   #ebebeb, with charcoal headings (4.8:1) and the sorted column in the darker link bronze (5.0:1). Rows hover navy, so
+   the header and a hovered row no longer match. The other room bars on the quote keep the grey. */
+html.warm .qlxt th{background:var(--brand-tint,#f4eee6)}
