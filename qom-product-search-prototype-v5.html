@@ -4395,10 +4395,14 @@ html body .pbar{padding-left:32px;padding-right:32px}
    (the quote page was 24px, New quote 28, Home 48). 28px below md. Each page keeps its own margins. */
 html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.1;letter-spacing:normal;color:var(--foreground)}
 @media (width < 768px){ /* md */ html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-size:28px} }
-/* Quote page title as the section title role (Sam, Nov 25): design.md's hlmH2 (text-3xl font-semibold tracking-tight): sans, 30/36,
-   500 (Gotham Narrow has no 600), -0.025em. Spartan's border-b and pb-2 are left off, since the title row isn't a section break. 24px (hlmH3) below md. */
-html body #quoteTitle{font-family:var(--sans);font-weight:500;font-size:30px;line-height:36px;letter-spacing:-.025em}
+/* Quote page title as the section title role (Sam, Nov 25): hlmH2's size, 30/36, in the page title's font (Sam: H2 is the same font as H1),
+   so serif, regular (Chronicle has only 400), normal tracking. Spartan's border-b and pb-2 are left off, since the title row isn't a section break. 24px (hlmH3) below md. */
+html body #quoteTitle{font-family:var(--serif);font-weight:400;font-size:30px;line-height:36px;letter-spacing:normal}
 @media (width < 768px){ /* md */ html body #quoteTitle{font-size:24px;line-height:32px} }
+/* The title's own 10px top / 2px bottom margin put it 4px below the row's centre, so the Residential tag and the buttons sat high (Sam, Nov 25).
+   The row carries that spacing instead, so everything centres on the title and the title doesn't move. */
+html body .ptitle:has(> #quoteTitle){padding:10px 0 2px}
+html body .ptitle > #quoteTitle{margin-top:0;margin-bottom:0}
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
