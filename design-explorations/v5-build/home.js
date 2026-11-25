@@ -20,12 +20,11 @@ const IC={ /* Lucide */
 const TILES=[["Sales Dashboard","dash"],["Account Profiles","card"],["Sales Presentations","pres"],["Sales Training","cap"],["QOM","file","qom"],["M3 Tools","wrench"],["Product Availability","box"],["Spec Pack Generator","cog"]];
 const page=document.createElement("section"); page.id="homePage"; page.setAttribute("aria-labelledby","hmTitle");
 page.innerHTML=`<div class="hm-main">
-    <div class="hm-mark" aria-hidden="true">WATERWORKS</div>
-    <div class="hm-hello"><span class="hm-avatar" aria-hidden="true">AR</span><h1 id="hmTitle" tabindex="-1">Welcome,<br>Alex</h1></div>
+    <div class="hm-hello"><span class="hm-avatar" aria-hidden="true">AR</span><h1 id="hmTitle" tabindex="-1">Welcome, Alex</h1></div>
     <ul class="hm-tiles">${TILES.map(([l,i,k])=>`<li><button type="button" class="hm-tile" data-hm="${k||l}"><span class="hm-ic">${svg(IC[i])}</span><span class="hm-l">${l}${k?"<small>Quotes and orders</small>":""}</span>${k?"":`<span class="hm-ext" title="Opens in the Sales Portal">${svg(IC.ext,14)}</span>`}</button></li>`).join("")}</ul>
     <p class="hm-note">The other tiles open the Sales Portal’s modules; only QOM is built in the prototype.</p>
   </div>
-  <div class="hm-photo"><img src="images/henry-single-hook.jpg" alt="Henry single robe hook in polished nickel"></div>`;
+  <div class="hm-photo"><img src="images/easton-bath-faucet.jpg" alt="Easton bath faucet in nickel with Royal Delft handles"></div>`;
 q(".main").append(page);
 
 /* the side nav's Welcome becomes Home */
