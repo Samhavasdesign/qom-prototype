@@ -1,4 +1,4 @@
-import re,sys
+import re,sys,os
 src=open('qom-product-search-prototype-v2.html').read()
 s=src
 def rep(a,b,count=1):
@@ -87,6 +87,9 @@ html.navmid .rail.open{width:184px;margin-right:-128px}
 .rail .mark{padding-left:18px;padding-right:18px;letter-spacing:.26em}
 .rail a.rlink{padding-left:18px;padding-right:12px}
 '''+s[i:]
+# shared design tokens (Nov 25): the audit's names for v4 and v5, from design-explorations/tokens.css
+i=s.index('</style>')
+s=s[:i]+'\n'+open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','tokens.css')).read()+s[i:]
 open('qom-product-search-prototype-v4.html','w').write(s)
 print("ok", len(s))
 # ---- Spartan components layer and its demo-bar switch ----

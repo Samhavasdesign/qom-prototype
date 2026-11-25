@@ -1,0 +1,35 @@
+/* ---- Design tokens shared by v4 and v5 (Nov 25) ----
+   Named as in the QOM Design Audit's theme.css (Spartan's names), so the prototype and the real theme match.
+   mkv4.py pastes this into v4's first stylesheet; v5 inherits it. Use these in new layers instead of typing colors.
+   The prototype's own names (--ink, --block, --amber, --ok, --prog, --line, --control-line) stay; the aliases below
+   point at them, so changing a value in one place changes both. Spartan's --muted and --accent aren't aliased here:
+   the prototype already uses those names for other things. */
+:root {
+  /* Text and edges */
+  --foreground: var(--ink);            /* #121212, 18.7:1 */
+  --muted-foreground: var(--ink-2);    /* #666666, 5.7:1; brand charcoal #68696f is the candidate */
+  --border: var(--line);               /* #e5e5e5, decorative */
+  --input: var(--control-line);        /* #8a8a8a, 3.5:1: field edges */
+
+  /* Status: red blocks or destroys, amber is a risk, green is done, blue informs */
+  --destructive: var(--block);         /* #c62828, 5.6:1 */
+  --warning: var(--block);             /* the same red: one red, two roles */
+  --caution: var(--amber);             /* #b45309, 5.0:1 */
+  --success: var(--ok);                /* #047857, 5.5:1 */
+  --info: var(--prog);                 /* #1d4ed8, 6.7:1 */
+
+  /* Brand: Waterworks bronze, the only accent. Links, the current page, selected rows, highlights.
+     Never button fills, body text or status. */
+  --brand: #8c704e;                    /* 4.6:1 */
+  --brand-tint: #f4eee6;               /* selected row, pressed chip: under black text */
+  --brand-mark: #ead9c1;               /* search highlight: under black text, 13.5:1 */
+
+  /* Pipeline status: the Sales Portal's forecast colors, as a dot beside the status name, never text */
+  --pipe-predictable: #166534;
+  --pipe-feasible: #4ade80;
+  --pipe-possible: #2563eb;
+  --pipe-lead: #d97706;
+  --pipe-on-hold: #64748b;
+  --pipe-duplicate: #dc2626;
+  --pipe-lost: #27272a;               /* not in the Sales Portal, which shows open quotes only */
+}

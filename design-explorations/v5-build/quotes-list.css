@@ -85,15 +85,15 @@ tr:hover .qlxcp,.qlxcp:focus-visible{opacity:1}
 .qlxpipe{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
 .qlxpipe i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-2)}
 .qlxpipe small{font-size:12px;color:var(--ink-2)}
-/* the Sales Portal's own pipeline colours (its forecast chart, sampled Nov 24), so a status looks the same in both apps.
+/* the Sales Portal's own pipeline colours (its forecast chart, sampled Nov 24), so a status looks the same in both apps. Values in design-explorations/tokens.css.
    The Sales Portal lists open quotes only, so it has no colour for Lost: a near-black here */
-.qlxpipe.pr i{background:#166534}  /* Predictable (PR): dark green */
-.qlxpipe.fe i{background:#4ade80}  /* Feasible (FE): light green */
-.qlxpipe.po i{background:#2563eb}  /* Possible (PO): blue */
-.qlxpipe.le i{background:#d97706}  /* Lead (LE): orange */
-.qlxpipe.oh i{background:#64748b}  /* On Hold (OH): slate */
-.qlxpipe.du i{background:#dc2626}  /* Duplicate (DU): red */
-.qlxpipe.lo i{background:#27272a}  /* Lost: not in the Sales Portal */
+.qlxpipe.pr i{background:var(--pipe-predictable)}  /* Predictable (PR): dark green */
+.qlxpipe.fe i{background:var(--pipe-feasible)}  /* Feasible (FE): light green */
+.qlxpipe.po i{background:var(--pipe-possible)}  /* Possible (PO): blue */
+.qlxpipe.le i{background:var(--pipe-lead)}  /* Lead (LE): orange */
+.qlxpipe.oh i{background:var(--pipe-on-hold)}  /* On Hold (OH): slate */
+.qlxpipe.du i{background:var(--pipe-duplicate)}  /* Duplicate (DU): red */
+.qlxpipe.lo i{background:var(--pipe-lost)}  /* Lost: not in the Sales Portal */
 .qlxempty{height:auto !important;padding:48px 12px !important;text-align:center;cursor:default}
 .qlxempty b{display:block;font-weight:500;margin-bottom:4px}
 .qlxempty span{color:var(--ink-2)}
@@ -175,7 +175,7 @@ tr:hover .qlxqvb,.qlxqvb:focus-visible,tr.qvcur .qlxqvb{opacity:1}
 /* ---- Bronze accent (Nov 25): the Waterworks brand bronze #8C704E from Jen's deck, where it's the one accent and the link colour.
    About 4.6:1 on white, so it's used for links, the current page and selection marks, never for button fills or body text.
    Status colours (pipeline dots, amber and red notes) don't change. The demo bar's "Bronze accent" switch turns it off. ---- */
-body.qlx-bronze{--bronze:#8c704e;--bronze-tint:#f4eee6;--bronze-mark:#ead9c1}
+body.qlx-bronze{--bronze:var(--brand);--bronze-tint:var(--brand-tint);--bronze-mark:var(--brand-mark)} /* from design-explorations/tokens.css */
 body.qlx-bronze .qlx mark,body.qlx-bronze .qlxqv mark{background:var(--bronze-mark)}
 body.qlx-bronze .qlxt .c-id a{color:var(--bronze)}                       /* the quote number is the row's link */
 body.qlx-bronze .qlxt th[aria-sort] button,body.qlx-bronze .qlxt th .si.on{color:var(--bronze)} /* the sorted column */
