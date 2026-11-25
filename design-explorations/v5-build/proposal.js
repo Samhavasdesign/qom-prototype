@@ -304,3 +304,12 @@ const sw=q("#propOn"); if(sw){ sw.checked=P.on; sw.addEventListener("change",()=
 apply();
 })();
 </script>
+<script>
+/* product search filters, as the Quotes list's (Sam, Nov 25): the set filter's × is the thin Lucide x, and "Clear all" is
+   "Clear filters". Wraps v2's renderFilters; the styles are in proposal.css */
+(function(){ if(typeof renderFilters!=="function") return;
+  const X='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  const fix=()=>{ document.querySelectorAll("#fpills .fpx").forEach(b=>{ if(!b.querySelector("svg")) b.innerHTML=X; });
+    const c=document.querySelector("#fpills .fpclear"); if(c&&c.textContent!=="Clear filters") c.textContent="Clear filters"; };
+  const o=renderFilters; renderFilters=function(){ const r=o.apply(this,arguments); fix(); return r; }; fix(); })();
+</script>

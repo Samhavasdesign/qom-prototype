@@ -238,3 +238,26 @@ html:not(#a) body :is(.qty .stepper,.addpill,.bmbox) [aria-invalid="true"]:focus
 /* Line alerts hug their text (Sam, Nov 25): stock, kit, late-date and status alerts on quote lines are as wide as their
    copy, up to the row's width, instead of stretching across the whole line. */
 html body .line .rb{justify-self:start;width:fit-content;max-width:100%}
+/* Product search filters match the Quotes list (Sam, Nov 25): a set filter is the Design Audit's "pressed filter", a bronze
+   edge on the bronze tint (grey fill and black edge with Bronze accent off; the navy trial's wash with a 1px edge, like the
+   list's), its × is the thin grey one (darker on hover), and "Clear all" reads "Clear filters". Black stays for selected scope
+   and for buttons */
+html:not(.warm) body .fpill.on{background:var(--surface,#f3f3f3);border-color:var(--ink);color:var(--ink);box-shadow:none}
+html:not(.warm) body.qlx-bronze .fpill.on{background:var(--bronze-tint,#f4eee6);border-color:var(--bronze,#8c704e)}
+html:not(.warm) body .fpill.on :is(.fpbtn,.fpx){color:var(--ink)}
+html.warm body .fpill.on{box-shadow:none}
+html body .fpill .fpx{display:inline-flex;align-items:center;justify-content:center;min-width:32px;padding:0 8px 0 2px;color:var(--ink-2)}
+html body .fpill .fpx svg{flex:none}
+html body .fpill .fpx:hover{color:var(--ink)}
+html:not(.warm) body .fpill.on .fpx:hover{background:rgb(0 0 0 / .05)}
+/* dropdown arrows match the list's (Sam, Nov 25): the thin chevron, not a filled triangle, on the room picker ("Adding to") and
+   the Details selects. Drawn with a mask so it takes the text colour */
+html body .pf-box .pf-caret{display:none}
+html body .pf-box:has(.pf-caret)::after,html body #roomBtn > span[aria-hidden="true"]{content:"";display:inline-block;width:16px;height:16px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/16px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/16px no-repeat;font-size:0;color:var(--ink-2)}
+html body .pf-box:has(.pf-caret)::after{position:absolute;right:12px;top:50%;margin-top:-8px;pointer-events:none}
+/* Details' section links match the list's scope control (Sam, Nov 25): on the grey panel (the track) the links are plain
+   charcoal text, and the current section is a white segment with a soft shadow and black text, not a solid black chip */
+html:not(#x) .dnav button{border-color:transparent;background:none;box-shadow:none;color:var(--ink-2);font-weight:500}
+html:not(#x) .dnav button:hover{color:var(--ink);background:rgb(255 255 255 / .55)}
+html:not(#x) .dnav button[aria-current="true"]{background:var(--bg,#fff);border-color:transparent;color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12),0 0 0 1px rgb(0 0 0 / .04)}
+html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
