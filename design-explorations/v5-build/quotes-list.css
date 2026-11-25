@@ -305,3 +305,12 @@ body.qlx-nototal .hm-rt{display:none}
 .qlxseg button:first-child{border-radius:calc(var(--r-md) - 1px) 0 0 calc(var(--r-md) - 1px)}
 .qlxseg button:last-child{border-radius:0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0}
 .qlxseg button:focus-visible{position:relative;z-index:1}
+/* One filter style (Sam, Nov 25): the quick filters look and behave like the other filters. Chips take the dropdowns' shape and shadow, and one selected look: black fill, the bronze
+   underline with the accent on (navy wash and edge with the navy trial, from color.css). No divider: the row stays on one line
+   where it fits (the top bar on a wide screen) and wraps cleanly where it doesn't, with nothing left dangling */
+.qlxdiv{display:none}
+.qlxbar .qlxquick button{border-radius:var(--r-md);font-size:14px;box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
+.qlxbar .qlxquick button[aria-pressed="true"],body.qlx-bronze .qlxbar .qlxquick button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.qlxbar .qlxquick button[aria-pressed="true"] em,body.qlx-bronze .qlxbar .qlxquick button[aria-pressed="true"] em{color:rgb(255 255 255 / .75)}
+body.qlx-bronze .qlxbar .qlxquick button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--bronze)}
+html.warm body .qlxbar .qlxquick button[aria-pressed="true"] em{color:var(--navy)}
