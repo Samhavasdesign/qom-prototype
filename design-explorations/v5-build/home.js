@@ -20,7 +20,7 @@ const IC={ /* Lucide */
 const TILES=[["Sales Dashboard","dash"],["Account Profiles","card"],["Sales Presentations","pres"],["Sales Training","cap"],["QOM","file","qom"],["M3 Tools","wrench"],["Product Availability","box"],["Spec Pack Generator","cog"]];
 const page=document.createElement("section"); page.id="homePage"; page.setAttribute("aria-labelledby","hmTitle");
 page.innerHTML=`<div class="hm-main">
-    <div class="hm-hello"><span class="hm-avatar" aria-hidden="true">AR</span><h1 id="hmTitle" tabindex="-1">Welcome, Alex</h1></div>
+    <div class="hm-hello"><img class="hm-avatar" src="images/samantha-headshot.webp" alt=""><h1 id="hmTitle" tabindex="-1">Welcome, Samantha</h1></div>
     <ul class="hm-tiles">${TILES.map(([l,i,k])=>`<li><button type="button" class="hm-tile" data-hm="${k||l}"><span class="hm-ic">${svg(IC[i])}</span><span class="hm-l">${l}${k?"<small>Quotes and orders</small>":""}</span>${k?"":`<span class="hm-ext" title="Opens in the Sales Portal">${svg(IC.ext,14)}</span>`}</button></li>`).join("")}</ul>
     <section class="hm-recent" aria-labelledby="hmRecentT"><div class="hm-rh"><h2 id="hmRecentT">Pick up where you left off</h2><button type="button" class="hm-all" data-hm="mine">See all your quotes</button></div><ul class="hm-rlist" id="hmRecent"></ul></section>
     <p class="hm-note">The other tiles open the Sales Portal’s modules; only QOM is built in the prototype.</p>
@@ -48,11 +48,9 @@ function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined")
 const railHome=[...document.querySelectorAll(".rail a.rlink")].find(a=>a.textContent.trim()==="Welcome");
 if(railHome){ const t=railHome.querySelector(".rl"); if(t) t.textContent="Home"; railHome.dataset.nav="home"; }
 const railQuotes=document.querySelector('.rail a.rlink[data-nav="quotes"]');
-/* no Home item (Sam, Nov 25): the WATERWORKS wordmark opens Home instead, in the side nav (and its folded "W") and the top bar */
-if(railHome) railHome.hidden=true;
+/* Home item back (Sam, Nov 25: SCs may not think to click the wordmark), first in the side nav and the top bar; the wordmark opens Home too */
 document.querySelectorAll(".rail .mark, .rail .markmin").forEach(el=>{ const a=document.createElement("a"); a.href="#"; a.className=el.className+" hm-link"; a.dataset.nav="home";
   a.setAttribute("aria-label","Waterworks QOM, Home"); a.title="Home"; a.innerHTML=el.innerHTML; el.replaceWith(a); });
-const hideTopHome=()=>{ const t=q('#tnBar .tnlinks [data-nav="home"]'); if(t) t.hidden=true; }; hideTopHome();
 function setCur(home){
   [[railHome,home],[railQuotes,!home],[q('#tnBar [data-nav="home"]:not(.tnmark)'),home],[q('#tnBar .tnlinks [data-nav="quotes"]'),!home]].forEach(([a,on])=>{ if(!a) return;
     a.classList.toggle("cur",on); if(on) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
@@ -69,7 +67,7 @@ page.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]");
   if(r){ if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); return; }
   const b=ev.target.closest("[data-hm]"); if(!b) return;
   if(b.dataset.hm==="qom"){ setPage("quotes"); return; }
-  if(b.dataset.hm==="mine"){ setPage("quotes"); q('[data-qlxwho="me"]')?.click(); return; }
+  if(b.dataset.hm==="mine"){ setPage("quotes"); window.qlxShowTab?.("quotes"); q('[data-qlxwho="me"]')?.click(); return; }
   showToast(`Opens ${b.dataset.hm} in the Sales Portal (not built in the prototype).`); });
 /* global search: opening the built quote from Home goes to the quote (proposal.js decides by the page classes) */
 const gsLeave=ev=>{ if(!document.body.classList.contains("page-home")) return; const it=ev.type==="click"?ev.target.closest(".gsit"):(ev.key==="Enter"?q('.gsit[aria-selected="true"]'):null);

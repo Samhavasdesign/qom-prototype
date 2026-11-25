@@ -7,11 +7,11 @@ body.page-home #homePage{display:grid}
 #homePage{grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:32px;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
 .hm-main{display:flex;flex-direction:column;gap:28px;padding:28px 0 8px;min-width:0}
 .hm-hello{display:flex;align-items:center;gap:20px}
-.hm-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:64px;height:64px;border-radius:50%;background:var(--surface-2);color:var(--foreground);font-size:22px;font-weight:500;letter-spacing:.02em}
+.hm-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:64px;height:64px;border-radius:50%;background:var(--surface-2);color:var(--foreground);font-size:22px;font-weight:500;letter-spacing:.02em;object-fit:cover}
 .hm-hello h1{margin:0;font-family:var(--serif);font-weight:400;font-size:48px;line-height:1.1;color:var(--foreground);outline:none;text-wrap:balance}
 /* Pick up where you left off: a ruled list, not boxes, so it doesn't read as another tile (Sam, Nov 25).
    No outer border, background or shadow; a dark rule under the heading and hairlines between rows, like a table */
-.hm-recent{display:flex;flex-direction:column;max-width:680px}
+.hm-recent{display:flex;flex-direction:column;max-width:680px;margin-top:20px} /* 48px below the tiles (Sam, Nov 25) */
 .hm-rh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--foreground)}
 .hm-rh h2{margin:0;font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
 .hm-all{border:0;background:none;padding:0;font:inherit;font-size:13px;font-weight:500;color:var(--brand);text-decoration:underline;text-underline-offset:3px;cursor:pointer}

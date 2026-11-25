@@ -20,6 +20,19 @@ body.qlx-on.page-quotes .ql h1{margin-top:0}
 .qlxsearch input{width:100%;height:44px;padding:0 14px 0 42px;border:1px solid var(--control-line);border-radius:var(--r-md);background:var(--bg);font:inherit;font-size:15px;box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
 .qlxsearch input::placeholder{color:var(--ink-2)}
 .qlxsearch input:focus-visible{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgb(18 18 18 / .5)}
+/* Quotes and Orders tabs (Nov 25): the line variant, under the search (which covers both), each with its icon and a count */
+.qlxtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 16px}
+.qlxtab{display:inline-flex;align-items:center;gap:8px;height:44px;margin-bottom:-1px;padding:0 14px;border:0;border-bottom:2px solid transparent;background:none;font:inherit;font-size:15px;font-weight:500;color:var(--ink-2)}
+.qlxtab:hover{color:var(--ink)}
+.qlxtab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.qlxtab:focus-visible{outline:none;box-shadow:0 0 0 3px rgb(18 18 18 / .5);border-radius:var(--r-sm)}
+.qlxtab em{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:20px;padding:0 7px;border-radius:999px;background:var(--surface);font-style:normal;font-size:12px;font-weight:500;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.qlxtab[aria-selected="true"] em{color:var(--ink)}
+.qlxfound{color:var(--ink)}
+/* Orders tab: the order number is the row's link; Paid and Unshipped line up with Total */
+.qlx-ords .qlxt .c-ord a{font-weight:500}
+.qlxt .c-ord .p2{font-weight:400}
+.qlxt .c-id .qlxsrc+.p2{margin-top:3px}
 /* filter bar: two toggle groups, two filter pills, Clear filters */
 .qlxbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin-bottom:18px}
 .qlxseg{display:inline-flex;height:36px;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
@@ -139,7 +152,7 @@ body.qlx-bronze .qlxt .c-ord a{color:var(--bronze)}
 .qlxhint{display:block;font-size:12px;color:var(--ink-2);margin-top:1px}
 .qlxpopsep{border-top:1px solid var(--line);margin:6px -6px}
 /* Quick view button: an eye at the end of the row, shown on hover or focus */
-.qlxt td.c-exp{position:relative;padding-right:40px}
+.qlxt td.c-qv{position:relative;padding-right:40px}
 .qlxqvb{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg);color:var(--ink);box-shadow:0 1px 2px 0 rgb(0 0 0 / .05);opacity:0}
 .qlxqvb span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 tr:hover .qlxqvb,.qlxqvb:focus-visible,tr.qvcur .qlxqvb{opacity:1}
@@ -199,7 +212,8 @@ tr:hover .qlxqvb,.qlxqvb:focus-visible,tr.qvcur .qlxqvb{opacity:1}
    Status colours (pipeline dots, amber and red notes) don't change. The demo bar's "Bronze accent" switch turns it off. ---- */
 body.qlx-bronze{--bronze:var(--brand);--bronze-tint:var(--brand-tint);--bronze-mark:var(--brand-mark)} /* from design-explorations/tokens.css */
 body.qlx-bronze .qlx mark,body.qlx-bronze .qlxqv mark{background:var(--bronze-mark)}
-body.qlx-bronze .qlxt .c-id a{color:var(--bronze)}                       /* the quote number is the row's link */
+body.qlx-bronze .qlxt .c-id a,body.qlx-bronze .qlx-ords .qlxt .c-ord a{color:var(--bronze)} /* the quote or order number is the row's link */
+body.qlx-bronze .qlxtab[aria-selected="true"]{border-bottom-color:var(--bronze)}  /* the current tab, like the current page */
 body.qlx-bronze .qlxt th[aria-sort] button,body.qlx-bronze .qlxt th .si.on{color:var(--bronze)} /* the sorted column */
 body.qlx-bronze .qlxpager button[aria-current="page"]{border-color:var(--bronze);color:var(--bronze)}
 body.qlx-bronze .qlxt tbody tr.qvcur td{background:var(--bronze-tint)}

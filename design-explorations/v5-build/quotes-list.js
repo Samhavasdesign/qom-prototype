@@ -12,8 +12,9 @@
    link both ways); and an order with no QOM quote behind it (keyed in M3, or e-commerce), which needs its own row and opens the order. */
 (function(){
 const q=s=>document.querySelector(s);
-const X={on:true,q:"",who:"all",type:"",pipes:new Set(),stale:false,soon:false,conv:"any",val:0,sort:"id",dir:-1,size:50,page:1,qv:null};
-try{ X.on=localStorage.getItem("qom-v5-qlx")!=="off"; }catch(e){}
+const X={on:true,q:"",who:"all",type:"",pipes:new Set(),stale:false,soon:false,due:false,ship:false,val:0,sort:"id",dir:-1,size:50,page:1,qv:null,
+  tab:"quotes",sortBy:{quotes:["id",-1],orders:["odate",-1]},found:""};
+try{ X.on=localStorage.getItem("qom-v5-qlx")!=="off"; if(localStorage.getItem("qom-v5-qlxtab")==="orders"){ X.tab="orders"; [X.sort,X.dir]=X.sortBy.orders; } }catch(e){}
 
 /* pipeline status: sp-fe's PROJECT_STATUS (quote-constants.ts) plus Lost; rank sets the sort order */
 const PIPE=[["Predictable",">95%","pr"],["Feasible","75–95%","fe"],["Possible","<75%","po"],["Lead","","le"],["On Hold","","oh"],["Duplicate","","du"],["Lost","","lo"]]; /* colours: the Sales Portal's, see quotes-list.css */
@@ -55,8 +56,6 @@ const ORD_ONLY=(()=>{ let seed=77; const rnd=n=>{ seed=(seed*9301+49297)%233280;
   return out; })();
 const ALL=()=>QL.rows.concat(ORD_ONLY);
 const K=x=>x.id||"o"+x.ord; /* a row's key: its quote number, or its order number when there's no quote */
-const KIND=[["any","Quotes and orders"],["no","Open quotes"],["yes","Converted quotes"],["oo","Orders with no quote"]];
-const kindOk=(x,v)=>v==="any"||(v==="no"?!x.ord:v==="yes"?!!x.ord&&!x.oo:!!x.oo);
 
 /* the open quote (6000024967) as the list sees it */
 const tfv=k=>{ try{ return (TF&&TF[k])||""; }catch(e){ return ""; } };
@@ -74,7 +73,24 @@ const daysTo=s=>Math.round((pd(s)-TODAY)/864e5);
 const isStale=r=>!r.ord&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))<0;
 /* the Sales Portal's "Closing in Next 2 Weeks": an open quote expected to convert in the next 14 days */
 const isSoon=r=>!r.ord&&STALE_OK(r.pipe)&&!!rowConv(r)&&daysTo(rowConv(r))>=0&&daysTo(rowConv(r))<=14;
-const COLS=[["id","Quote"],["proj","Project"],["desc","Description"],["cust","Customer"],["pipe","Pipeline status"],["tot","Total"],["ord","Order"],["sc","Sales consultant"],["exp","Expires"]];
+/* Quotes and Orders tabs (Sam, Nov 25): one page, one search across both, each tab with its own columns and quick filters.
+   Quotes: quotes not converted yet (Lost and Duplicate included). Orders: converted quotes and orders with no QOM quote.
+   Mock order data: order date, and how much is paid and still to ship (production's Orders list adds Amount Paid and
+   Unshipped Product Value, QOM-3336). Mock only */
+(function seedOrders(){ let s2=5; const r2=n=>{ s2=(s2*9301+49297)%233280; return Math.floor(s2/233280*n); };
+  const md=d=>String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+"/"+d.getFullYear();
+  ALL().filter(x=>x.ord).forEach(x=>{ x.paidR=[1,1,1,.5,.5,.3,0][r2(7)]; x.shipR=x.paidR===1?[0,0,0,.25][r2(4)]:[1,1,.6,.3][r2(4)];
+    if(x.oo){ x.odate=x.date; return; } const d=pd(x.date); d.setDate(d.getDate()+5+r2(30)); if(d>=TODAY) d.setTime(TODAY-864e5*(1+r2(4))); x.odate=md(d); }); })();
+const rowPaid=x=>Math.round(rowTotal(x)*(x.paidR??0)), rowShip=x=>Math.round(rowTotal(x)*(x.shipR??0));
+const isDue=x=>rowPaid(x)<Math.round(rowTotal(x)), isShip=x=>rowShip(x)>0;
+const TABS={quotes:{name:"Quotes",one:"quote",
+    icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h9a1.5 1.5 0 0 0 1.5-1.5V7z"/><path d="M14 3v4h4"/><path d="M13.7 11.1c-.3-.5-.9-.8-1.7-.8-.9 0-1.7.5-1.7 1.2 0 1.7 3.4.9 3.4 2.7 0 .7-.7 1.2-1.7 1.2-.8 0-1.5-.3-1.8-.9M12 9.4v.9M12 15.4v1"/></svg>'},
+  orders:{name:"Orders",one:"order",
+    icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h11M4 12h11M4 17.5h11"/><path d="M19 6.5h.01M19 12h.01M19 17.5h.01" stroke-width="2.6"/></svg>'}};
+const tabOk=(x,t)=>t==="quotes"?!x.ord:!!x.ord;
+const COLSQ=[["id","Quote"],["proj","Project"],["desc","Description"],["cust","Customer"],["pipe","Pipeline status"],["tot","Total"],["sc","Sales consultant"],["exp","Expires"]];
+const COLSO=[["odate","Order"],["id","Quote"],["proj","Project"],["cust","Customer"],["tot","Total"],["paid","Paid"],["ship","Unshipped"],["sc","Sales consultant"]];
+const COLS=()=>X.tab==="orders"?COLSO:COLSQ;
 const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Over $100,000"]];
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const words=()=>X.q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -91,6 +107,8 @@ const IC={
   prev:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>',
   next:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
   cal:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  cash:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
+  truck:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h2M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
   clock:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
 };
 
@@ -99,6 +117,8 @@ const root=document.createElement("div"); root.className="qlx"; root.id="qlx";
 root.innerHTML=`
   <button type="button" class="btn qlxnew" data-qlx="new">${IC.plus}Create new</button>
   <div class="qlxsearch">${IC.search}<input type="search" id="qlxQ" placeholder="Search by quote #, order #, project, customer or description" aria-label="Search quotes and orders" autocomplete="off"></div>
+  <div class="qlxtabs" role="tablist" aria-label="Quotes or orders">${Object.entries(TABS).map(([k,t])=>`<button type="button" role="tab" class="qlxtab" id="qlxTab-${k}" data-qlxtab="${k}" aria-controls="qlxPanel">${t.icon}<span>${t.name}</span><em id="qlxTabN-${k}"></em></button>`).join("")}</div>
+  <div id="qlxPanel" role="tabpanel">
   <div class="qlxbar">
     <div class="qlxseg" role="group" aria-label="Whose quotes">${[["me","Mine"],["team","My team"],["all","Everyone"]].map(([v,l])=>`<button type="button" data-qlxwho="${v}" aria-pressed="false">${l}</button>`).join("")}</div>
     <div class="qlxseg" role="group" aria-label="Type">${[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<button type="button" data-qlxtype="${v}" aria-pressed="false">${l}</button>`).join("")}</div>
@@ -106,16 +126,15 @@ root.innerHTML=`
       <div class="qlxpop" id="qlxPipePop" hidden role="group" aria-label="Pipeline status"></div></div>
     <div class="qlxpill" id="qlxValW"><button type="button" class="qlxpb" data-qlxpop="val" aria-expanded="false" aria-controls="qlxValPop"><span id="qlxValL">Total</span>${IC.chev}</button>
       <div class="qlxpop" id="qlxValPop" hidden role="radiogroup" aria-label="Total"></div></div>
-    <div class="qlxpill" id="qlxConvW"><button type="button" class="qlxpb" data-qlxpop="conv" aria-expanded="false" aria-controls="qlxConvPop"><span id="qlxConvL">Quotes and orders</span>${IC.chev}</button>
-      <div class="qlxpop" id="qlxConvPop" hidden role="radiogroup" aria-label="Quotes and orders"></div></div>
     <button type="button" class="qlxclear" data-qlx="clear" hidden>Clear filters</button>
   </div>
   <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div>
-    <div class="qlxquick" role="group" aria-label="Quick filters"><button type="button" data-qlxquick="stale" aria-pressed="false" title="Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."></button><button type="button" data-qlxquick="soon" aria-pressed="false" title="Open quotes expected to convert in the next 14 days"></button></div></div>
-  <div class="qlxwrap"><table class="qlxt"><caption class="sr">Quotes and orders. Select a row to open the quote, or Quick view to see what's on it.</caption><thead><tr id="qlxHead"></tr></thead><tbody id="qlxBody"></tbody></table></div>
+    <div class="qlxquick" id="qlxQuick" role="group" aria-label="Quick filters"></div></div>
+  <div class="qlxwrap"><table class="qlxt"><caption class="sr">Select a row to open it, or Quick view to see what's on it.</caption><thead><tr id="qlxHead"></tr></thead><tbody id="qlxBody"></tbody></table></div>
   <div class="qlxfoot"><span id="qlxRange" class="qlxrange" aria-live="polite"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav>
     <div class="qlxsize"><span id="qlxSizeL">Rows per page</span><div class="qlxpill"><button type="button" class="qlxpb qlxsizeb" data-qlxpop="size" aria-haspopup="listbox" aria-expanded="false" aria-controls="qlxSizePop" aria-labelledby="qlxSizeL qlxSizeV"><span id="qlxSizeV">50</span>${IC.chev}</button>
-      <div class="qlxpop qlxsizepop" id="qlxSizePop" hidden role="listbox" aria-labelledby="qlxSizeL">${[25,50,100].map(n=>`<button type="button" class="qlxopt" role="option" data-qlxsize="${n}" aria-selected="${n===50}"><span>${n}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>`).join("")}</div></div></div></div>`;
+      <div class="qlxpop qlxsizepop" id="qlxSizePop" hidden role="listbox" aria-labelledby="qlxSizeL">${[25,50,100].map(n=>`<button type="button" class="qlxopt" role="option" data-qlxsize="${n}" aria-selected="${n===50}"><span>${n}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>`).join("")}</div></div></div></div>
+  </div>`;
 q("#quotesPage").append(root);
 /* Quick view: a panel from the right, over the list */
 const qv=document.createElement("div"); qv.className="qlxqv"; qv.hidden=true;
@@ -124,13 +143,15 @@ document.body.append(qv);
 
 /* ---------- rows ---------- */
 function matchesBase(x){ return (X.who==="all"||(X.who==="me"?x.sc===QL.ME:QL.TEAM.includes(x.sc)))&&(!X.type||x.type===X.type); }
-function rowsX(){ const ws=words();
-  let r=ALL().filter(x=>matchesBase(x)
-    &&(!X.pipes.size||X.pipes.has(x.pipe))&&(!X.stale||isStale(x))&&(!X.soon||isSoon(x))&&kindOk(x,X.conv)&&(!X.val||rowTotal(x)>X.val)
-    &&ws.every(w=>[x.id,x.ord,x.proj,rowAddr(x),x.desc,x.cust,x.payer,x.m3,x.sc].some(v=>String(v||"").toLowerCase().includes(w))));
+/* the search and the shared filters (whose, type, total) cover both tabs; each tab adds its own quick filters */
+function rowsFor(t){ const ws=words();
+  return ALL().filter(x=>tabOk(x,t)&&matchesBase(x)&&(!X.val||rowTotal(x)>X.val)
+    &&(t==="quotes"?(!X.pipes.size||X.pipes.has(x.pipe))&&(!X.stale||isStale(x))&&(!X.soon||isSoon(x)):(!X.due||isDue(x))&&(!X.ship||isShip(x)))
+    &&ws.every(w=>[x.id,x.ord,x.proj,rowAddr(x),x.desc,x.cust,x.payer,x.m3,x.sc].some(v=>String(v||"").toLowerCase().includes(w)))); }
+function rowsX(){ const ws=words(); let r=rowsFor(X.tab);
   const ymd=s=>s?s.slice(6)+s.slice(0,2)+s.slice(3,5):"";
   /* "Quote" sorts by date, so orders with no quote fall in among the quotes; rows with no pipeline status or expiry sort last */
-  const k=X.sort, key=v=>k==="id"?ymd(v.date)+K(v):k==="exp"?(v.exp?ymd(v.exp):(X.dir>0?"9":"0")):k==="pipe"?(RANK[v.pipe]??(X.dir>0?99:-1)):k==="tot"?rowTotal(v):String(v[k]||"").toLowerCase();
+  const k=X.sort, key=v=>k==="id"?(X.tab==="orders"&&v.oo?(X.dir>0?"9":"0"):ymd(v.date)+K(v)):k==="odate"?ymd(v.odate)+v.ord:k==="paid"?rowPaid(v):k==="ship"?rowShip(v):k==="exp"?(v.exp?ymd(v.exp):(X.dir>0?"9":"0")):k==="pipe"?(RANK[v.pipe]??(X.dir>0?99:-1)):k==="tot"?rowTotal(v):String(v[k]||"").toLowerCase();
   /* exact quote or order number first, then the chosen sort */
   const exact=v=>ws.length===1&&(v.id===ws[0]||v.ord===ws[0])?0:1;
   return [...r].sort((a,b)=>exact(a)-exact(b)||(key(a)<key(b)?-X.dir:key(a)>key(b)?X.dir:0)||(a.id<b.id?1:-1)); }
@@ -146,40 +167,60 @@ function render(){ if(!X.on) return;
   root.querySelectorAll("[data-qlxwho]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qlxwho===X.who)));
   root.querySelectorAll("[data-qlxtype]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.qlxtype===X.type)));
   /* pills: black once set, the label says what's set */
-  const np=X.pipes.size;
+  const other=X.tab==="quotes"?"orders":"quotes", nOther=rowsFor(other).length;
+  Object.keys(TABS).forEach(k=>{ const b=q("#qlxTab-"+k), n=k===X.tab?all.length:nOther; b.setAttribute("aria-selected",String(k===X.tab)); b.tabIndex=k===X.tab?0:-1;
+    q("#qlxTabN-"+k).textContent=n.toLocaleString("en-US"); b.setAttribute("aria-label",`${TABS[k].name}, ${n}${X.q?" matching":""}`); });
+  q("#qlxPanel").setAttribute("aria-labelledby","qlxTab-"+X.tab); root.classList.toggle("qlx-ords",X.tab==="orders");
+  q("#qlxPipeW").hidden=X.tab!=="quotes";
+  const np=X.tab==="quotes"?X.pipes.size:0;
   q("#qlxPipeW").classList.toggle("on",np>0); q("#qlxPipeL").textContent=np===0?"Pipeline status":np===1?[...X.pipes][0]:`Pipeline status · ${np}`;
   q("#qlxValW").classList.toggle("on",X.val>0); q("#qlxValL").textContent=X.val?VALS.find(v=>v[0]===X.val)[1]:"Total";
-  q("#qlxConvW").classList.toggle("on",X.conv!=="any"); q("#qlxConvL").textContent=KIND.find(v=>v[0]===X.conv)[1];
-  const base=ALL().filter(matchesBase);
+  const base=ALL().filter(x=>matchesBase(x)&&tabOk(x,X.tab));
   q("#qlxPipePop").innerHTML=PIPE.map(([n,s,c])=>`<label class="qlxopt"><input type="checkbox" data-qlxpipe="${n}"${X.pipes.has(n)?" checked":""}><span class="qlxpipe ${c}"><i aria-hidden="true"></i>${n}${s?` <small>${s}</small>`:""}</span><em>${base.filter(x=>x.pipe===n).length}</em></label>`).join("")
     +(np?`<div class="qlxpopf"><button type="button" data-qlx="clearpipe">Clear</button></div>`:"");
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
-  q("#qlxConvPop").innerHTML=KIND.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxconv" data-qlxconv="${v}"${X.conv===v?" checked":""}><span>${l}${v==="oo"?` <small class="qlxhint">Keyed in M3, or e-commerce</small>`:""}</span><em>${base.filter(x=>kindOk(x,v)).length}</em></label>`).join("");
-  const qb=root.querySelector('[data-qlxquick="stale"]'), sb=root.querySelector('[data-qlxquick="soon"]');
-  qb.setAttribute("aria-pressed",String(X.stale)); qb.innerHTML=`${IC.clock}Conv. date passed <em>${base.filter(isStale).length}</em>`;
-  sb.setAttribute("aria-pressed",String(X.soon)); sb.innerHTML=`${IC.cal}Closing in 2 weeks <em>${base.filter(isSoon).length}</em>`;
-  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.val||X.conv!=="any"||X.type||X.who!=="all"||X.q);
+  /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
+  const QF=X.tab==="quotes"?[["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"]]
+    :[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"],["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
+  q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
+  root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.due||X.ship||X.val||X.type||X.who!=="all"||X.q);
   /* count */
-  const nConv=all.filter(x=>x.ord&&!x.oo).length, nOO=all.filter(x=>x.oo).length, nQ=all.length-nOO;
-  const only=nOO&&nOO===all.length, mq=X.q?` matching “${esc(X.q)}”`:"";
-  q("#qlxCount").innerHTML=only?`<b>${nOO}</b> ${nOO===1?"order":"orders"} with no quote${mq}`
-    :`<b>${all.length.toLocaleString("en-US")}</b> ${nOO?"quotes and orders":all.length===1?"quote":"quotes"}${mq}${nConv?` · ${nConv} converted`:""}${nOO?` · ${nOO} ${nOO===1?"order":"orders"} with no quote`:""}`;
+  const mq=X.q?` matching “${esc(X.q)}”`:"", nOO=all.filter(x=>x.oo).length, n=all.length.toLocaleString("en-US");
+  q("#qlxCount").innerHTML=(X.tab==="quotes"?`<b>${n}</b> ${all.length===1?"quote":"quotes"} not converted yet${mq}`
+    :`<b>${n}</b> ${all.length===1?"order":"orders"}${mq}${all.length?` · ${all.length-nOO} from quotes · ${nOO} with no quote`:""}`)
+    +(X.found?` · <span class="qlxfound">${X.found}</span>`:"");
   /* head */
-  q("#qlxHead").innerHTML=COLS.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}><button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button></th>`).join("");
+  const COLS_=COLS();
+  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}><button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button></th>`).join("");
   /* body */
-  q("#qlxBody").innerHTML=rows.length?rows.map(x=>{ const dd=x.exp?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
+  const idCell=x=>`<span class="qlxid"><a href="#" data-qlxopen="${x.id}">${hl(x.id,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.id}" aria-label="Copy quote number ${x.id}" title="Copy">${IC.copy}</button></span>`;
+  const qvb=x=>`<button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button>`;
+  const projCell=x=>{ const ad=rowAddr(x); return `<td class="c-proj">${x.proj?`<span class="p1" title="${esc(x.proj)}">${hl(x.proj,ws)}</span>`:`<span class="p1 none">—</span>`}${ad?`<span class="p2" title="${esc(ad)}">${hl(ad,ws)}</span>`:""}</td>`; };
+  const custCell=x=>`<td class="c-cust"><span class="p1" title="${esc(title(x.cust))}">${hl(title(x.cust),ws)}</span>${x.payer!==x.cust?`<span class="p2" title="Payer: ${esc(title(x.payer))}">Payer: ${hl(title(x.payer),ws)}</span>`:""}</td>`;
+  const orderRow=x=>{ const tot=rowTotal(x), paid=rowPaid(x), sh=rowShip(x), bal=Math.round(tot)-paid;
+    return `<tr data-qlxrow="${K(x)}" data-qlxgo="o${x.ord}" class="${x.oo?"oo":""}">
+    <td class="c-ord"><span class="qlxid"><a href="#" data-qlxopen="o${x.ord}">${hl(x.ord,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.ord}" aria-label="Copy order number ${x.ord}" title="Copy">${IC.copy}</button></span><span class="p2" title="Ordered ${fmt(x.odate)} · ${esc(x.type)}">${fmtS(x.odate)} · ${x.type==="Commercial"?"Com.":"Resi."}</span></td>
+    <td class="c-id">${x.oo?`<span class="qlxsrc">No quote</span><span class="p2">${esc(x.src)}</span>`:`${idCell(x)}<span class="p2" title="Quoted ${fmt(x.date)}">Quoted ${fmtS(x.date)}</span>`}</td>
+    ${projCell(x)}${custCell(x)}
+    <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
+    <td class="c-tot c-paid">${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:"Paid in full"}</span></td>
+    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="none">Shipped</span>`}</td>
+    <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
+  const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
+  q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
     return `<tr data-qlxrow="${K(x)}" class="${x.built?"built":""}${x.oo?" oo":""}">
-    <td class="c-id">${x.oo?`<span class="none">No quote</span>`:`<span class="qlxid"><a href="#" data-qlxopen="${x.id}">${hl(x.id,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.id}" aria-label="Copy quote number ${x.id}" title="Copy">${IC.copy}</button></span>`}<span class="p2" title="${x.oo?"Ordered":"Quoted"} ${fmt(x.date)} · ${esc(x.type)}">${fmtS(x.date)} · ${x.type==="Commercial"?"Com.":"Resi."}</span></td>
-    <td class="c-proj">${x.proj?`<span class="p1" title="${esc(x.proj)}">${hl(x.proj,ws)}</span>`:`<span class="p1 none">—</span>`}${ad?`<span class="p2" title="${esc(ad)}">${hl(ad,ws)}</span>`:""}</td>
+    <td class="c-id">${idCell(x)}<span class="p2" title="${x.oo?"Ordered":"Quoted"} ${fmt(x.date)} · ${esc(x.type)}">${fmtS(x.date)} · ${x.type==="Commercial"?"Com.":"Resi."}</span></td>
+    ${projCell(x)}
     <td class="c-desc"><span class="p1" title="${esc(x.desc)}">${hl(x.desc,ws)}</span></td>
-    <td class="c-cust"><span class="p1" title="${esc(title(x.cust))}">${hl(title(x.cust),ws)}</span>${x.payer!==x.cust?`<span class="p2" title="Payer: ${esc(title(x.payer))}">Payer: ${hl(title(x.payer),ws)}</span>`:""}</td>
+    ${custCell(x)}
     <td class="c-pipe">${pipeCell(x)}</td>
     <td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>
-    <td class="c-ord">${x.ord?`<span class="qlxid">${x.oo?`<a href="#" data-qlxopen="${K(x)}">${hl(x.ord,ws)}</a>`:`<span>${hl(x.ord,ws)}</span>`}<button type="button" class="qlxcp" data-qlxcopy="${x.ord}" aria-label="Copy order number ${x.ord}" title="Copy">${IC.copy}</button></span>`:`<span class="none" aria-label="Not converted">—</span>`}</td>
     <td class="c-sc">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}</td>
-    <td class="c-exp">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
-      <button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button></td></tr>`; }).join("")
-    :`<tr><td colspan="${COLS.length}" class="qlxempty"><b>No quotes match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's quotes</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
+    <td class="c-exp c-qv">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
+      ${qvb(x)}</td></tr>`; })()).join("")
+    /* empty: point to the other tab when the search finds something there */
+    :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
+      :X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's ${tName}</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
   q("#qlxRange").textContent=all.length?`Showing ${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
   /* up to 5 page numbers, a window that keeps the current page in the middle where it can */
@@ -255,8 +296,19 @@ qv.addEventListener("keydown",ev=>{
 /* ---------- events ---------- */
 function openQuote(id){ if(id==="6000024967") setPage("quote"); else if(id[0]==="o") showToast(`Opens order ${id.slice(1)} (the order page isn't built in the prototype).`); else showToast("Only quote 6000024967 is built in the prototype."); }
 function closePops(){ root.querySelectorAll(".qlxpop").forEach(p=>{ p.hidden=true; p.parentNode.querySelector(".qlxpb").setAttribute("aria-expanded","false"); }); }
-let tq=null; q("#qlxQ").addEventListener("input",ev=>{ clearTimeout(tq); tq=setTimeout(()=>{ X.q=ev.target.value.trim(); X.page=1; render(); },200); });
-q("#qlxQ").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ clearTimeout(tq); X.q=ev.target.value.trim(); X.page=1; render(); } });
+function setTab(t,focus){ if(t===X.tab) return; X.sortBy[X.tab]=[X.sort,X.dir]; X.tab=t; [X.sort,X.dir]=X.sortBy[t]; X.page=1; X.found=""; closePops();
+  try{ localStorage.setItem("qom-v5-qlxtab",t); }catch(e){} render(); if(focus) q("#qlxTab-"+t).focus(); }
+/* an exact quote or order number that's only on the other tab switches to it, and says why
+   (a converted quote's number finds its order) */
+function search(v){ X.q=v.trim(); X.page=1; X.found=""; const ws=words();
+  if(ws.length===1&&/^\d{8,}$/.test(ws[0])&&!rowsFor(X.tab).length){ const o=X.tab==="quotes"?"orders":"quotes", hit=rowsFor(o).find(x=>x.id===ws[0]||x.ord===ws[0]);
+    if(hit){ setTab(o); X.found=o==="orders"&&hit.id===ws[0]?`Quote ${hit.id} was converted to order ${hit.ord}`:`Found in ${TABS[o].name}`; } }
+  render(); }
+let tq=null; q("#qlxQ").addEventListener("input",ev=>{ clearTimeout(tq); tq=setTimeout(()=>search(ev.target.value),200); });
+q("#qlxQ").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ clearTimeout(tq); search(ev.target.value); } });
+/* tabs: arrow keys move between them (automatic activation), Home and End jump */
+root.querySelector(".qlxtabs").addEventListener("keydown",ev=>{ if(!["ArrowLeft","ArrowRight","Home","End"].includes(ev.key)) return; ev.preventDefault();
+  const ks=Object.keys(TABS), i=ks.indexOf(X.tab); setTab(ev.key==="Home"?ks[0]:ev.key==="End"?ks[ks.length-1]:ks[(i+(ev.key==="ArrowRight"?1:ks.length-1))%ks.length],true); });
 /* rows per page: a listbox like the filter pills' popovers, opening upward; arrows move, Enter or a click picks, Esc closes */
 q("#qlxSizePop").addEventListener("keydown",ev=>{ const o=[...q("#qlxSizePop").children], i=o.indexOf(document.activeElement);
   if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); o[(i+(ev.key==="ArrowDown"?1:o.length-1))%o.length].focus(); }
@@ -265,15 +317,15 @@ q("#qlxSizePop").addEventListener("keydown",ev=>{ const o=[...q("#qlxSizePop").c
 root.addEventListener("change",ev=>{ const d=ev.target.dataset;
   if(d.qlxpipe){ ev.target.checked?X.pipes.add(d.qlxpipe):X.pipes.delete(d.qlxpipe); X.page=1; render(); q(`[data-qlxpipe="${d.qlxpipe}"]`)?.focus(); return; }
   if(d.qlxstale){ X.stale=ev.target.checked; X.page=1; render(); q("[data-qlxstale]")?.focus(); return; }
-  if(d.qlxval!==undefined){ X.val=+d.qlxval; X.page=1; render(); q(`[data-qlxval="${d.qlxval}"]`)?.focus(); return; }
-  if(d.qlxconv){ X.conv=d.qlxconv; X.page=1; render(); q(`[data-qlxconv="${d.qlxconv}"]`)?.focus(); } });
-const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",conv:"#qlxConvPop",size:"#qlxSizePop"};
+  if(d.qlxval!==undefined){ X.val=+d.qlxval; X.page=1; render(); q(`[data-qlxval="${d.qlxval}"]`)?.focus(); return; } });
+const POPS={pipe:"#qlxPipePop",val:"#qlxValPop",size:"#qlxSizePop"};
 root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const d=b?b.dataset:{};
   if(d.qlxcopy){ ev.stopPropagation(); navigator.clipboard?.writeText(d.qlxcopy).catch(()=>{}); showToast("Copied "+d.qlxcopy,"ok"); return; }
   if(d.qlxqv){ ev.stopPropagation(); qvOpen(d.qlxqv,b); return; }
   if(d.qlxopen){ ev.preventDefault(); openQuote(d.qlxopen); return; }
   if(d.qlxpop){ const p=q(POPS[d.qlxpop]), was=!p.hidden; closePops(); if(!was){ p.hidden=false; b.setAttribute("aria-expanded","true"); (p.querySelector("input")||p.querySelector('[aria-selected="true"]'))?.focus(); } return; }
   if(d.qlxsize){ X.size=+d.qlxsize; X.page=1; q("#qlxSizeV").textContent=d.qlxsize; q("#qlxSizePop").querySelectorAll("[data-qlxsize]").forEach(o=>o.setAttribute("aria-selected",o===b)); closePops(); render(); q(".qlxsizeb").focus(); return; }
+  if(d.qlxtab){ setTab(d.qlxtab,true); return; }
   if(d.qlxquick){ X[d.qlxquick]=!X[d.qlxquick]; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
   if(d.qlxwho!==undefined){ X.who=d.qlxwho; X.page=1; render(); return; }
   if(d.qlxtype!==undefined){ X.type=d.qlxtype; X.page=1; render(); return; }
@@ -282,10 +334,10 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlx==="new"){ q("#qlNew").click(); return; }
   if(d.qlx==="clearpipe"){ X.pipes.clear(); render(); return; }
   if(d.qlx==="everyone"){ X.who="all"; X.page=1; render(); return; }
-  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.val=0; X.conv="any"; X.type=""; X.who="all"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
+  if(d.qlx==="clear"){ X.pipes.clear(); X.stale=false; X.soon=false; X.due=false; X.ship=false; X.found=""; X.val=0; X.type=""; X.who="all"; X.q=""; q("#qlxQ").value=""; X.page=1; closePops(); render(); q("#qlxQ").focus(); return; }
   if(b) return;
   /* anywhere else on a row opens its quote (text selection doesn't) */
-  const tr=ev.target.closest("tr[data-qlxrow]"); if(tr&&!String(getSelection())) openQuote(tr.dataset.qlxrow); });
+  const tr=ev.target.closest("tr[data-qlxrow]"); if(tr&&!String(getSelection())) openQuote(tr.dataset.qlxgo||tr.dataset.qlxrow); });
 document.addEventListener("click",ev=>{ if(!ev.target.closest(".qlxpill")) closePops(); });
 root.addEventListener("keydown",ev=>{ if(ev.key==="Escape"){ const open=root.querySelector(".qlxpop:not([hidden])"); if(open){ ev.stopPropagation(); closePops(); open.parentNode.querySelector(".qlxpb").focus(); } } });
 
@@ -296,6 +348,7 @@ const oSetPage=setPage; setPage=function(){ if(!qv.hidden) qvClose(); const r=oS
    the page title and breadcrumb follow. Off shows today's separate Quotes and Orders. The top bar is built after this layer,
    so the labels are set again once the page has loaded */
 const NAME="Quotes & orders";
+window.qlxShowTab=t=>{ if(TABS[t]) setTab(t); };
 function setText(el,t){ if(!el) return; const rl=el.querySelector(".rl"); if(rl){ rl.textContent=t; return; }
   const n=[...el.childNodes].reverse().find(c=>c.nodeType===3&&c.textContent.trim()); if(n) n.textContent=t; else el.append(t); }
 function navLabels(){ const t=X.on?NAME:"Quotes";
