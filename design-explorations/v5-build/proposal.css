@@ -146,22 +146,21 @@ body.page-create :is(.main > .pghead > #qCrumb,.ptitle,.pfacts,.main > p.sub,#ex
 @media (prefers-reduced-motion:reduce){ .ncspin{animation:none} }
 
 /* Page margins on every page (Sam, Nov 25): design.md "Breakpoints and grid": internal pages 16 / 24 / 32px, 48px from 2xl;
-   16px above the content (20px under the top bar; tightened from 24 and 40, Sam, Nov 25). The footer bar's sides match. Not tied to the proposal switch. */
+   16px above the content (35px under the top bar: 20, then 15px more, Sam, Nov 25). The footer bar's sides match. Not tied to the proposal switch. */
 html body .main{padding:16px 32px 40px}
-html.tnav:not(.topnav) body .main{padding-top:20px}
+html.tnav:not(.topnav) body .main{padding-top:35px}
 html body .pbar{padding-left:32px;padding-right:32px}
 @media (width >= 1536px){ /* 2xl */ html body .main, html body .pbar{padding-left:48px;padding-right:48px} }
 @media (width < 1024px){ /* lg */ html body .main, html body .pbar{padding-left:24px;padding-right:24px} }
 @media (width < 768px){ /* md */ html body .main{padding:16px 16px 32px} html body .pbar{padding-left:16px;padding-right:16px} }
 
-/* Page titles (Sam, Nov 25): every page's H1 is one style, design.md's page title role: serif, regular, 36px, line height 1.1
-   (the quote page was 24px, New quote 28, Home 48). 28px below md. Each page keeps its own margins. */
-html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.1;letter-spacing:normal;color:var(--foreground)}
-@media (width < 768px){ /* md */ html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-size:28px} }
-/* Quote page title as the section title role (Sam, Nov 25): hlmH2's size, 30/36, in the page title's font (Sam: H2 is the same font as H1),
-   so serif, regular (Chronicle has only 400), normal tracking. Spartan's border-b and pb-2 are left off, since the title row isn't a section break. 24px (hlmH3) below md. */
-html body #quoteTitle{font-family:var(--serif);font-weight:400;font-size:30px;line-height:36px;letter-spacing:normal}
-@media (width < 768px){ /* md */ html body #quoteTitle{font-size:24px;line-height:32px} }
+/* Page titles (Sam, Nov 25): every page's H1 is one style: serif, regular, 30/36 (one step down the scale from 36, which
+   felt large and crammed under the top bar). 24/32 below md. Each page keeps its own margins. */
+html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-family:var(--serif);font-weight:400;font-size:30px;line-height:36px;letter-spacing:normal;color:var(--foreground)}
+@media (width < 768px){ /* md */ html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-size:24px;line-height:32px} }
+/* The quote page's "Edit Quote: …" is a page title (H1) like the others again (Sam, Nov 25), not the 24px section title. */
+/* Titles take focus with tabindex="-1" when a page opens, for screen readers only: no visible ring or box around them. */
+html:not(#a) body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT):focus{outline:none;box-shadow:none}
 /* The title's own 10px top / 2px bottom margin put it 4px below the row's centre, so the Residential tag and the buttons sat high (Sam, Nov 25).
    The row carries that spacing instead, so everything centres on the title and the title doesn't move. */
 html body .ptitle:has(> #quoteTitle){padding:10px 0 2px}

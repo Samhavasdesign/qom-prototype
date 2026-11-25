@@ -1768,7 +1768,7 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
   <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
   <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the accent: the Quotes list's links and selection marks, and text links on every page. Off shows them in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
-  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with cool grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and cool greys</label>
+  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and greys</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -4383,22 +4383,21 @@ body.page-create :is(.main > .pghead > #qCrumb,.ptitle,.pfacts,.main > p.sub,#ex
 @media (prefers-reduced-motion:reduce){ .ncspin{animation:none} }
 
 /* Page margins on every page (Sam, Nov 25): design.md "Breakpoints and grid": internal pages 16 / 24 / 32px, 48px from 2xl;
-   16px above the content (20px under the top bar; tightened from 24 and 40, Sam, Nov 25). The footer bar's sides match. Not tied to the proposal switch. */
+   16px above the content (35px under the top bar: 20, then 15px more, Sam, Nov 25). The footer bar's sides match. Not tied to the proposal switch. */
 html body .main{padding:16px 32px 40px}
-html.tnav:not(.topnav) body .main{padding-top:20px}
+html.tnav:not(.topnav) body .main{padding-top:35px}
 html body .pbar{padding-left:32px;padding-right:32px}
 @media (width >= 1536px){ /* 2xl */ html body .main, html body .pbar{padding-left:48px;padding-right:48px} }
 @media (width < 1024px){ /* lg */ html body .main, html body .pbar{padding-left:24px;padding-right:24px} }
 @media (width < 768px){ /* md */ html body .main{padding:16px 16px 32px} html body .pbar{padding-left:16px;padding-right:16px} }
 
-/* Page titles (Sam, Nov 25): every page's H1 is one style, design.md's page title role: serif, regular, 36px, line height 1.1
-   (the quote page was 24px, New quote 28, Home 48). 28px below md. Each page keeps its own margins. */
-html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.1;letter-spacing:normal;color:var(--foreground)}
-@media (width < 768px){ /* md */ html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-size:28px} }
-/* Quote page title as the section title role (Sam, Nov 25): hlmH2's size, 30/36, in the page title's font (Sam: H2 is the same font as H1),
-   so serif, regular (Chronicle has only 400), normal tracking. Spartan's border-b and pb-2 are left off, since the title row isn't a section break. 24px (hlmH3) below md. */
-html body #quoteTitle{font-family:var(--serif);font-weight:400;font-size:30px;line-height:36px;letter-spacing:normal}
-@media (width < 768px){ /* md */ html body #quoteTitle{font-size:24px;line-height:32px} }
+/* Page titles (Sam, Nov 25): every page's H1 is one style: serif, regular, 30/36 (one step down the scale from 36, which
+   felt large and crammed under the top bar). 24/32 below md. Each page keeps its own margins. */
+html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-family:var(--serif);font-weight:400;font-size:30px;line-height:36px;letter-spacing:normal;color:var(--foreground)}
+@media (width < 768px){ /* md */ html body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT){font-size:24px;line-height:32px} }
+/* The quote page's "Edit Quote: …" is a page title (H1) like the others again (Sam, Nov 25), not the 24px section title. */
+/* Titles take focus with tabindex="-1" when a page opens, for screen readers only: no visible ring or box around them. */
+html:not(#a) body :is(#quoteTitle,#qlTitle,#hmTitle,#ncT):focus{outline:none;box-shadow:none}
 /* The title's own 10px top / 2px bottom margin put it 4px below the row's centre, so the Residential tag and the buttons sat high (Sam, Nov 25).
    The row carries that spacing instead, so everything centres on the title and the title doesn't move. */
 html body .ptitle:has(> #quoteTitle){padding:10px 0 2px}
@@ -5464,8 +5463,13 @@ apply();
 body.page-home .main>:not(#homePage){display:none !important}
 body.page-home :is(#pbar,#sendPanel){display:none !important}
 body.page-home #homePage{display:grid}
-#homePage{grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:32px;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
-.hm-main{display:flex;flex-direction:column;gap:28px;padding:28px 0 8px;min-width:0}
+/* The left column is as wide as the tiles (680px), so the photo sits 48px from the content, not across a gap (Sam, Nov 25) */
+#homePage{grid-template-columns:minmax(0,680px) minmax(280px,1fr);gap:48px;align-items:start;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
+.hm-main{display:flex;flex-direction:column;gap:28px;padding:22px 0 8px;min-width:0}
+/* "Welcome, Samantha" starts where the Quotes & orders title does (Sam, Nov 25): 22px down with the side nav (its breadcrumb row
+   is hidden on Home); with the top bar, right at the content's top, the headshot reaching 14px above it so the title stays centred on it */
+html.tnav:not(.topnav) .hm-main{padding-top:0}
+html.tnav:not(.topnav) .hm-hello{margin-top:-14px}
 .hm-hello{display:flex;align-items:center;gap:20px}
 .hm-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:64px;height:64px;border-radius:50%;background:var(--surface-2);color:var(--foreground);font-size:22px;font-weight:500;letter-spacing:.02em;object-fit:cover}
 .hm-hello h1{margin:0;font-family:var(--serif);font-weight:400;font-size:48px;line-height:1.1;color:var(--foreground);outline:none;text-wrap:balance}
@@ -5502,8 +5506,11 @@ body.page-home #homePage{display:grid}
 .hm-tile .hm-ext{flex:none;color:var(--muted-foreground)}
 .hm-tile small{display:block;font-size:12px;font-weight:400;color:var(--muted-foreground);margin-top:1px}
 .hm-note{font-size:12px;color:var(--muted-foreground);margin:0}
-.hm-photo{position:relative;min-height:420px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;margin-top:14px}
-.hm-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+/* A landscape crop (Sam, Nov 25): 4:3, top lined up with the headshot, trimmed top and bottom
+   around the faucet; capped at 760px wide since the source is only 570px */
+.hm-photo{position:relative;aspect-ratio:4/3;max-width:760px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;margin-top:22px}
+html.tnav:not(.topnav) .hm-photo{margin-top:-14px}
+.hm-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 78%}
 @media (width < 1024px){ /* lg: one column, no photo */
   #homePage{grid-template-columns:minmax(0,1fr)}
   .hm-photo{display:none}
@@ -5611,7 +5618,7 @@ const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(t
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>
-<style>/* ==== v5 (Nov 25): "Navy buttons and cool greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+<style>/* ==== v5 (Nov 25): "Navy buttons and greys", a trial behind a demo-bar switch (off by default; html.warm) ====
    Sam, Nov 25: navy is kept for dark elements. The app frame (top bar, side nav, phone bar) stays black, and inside the
    page every black filled control goes brand navy (--navy #001e52, tokens.css; white on it 16:1, hovered #123a7a 11:1):
    filled buttons and calls to action (Create new, Send to client, Save, dialog buttons, the add (+) buttons), selected toggles, current page numbers, count badges, checked checkboxes and switches. Toasts and tooltips stay
@@ -5620,11 +5627,11 @@ addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")
    2px navy edge and navy text (16:1); a pale navy fill got lost on the cool grey (Sam, Nov 25). The other room bars are the table header's grey #ebebeb (Sam, Nov 25), and
    the room you're adding to (its bar and "Adding here") is navy with white text (Sam, Nov 25), as a dark element; the
    brand bronze and then a bright gold (#daa442) were tried first.
-   Fills go a cool grey (#f4f5f7 for #f3f3f3; Sam, Nov 25: the warm #f5f2ed was too much beige beside the gold) and
-   secondary text goes to the brand charcoal (#68696f; 5.0:1 on the cool fill, 5.5:1 on white).
+   Fills are a plain neutral grey, theme v1's #f3f3f3 (Sam, Nov 25: a warm #f5f2ed read too beige, then a cool #f4f5f7 read
+   blue beside the navy), and secondary text is the brand charcoal (#68696f; 4.9:1 on the fill, 5.5:1 on white).
    Navy in the page isn't in the Design Audit yet (bronze is its only accent and it keeps navy out of the page),
    so it goes in the audit first if the trial holds. */
-html.warm{--surface:#f4f5f7;--ink-2:#68696f;--ink-3:#68696f;--navy:#001e52;--navy-hover:#123a7a}
+html.warm{--surface:#f3f3f3;--ink-2:#68696f;--ink-3:#68696f;--navy:#001e52;--navy-hover:#123a7a;--navy-wash:#eef1f6}
 html.warm .roomhdr.active{background:var(--navy);border-color:var(--navy)} /* the room you're adding to: navy, white text (16:1) */
 
 /* dark controls: their black comes from var(--ink), so point --ink at navy on the control itself */
@@ -5648,15 +5655,29 @@ html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
    after a navy try), with black names and charcoal counts (4.6:1); the room you're adding to is navy (above). */
 html.warm .roomhdr:not(.active){background:var(--surface-header,#ebebeb);border-color:var(--surface-header,#ebebeb);color:var(--ink)}
 
-/* room picker (Sam, Nov 25): the quote's rooms rest on the light fill and go a step darker on hover or keyboard focus (they
-   used to go lighter, since the fill changed under them); "+ Add room" stays navy with white text on hover and focus. */
+/* room picker (Sam, Nov 25): the quote's rooms rest on the light fill; "+ Add room" stays navy with white text on hover and focus. */
 html.warm .menu > button[data-room]{background:var(--surface)}
-html.warm.sp .menu > button[data-room]:is(:hover,:focus-visible):not([aria-disabled="true"]),
-html.warm .menu > button[data-room]:is(:hover,:focus-visible){background:var(--surface-2)}
 html.warm.sp .menu > .act:is(:hover,:focus-visible):not([aria-disabled="true"]),html.warm .menu > .act:is(:hover,:focus-visible){background:var(--navy-hover);color:#fff}
+
+/* quote side on white (Sam, Nov 25): one fill is enough to split the page. The search side, with its white search box,
+   pills and result list, keeps the grey; the quote side, where the rooms are, is white, so the rooms read as the document
+   and the grey and navy room bars mark each room. (Search white and quote grey was tried first, the same day.) */
+html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)}
+
+/* hover in light navy (Sam, Nov 25): rows and menu items you can pick take a pale navy wash (#eef1f6) on hover or keyboard
+   focus instead of grey, in the same family as the navy controls. Not light gold: the pale bronze is the selected row's
+   colour, so hovering a selected row keeps it. Buttons keep their own hovers. */
+html.warm.sp :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item,.tnmenu button,.qlxopt,.fopt):is(:hover,:focus-visible):not(.act,[aria-disabled="true"],:disabled),
+html.warm :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item,.tnmenu button,.qlxopt,.fopt):is(:hover,:focus-visible):not(.act,[aria-disabled="true"],:disabled){background:var(--navy-wash)}
+html.warm :is(.qlxt tbody tr[data-qlxrow]:not(.qvcur):hover td,.qltable tbody tr:hover td,.hm-row:hover,.gsit[aria-selected="true"]){background:var(--navy-wash)}
+/* Home: its tiles and recent-quote rows too, on hover and keyboard focus */
+html.warm :is(.hm-tile,.hm-row):is(:hover,:focus-visible){background:var(--navy-wash)}
+/* bronze links on a hovered row take the darker link bronze, 5.1:1 on the wash (the brand bronze would be 4.1:1) */
+html.warm .qlxt tbody tr[data-qlxrow]:not(.qvcur):hover{--bronze:var(--brand-on-fill,#7a6143)}
+html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a6143)} /* Home's quote numbers on the wash: 5.1:1 */
 </style>
 <script>
-/* "Navy buttons and cool greys" switch (Nov 25): off by default, remembered in the browser */
+/* "Navy buttons and greys" switch (Nov 25): off by default, remembered in the browser */
 (function(){
   let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
   document.documentElement.classList.toggle("warm",on);
