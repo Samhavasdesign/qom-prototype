@@ -29,7 +29,7 @@ page.innerHTML=`<div class="hm-main">
 q(".main").append(page);
 
 /* Pick up where you left off (Sam, Nov 25): the quotes you opened last, so getting back to one doesn't need a nav item.
-   The open quote first, from the quote itself; then two of Alex's other open quotes from the Quotes list's mock rows */
+   The open quote first, from the quote itself; then two of Samantha's other open quotes from the Quotes list's mock rows */
 const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo"};
 const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
 const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
@@ -37,10 +37,11 @@ const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 /* one list of recent quotes for Home, and the top bar's Quotes & orders dropdown (topnav.js), so the two agree */
 window.qomRecent=()=>{ if(typeof QL==="undefined") return []; const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
   return [built,...mine].filter(Boolean).map((r,i)=>({id:r.id,proj:r.proj||r.project||"",cust:tcase(r.cust),when:WHEN[i]||"",built:!!r.built})); };
-function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return;
+function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return; L.innerHTML=recentRows(); }
+function recentRows(){
   const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
   const tot=r=>r.built?S.quote.rooms.reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0):(r.rooms||[]).reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0);
-  L.innerHTML=[built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
+  return [built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
     <span class="hm-rq">${r.id}<small>${WHEN[i]||""}</small></span>
     <span class="hm-rp"><b>${esc(r.proj||r.project||"")}</b><small>${esc(tcase(r.cust))}</small></span>
     <span class="hm-rs">${r.pipe?`<span class="qlxpipe ${PIPECLS[r.pipe]||""}"><i aria-hidden="true"></i>${r.pipe}</span>`:""}</span>
@@ -82,6 +83,24 @@ document.addEventListener("keydown",ev=>{ if(ev.target.closest&&ev.target.closes
 /* New quote (top bar, demo bar or Quotes list) opens the create form, so Home steps aside */
 document.addEventListener("click",ev=>{ if(ev.target.closest('#propNew,#qlNew,[data-tn="new"]')) leaveHome(); },true);
 const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(this,arguments); };
+/* Quotes & orders opens with the same "Pick up where you left off" list as Home (Sam, Nov 25): it's QOM's own home, so the
+   last quotes opened come first, between the title and the search. It hides while you search, set a filter or a quick
+   filter, or look at the Orders tab, so results come straight up under the search. */
+const qlx=q(".qlx .qlxsearch");
+if(qlx){
+  const sec=document.createElement("section"); sec.className="hm-recent ql-recent"; sec.setAttribute("aria-labelledby","qlRecentT");
+  sec.innerHTML=`<div class="hm-rh"><h2 id="qlRecentT">Pick up where you left off</h2></div><ul class="hm-rlist" id="qlRecent"></ul>`;
+  qlx.before(sec);
+  const fill=()=>{ const L=q("#qlRecent"); if(L&&typeof QL!=="undefined") L.innerHTML=recentRows(); };
+  const busy=()=>{ const v=q("#qlxQ")?.value.trim(), clr=q(".qlxclear"), ord=q('.qlxtab[aria-selected="true"]')?.textContent.includes("Orders"),
+    chip=q('.qlxquick button[aria-pressed="true"]'); return !!(v||(clr&&!clr.hidden&&clr.offsetParent)||ord||chip); };
+  const sync=()=>{ sec.hidden=busy(); };
+  sec.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]"); if(!r) return;
+    if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); });
+  const box=q(".qlx"); ["input","click","change","keyup"].forEach(t=>box.addEventListener(t,()=>setTimeout(sync,0)));
+  const oSP=setPage; setPage=function(p){ const r=oSP.apply(this,arguments); if(p==="quotes"){ fill(); setTimeout(sync,0); } return r; };
+  fill(); sync();
+}
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>

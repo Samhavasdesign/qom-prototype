@@ -22,7 +22,13 @@
      Never button fills, body text or status. */
   --brand: #8c704e;                    /* 4.6:1 */
   --brand-tint: #f4eee6;               /* selected row, pressed chip: under black text */
+  --brand-wash: #f9f5ef;               /* hover on tile buttons (Home's module tiles): lighter than --brand-tint; black text 17:1 */
   --brand-mark: #ead9c1;               /* search highlight: under black text, 13.5:1 */
+  --brand-on-fill: #7a6143;            /* links on a grey or warm fill: 5.2:1 on #f5f2ed and #f3f3f3 (--brand is 4.1:1 there) */
+  --surface-header: #ebebeb;           /* table header row: a step darker than a hovered row's fill; #68696f text 4.6:1 */
+  --navy: #001e52;                     /* brand navy (Jen's deck): dark controls (filled buttons, selected toggles and pills, checked boxes), never the app frame or text; white on it 16:1 */
+  --navy-hover: #123a7a;               /* hovered navy button; white on it 11:1 */
+  --navy-wash: #eef1f6;                /* hover and keyboard focus on rows and menu items; black text 16:1, #68696f 4.8:1 */
 
   /* Pipeline status: the Sales Portal's forecast colors, as a dot beside the status name, never text */
   --pipe-predictable: #166534;

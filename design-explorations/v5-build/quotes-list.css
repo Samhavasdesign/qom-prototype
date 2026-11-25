@@ -221,6 +221,23 @@ body.qlx-bronze .qlxquick button[aria-pressed="true"] em{color:var(--bronze)}
 body.qlx-bronze .qlxseg button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxpill.on .qlxpb{box-shadow:inset 0 -2px 0 var(--bronze)}
 body.qlx-bronze .qlxqvp{border-top:3px solid var(--bronze)}
+/* Text links everywhere in v5 (Sam, Nov 25): every underlined text link takes Home's "See all your quotes" style, bronze
+   and underlined. Not inside status-coloured places (line flags, the save-failed note, the outside-QOM banner, Change finish's
+   note, toasts, Things to fix), where a link keeps its status colour, and not on the room bars. */
+body.qlx-bronze :is(.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .bmlink,.backlink):not(:is(.fcb,.pb-st .fail,.lflag,.extbn,.ctoast) *){color:var(--bronze)}
+/* Links on a grey or warm fill take a darker bronze (Sam, Nov 25): --brand is 4.1:1 there, under AA for small text, and
+   --brand-on-fill (#7a6143, tokens.css) is 5.2:1. Set on the filled panes (search, quote, the quote tabs' forms) and the
+   Quotes list's grey header, so whatever uses --bronze inside them follows. White cards inside a pane take it too; it
+   passes on white as well (5.8:1). */
+body.qlx-bronze :is(#searchPane,#quotePane,#ptView,.rpp){--bronze:var(--brand-on-fill,#7a6143)}
+/* the quote page's facts row (customer, project; each opens its field in Details) reads as links too (Sam, Nov 25):
+   bronze and underlined like See full breakdown. The expiry tag keeps its amber. */
+body.qlx-bronze .pfacts button[data-pgo] b{color:var(--bronze);text-decoration:underline;text-underline-offset:3px}
+/* Table header in a plain grey (Sam, Nov 25): the header and a hovered row were both on the fill and looked the same. Deep
+   gold, then navy, were tried and highlighted it too much; it's now a slightly darker neutral, --surface-header (#ebebeb),
+   with the usual secondary text (4.6:1) and the sorted column in the darker link bronze (4.9:1). Hovered rows keep the fill. */
+.qlxt th{background:var(--surface-header,#ebebeb)}
+body.qlx-bronze .qlxt th{--bronze:var(--brand-on-fill,#7a6143)}
 /* one nav item for quotes and orders: the Orders link hides (the nav links set display, so [hidden] needs help) */
 :is(.rail a.rlink,#tnBar .tnlinks a)[hidden]{display:none !important}
 

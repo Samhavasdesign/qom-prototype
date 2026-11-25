@@ -1,7 +1,65 @@
-/* ==== v5 (Nov 25): "Navy frame and warm greys", a trial behind a demo-bar switch (off by default; html.warm) ====
-   The lower-cost version of more color: navy only on the app frame (top bar, side nav, phone bar), never inside the page,
-   so bronze stays the page's only accent and navy can't be mistaken for info blue. Inside the page only two existing values
-   change: fills go warm (#f5f2ed for #f3f3f3) and secondary text goes to the brand charcoal (#68696f for #666666; 4.9:1 on
-   the warm fill, 5.5:1 on white). No new tokens. Not in the Design Audit yet: it goes in if the trial holds. */
-html.warm{--rail:#001e52;--rail-2:#123a7a;--surface:#f5f2ed;--ink-2:#68696f;--ink-3:#68696f}
-html.warm .tnav-acct .tnicon{background:rgb(255 255 255 / .14);color:#fff}
+/* ==== v5 (Nov 25): "Navy buttons and greys", a trial behind a demo-bar switch (off by default; html.warm) ====
+   Sam, Nov 25: navy is kept for dark elements. The app frame (top bar, side nav, phone bar) stays black, and inside the
+   page every black filled control goes brand navy (--navy #001e52, tokens.css; white on it 16:1, hovered #123a7a 11:1):
+   filled buttons and calls to action (Create new, Send to client, Save, dialog buttons, the add (+) buttons), selected toggles, current page numbers, count badges, checked checkboxes and switches. Toasts and tooltips stay
+   black. Navy on the frame was tried first and read as almost black; navy on only some controls read as messy.
+   Set filter pills (search side and Quotes list) are light instead (Sam, Nov 25: filled navy pills read too heavy): white with a
+   2px navy edge and navy text (16:1); a pale navy fill got lost on the cool grey (Sam, Nov 25). The other room bars are the table header's grey #ebebeb (Sam, Nov 25), and
+   the room you're adding to (its bar and "Adding here") is navy with white text (Sam, Nov 25), as a dark element; the
+   brand bronze and then a bright gold (#daa442) were tried first.
+   Fills are a plain neutral grey, theme v1's #f3f3f3 (Sam, Nov 25: a warm #f5f2ed read too beige, then a cool #f4f5f7 read
+   blue beside the navy), and secondary text is the brand charcoal (#68696f; 4.9:1 on the fill, 5.5:1 on white).
+   Navy in the page isn't in the Design Audit yet (bronze is its only accent and it keeps navy out of the page),
+   so it goes in the audit first if the trial holds. */
+html.warm{--surface:#f3f3f3;--ink-2:#68696f;--ink-3:#68696f;--navy:#001e52;--navy-hover:#123a7a;--navy-wash:#eef1f6}
+html.warm .roomhdr.active{background:var(--navy);border-color:var(--navy)} /* the room you're adding to: navy, white text (16:1) */
+
+/* dark controls: their black comes from var(--ink), so point --ink at navy on the control itself */
+html.warm :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.pf-go,.qlnew,.ctoast .ctundo,.menu > .act,
+  .add,.qlxseg button[aria-pressed="true"],.chip.on,.qlchip[aria-pressed="true"],
+  .fntab[aria-pressed="true"],.fnsel,.fcount,.rpp-size button[aria-pressed="true"],.pager .pgnum[aria-current="page"],
+  .qlpager button[aria-current="page"],.dnav button[aria-current="true"],.qi .qalert form .btn.go,.qlxtab[aria-selected="true"] em,
+  input[type=checkbox]:not([role=switch],.proto *,.devpanel *):is(:checked,:indeterminate),.shipsw input:checked + .swtrack){--ink:var(--navy)}
+html.warm :is(.btn:not(.ghost,.quiet,.text,.blocked),.dbtn.yes,.pb-act.primary,.pf-add,.pf-go,.qlnew,.menu > .act,.add):hover:not(:disabled,[aria-disabled="true"]){background:var(--navy-hover)}
+/* the demo bar's own controls stay as they are */
+html.warm :is(.proto,.devpanel,[class*=demo]) :is(.btn,input[type=checkbox]){--ink:#121212}
+
+/* set filter pills: white with a 2px navy edge (the 1px border plus an inset ring) and navy text, so they stand out from the
+   unset white pills and the grey panel; a pale navy fill (#e8ecf4) was tried first and got lost on the cool grey */
+html.warm :is(.fpill.on,.qlxpill.on .qlxpb){background:var(--bg);border-color:var(--navy);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+html.warm .fpill.on :is(.fpbtn,.fpx){color:var(--navy)}
+html.warm .fpill.on :is(.fpbtn,.fpx):focus-visible{outline-color:var(--navy)}
+html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
+
+/* room bars: the other rooms are the same grey as the Quotes list's table header (--surface-header #ebebeb; Sam, Nov 25,
+   after a navy try), with black names and charcoal counts (4.6:1); the room you're adding to is navy (above). */
+html.warm .roomhdr:not(.active){background:var(--surface-header,#ebebeb);border-color:var(--surface-header,#ebebeb);color:var(--ink)}
+
+/* room picker (Sam, Nov 25): the quote's rooms rest on the light fill; "+ Add room" stays navy with white text on hover and focus. */
+html.warm .menu > button[data-room]{background:var(--surface)}
+html.warm.sp .menu > .act:is(:hover,:focus-visible):not([aria-disabled="true"]),html.warm .menu > .act:is(:hover,:focus-visible){background:var(--navy-hover);color:#fff}
+
+/* quote side on white (Sam, Nov 25): one fill is enough to split the page. The search side, with its white search box,
+   pills and result list, keeps the grey; the quote side, where the rooms are, is white, so the rooms read as the document
+   and the grey and navy room bars mark each room. (Search white and quote grey was tried first, the same day.) */
+html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)}
+
+/* hover in light navy (Sam, Nov 25): rows and menu items you can pick take a pale navy wash (#eef1f6) on hover or keyboard
+   focus instead of grey, in the same family as the navy controls. Not light gold: the pale bronze is the selected row's
+   colour, so hovering a selected row keeps it. Buttons keep their own hovers. */
+html.warm.sp :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item,.tnmenu button,.qlxopt,.fopt):is(:hover,:focus-visible):not(.act,[aria-disabled="true"],:disabled),
+html.warm :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item,.tnmenu button,.qlxopt,.fopt):is(:hover,:focus-visible):not(.act,[aria-disabled="true"],:disabled){background:var(--navy-wash)}
+html.warm :is(.qlxt tbody tr[data-qlxrow]:not(.qvcur):hover td,.qltable tbody tr:hover td,.gsit[aria-selected="true"]){background:var(--navy-wash)}
+/* one rule for hover (Sam, Nov 25): rows in a list take the navy wash; tile buttons (Home's eight module tiles) take the
+   pale bronze, which suits their bronze icons. Charcoal 4.8:1 on either. */
+html.warm .hm-row:is(:hover,:focus-visible){background:var(--navy-wash)}
+html.warm .hm-tile:is(:hover,:focus-visible){background:var(--brand-wash,#f9f5ef)} /* a step lighter than the selected row's #f4eee6 (Sam, Nov 25) */
+/* bronze links on a hovered row take the darker link bronze, 5.1:1 on the wash (the brand bronze would be 4.1:1) */
+html.warm .qlxt tbody tr[data-qlxrow]:not(.qvcur):hover{--bronze:var(--brand-on-fill,#7a6143)}
+html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a6143)} /* Home's quote numbers on the wash: 5.1:1 */
+
+/* Quotes list (Sam, Nov 25): its button-like controls share Home's tile hover, the pale bronze wash with a darker edge:
+   unset filter pills, unpressed quick-filter chips and unselected toggles (the toggles' shared edges stay). Rows keep the
+   navy wash; set and pressed controls keep their own look. */
+html.warm .qlxpill:not(.on) .qlxpb:hover,html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
+html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef)}

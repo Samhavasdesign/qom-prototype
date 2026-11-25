@@ -5298,7 +5298,7 @@ apply();
 })();
 </script>
 <style>/* ==== v5 (Nov 25): top navigation bar, a trial. On while <html> has .tnav (demo bar switch "Top navigation bar") ====
-   From md up the side nav goes and one black 48px bar runs across the top: a compact wordmark (xl and up), the app's places, global search,
+   From md up the side nav goes and one black 56px bar (48px until Sam, Nov 25) runs across the top: a compact wordmark (xl and up), the app's places, global search,
    then Staging, notifications and the account menu. It replaces the breadcrumb row (36px), so the page keeps nearly
    the same height and gains the rail's width. Below md the existing black top bar and drawer stay as they are. */
 .tnbar{display:none}
@@ -5306,9 +5306,10 @@ html.tnav:not(.topnav) .tnbar{display:flex}
 html.tnav:not(.topnav) .rail{display:none}
 html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
 html.tnav:not(.topnav) .pghead{display:none}
-.tnbar{align-items:center;gap:6px;height:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+/* 56px (Sam, Nov 25): 12px around the 32px search and New quote button instead of 8px, and room for a 13px wordmark (was 11px) */
+.tnbar{align-items:center;gap:6px;height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
 /* compact wordmark (Sam, Nov 25: removed, then back smaller): 11px, opens Home; hidden below xl, where width is tightest */
-.tnmark{font-family:var(--serif);font-size:11px;letter-spacing:.2em;color:var(--rail-ink);margin-right:20px;white-space:nowrap;text-decoration:none}
+.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:var(--rail-ink);margin-right:20px;white-space:nowrap;text-decoration:none}
 .tnmark:focus-visible{outline:2px solid var(--rail-ink);outline-offset:4px}
 .tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
 .tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
@@ -5376,7 +5377,7 @@ html body .tnlinks{margin-left:-12px}
 @media (width < 1280px){ /* xl */ html body .tnlinks{margin-left:-10px} html body .tnmark{display:none} }
 @media (width < 1024px){ /* lg */ html body .tnbar{padding-left:24px;padding-right:24px} }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
-html.tnav:not(.topnav) .protoshow{top:48px}
+html.tnav:not(.topnav) .protoshow{top:56px}
 </style>
 <script>
 /* ==== v5 (Nov 25): top navigation bar, a trial (see topnav.css). The demo bar's "Top navigation bar" switch turns it on;
@@ -5464,7 +5465,7 @@ body.page-home .main>:not(#homePage){display:none !important}
 body.page-home :is(#pbar,#sendPanel){display:none !important}
 body.page-home #homePage{display:grid}
 /* The left column is as wide as the tiles (680px), so the photo sits 48px from the content, not across a gap (Sam, Nov 25) */
-#homePage{grid-template-columns:minmax(0,680px) minmax(280px,1fr);gap:48px;align-items:start;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
+#homePage{grid-template-columns:minmax(0,680px) minmax(280px,1fr);gap:48px;align-items:start;align-content:start;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
 .hm-main{display:flex;flex-direction:column;gap:28px;padding:22px 0 8px;min-width:0}
 /* "Welcome, Samantha" starts where the Quotes & orders title does (Sam, Nov 25): 22px down with the side nav (its breadcrumb row
    is hidden on Home); with the top bar, right at the content's top, the headshot reaching 14px above it so the title stays centred on it */
@@ -5506,10 +5507,12 @@ html.tnav:not(.topnav) .hm-hello{margin-top:-14px}
 .hm-tile .hm-ext{flex:none;color:var(--muted-foreground)}
 .hm-tile small{display:block;font-size:12px;font-weight:400;color:var(--muted-foreground);margin-top:1px}
 .hm-note{font-size:12px;color:var(--muted-foreground);margin:0}
-/* A landscape crop (Sam, Nov 25): 4:3, top lined up with the headshot, trimmed top and bottom
-   around the faucet; capped at 760px wide since the source is only 570px */
-.hm-photo{position:relative;aspect-ratio:4/3;max-width:760px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;margin-top:22px}
-html.tnav:not(.topnav) .hm-photo{margin-top:-14px}
+/* A landscape crop (Sam, Nov 25): 4:3, centred on the left column, from the greeting to the note under the recent quotes (Sam, Nov 25), trimmed top and bottom
+   around the faucet. It fills its column to the right margin (Sam, Nov 25), a little shorter than the left column's content (680px of 720),
+   so on wide screens it's a wider crop rather than a taller one. The 570px source goes soft past about 1100px wide. */
+.hm-photo{position:relative;width:100%;aspect-ratio:4/3;max-height:680px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;align-self:center;margin-top:14px}
+/* the margins even out the column's padding (22px top, 8 bottom; with the top bar 0 top and the headshot 14px above it) */
+html.tnav:not(.topnav) .hm-photo{margin-top:0;margin-bottom:22px}
 .hm-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 78%}
 @media (width < 1024px){ /* lg: one column, no photo */
   #homePage{grid-template-columns:minmax(0,1fr)}
@@ -5530,6 +5533,10 @@ html.tnav:not(.topnav) .hm-photo{margin-top:-14px}
 .rail a.markmin.hm-link{display:none}
 html.navstrip .rail:not(.open) a.markmin.hm-link{display:block}
 html.navstrip .rail:not(.open) a.mark.hm-link{display:none}
+
+/* the same list on Quotes & orders (Sam, Nov 25): as wide as the search under it, with the search's spacing */
+.qlx .ql-recent{max-width:720px;margin:0 0 24px}
+.qlx .ql-recent[hidden]{display:none}
 </style>
 <script>
 /* ==== v5 (Nov 25): Home, from production's Welcome screen (Sam's screenshot). The side nav's Welcome becomes Home and opens it,
@@ -5570,10 +5577,11 @@ const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 /* one list of recent quotes for Home, and the top bar's Quotes & orders dropdown (topnav.js), so the two agree */
 window.qomRecent=()=>{ if(typeof QL==="undefined") return []; const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
   return [built,...mine].filter(Boolean).map((r,i)=>({id:r.id,proj:r.proj||r.project||"",cust:tcase(r.cust),when:WHEN[i]||"",built:!!r.built})); };
-function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return;
+function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return; L.innerHTML=recentRows(); }
+function recentRows(){
   const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
   const tot=r=>r.built?S.quote.rooms.reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0):(r.rooms||[]).reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0);
-  L.innerHTML=[built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
+  return [built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
     <span class="hm-rq">${r.id}<small>${WHEN[i]||""}</small></span>
     <span class="hm-rp"><b>${esc(r.proj||r.project||"")}</b><small>${esc(tcase(r.cust))}</small></span>
     <span class="hm-rs">${r.pipe?`<span class="qlxpipe ${PIPECLS[r.pipe]||""}"><i aria-hidden="true"></i>${r.pipe}</span>`:""}</span>
@@ -5615,6 +5623,24 @@ document.addEventListener("keydown",ev=>{ if(ev.target.closest&&ev.target.closes
 /* New quote (top bar, demo bar or Quotes list) opens the create form, so Home steps aside */
 document.addEventListener("click",ev=>{ if(ev.target.closest('#propNew,#qlNew,[data-tn="new"]')) leaveHome(); },true);
 const oSetPage=setPage; setPage=function(){ leaveHome(); return oSetPage.apply(this,arguments); };
+/* Quotes & orders opens with the same "Pick up where you left off" list as Home (Sam, Nov 25): it's QOM's own home, so the
+   last quotes opened come first, between the title and the search. It hides while you search, set a filter or a quick
+   filter, or look at the Orders tab, so results come straight up under the search. */
+const qlx=q(".qlx .qlxsearch");
+if(qlx){
+  const sec=document.createElement("section"); sec.className="hm-recent ql-recent"; sec.setAttribute("aria-labelledby","qlRecentT");
+  sec.innerHTML=`<div class="hm-rh"><h2 id="qlRecentT">Pick up where you left off</h2></div><ul class="hm-rlist" id="qlRecent"></ul>`;
+  qlx.before(sec);
+  const fill=()=>{ const L=q("#qlRecent"); if(L&&typeof QL!=="undefined") L.innerHTML=recentRows(); };
+  const busy=()=>{ const v=q("#qlxQ")?.value.trim(), clr=q(".qlxclear"), ord=q('.qlxtab[aria-selected="true"]')?.textContent.includes("Orders"),
+    chip=q('.qlxquick button[aria-pressed="true"]'); return !!(v||(clr&&!clr.hidden&&clr.offsetParent)||ord||chip); };
+  const sync=()=>{ sec.hidden=busy(); };
+  sec.addEventListener("click",ev=>{ const r=ev.target.closest("[data-hmq]"); if(!r) return;
+    if(r.dataset.hmq==="6000024967") setPage("quote"); else showToast("Only quote 6000024967 is built in the prototype."); });
+  const box=q(".qlx"); ["input","click","change","keyup"].forEach(t=>box.addEventListener(t,()=>setTimeout(sync,0)));
+  const oSP=setPage; setPage=function(p){ const r=oSP.apply(this,arguments); if(p==="quotes"){ fill(); setTimeout(sync,0); } return r; };
+  fill(); sync();
+}
 addEventListener("resize",()=>{ if(document.body.classList.contains("page-home")) document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px"); });
 })();
 </script>
@@ -5669,12 +5695,20 @@ html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)
    colour, so hovering a selected row keeps it. Buttons keep their own hovers. */
 html.warm.sp :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item,.tnmenu button,.qlxopt,.fopt):is(:hover,:focus-visible):not(.act,[aria-disabled="true"],:disabled),
 html.warm :is(.menu > button,.menu .rtcols button,.lmenu button,.qm-item,.tnmenu button,.qlxopt,.fopt):is(:hover,:focus-visible):not(.act,[aria-disabled="true"],:disabled){background:var(--navy-wash)}
-html.warm :is(.qlxt tbody tr[data-qlxrow]:not(.qvcur):hover td,.qltable tbody tr:hover td,.hm-row:hover,.gsit[aria-selected="true"]){background:var(--navy-wash)}
-/* Home: its tiles and recent-quote rows too, on hover and keyboard focus */
-html.warm :is(.hm-tile,.hm-row):is(:hover,:focus-visible){background:var(--navy-wash)}
+html.warm :is(.qlxt tbody tr[data-qlxrow]:not(.qvcur):hover td,.qltable tbody tr:hover td,.gsit[aria-selected="true"]){background:var(--navy-wash)}
+/* one rule for hover (Sam, Nov 25): rows in a list take the navy wash; tile buttons (Home's eight module tiles) take the
+   pale bronze, which suits their bronze icons. Charcoal 4.8:1 on either. */
+html.warm .hm-row:is(:hover,:focus-visible){background:var(--navy-wash)}
+html.warm .hm-tile:is(:hover,:focus-visible){background:var(--brand-wash,#f9f5ef)} /* a step lighter than the selected row's #f4eee6 (Sam, Nov 25) */
 /* bronze links on a hovered row take the darker link bronze, 5.1:1 on the wash (the brand bronze would be 4.1:1) */
 html.warm .qlxt tbody tr[data-qlxrow]:not(.qvcur):hover{--bronze:var(--brand-on-fill,#7a6143)}
 html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a6143)} /* Home's quote numbers on the wash: 5.1:1 */
+
+/* Quotes list (Sam, Nov 25): its button-like controls share Home's tile hover, the pale bronze wash with a darker edge:
+   unset filter pills, unpressed quick-filter chips and unselected toggles (the toggles' shared edges stay). Rows keep the
+   navy wash; set and pressed controls keep their own look. */
+html.warm .qlxpill:not(.on) .qlxpb:hover,html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
+html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef)}
 </style>
 <script>
 /* "Navy buttons and greys" switch (Nov 25): off by default, remembered in the browser */

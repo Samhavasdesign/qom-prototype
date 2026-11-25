@@ -22,9 +22,9 @@ bar.innerHTML=`<a href="#" class="tnmark" data-nav="home" aria-label="Waterworks
     <span class="tndiv" aria-hidden="true"></span>
     <span class="tnenv" title="You're on the staging environment">STAGING</span>
     <button type="button" class="tnicon" data-tn="bell" aria-label="Notifications" title="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></button>
-    <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Alex Rivera" title="Alex Rivera"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
+    <div class="tnav-acct"><button type="button" class="tnicon" data-tn="acct" aria-haspopup="menu" aria-expanded="false" aria-controls="tnMenu" aria-label="Account: Samantha Havas" title="Samantha Havas"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6z"/></svg></button>
       <div class="tnmenu" id="tnMenu" role="menu" aria-label="Account" hidden>
-        <div class="who"><b>Alex Rivera</b>Sales consultant · USC</div>
+        <div class="who"><b>Samantha Havas</b>Sales consultant · USC</div>
         <button type="button" role="menuitem" data-tn="import">${icon("Import Tools")}Import tools</button>
         <button type="button" role="menuitem" data-tn="prod">Go to production</button>
         <div class="sep" role="separator"></div>

@@ -17,7 +17,7 @@ i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'proposal.css').read()+'</style>\n'+open(D+'proposal.js').read()+s[i:]
 # Quotes list redesign (QOM-3332, Nov 24): its own layer and switch, after the proposal layer
 rep('<strong>Proposal layout and global search</strong></label>',
-    '<strong>Proposal layout and global search</strong></label>\n  <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today\'s list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>\n  <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen\'s deck) as the Quotes list\'s accent. Off shows it in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>')
+    '<strong>Proposal layout and global search</strong></label>\n  <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today\'s list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>\n  <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen\'s deck) as the accent: the Quotes list\'s links and selection marks, and text links on every page. Off shows them in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'quotes-list.css').read()+'</style>\n'+open(D+'quotes-list.js').read()+s[i:]
 # Top navigation bar (Nov 25): a trial, off by default, with its own switch
@@ -28,9 +28,9 @@ s=s[:i]+'<style>'+open(D+'topnav.css').read()+'</style>\n'+open(D+'topnav.js').r
 # Home (Nov 25): production's Welcome screen, renamed Home; after the top bar so it can relabel both navs
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'home.css').read()+'</style>\n'+open(D+'home.js').read()+s[i:]
-# Navy frame and warm greys (Nov 25): a color trial, off by default, with its own switch after Bronze accent
+# Navy buttons and greys (Nov 25): a color trial, off by default, with its own switch after Bronze accent
 rep('id="qlxBronze" checked autocomplete="off"> Bronze accent</label>',
-    'id="qlxBronze" checked autocomplete="off"> Bronze accent</label>\n  <label title="v5 only: trial of a navy app frame (top bar, side nav) with warm greys and charcoal secondary text inside the page. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy frame and warm greys</label>')
+    'id="qlxBronze" checked autocomplete="off"> Bronze accent</label>\n  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and greys</label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'color.css').read()+'</style>\n'+open(D+'color.js').read()+s[i:]
 open('qom-product-search-prototype-v5.html','w').write(s)

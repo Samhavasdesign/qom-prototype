@@ -4,8 +4,13 @@
 body.page-home .main>:not(#homePage){display:none !important}
 body.page-home :is(#pbar,#sendPanel){display:none !important}
 body.page-home #homePage{display:grid}
-#homePage{grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:32px;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
-.hm-main{display:flex;flex-direction:column;gap:28px;padding:28px 0 8px;min-width:0}
+/* The left column is as wide as the tiles (680px), so the photo sits 48px from the content, not across a gap (Sam, Nov 25) */
+#homePage{grid-template-columns:minmax(0,680px) minmax(280px,1fr);gap:48px;align-items:start;align-content:start;min-height:calc(100vh - var(--home-top,0px) - 24px);padding-bottom:24px}
+.hm-main{display:flex;flex-direction:column;gap:28px;padding:22px 0 8px;min-width:0}
+/* "Welcome, Samantha" starts where the Quotes & orders title does (Sam, Nov 25): 22px down with the side nav (its breadcrumb row
+   is hidden on Home); with the top bar, right at the content's top, the headshot reaching 14px above it so the title stays centred on it */
+html.tnav:not(.topnav) .hm-main{padding-top:0}
+html.tnav:not(.topnav) .hm-hello{margin-top:-14px}
 .hm-hello{display:flex;align-items:center;gap:20px}
 .hm-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:64px;height:64px;border-radius:50%;background:var(--surface-2);color:var(--foreground);font-size:22px;font-weight:500;letter-spacing:.02em;object-fit:cover}
 .hm-hello h1{margin:0;font-family:var(--serif);font-weight:400;font-size:48px;line-height:1.1;color:var(--foreground);outline:none;text-wrap:balance}
@@ -42,8 +47,13 @@ body.page-home #homePage{display:grid}
 .hm-tile .hm-ext{flex:none;color:var(--muted-foreground)}
 .hm-tile small{display:block;font-size:12px;font-weight:400;color:var(--muted-foreground);margin-top:1px}
 .hm-note{font-size:12px;color:var(--muted-foreground);margin:0}
-.hm-photo{position:relative;min-height:420px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;margin-top:14px}
-.hm-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+/* A landscape crop (Sam, Nov 25): 4:3, centred on the left column, from the greeting to the note under the recent quotes (Sam, Nov 25), trimmed top and bottom
+   around the faucet. It fills its column to the right margin (Sam, Nov 25), a little shorter than the left column's content (680px of 720),
+   so on wide screens it's a wider crop rather than a taller one. The 570px source goes soft past about 1100px wide. */
+.hm-photo{position:relative;width:100%;aspect-ratio:4/3;max-height:680px;border-radius:var(--r-lg,4px);overflow:hidden;background:#f6f6f6;align-self:center;margin-top:14px}
+/* the margins even out the column's padding (22px top, 8 bottom; with the top bar 0 top and the headshot 14px above it) */
+html.tnav:not(.topnav) .hm-photo{margin-top:0;margin-bottom:22px}
+.hm-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 78%}
 @media (width < 1024px){ /* lg: one column, no photo */
   #homePage{grid-template-columns:minmax(0,1fr)}
   .hm-photo{display:none}
@@ -63,3 +73,7 @@ body.page-home #homePage{display:grid}
 .rail a.markmin.hm-link{display:none}
 html.navstrip .rail:not(.open) a.markmin.hm-link{display:block}
 html.navstrip .rail:not(.open) a.mark.hm-link{display:none}
+
+/* the same list on Quotes & orders (Sam, Nov 25): as wide as the search under it, with the search's spacing */
+.qlx .ql-recent{max-width:720px;margin:0 0 24px}
+.qlx .ql-recent[hidden]{display:none}

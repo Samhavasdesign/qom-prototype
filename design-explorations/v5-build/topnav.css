@@ -1,5 +1,5 @@
 /* ==== v5 (Nov 25): top navigation bar, a trial. On while <html> has .tnav (demo bar switch "Top navigation bar") ====
-   From md up the side nav goes and one black 48px bar runs across the top: wordmark, the app's places, global search,
+   From md up the side nav goes and one black 56px bar (48px until Sam, Nov 25) runs across the top: a compact wordmark (xl and up), the app's places, global search,
    then Staging, notifications and the account menu. It replaces the breadcrumb row (36px), so the page keeps nearly
    the same height and gains the rail's width. Below md the existing black top bar and drawer stay as they are. */
 .tnbar{display:none}
@@ -7,8 +7,11 @@ html.tnav:not(.topnav) .tnbar{display:flex}
 html.tnav:not(.topnav) .rail{display:none}
 html.tnav:not(.topnav) .app{grid-template-columns:minmax(0,1fr);--rail-w:0px;background:none}
 html.tnav:not(.topnav) .pghead{display:none}
-.tnbar{align-items:center;gap:6px;height:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
-.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.26em;color:var(--rail-ink);margin-right:18px;white-space:nowrap;text-decoration:none}
+/* 56px (Sam, Nov 25): 12px around the 32px search and New quote button instead of 8px, and room for a 13px wordmark (was 11px) */
+.tnbar{align-items:center;gap:6px;height:56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--rail);color:var(--rail-ink);position:relative;z-index:40}
+/* compact wordmark (Sam, Nov 25: removed, then back smaller): 11px, opens Home; hidden below xl, where width is tightest */
+.tnmark{font-family:var(--serif);font-size:13px;letter-spacing:.2em;color:var(--rail-ink);margin-right:20px;white-space:nowrap;text-decoration:none}
+.tnmark:focus-visible{outline:2px solid var(--rail-ink);outline-offset:4px}
 .tnlinks{display:flex;align-items:stretch;height:100%;gap:2px;min-width:0}
 .tnlinks a{display:flex;align-items:center;gap:8px;padding:0 12px;color:#b8b8b8;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;border-top:2px solid transparent}
 .tnlinks a:hover{color:var(--rail-ink)}
@@ -64,9 +67,15 @@ html.tnav:not(.topnav) body:not(.page-quotes):not(.page-home):not(.page-create) 
   .tnlinks a{padding:0 10px}
 }
 @media (width < 1024px){ /* lg */
-  .tnmark{display:none}
   .tnsearch{width:32px;padding:0;justify-content:center}
   .tnsearch span,.tnsearch kbd{display:none}
 }
+/* Same side margins as the page content (Sam, Nov 25; proposal.css "Page margins"): 32px, 48px from 2xl, 24px below lg.
+   The first link's own 12px padding (10px below xl) is pulled back so Home lines up with the content's left edge. */
+html body .tnbar{padding-left:32px;padding-right:32px}
+html body .tnlinks{margin-left:-12px}
+@media (width >= 1536px){ /* 2xl */ html body .tnbar{padding-left:48px;padding-right:48px} }
+@media (width < 1280px){ /* xl */ html body .tnlinks{margin-left:-10px} html body .tnmark{display:none} }
+@media (width < 1024px){ /* lg */ html body .tnbar{padding-left:24px;padding-right:24px} }
 /* the demo bar's "Show prototype controls" tab would cover the bar's right end; it drops just below the bar */
-html.tnav:not(.topnav) .protoshow{top:48px}
+html.tnav:not(.topnav) .protoshow{top:56px}
