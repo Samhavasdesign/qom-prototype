@@ -21,21 +21,21 @@ const TILES=[["Sales Dashboard","dash"],["Account Profiles","card"],["Sales Pres
 const page=document.createElement("section"); page.id="homePage"; page.setAttribute("aria-labelledby","hmTitle");
 page.innerHTML=`<div class="hm-main">
     <div class="hm-hello"><span class="hm-avatar" aria-hidden="true">AR</span><h1 id="hmTitle" tabindex="-1">Welcome, Alex</h1></div>
-    <section class="hm-recent" aria-labelledby="hmRecentT"><div class="hm-rh"><h2 id="hmRecentT">Pick up where you left off</h2><button type="button" class="hm-all" data-hm="mine">See all your quotes</button></div><ul class="hm-rlist" id="hmRecent"></ul></section>
     <ul class="hm-tiles">${TILES.map(([l,i,k])=>`<li><button type="button" class="hm-tile" data-hm="${k||l}"><span class="hm-ic">${svg(IC[i])}</span><span class="hm-l">${l}${k?"<small>Quotes and orders</small>":""}</span>${k?"":`<span class="hm-ext" title="Opens in the Sales Portal">${svg(IC.ext,14)}</span>`}</button></li>`).join("")}</ul>
+    <section class="hm-recent" aria-labelledby="hmRecentT"><div class="hm-rh"><h2 id="hmRecentT">Pick up where you left off</h2><button type="button" class="hm-all" data-hm="mine">See all your quotes</button></div><ul class="hm-rlist" id="hmRecent"></ul></section>
     <p class="hm-note">The other tiles open the Sales Portal’s modules; only QOM is built in the prototype.</p>
   </div>
   <div class="hm-photo"><img src="images/easton-bath-faucet.jpg" alt="Easton bath faucet in nickel with Royal Delft handles"></div>`;
 q(".main").append(page);
 
 /* Pick up where you left off (Sam, Nov 25): the quotes you opened last, so getting back to one doesn't need a nav item.
-   The open quote first, from the quote itself; then three of Alex's other open quotes from the Quotes list's mock rows */
+   The open quote first, from the quote itself; then two of Alex's other open quotes from the Quotes list's mock rows */
 const PIPECLS={Predictable:"pr",Feasible:"fe",Possible:"po",Lead:"le","On Hold":"oh",Duplicate:"du",Lost:"lo"};
 const WHEN=["Today","Yesterday","Nov 21","Nov 19"];
 const tcase=t=>String(t||"").toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
 function renderRecent(){ const L=q("#hmRecent"); if(!L||typeof QL==="undefined") return;
-  const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,3);
+  const built=QL.rows.find(r=>r.built), mine=QL.rows.filter(r=>!r.built&&r.sc===QL.ME&&!r.ord&&r.id).slice(0,2);
   const tot=r=>r.built?S.quote.rooms.reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0):(r.rooms||[]).reduce((a,x)=>a+x.lines.reduce((b,l)=>b+l.qty*l.unit,0),0);
   L.innerHTML=[built,...mine].filter(Boolean).map((r,i)=>`<li><button type="button" class="hm-row" data-hmq="${r.id}">
     <span class="hm-rq">${r.id}<small>${WHEN[i]||""}</small></span>
