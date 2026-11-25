@@ -179,7 +179,7 @@ root.innerHTML=`
   <div class="qlxbar">
     <div class="qlxseg" role="group" aria-label="Whose quotes">${[["me","Mine"],["team","My team"],["all","Everyone"]].map(([v,l])=>`<button type="button" data-qlxwho="${v}" aria-pressed="false">${l}</button>`).join("")}</div>
     ${''/* Type is a filter pill like Total, not a toggle group (Sam, Nov 25): "All types" is the default, so it reads as a filter only once set */}
-    <div class="qlxpill" id="qlxTypeW"><button type="button" class="qlxpb" data-qlxpop="type" aria-expanded="false" aria-controls="qlxTypePop"><span id="qlxTypeL">All types</span>${IC.chev}</button>
+    <div class="qlxpill" id="qlxTypeW"><button type="button" class="qlxpb" data-qlxpop="type" aria-expanded="false" aria-controls="qlxTypePop"><span id="qlxTypeL">Type</span>${IC.chev}</button>
       <div class="qlxpop" id="qlxTypePop" hidden role="radiogroup" aria-label="Type"></div></div>
     <div class="qlxpill" id="qlxPipeW"><button type="button" class="qlxpb" data-qlxpop="pipe" aria-expanded="false" aria-controls="qlxPipePop"><span id="qlxPipeL">Pipeline status</span>${IC.chev}</button>
       <div class="qlxpop" id="qlxPipePop" hidden role="group" aria-label="Pipeline status"></div></div>
@@ -235,6 +235,10 @@ const payNote=p=>p.st==="held"
    the second time, as a dropped connection would). Screen readers hear "Loading quotes" and the result count through the count row */
 const LD={mode:"ok",busy:false,err:false,sig:null,errSig:null,want:null,retried:false,prev:null,t:null};
 const lsig=()=>JSON.stringify([X.tab,X.q,X.who,X.type,[...X.pipes],[...X.lostX],X.stale,X.soon,X.paid,X.sent,X.arch,X.expd,X.com,X.tot,X.due,X.ship,X.val,X.sort,X.dir,X.size,X.page]);
+const QUEUES=["sent","stale","soon","paid","due","ship"];
+/* a set filter says what it filters and what it's set to ("Status: Possible"), with an × that removes just that filter */
+const XBTN=k=>`<button type="button" class="qlxx" data-qlxclr="${k}" aria-label="Remove ${k==="type"?"Type":k==="pipe"?"Pipeline status":"Total"} filter" title="Remove filter"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+function pillX(id,k,on){ const w=q(id); let b=w.querySelector(".qlxx"); if(on&&!b) w.insertAdjacentHTML("beforeend",XBTN(k)); else if(!on&&b) b.remove(); }
 function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.sort,X.dir]=X.tab==="orders"?["odate",-1]:["id",-1];
   if(LD.mode!=="ok"){ const sg=lsig(); if(sg!==LD.sig&&!LD.busy&&!(LD.err&&sg===LD.errSig)){ LD.busy=true; LD.err=false; LD.want=sg; clearTimeout(LD.t);
     LD.t=setTimeout(()=>{ LD.busy=false; if(LD.mode==="error"&&!LD.retried){ LD.err=true; LD.errSig=LD.want; } else { LD.sig=LD.want; LD.err=false; } render(); },LD.mode==="error"?900:1300); } }
@@ -248,11 +252,11 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
   q("#qlxPanel").setAttribute("aria-labelledby","qlxTab-"+X.tab); root.classList.toggle("qlx-ords",X.tab==="orders");
   q("#qlxPipeW").hidden=X.tab!=="quotes";
   const np=X.tab==="quotes"?X.pipes.size:0;
-  q("#qlxPipeW").classList.toggle("on",np>0); q("#qlxPipeL").textContent=np===0?"Pipeline status":np===1?[...X.pipes][0]:`Pipeline status · ${np}`;
+  q("#qlxPipeW").classList.toggle("on",np>0); q("#qlxPipeL").textContent=np===0?"Pipeline status":np<=2?"Status: "+[...X.pipes].join(", "):`Status: ${np} selected`; pillX("#qlxPipeW","pipe",np>0);
   q("#qlxTypeW").hidden=!X.com; /* only SCs with commercial access see commercial quotes, so only they get the Type filter */
-  q("#qlxTypeW").classList.toggle("on",!!X.type); q("#qlxTypeL").textContent=X.type||"All types";
+  q("#qlxTypeW").classList.toggle("on",!!X.type); q("#qlxTypeL").textContent=X.type?"Type: "+X.type:"Type"; pillX("#qlxTypeW","type",!!X.type);
   q("#qlxValW").hidden=!X.tot;
-  q("#qlxValW").classList.toggle("on",X.val>0); q("#qlxValL").textContent=X.val?VALS.find(v=>v[0]===X.val)[1]:"Total";
+  q("#qlxValW").classList.toggle("on",X.val>0); q("#qlxValL").textContent=X.val?"Total: "+VALS.find(v=>v[0]===X.val)[1]:"Total"; pillX("#qlxValW","val",X.val>0);
   const base=ALL().filter(x=>matchesBase(x)&&tabOk(x,X.tab)&&(X.tab!=="quotes"||vis(x)));
   /* Lost is eight M3 statuses; ticking Lost shows its reasons, all ticked, to narrow it */
   q("#qlxPipePop").innerHTML=PIPE.map(([n,s,c])=>`<label class="qlxopt"><input type="checkbox" data-qlxpipe="${n}"${X.pipes.has(n)?" checked":""}><span class="qlxpipe ${c}"><i aria-hidden="true"></i>${n}${s?` <small>${s}</small>`:n==="Lost"?` <small>8 reasons</small>`:""}</span><em>${base.filter(x=>x.pipe===n).length}</em></label>`
@@ -429,7 +433,10 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlxpop){ const p=q(POPS[d.qlxpop]), was=!p.hidden; closePops(); if(!was){ p.hidden=false; b.setAttribute("aria-expanded","true"); (p.querySelector("input")||p.querySelector('[aria-selected="true"]'))?.focus(); } return; }
   if(d.qlxsize){ X.size=+d.qlxsize; X.page=1; q("#qlxSizeV").textContent=d.qlxsize; q("#qlxSizePop").querySelectorAll("[data-qlxsize]").forEach(o=>o.setAttribute("aria-selected",o===b)); closePops(); render(); q(".qlxsizeb").focus(); return; }
   if(d.qlxtab){ setTab(d.qlxtab,true); return; }
-  if(d.qlxquick){ X[d.qlxquick]=!X[d.qlxquick]; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
+  /* quick filters are work queues, one at a time (Sam, Nov 25): two of them can never both be true (awaiting payment vs paid;
+     date passed vs closing soon), so combining them only ever made an empty list. Picking the current one again turns it off */
+  if(d.qlxclr){ ev.stopPropagation(); const k=d.qlxclr; if(k==="type") X.type=""; else if(k==="pipe"){ X.pipes.clear(); X.lostX.clear(); } else X.val=0; X.page=1; closePops(); render(); q({type:"#qlxTypeW",pipe:"#qlxPipeW",val:"#qlxValW"}[k]+" .qlxpb")?.focus(); return; }
+  if(d.qlxquick){ const was=X[d.qlxquick]; QUEUES.forEach(k=>{ X[k]=false; }); X[d.qlxquick]=!was; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
   if(d.qlxwho!==undefined){ X.who=d.qlxwho; X.page=1; render(); return; }
   if(d.qlxsort){ if(X.sort===d.qlxsort) X.dir=-X.dir; else { X.sort=d.qlxsort; X.dir=["id","tot"].includes(d.qlxsort)?-1:1; } render(); q(`[data-qlxsort="${d.qlxsort}"]`).focus(); return; }
   if(d.qlxpage){ X.page=+d.qlxpage; render(); q("#qlxPager [aria-current]")?.focus(); q("#qlTitle").scrollIntoView({block:"start"}); return; }
