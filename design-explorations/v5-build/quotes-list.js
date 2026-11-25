@@ -139,7 +139,9 @@ const SORTS={quotes:["id","pipe","tot","exp"],orders:["odate","tot","paid","ship
 /* no-total version (Nov 25): QOM stores no quote total today (QOM-3336), so if the build can't add one for v1, the list drops the Total
    column, the Total filter, its sort, and anything worked out from a total (Orders' "$X due" / "Paid in full" and the Balance due chip).
    Amount paid and unshipped value stay (both are stored on orders). Quick view keeps its subtotal: it loads the quote's lines anyway */
-const COLS=()=>(X.tab==="orders"?COLSO:COLSQ).filter(c=>X.tot||c[0]!=="tot");
+const COLS=()=>(X.tab==="orders"?COLSO:COLSQ).filter(c=>(X.tot||c[0]!=="tot")&&(showSC()||c[0]!=="sc"));
+/* on Mine every row is yours, so Sales consultant goes and Description gets the room (Nov 25 audit) */
+const showSC=()=>X.who!=="me";
 const sortsFor=t=>SORTS[t].filter(k=>X.tot||k!=="tot");
 const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Over $100,000"]];
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
@@ -183,10 +185,12 @@ root.innerHTML=`
       <div class="qlxpop" id="qlxPipePop" hidden role="group" aria-label="Pipeline status"></div></div>
     <div class="qlxpill" id="qlxValW"><button type="button" class="qlxpb" data-qlxpop="val" aria-expanded="false" aria-controls="qlxValPop"><span id="qlxValL">Total</span>${IC.chev}</button>
       <div class="qlxpop" id="qlxValPop" hidden role="radiogroup" aria-label="Total"></div></div>
+    ${''/* quick filters sit with the other filters (Nov 25 audit: at the count row's far right they were a long way from the pills) */}
+    <span class="qlxdiv" aria-hidden="true"></span>
+    <div class="qlxquick" id="qlxQuick" role="group" aria-label="Quick filters"></div>
     <button type="button" class="qlxclear" data-qlx="clear" hidden>Clear filters</button>
   </div>
-  <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div>
-    <div class="qlxquick" id="qlxQuick" role="group" aria-label="Quick filters"></div></div>
+  <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div></div>
   <div class="qlxwrap"><table class="qlxt"><caption class="sr">Select a row to open it, or Quick view to see what's on it.</caption><thead><tr id="qlxHead"></tr></thead><tbody id="qlxBody"></tbody></table></div>
   <div class="qlxfoot"><span id="qlxRange" class="qlxrange" aria-live="polite"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav>
     <div class="qlxsize"><span id="qlxSizeL">Rows per page</span><div class="qlxpill"><button type="button" class="qlxpb qlxsizeb" data-qlxpop="size" aria-haspopup="listbox" aria-expanded="false" aria-controls="qlxSizePop" aria-labelledby="qlxSizeL qlxSizeV"><span id="qlxSizeV">50</span>${IC.chev}</button>
@@ -221,10 +225,10 @@ function pipeCell(x){ if(x.oo) return `<span class="qlxsrc">Order</span><span cl
     +(x.arch?`<span class="p2 archt" title="Archived ${fmt(x.arch.date)}">${IC.arch}Archived<span class="sr"> ${fmt(x.arch.date)}</span></span>`
     :payOf(x)?payNote(payOf(x))
     :isSent(x)?`<span class="p2 sentn" title="Sent to the client ${fmt(x.sent.date)} with a payment link. Deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid yet.">${IC.send}Awaiting payment<span class="sr">: sent ${fmt(x.sent.date)}, deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid</span></span>`
-    :isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
+    :isStale(x)&&daysTo(rowConv(x))<-14?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
 const payNote=p=>p.st==="held"
   ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid, order held</span>`
-  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid, no order</span>`;
+  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid, order pending</span>`;
 /* loading and error (Nov 25): the real list asks the server on every search, filter, sort and page change. Demo bar "List data":
    Normal (instant), Slow (about 1.3 s) or Error. The first load shows skeleton rows; later loads keep the last rows, dimmed, under a
    thin progress bar, so the table doesn't jump while you type. An error keeps the search and filters and offers Try again (which works
@@ -258,7 +262,7 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
   q("#qlxTypePop").innerHTML=[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxtype" data-qlxtype="${v}"${X.type===v?" checked":""}><span>${l}</span><em>${v?baseT.filter(x=>x.type===v).length:baseT.length}</em></label>`).join("");
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
   /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
-  const QF=X.tab==="quotes"?[["sent",IC.send,"Awaiting payment",isSent,"Sent to the client with a payment link; the deposit isn't paid yet"],["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order yet",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
+  const QF=X.tab==="quotes"?[["sent",IC.send,"Awaiting payment",isSent,"Sent to the client with a payment link; the deposit isn't paid yet"],["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
     :[...(X.tot?[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"]]:[]),["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
   q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
   root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.paid||X.sent||X.arch||X.expd||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
@@ -287,8 +291,8 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
     ${projCell(x)}${custCell(x)}
     ${X.tot?`<td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>`:""}
     <td class="c-tot c-paid">${!X.tot?(x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:usd0(paid)):x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:`${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span>`}</td>
-    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
-    <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
+    <td class="c-tot c-ship${showSC()?"":" c-qv"}">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}${showSC()?"":qvb(x)}</td>
+    ${showSC()?`<td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td>`:""}</tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
   q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp&&!x.arch&&!payOf(x)?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
     return `<tr data-qlxrow="${K(x)}" class="${x.built?"built":""}${x.oo?" oo":""}${x.arch?" arch":""}">
@@ -298,13 +302,14 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
     ${custCell(x)}
     <td class="c-pipe">${pipeCell(x)}</td>
     ${X.tot?`<td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>`:""}
-    <td class="c-sc">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}</td>
+    ${showSC()?`<td class="c-sc">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}</td>`:""}
     <td class="c-exp c-qv">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
       ${qvb(x)}</td></tr>`; })()).join("")
     /* empty: point to the other tab when the search finds something there */
     :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.tab==="quotes"&&nHid?`${nHid} expired or archived ${nHid===1?"quote matches":"quotes match"}. <button type="button" data-qlx="showhidden">Show ${nHid===1?"it":"them"}</button>`:nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
       :X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's ${tName}</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
+  q(".qlxsize").hidden=all.length<=25; /* Rows per page only matters once there's more than the smallest page (Nov 25 audit) */
   q("#qlxRange").textContent=all.length?`Showing ${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
   /* up to 5 page numbers, a window that keeps the current page in the middle where it can */
   const nums=[], a=Math.max(1,Math.min(X.page-2,pages-4)); for(let i=a;i<=Math.min(pages,a+4);i++) nums.push(i);

@@ -84,7 +84,7 @@ function paint(){
 const ptype=q(".ptitle .ptype"), nct=document.createElement("span"); nct.className="pnc"; nct.hidden=true;
 if(ptype) ptype.before(nct);
 function factHtml(){ if(O.ord) return `<span class="pord ok">${IC.box}Order ${O.ord}</span>`;
-  if(O.pay==="pending") return `<span class="pord info">${IC.cash}Paid, no order</span>`;
+  if(O.pay==="pending") return `<span class="pord info">${IC.cash}Paid, order pending</span>`;
   if(O.pay==="held") return `<span class="pord bad">${IC.cash}Paid, order held</span>`; return ""; }
 function paintFacts(){ const f=q(".pfacts"); if(!f) return; const h=factHtml(), cur=f.querySelector(".pord");
   if(!h){ cur?.remove(); } else if(!cur||cur.outerHTML!==h){ cur?.remove(); f.insertAdjacentHTML("beforeend",h); }

@@ -28,8 +28,13 @@ html.warm :is(.proto,.devpanel,[class*=demo]) :is(.btn,input[type=checkbox]){--i
    unset white pills and the grey panel; a pale navy fill (#e8ecf4) was tried first and got lost on the cool grey */
 /* Set filter pills and the chosen segment of a toggle group share one look (Sam, Nov 25): a navy outline on a light navy
    wash (--navy-wash, navy text 15:1 on it), no solid fill and no bronze underline. */
-html.warm :is(.fpill.on,.qlxpill.on .qlxpb){background:var(--navy-wash);border-color:var(--navy);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
-html.warm body .qlxseg button[aria-pressed="true"]{background:var(--navy-wash);color:var(--navy);box-shadow:inset 0 0 0 2px var(--navy)}
+html.warm .fpill.on{background:var(--navy-wash);border-color:var(--navy);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+/* Quotes list (Nov 25 audit): a 2px dark outline reads as keyboard focus, and two controls looked focused at once. Selected is
+   carried by fill instead, so the only outline on the page is the focus ring. The chosen Mine / My team / Everyone segment is solid
+   navy with white text (16:1), as a segmented control; a set filter pill is the navy wash with navy text and a plain 1px navy edge.
+   The search side's pills keep the 2px edge above: on its grey panel the pale wash alone got lost. */
+html.warm .qlxpill.on .qlxpb{background:var(--navy-wash);border-color:var(--navy);color:var(--navy);box-shadow:none}
+html.warm body .qlxseg button[aria-pressed="true"]{background:var(--navy);color:#fff;box-shadow:none}
 html.warm .fpill.on :is(.fpbtn,.fpx){color:var(--navy)}
 html.warm .fpill.on :is(.fpbtn,.fpx):focus-visible{outline-color:var(--navy)}
 html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
@@ -71,7 +76,11 @@ html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a
    navy wash; set and pressed controls keep their own look. */
 /* unset filter pills and unchosen segments hover in the navy wash, matching their navy chosen state (Sam, Nov 25; they were pale bronze) */
 html.warm .qlxpill:not(.on) .qlxpb:hover{background:var(--navy-wash);border-color:var(--input)}
-html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
+/* quick-filter chips (Nov 25): hover in the navy wash like the filter pills beside them (they were pale bronze), and a pressed
+   chip looks like a set pill: navy wash, navy text, 1px navy edge (it was a bronze outline on pale bronze) */
+html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--navy-wash);border-color:var(--input)}
+html.warm body.qlx-bronze .qlxquick button[aria-pressed="true"],html.warm .qlxquick button[aria-pressed="true"]{background:var(--navy-wash);border-color:var(--navy);color:var(--navy)}
+html.warm .qlxquick button[aria-pressed="true"] em{color:var(--navy)}
 html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-wash)}
 
 /* Quotes list's table header in a light gold (Sam, Nov 25): the pale bronze --brand-tint #f4eee6 instead of the grey

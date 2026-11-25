@@ -292,3 +292,16 @@ body.qlx-bronze .qlxarchb:hover{color:var(--brand-hover,#5f4b34)}
 .qlxqv .sentq svg{flex:none;margin-top:2px}
 /* no-total version: the recent quotes (here and on Home) lose their totals too */
 body.qlx-nototal .hm-rt{display:none}
+
+/* Nov 25 audit: quick-filter chips sit in the filter row after a thin divider, at the row's 36px (--control-h) */
+.qlxbar .qlxquick{gap:8px}
+.qlxbar .qlxquick button{height:var(--control-h,36px);padding:0 12px}
+.qlxdiv{width:1px;height:24px;background:var(--line)}
+.qlxbar:has(.qlxquick:empty) .qlxdiv{display:none}
+.qlxsize[hidden]{display:none}
+/* focus (Nov 25 audit): the group used overflow:hidden for its round corners, which clipped the focus ring on every segment.
+   The corners move to the end buttons so the ring shows, and the focused segment sits above its neighbours */
+.qlxseg{overflow:visible}
+.qlxseg button:first-child{border-radius:calc(var(--r-md) - 1px) 0 0 calc(var(--r-md) - 1px)}
+.qlxseg button:last-child{border-radius:0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0}
+.qlxseg button:focus-visible{position:relative;z-index:1}

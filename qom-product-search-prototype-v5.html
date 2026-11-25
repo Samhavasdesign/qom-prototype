@@ -4969,6 +4969,19 @@ body.qlx-bronze .qlxarchb:hover{color:var(--brand-hover,#5f4b34)}
 .qlxqv .sentq svg{flex:none;margin-top:2px}
 /* no-total version: the recent quotes (here and on Home) lose their totals too */
 body.qlx-nototal .hm-rt{display:none}
+
+/* Nov 25 audit: quick-filter chips sit in the filter row after a thin divider, at the row's 36px (--control-h) */
+.qlxbar .qlxquick{gap:8px}
+.qlxbar .qlxquick button{height:var(--control-h,36px);padding:0 12px}
+.qlxdiv{width:1px;height:24px;background:var(--line)}
+.qlxbar:has(.qlxquick:empty) .qlxdiv{display:none}
+.qlxsize[hidden]{display:none}
+/* focus (Nov 25 audit): the group used overflow:hidden for its round corners, which clipped the focus ring on every segment.
+   The corners move to the end buttons so the ring shows, and the focused segment sits above its neighbours */
+.qlxseg{overflow:visible}
+.qlxseg button:first-child{border-radius:calc(var(--r-md) - 1px) 0 0 calc(var(--r-md) - 1px)}
+.qlxseg button:last-child{border-radius:0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0}
+.qlxseg button:focus-visible{position:relative;z-index:1}
 </style>
 <script>
 /* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332; brief "Improved Quote Search") ====
@@ -5111,7 +5124,9 @@ const SORTS={quotes:["id","pipe","tot","exp"],orders:["odate","tot","paid","ship
 /* no-total version (Nov 25): QOM stores no quote total today (QOM-3336), so if the build can't add one for v1, the list drops the Total
    column, the Total filter, its sort, and anything worked out from a total (Orders' "$X due" / "Paid in full" and the Balance due chip).
    Amount paid and unshipped value stay (both are stored on orders). Quick view keeps its subtotal: it loads the quote's lines anyway */
-const COLS=()=>(X.tab==="orders"?COLSO:COLSQ).filter(c=>X.tot||c[0]!=="tot");
+const COLS=()=>(X.tab==="orders"?COLSO:COLSQ).filter(c=>(X.tot||c[0]!=="tot")&&(showSC()||c[0]!=="sc"));
+/* on Mine every row is yours, so Sales consultant goes and Description gets the room (Nov 25 audit) */
+const showSC=()=>X.who!=="me";
 const sortsFor=t=>SORTS[t].filter(k=>X.tot||k!=="tot");
 const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Over $100,000"]];
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
@@ -5155,10 +5170,12 @@ root.innerHTML=`
       <div class="qlxpop" id="qlxPipePop" hidden role="group" aria-label="Pipeline status"></div></div>
     <div class="qlxpill" id="qlxValW"><button type="button" class="qlxpb" data-qlxpop="val" aria-expanded="false" aria-controls="qlxValPop"><span id="qlxValL">Total</span>${IC.chev}</button>
       <div class="qlxpop" id="qlxValPop" hidden role="radiogroup" aria-label="Total"></div></div>
+    ${''/* quick filters sit with the other filters (Nov 25 audit: at the count row's far right they were a long way from the pills) */}
+    <span class="qlxdiv" aria-hidden="true"></span>
+    <div class="qlxquick" id="qlxQuick" role="group" aria-label="Quick filters"></div>
     <button type="button" class="qlxclear" data-qlx="clear" hidden>Clear filters</button>
   </div>
-  <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div>
-    <div class="qlxquick" id="qlxQuick" role="group" aria-label="Quick filters"></div></div>
+  <div class="qlxmeta"><div class="qlxcount" id="qlxCount" aria-live="polite"></div></div>
   <div class="qlxwrap"><table class="qlxt"><caption class="sr">Select a row to open it, or Quick view to see what's on it.</caption><thead><tr id="qlxHead"></tr></thead><tbody id="qlxBody"></tbody></table></div>
   <div class="qlxfoot"><span id="qlxRange" class="qlxrange" aria-live="polite"></span><nav class="qlxpager" id="qlxPager" aria-label="Pages"></nav>
     <div class="qlxsize"><span id="qlxSizeL">Rows per page</span><div class="qlxpill"><button type="button" class="qlxpb qlxsizeb" data-qlxpop="size" aria-haspopup="listbox" aria-expanded="false" aria-controls="qlxSizePop" aria-labelledby="qlxSizeL qlxSizeV"><span id="qlxSizeV">50</span>${IC.chev}</button>
@@ -5193,10 +5210,10 @@ function pipeCell(x){ if(x.oo) return `<span class="qlxsrc">Order</span><span cl
     +(x.arch?`<span class="p2 archt" title="Archived ${fmt(x.arch.date)}">${IC.arch}Archived<span class="sr"> ${fmt(x.arch.date)}</span></span>`
     :payOf(x)?payNote(payOf(x))
     :isSent(x)?`<span class="p2 sentn" title="Sent to the client ${fmt(x.sent.date)} with a payment link. Deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid yet.">${IC.send}Awaiting payment<span class="sr">: sent ${fmt(x.sent.date)}, deposit ${usd0(rowTotal(x)*x.sent.depR)} not paid</span></span>`
-    :isStale(x)?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
+    :isStale(x)&&daysTo(rowConv(x))<-14?`<span class="p2 stale" title="Estimated conversion date was ${fmt(rowConv(x))}. Update the date or the status so the forecast stays right.">${IC.clock}Conv. date passed</span>`:""); }
 const payNote=p=>p.st==="held"
   ?`<span class="p2 paid held" title="The deposit was paid ${fmt(p.date)}, but M3 rejected the order. It's on hold until someone releases it.">${IC.cash}Paid, order held</span>`
-  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid, no order</span>`;
+  :`<span class="p2 paid" title="The deposit was paid ${fmt(p.date)} at ${p.time}. M3 is creating the order; the order number shows here when it's ready.">${IC.cash}Paid, order pending</span>`;
 /* loading and error (Nov 25): the real list asks the server on every search, filter, sort and page change. Demo bar "List data":
    Normal (instant), Slow (about 1.3 s) or Error. The first load shows skeleton rows; later loads keep the last rows, dimmed, under a
    thin progress bar, so the table doesn't jump while you type. An error keeps the search and filters and offers Try again (which works
@@ -5230,7 +5247,7 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
   q("#qlxTypePop").innerHTML=[["","All types"],["Residential","Residential"],["Commercial","Commercial"]].map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxtype" data-qlxtype="${v}"${X.type===v?" checked":""}><span>${l}</span><em>${v?baseT.filter(x=>x.type===v).length:baseT.length}</em></label>`).join("");
   q("#qlxValPop").innerHTML=VALS.map(([v,l])=>`<label class="qlxopt"><input type="radio" name="qlxval" data-qlxval="${v}"${X.val===v?" checked":""}><span>${l}</span><em>${v?base.filter(x=>rowTotal(x)>v).length:base.length}</em></label>`).join("");
   /* quick filters: the Sales Portal's pipeline pair on Quotes; on Orders, what SCs get asked about (Kelli, Nov 25) */
-  const QF=X.tab==="quotes"?[["sent",IC.send,"Awaiting payment",isSent,"Sent to the client with a payment link; the deposit isn't paid yet"],["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order yet",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
+  const QF=X.tab==="quotes"?[["sent",IC.send,"Awaiting payment",isSent,"Sent to the client with a payment link; the deposit isn't paid yet"],["stale",IC.clock,"Conv. date passed",isStale,"Open quotes whose estimated conversion date has passed. Update the date or the status so the forecast stays right."],["soon",IC.cal,"Closing in 2 weeks",isSoon,"Open quotes expected to convert in the next 14 days"],["paid",IC.cash,"Paid, no order",isPaid,"The customer paid the deposit, but M3 hasn't created the order yet, or rejected it"]]
     :[...(X.tot?[["due",IC.cash,"Balance due",isDue,"Orders not paid in full yet"]]:[]),["ship",IC.truck,"Not fully shipped",isShip,"Orders with products still to ship"]];
   q("#qlxQuick").innerHTML=QF.map(([k,ic,l,fn,t])=>`<button type="button" data-qlxquick="${k}" aria-pressed="${X[k]}" title="${t}">${ic}${l} <em>${base.filter(fn).length}</em></button>`).join("");
   root.querySelector("[data-qlx=clear]").hidden=!(np||X.stale||X.soon||X.paid||X.sent||X.arch||X.expd||X.due||X.ship||X.val||X.type||X.who!=="me"||X.q); /* Mine is the default (Sam, Nov 25), so it isn't a filter */
@@ -5259,8 +5276,8 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
     ${projCell(x)}${custCell(x)}
     ${X.tot?`<td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>`:""}
     <td class="c-tot c-paid">${!X.tot?(x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:usd0(paid)):x.nc?`<span class="none">$0</span><span class="p2">No charge</span>`:`${usd0(paid)}<span class="p2">${bal>0?`${usd0(bal)} due`:`<span class="qlxdone">${DONE}Paid in full</span>`}</span>`}</td>
-    <td class="c-tot c-ship">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}</td>
-    <td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td></tr>`; };
+    <td class="c-tot c-ship${showSC()?"":" c-qv"}">${sh?usd0(sh):`<span class="qlxdone">${DONE}Shipped</span>`}${showSC()?"":qvb(x)}</td>
+    ${showSC()?`<td class="c-sc c-qv">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}${qvb(x)}</td>`:""}</tr>`; };
   const oName=TABS[other].name.toLowerCase(), tName=TABS[X.tab].name.toLowerCase();
   q("#qlxBody").innerHTML=rows.length?rows.map(x=>X.tab==="orders"?orderRow(x):(()=>{ const dd=x.exp&&!x.arch&&!payOf(x)?daysTo(x.exp):NaN, soon=dd>=0&&dd<=14, gone=dd<0, ad=rowAddr(x), tot=rowTotal(x);
     return `<tr data-qlxrow="${K(x)}" class="${x.built?"built":""}${x.oo?" oo":""}${x.arch?" arch":""}">
@@ -5270,13 +5287,14 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
     ${custCell(x)}
     <td class="c-pipe">${pipeCell(x)}</td>
     ${X.tot?`<td class="c-tot">${tot?usd0(tot):`<span class="none">$0</span>`}</td>`:""}
-    <td class="c-sc">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}</td>
+    ${showSC()?`<td class="c-sc">${x.sc?hl(x.sc,ws):`<span class="none">—</span>`}</td>`:""}
     <td class="c-exp c-qv">${x.exp?`<span class="p1">${fmt(x.exp)}</span>`:`<span class="p1 none" title="Orders don't expire">—</span>`}${soon?`<span class="p2 soon">In ${dd} ${dd===1?"day":"days"}</span>`:gone?`<span class="p2 gone">Expired</span>`:""}
       ${qvb(x)}</td></tr>`; })()).join("")
     /* empty: point to the other tab when the search finds something there */
     :`<tr><td colspan="${COLS_.length}" class="qlxempty"><b>No ${tName} match${X.q?` “${esc(X.q)}”`:""}.</b><span>${X.tab==="quotes"&&nHid?`${nHid} expired or archived ${nHid===1?"quote matches":"quotes match"}. <button type="button" data-qlx="showhidden">Show ${nHid===1?"it":"them"}</button>`:nOther?`${nOther.toLocaleString("en-US")} ${nOther===1?TABS[other].one:oName} ${nOther===1?"matches":"match"}. <button type="button" data-qlxtab="${other}">Show ${oName}</button>`
       :X.who!=="all"?`They may belong to someone else. <button type="button" data-qlx="everyone">Search everyone's ${tName}</button>`:`Check the number or spelling, or <button type="button" data-qlx="clear">clear filters</button>.`}</span></td></tr>`;
   /* foot */
+  q(".qlxsize").hidden=all.length<=25; /* Rows per page only matters once there's more than the smallest page (Nov 25 audit) */
   q("#qlxRange").textContent=all.length?`Showing ${(X.page-1)*X.size+1}–${Math.min(X.page*X.size,all.length)} of ${all.length}`:"";
   /* up to 5 page numbers, a window that keeps the current page in the middle where it can */
   const nums=[], a=Math.max(1,Math.min(X.page-2,pages-4)); for(let i=a;i<=Math.min(pages,a+4);i++) nums.push(i);
@@ -6018,8 +6036,13 @@ html.warm :is(.proto,.devpanel,[class*=demo]) :is(.btn,input[type=checkbox]){--i
    unset white pills and the grey panel; a pale navy fill (#e8ecf4) was tried first and got lost on the cool grey */
 /* Set filter pills and the chosen segment of a toggle group share one look (Sam, Nov 25): a navy outline on a light navy
    wash (--navy-wash, navy text 15:1 on it), no solid fill and no bronze underline. */
-html.warm :is(.fpill.on,.qlxpill.on .qlxpb){background:var(--navy-wash);border-color:var(--navy);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
-html.warm body .qlxseg button[aria-pressed="true"]{background:var(--navy-wash);color:var(--navy);box-shadow:inset 0 0 0 2px var(--navy)}
+html.warm .fpill.on{background:var(--navy-wash);border-color:var(--navy);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+/* Quotes list (Nov 25 audit): a 2px dark outline reads as keyboard focus, and two controls looked focused at once. Selected is
+   carried by fill instead, so the only outline on the page is the focus ring. The chosen Mine / My team / Everyone segment is solid
+   navy with white text (16:1), as a segmented control; a set filter pill is the navy wash with navy text and a plain 1px navy edge.
+   The search side's pills keep the 2px edge above: on its grey panel the pale wash alone got lost. */
+html.warm .qlxpill.on .qlxpb{background:var(--navy-wash);border-color:var(--navy);color:var(--navy);box-shadow:none}
+html.warm body .qlxseg button[aria-pressed="true"]{background:var(--navy);color:#fff;box-shadow:none}
 html.warm .fpill.on :is(.fpbtn,.fpx){color:var(--navy)}
 html.warm .fpill.on :is(.fpbtn,.fpx):focus-visible{outline-color:var(--navy)}
 html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
@@ -6061,7 +6084,11 @@ html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a
    navy wash; set and pressed controls keep their own look. */
 /* unset filter pills and unchosen segments hover in the navy wash, matching their navy chosen state (Sam, Nov 25; they were pale bronze) */
 html.warm .qlxpill:not(.on) .qlxpb:hover{background:var(--navy-wash);border-color:var(--input)}
-html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
+/* quick-filter chips (Nov 25): hover in the navy wash like the filter pills beside them (they were pale bronze), and a pressed
+   chip looks like a set pill: navy wash, navy text, 1px navy edge (it was a bronze outline on pale bronze) */
+html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--navy-wash);border-color:var(--input)}
+html.warm body.qlx-bronze .qlxquick button[aria-pressed="true"],html.warm .qlxquick button[aria-pressed="true"]{background:var(--navy-wash);border-color:var(--navy);color:var(--navy)}
+html.warm .qlxquick button[aria-pressed="true"] em{color:var(--navy)}
 html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-wash)}
 
 /* Quotes list's table header in a light gold (Sam, Nov 25): the pale bronze --brand-tint #f4eee6 instead of the grey
@@ -6203,7 +6230,7 @@ function paint(){
 const ptype=q(".ptitle .ptype"), nct=document.createElement("span"); nct.className="pnc"; nct.hidden=true;
 if(ptype) ptype.before(nct);
 function factHtml(){ if(O.ord) return `<span class="pord ok">${IC.box}Order ${O.ord}</span>`;
-  if(O.pay==="pending") return `<span class="pord info">${IC.cash}Paid, no order</span>`;
+  if(O.pay==="pending") return `<span class="pord info">${IC.cash}Paid, order pending</span>`;
   if(O.pay==="held") return `<span class="pord bad">${IC.cash}Paid, order held</span>`; return ""; }
 function paintFacts(){ const f=q(".pfacts"); if(!f) return; const h=factHtml(), cur=f.querySelector(".pord");
   if(!h){ cur?.remove(); } else if(!cur||cur.outerHTML!==h){ cur?.remove(); f.insertAdjacentHTML("beforeend",h); }
