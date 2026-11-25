@@ -5438,6 +5438,8 @@ function setCur(home){
     a.classList.toggle("cur",on); if(on) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
 let prevTitle=document.title;
 function openHome(){ if(document.body.classList.contains("page-home")){ q("#hmTitle").focus(); return; }
+  /* leave the Quotes list properly first: v2 hides everything but the list while body has .page-quotes, Home included (blank Home, Nov 25) */
+  if(document.body.classList.contains("page-quotes")) setPage("quote");
   prevTitle=document.title; document.body.classList.remove("page-create");
   renderRecent(); document.body.classList.add("page-home"); setCur(true); document.title="Home · QOM";
   scrollTo(0,0); document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px");
