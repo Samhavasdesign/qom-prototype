@@ -109,6 +109,12 @@ tr:hover .qlxcp,.qlxcp:focus-visible{opacity:1}
 .qlxpager button:disabled{opacity:.35}
 .qlxpager .gap{min-width:24px;text-align:center}
 /* Total: right-aligned, whole dollars */
+/* an order with no QOM quote: a small grey "Order" tag where the pipeline status would be */
+.qlxsrc{display:inline-flex;align-items:center;height:20px;padding:0 7px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surface)}
+.qlxt .c-ord a{color:var(--ink);font-weight:500;text-decoration:none}
+.qlxt tr:hover .c-ord a,.qlxt .c-ord a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+body.qlx-bronze .qlxt .c-ord a{color:var(--bronze)}
+.qlxt .p1.none{color:var(--ink-2)}
 .qlxt .c-tot{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .qlxt th.c-tot button{justify-content:flex-end}
 .qlxt .c-tot .none{color:var(--ink-2)}
@@ -165,3 +171,20 @@ tr:hover .qlxqvb,.qlxqvb:focus-visible,tr.qvcur .qlxqvb{opacity:1}
   .qlxseg button{padding:0 10px}
   .qlxfoot{justify-content:flex-start}
 }
+
+/* ---- Bronze accent (Nov 25): the Waterworks brand bronze #8C704E from Jen's deck, where it's the one accent and the link colour.
+   About 4.6:1 on white, so it's used for links, the current page and selection marks, never for button fills or body text.
+   Status colours (pipeline dots, amber and red notes) don't change. The demo bar's "Bronze accent" switch turns it off. ---- */
+body.qlx-bronze{--bronze:#8c704e;--bronze-tint:#f4eee6;--bronze-mark:#ead9c1}
+body.qlx-bronze .qlx mark,body.qlx-bronze .qlxqv mark{background:var(--bronze-mark)}
+body.qlx-bronze .qlxt .c-id a{color:var(--bronze)}                       /* the quote number is the row's link */
+body.qlx-bronze .qlxt th[aria-sort] button,body.qlx-bronze .qlxt th .si.on{color:var(--bronze)} /* the sorted column */
+body.qlx-bronze .qlxpager button[aria-current="page"]{border-color:var(--bronze);color:var(--bronze)}
+body.qlx-bronze .qlxt tbody tr.qvcur td{background:var(--bronze-tint)}
+body.qlx-bronze .qlxt tbody tr.qvcur td:first-child{box-shadow:inset 3px 0 0 var(--bronze)}
+body.qlx-bronze :is(.qlxclear,.qlxpopf button,.qlxempty button){color:var(--bronze)}
+body.qlx-bronze .qlxquick button[aria-pressed="true"]{background:var(--bronze-tint);border-color:var(--bronze);color:var(--ink)}
+body.qlx-bronze .qlxquick button[aria-pressed="true"] em{color:var(--bronze)}
+body.qlx-bronze .qlxseg button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--bronze)}
+body.qlx-bronze .qlxpill.on .qlxpb{box-shadow:inset 0 -2px 0 var(--bronze)}
+body.qlx-bronze .qlxqvp{border-top:3px solid var(--bronze)}
