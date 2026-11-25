@@ -184,22 +184,97 @@ function guard(then){ const n=typeof linesChanged==="function"?linesChanged():0;
 
 /* ---------- new quote: one short step (Quotes list → Create new) ---------- */
 const nc=document.createElement("section"); nc.id="ncPage"; nc.setAttribute("aria-labelledby","ncT"); q("#quotesPage").after(nc);
-const fld=(id,l,v,o={})=>`<div class="pf${o.wide?" wide":""}"><div class="pf-l"><label for="nc-${id}">${l}${o.req?" *":""}</label></div><div class="pf-box${o.lock?" lock":""}">${o.sel?`<select id="nc-${id}">${o.sel.map(x=>`<option${x===v?" selected":""}>${x}</option>`).join("")}</select>${PI.caret}`:`<input id="nc-${id}" value="${e_(v)}"${o.ph?` placeholder="${o.ph}"`:""}${o.lock?" readonly aria-readonly=\"true\"":""}>${o.lock?IC.lock:""}`}</div>${o.note?`<span class="pf-hint">${o.note}</span>`:""}</div>`;
-function renderNc(busy){ nc.innerHTML=`<form class="nccard" id="ncForm" aria-labelledby="ncT"><h1 id="ncT" tabindex="-1">New quote</h1><p class="ncsub">These create the quote in M3. Everything else can wait.</p>
-  <div class="ncgrid">
-    ${fld("cust","Customer","10000418 - QUALITY FINISHES",{req:1})}${fld("spec","Primary Specifier Contact (optional)","Dana Whitfield · Whitfield Design Studio",{note:"Needed before sending"})}
-    ${fld("otype","Order Type","Residential",{req:1,lock:1,note:"Set by the customer's warehouse (USR)"})}${fld("osub","Order Subtype","US Domestic",{req:1,sel:["US Domestic","US Export"],note:"Narrowed by the customer's country"})}
-    ${fld("rdd","Requested Delivery Date","12/19/2026",{req:1,note:"Orders entered after 3pm ET can't be requested for today."})}${fld("conv","Est. Conv. Date","11/30/2026",{req:1})}
-    ${fld("proj","Project (optional)","",{ph:"Choose a project",note:"Needed before sending a Commercial quote"})}
-  </div>
-  <div class="ncdef"><div><b>Filled in for you.</b> Change these later in Details. The expiry is fixed.</div><div class="dl"><span>Responsible <b>Samantha Havas (you)</b></span><span>Status <b>Predictable (&gt;95%)</b></span><span>Expires <b>in 30 days</b></span></div><div class="dl"><span>Sales Consultant and Payer <b>from the customer's record in M3</b></span><span>Cost Center <b>from that consultant's showroom</b></span></div><div class="ncnote">These show their real values once M3 sends the new quote back.</div></div>
-  <div class="ncacts"><button type="button" class="btn ghost" id="ncDiscard"${busy?" disabled":""}>Discard</button><button type="submit" class="btn" id="ncCreate"${busy?' aria-disabled="true"':""}>${busy?'<span class="ncspin" aria-hidden="true"></span>Creating the quote in M3…':"Create quote"}</button></div></form>`; }
-function openCreate(){ renderNc(false); document.body.classList.add("page-create"); scrollTo(0,0); q("#ncT").focus(); }
+/* Customer first (Sam, Nov 25, checked against sp-fe's essential-quote component and savePartialMetod):
+   the create request sends only the customer, Order Subtype, RDD, Est. Conv. Date, expiry and at-no-charge, so Project and Primary
+   Specifier Contact aren't asked for here (Before you send asks for them). Order Type follows the customer's warehouse
+   (USR/UKR Residential, USC/UKC Commercial), as production fills and locks it, so it shows in the customer summary, not as a field.
+   Subtype is always that country's Domestic or Export, with nothing preset (a wrong pick changes tax; ask Kelli before presetting).
+   RDD: at least 3 business days from today (weekends skipped, not holidays), at most 5 years out. Est. Conv. Date: today or later and
+   on or before the RDD. Customers are made up. */
+const NC_CUST=[
+  {id:"10000418",name:"QUALITY FINISHES",wh:"USR",city:"New York, NY",sc:"Samantha Havas"},
+  {id:"10000389",name:"QUALITY BUILDERS CO",wh:"USR",city:"Dallas, TX",sc:"Jordan Lee"},
+  {id:"10000522",name:"HARBOR LANE INTERIORS",wh:"USR",city:"Boston, MA",sc:"Samantha Havas"},
+  {id:"10000604",name:"BELLWETHER HOMES",wh:"USR",city:"Greenwich, CT",sc:"Casey Morgan"},
+  {id:"10000731",name:"MERIDIAN HOTEL GROUP",wh:"USC",city:"Chicago, IL",sc:"Casey Morgan"},
+  {id:"10000845",name:"NORTHFIELD DEVELOPMENT",wh:"USC",city:"Atlanta, GA",sc:"Samantha Havas"},
+  {id:"20000114",name:"ASHWORTH & REID",wh:"UKR",city:"London",sc:"Samantha Havas"},
+  {id:"20000267",name:"KENSINGTON RESIDENCES",wh:"UKC",city:"London",sc:"Jordan Lee"}];
+const ncType=c=>c.wh.endsWith("C")?"Commercial":"Residential", ncCountry=c=>c.wh.startsWith("US")?"US":"UK";
+const ncD=d=>{ const x=new Date(d); x.setHours(0,0,0,0); return x; };
+const ncIso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const ncLong=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+function ncMinRdd(){ const d=ncD(new Date()); let n=0; while(n<3){ d.setDate(d.getDate()+1); if(d.getDay()%6) n++; } return d; }
+function ncMaxRdd(){ const d=ncD(new Date()); d.setFullYear(d.getFullYear()+5); return d; }
+function ncExpiry(c){ const d=ncD(new Date()); if(ncType(c)==="Commercial") d.setMonth(d.getMonth()+18); else d.setDate(d.getDate()+30); return d; }
+let NC={};
+const ncCom=()=>{ const c=q("#qlxCom"); return !c||c.checked; };
+function ncMatches(t){ const w=t.toLowerCase().split(/\s+/).filter(Boolean); if(!w.length) return [];
+  return NC_CUST.filter(c=>(ncCom()||ncType(c)==="Residential")&&w.every(x=>`${c.id} ${c.name} ${c.city} ${c.wh}`.toLowerCase().split(/[\s,&]+/).some(p=>p.startsWith(x)))).slice(0,8); }
+function ncErrors(){ const e={}, c=NC.cust, today=ncD(new Date());
+  if(!c) e.cust="Pick a customer";
+  if(!NC.sub) e.sub=c?"Choose "+ncCountry(c)+" Domestic or "+ncCountry(c)+" Export":"Pick a customer first, then choose Domestic or Export";
+  const r=NC.rdd?ncD(NC.rdd+"T00:00"):null, v=NC.conv?ncD(NC.conv+"T00:00"):null;
+  if(!r) e.rdd="Add a requested delivery date"; else if(r<ncMinRdd()) e.rdd="Pick "+ncLong(ncMinRdd())+" or later: at least 3 business days from today"; else if(r>ncMaxRdd()) e.rdd="Pick a date within 5 years";
+  if(!v) e.conv="Add an estimated conversion date"; else if(v<today) e.conv="Pick today or later"; else if(r&&v>r) e.conv="Pick a date on or before the Requested Delivery Date ("+ncLong(r)+")";
+  return e; }
+const ncErr=(k,e)=>NC.tried&&e[k]?`<span class="ncerr" id="nc-${k}-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>${e[k]}</span>`:"";
+const ncDesc=(k,e,hint)=>[hint?`nc-${k}-hint`:"",NC.tried&&e[k]?`nc-${k}-err`:""].filter(Boolean).join(" ");
+function ncCustHtml(e){ const c=NC.cust, bad=NC.tried&&e.cust;
+  if(c) return `<div class="pf-l"><label for="nc-cust">Customer</label></div>
+    <div class="pf-box ncpicked"><input id="nc-cust" value="${e_(c.id+" – "+c.name)}" readonly aria-readonly="true" aria-describedby="nc-sum"><button type="button" class="ncchg" id="ncChg">Change</button></div>
+    <div class="ncsum" id="nc-sum"><span>Order type <b>${ncType(c)}</b></span><span>Warehouse <b>${c.wh}</b></span><span>${e_(c.city)}</span><span>Sales consultant <b>${e_(c.sc)}</b></span></div>
+    <span class="pf-hint">Order type comes from the customer's warehouse.</span>`;
+  return `<div class="pf-l"><label for="nc-cust" id="nc-cust-l">Customer</label></div>
+    <div class="ncwrap"><div class="pf-box nccombo${bad?" bad":""}">${IC.search}<input id="nc-cust" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ncList" autocomplete="off" placeholder="Search by name, number or city" value="${e_(NC.query)}" aria-invalid="${!!bad}" aria-describedby="${ncDesc("cust",e,1)}"></div><ul class="nclist" id="ncList" role="listbox" aria-labelledby="nc-cust-l" hidden></ul></div>
+    <span class="pf-hint" id="nc-cust-hint">Sets the order type, pricing, tax and warehouse.</span>${ncErr("cust",e)}`; }
+function ncSubHtml(e){ const c=NC.cust, opts=c?[ncCountry(c)+" Domestic",ncCountry(c)+" Export"]:["Domestic","Export"], bad=NC.tried&&e.sub;
+  return `<fieldset class="ncfs"${c?"":" disabled"} aria-describedby="${ncDesc("sub",e,c||!bad)}"><legend>Order Subtype</legend>
+    <div class="ncseg${bad?" bad":""}" role="radiogroup">${opts.map(o=>`<label><input type="radio" name="ncsub" value="${o}"${NC.sub===o?" checked":""}${bad?' aria-invalid="true"':""}><span>${o}</span></label>`).join("")}</div>
+    ${c||!bad?`<span class="pf-hint" id="nc-sub-hint">${c?"Domestic or Export, for a customer in the "+ncCountry(c)+".":"Pick a customer first."}</span>`:""}${ncErr("sub",e)}</fieldset>`; }
+function ncDateHtml(k,l,hint,min,max,e){ const bad=NC.tried&&e[k];
+  return `<div class="pf"><div class="pf-l"><label for="nc-${k}">${l}</label></div><div class="pf-box${bad?" bad":""}"><input type="date" id="nc-${k}" value="${NC[k]}" min="${ncIso(min)}"${max?` max="${ncIso(max)}"`:""} required aria-invalid="${!!bad}" aria-describedby="${ncDesc(k,e,1)}"></div><span class="pf-hint" id="nc-${k}-hint">${hint}</span>${ncErr(k,e)}</div>`; }
+function ncDefHtml(){ const c=NC.cust;
+  return `<div><b>Filled in for you:</b> Responsible <b>Samantha Havas (you)</b> · Status <b>Predictable (&gt;95%)</b> · Expires <b>${c?ncLong(ncExpiry(c)):"in 30 days, or 18 months if Commercial"}</b></div>
+    <div class="ncnote">Payer and Cost Center come from M3 once the quote is created. Change any of these later in Details, except the expiry.</div>`; }
+function renderNc(busy){ const e=ncErrors(), n=Object.keys(e).length;
+  nc.innerHTML=`<form class="nccard" id="ncForm" aria-labelledby="ncT" novalidate><h1 id="ncT" tabindex="-1">New quote</h1><p class="ncsub">All four are needed to create the quote. Add the rest later in Details.</p>
+  <div class="pf nccust" id="ncCust">${ncCustHtml(e)}</div>
+  <div id="ncSubW">${ncSubHtml(e)}</div>
+  <div class="ncrow">${ncDateHtml("rdd","Requested Delivery Date","At least 3 business days from today.",ncMinRdd(),ncMaxRdd(),e)}${ncDateHtml("conv","Est. Conv. Date","When you expect it to become an order. On or before the Requested Delivery Date.",ncD(new Date()),NC.rdd?ncD(NC.rdd+"T00:00"):null,e)}</div>
+  <div class="ncdef">${ncDefHtml()}</div>
+  <div class="ncacts"><span class="nclive" role="status" aria-live="polite">${NC.tried&&n?n===1?"1 field needs attention":n+" fields need attention":""}</span><button type="button" class="btn ghost" id="ncDiscard"${busy?" disabled":""}>Cancel</button><button type="submit" class="btn" id="ncCreate"${busy?' aria-disabled="true"':""}>${busy?'<span class="ncspin" aria-hidden="true"></span>Creating the quote in M3…':"Create quote"}</button></div></form>`;
+  if(busy) nc.querySelectorAll("input,button:not(#ncCreate)").forEach(x=>x.disabled=true); }
+function ncRefresh(focusSel){ const a=document.activeElement?.id; renderNc(false); const f=q(focusSel||(a?"#"+a:"")); if(f) f.focus(); }
+/* customer combobox */
+function ncList(){ const inp=q("#nc-cust"), ul=q("#ncList"); if(!ul) return; const t=NC.query.trim(), m=ncMatches(t); NC.res=m;
+  if(!t){ ul.hidden=true; inp.setAttribute("aria-expanded","false"); inp.removeAttribute("aria-activedescendant"); return; }
+  NC.act=Math.min(Math.max(NC.act,0),m.length-1);
+  ul.innerHTML=m.length?m.map((c,i)=>`<li role="option" id="ncO${i}" data-nci="${i}" aria-selected="${i===NC.act}"><b>${e_(c.name)}</b><span>${c.id} · ${c.wh} · ${e_(c.city)} · ${ncType(c)}</span></li>`).join(""):`<li class="ncnone" role="option" aria-disabled="true">No customer matches “${e_(t)}”. Try the number or another spelling.</li>`;
+  ul.hidden=false; inp.setAttribute("aria-expanded","true"); if(m.length) inp.setAttribute("aria-activedescendant","ncO"+NC.act); else inp.removeAttribute("aria-activedescendant");
+  q("#ncO"+NC.act)?.scrollIntoView({block:"nearest"}); }
+function ncPick(c){ const keep=NC.cust&&ncCountry(NC.cust)===ncCountry(c); NC.cust=c; NC.query=""; if(!keep) NC.sub=""; ncRefresh(NC.sub?"#nc-rdd":'input[name="ncsub"]'); }
+nc.addEventListener("input",ev=>{ const t=ev.target;
+  if(t.id==="nc-cust"){ NC.query=t.value; NC.act=0; ncList(); } });
+nc.addEventListener("change",ev=>{ const t=ev.target; if(t.id==="nc-rdd"||t.id==="nc-conv"){ NC[t.id.slice(3)]=t.value; ncRefresh("#"+t.id); return; }
+  if(ev.target.name==="ncsub"){ NC.sub=ev.target.value; ncRefresh(`input[name="ncsub"][value="${NC.sub}"]`); } });
+nc.addEventListener("keydown",ev=>{ if(ev.target.id!=="nc-cust"||NC.cust) return; const ul=q("#ncList"), open=ul&&!ul.hidden, m=NC.res||[];
+  if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ ev.preventDefault(); if(!open){ ncList(); return; } if(m.length){ NC.act=(NC.act+(ev.key==="ArrowDown"?1:-1)+m.length)%m.length; ncList(); } }
+  else if(ev.key==="Enter"){ if(open&&m[NC.act]){ ev.preventDefault(); ncPick(m[NC.act]); } else if(open) ev.preventDefault(); }
+  else if(ev.key==="Escape"&&open){ ev.preventDefault(); ev.stopPropagation(); ul.hidden=true; ev.target.setAttribute("aria-expanded","false"); } });
+nc.addEventListener("mousedown",ev=>{ const o=ev.target.closest("[data-nci]"); if(o){ ev.preventDefault(); ncPick(NC.res[+o.dataset.nci]); } });
+nc.addEventListener("focusout",ev=>{ if(ev.target.id==="nc-cust") setTimeout(()=>{ const ul=q("#ncList"); if(ul&&document.activeElement?.id!=="nc-cust"){ ul.hidden=true; q("#nc-cust")?.setAttribute("aria-expanded","false"); } },0); });
+nc.addEventListener("focusin",ev=>{ if(ev.target.id==="nc-cust"&&!NC.cust&&NC.query) ncList(); });
+function openCreate(){ NC={cust:null,query:"",act:0,res:[],sub:"",rdd:"",conv:"",tried:false}; renderNc(false); document.body.classList.add("page-create"); scrollTo(0,0); q("#ncT").focus(); }
 function leaveCreate(){ document.body.classList.remove("page-create"); }
-nc.addEventListener("click",ev=>{ if(ev.target.closest("#ncDiscard")){ leaveCreate(); setPage("quotes"); } });
-nc.addEventListener("submit",ev=>{ ev.preventDefault(); if(q("#ncCreate").getAttribute("aria-disabled")==="true") return; renderNc(true);
-  setTimeout(()=>{ leaveCreate(); const sc=q("#scenario"); sc.value="fresh"; sc.dispatchEvent(new Event("change",{bubbles:true})); setPage("quote"); setPTab(4); q("#q")?.focus();
-    barToast("Quote 6000024967 created","Add a room, then products. Details marks what's needed before you send."); },1400); }); // M3 confirms over a websocket a moment after Create
+nc.addEventListener("click",ev=>{ if(ev.target.closest("#ncDiscard")){ leaveCreate(); setPage("quotes"); return; }
+  if(ev.target.closest("#ncChg")){ NC.query=""; NC.cust=null; ncRefresh("#nc-cust"); } });
+nc.addEventListener("submit",ev=>{ ev.preventDefault(); if(q("#ncCreate").getAttribute("aria-disabled")==="true") return;
+  const e=ncErrors(); if(Object.keys(e).length){ NC.tried=true; ncRefresh({cust:"#nc-cust",sub:'input[name="ncsub"]',rdd:"#nc-rdd",conv:"#nc-conv"}[Object.keys(e)[0]]); return; }
+  const c=NC.cust, type=ncType(c); renderNc(true);
+  setTimeout(()=>{ leaveCreate(); const vw=q("#view"), want=type.toLowerCase(); if(vw&&vw.value!==want){ vw.value=want; vw.dispatchEvent(new Event("change",{bubbles:true})); }
+    const sc=q("#scenario"); sc.value="fresh"; sc.dispatchEvent(new Event("change",{bubbles:true})); setPage("quote"); setPTab(4); q("#q")?.focus();
+    barToast("Quote 6000024967 created",`${c.name} · ${type}. Add a room, then products. Details marks what's needed before you send.`); },1400); }); // M3 confirms over a websocket a moment after Create
 document.addEventListener("click",ev=>{ if(ev.target.closest("#propNew")){ ev.preventDefault(); if(!P.on){ P.on=true; const w=q("#propOn"); if(w) w.checked=true; try{ localStorage.setItem("qom-v5-proposal","on"); }catch(e){} apply(); } openCreate(); return; } if(P.on&&ev.target.closest("#qlNew")){ ev.preventDefault(); ev.stopPropagation(); openCreate(); } },true);
 const oSetPage=setPage; setPage=function(p){ leaveCreate(); return oSetPage.apply(this,arguments); };
 
