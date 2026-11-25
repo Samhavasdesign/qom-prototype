@@ -47,7 +47,7 @@ body.qlx-on.page-quotes .ql h1{margin-top:0}
 .qlxpopf{border-top:1px solid var(--line);margin:6px -6px -6px;padding:6px}
 .qlxpopf button,.qlxclear,.qlxempty button{background:none;border:0;padding:6px 8px;font:inherit;font-size:14px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;border-radius:var(--r-sm)}
 /* text links get no hover fill (Sam, Nov 25: the grey looked muddy); the hover is a darker colour and underline, below */
-.qlxpopf button:hover,.qlxclear:hover{text-decoration-thickness:2px}
+.qlxpopf button:hover,.qlxclear:hover{color:var(--ink-2)}
 .qlxmeta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px}
 .qlxcount{font-size:12px;line-height:16px;color:var(--muted-foreground)} /* the Caption role (12/16): meta, not body text */
 /* quick filters, as in the Sales Portal's pipeline ("Past Due", "Closing in Next 2 Weeks") */
@@ -231,9 +231,10 @@ body.qlx-bronze :is(.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .
    Quotes list's grey header, so whatever uses --bronze inside them follows. White cards inside a pane take it too; it
    passes on white as well (5.8:1). */
 body.qlx-bronze :is(#searchPane,#quotePane,#ptView,.rpp){--bronze:var(--brand-on-fill,#7a6143)}
-/* Hover on a bronze text link (Sam, Nov 25): a slightly darker bronze, --brand-on-fill, and a 2px underline, never a fill.
-   On the filled panes the link is already that bronze, so the thicker underline is the change there. */
-body.qlx-bronze :is(.qlxclear,.qlxpopf button,.qlxempty button,.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .bmlink,.backlink,.hm-all,.qback):not(:is(.fcb,.pb-st .fail,.lflag,.extbn,.ctoast) *):hover{color:var(--brand-on-fill,#7a6143);text-decoration-thickness:2px}
+/* Hover on a bronze text link (Sam, Nov 25): a clearly darker bronze, --brand-hover #5f4b34 (8.3:1 on white, 7.4:1 on #f3f3f3), the same underline,
+   never a fill. A 2px underline was tried first and read as a second line. Also the quote's facts row (customer, project). */
+body.qlx-bronze :is(.qlxclear,.qlxpopf button,.qlxempty button,.tolink,.splink,.chips .clear,.kit-toggle,.pb-chk,.qtcount .bmlink,.backlink,.hm-all,.qback):not(:is(.fcb,.pb-st .fail,.lflag,.extbn,.ctoast) *):hover,
+body.qlx-bronze .pfacts button[data-pgo]:hover b{color:var(--brand-hover,#5f4b34)}
 /* the quote page's facts row (customer, project; each opens its field in Details) reads as links too (Sam, Nov 25):
    bronze and underlined like See full breakdown. The expiry tag keeps its amber. */
 body.qlx-bronze .pfacts button[data-pgo] b{color:var(--bronze);text-decoration:underline;text-underline-offset:3px}

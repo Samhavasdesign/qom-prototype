@@ -64,8 +64,10 @@ html.warm .hm-row:is(:hover,:focus-visible) .hm-rq{color:var(--brand-on-fill,#7a
 /* Quotes list (Sam, Nov 25): its button-like controls share Home's tile hover, the pale bronze wash with a darker edge:
    unset filter pills, unpressed quick-filter chips and unselected toggles (the toggles' shared edges stay). Rows keep the
    navy wash; set and pressed controls keep their own look. */
-html.warm .qlxpill:not(.on) .qlxpb:hover,html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
-html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef)}
+/* unset filter pills and unchosen segments hover in the navy wash, matching their navy chosen state (Sam, Nov 25; they were pale bronze) */
+html.warm .qlxpill:not(.on) .qlxpb:hover{background:var(--navy-wash);border-color:var(--input)}
+html.warm .qlxquick button:not([aria-pressed="true"]):hover{background:var(--brand-wash,#f9f5ef);border-color:var(--input)}
+html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-wash)}
 
 /* Quotes list's table header in a light gold (Sam, Nov 25): the pale bronze --brand-tint #f4eee6 instead of the grey
    #ebebeb, with charcoal headings (4.8:1) and the sorted column in the darker link bronze (5.0:1). Rows hover navy, so

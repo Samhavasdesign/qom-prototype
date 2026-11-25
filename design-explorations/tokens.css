@@ -33,6 +33,7 @@
   --brand-wash: #f9f5ef;               /* hover on tile buttons (Home's module tiles): lighter than --brand-tint; black text 17:1 */
   --brand-mark: #ead9c1;               /* search highlight: under black text, 13.5:1 */
   --brand-on-fill: #7a6143;            /* links on a grey or warm fill: 5.2:1 on #f5f2ed and #f3f3f3 (--brand is 4.1:1 there) */
+  --brand-hover: #5f4b34;             /* a hovered bronze link, a clear step darker than --brand and --brand-on-fill (Sam, Nov 25): 8.3:1 on white, 7.4:1 on #f3f3f3 */
   --surface-header: #ebebeb;           /* table header row: a step darker than a hovered row's fill; #68696f text 4.6:1 */
   --navy: #001e52;                     /* brand navy (Jen's deck): dark controls (filled buttons, selected toggles and pills, checked boxes), never the app frame or text; white on it 16:1 */
   --navy-hover: #00153d;               /* hovered navy button, a step darker (Sam, Nov 25; was #123a7a); white on it 18:1 */
