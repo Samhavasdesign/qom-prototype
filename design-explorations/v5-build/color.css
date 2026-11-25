@@ -1,6 +1,6 @@
 /* ==== v5 (Nov 25): "Navy buttons and greys", a trial behind a demo-bar switch (off by default; html.warm) ====
    Sam, Nov 25: navy is kept for dark elements. The app frame (top bar, side nav, phone bar) stays black, and inside the
-   page every black filled control goes brand navy (--navy #001e52, tokens.css; white on it 16:1, hovered #123a7a 11:1):
+   page every black filled control goes brand navy (--navy #001e52, tokens.css; white on it 16:1, hovered a step darker, #00153d, 18:1 (Sam, Nov 25; was the lighter #123a7a)):
    filled buttons and calls to action (Create new, Send to client, Save, dialog buttons, the add (+) buttons), selected toggles, current page numbers, count badges, checked checkboxes and switches. Toasts and tooltips stay
    black. Navy on the frame was tried first and read as almost black; navy on only some controls read as messy.
    Set filter pills (search side and Quotes list) are light instead (Sam, Nov 25: filled navy pills read too heavy): white with a
@@ -11,7 +11,7 @@
    blue beside the navy), and secondary text is the brand charcoal (#68696f; 4.9:1 on the fill, 5.5:1 on white).
    Navy in the page isn't in the Design Audit yet (bronze is its only accent and it keeps navy out of the page),
    so it goes in the audit first if the trial holds. */
-html.warm{--surface:#f3f3f3;--ink-2:#68696f;--ink-3:#68696f;--navy:#001e52;--navy-hover:#123a7a;--navy-wash:#eef1f6}
+html.warm{--surface:#f3f3f3;--ink-2:#68696f;--ink-3:#68696f;--navy:#001e52;--navy-hover:#00153d;--navy-wash:#eef1f6}
 html.warm .roomhdr.active{background:var(--navy);border-color:var(--navy)} /* the room you're adding to: navy, white text (16:1) */
 
 /* dark controls: their black comes from var(--ink), so point --ink at navy on the control itself */
