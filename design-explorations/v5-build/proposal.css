@@ -310,6 +310,15 @@ html.warm .srgo .srtag{background:var(--navy,#001E52)}
 html.warm .srow.adding,html.warm .srow.adding:hover{background:var(--navy,#001E52)}
 html.warm .srow.adding .srgo .srtag{background:none}
 html.warm .srow.adding.inview{box-shadow:inset 3px 0 0 #fff}
+/* (Sam, Nov 25) the other rooms take the quote's room-bar gold, the pale bronze --brand-tint #f4eee6, so the list matches the
+   bars on the right: gold rooms and one navy room you're adding to. White lines split the rows, rows hover in the navy wash,
+   and the light blue "on screen" marker is dropped: with one room open at a time it only ever disagreed with the navy row */
+html.warm .srow:not(.adding){background:var(--brand-tint,#f4eee6)}
+html.warm .srow{border-bottom-color:var(--bg,#fff)}
+html.warm .srow.inview{box-shadow:none}
+html.warm .srow.inview .srname{font-weight:inherit}
+html.warm .srow:not(.adding):hover{background:var(--navy-wash,#eef1f6)}
+html.warm .srow.adding.inview{box-shadow:none}
 /* top alignment (Sam, Nov 25): the tool column, the search side's header and the quote's Find box start on one line under the
    facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;
    now the row is 44px (the toggle's touch target) pulled up 4px so the box's top edge meets the tools' top. */
