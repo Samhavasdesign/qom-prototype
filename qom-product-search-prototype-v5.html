@@ -4938,7 +4938,7 @@ apply();
      "Adding to" picker) makes it the room you're adding to, opens it and folds the others, then scrolls the quote to it.
      Clicking the open room's own bar still folds it, and Collapse all / Expand all still work; after Expand all, picking
      another room goes back to one open. Find in this quote still opens the rooms it lands in without changing Adding here. */
-  const oPick=pickRoom; pickRoom=function(name){ const was=S.room, wasAll=S.allOpen; S.allOpen=false; S.folded=[]; oPick.apply(this,arguments);
+  const oPick=pickRoom; pickRoom=function(name){ if(!document.body.classList.contains("proposal")) return oPick.apply(this,arguments); const was=S.room, wasAll=S.allOpen; S.allOpen=false; S.folded=[]; oPick.apply(this,arguments);
     if((was!==name||wasAll)&&!S.expanded) requestAnimationFrame(()=>{ const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(blk&&blk.offsetParent) revealBelowHeader(blk); }); };
   const oToggle=toggleRoom; toggleRoom=function(name){ if(document.body.classList.contains("proposal")&&name!==S.room){ pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus({preventScroll:true}); return; } return oToggle.apply(this,arguments); };
   /* a click in the Rooms list does the same */
