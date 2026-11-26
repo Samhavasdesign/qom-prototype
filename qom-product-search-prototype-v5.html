@@ -6546,11 +6546,8 @@ html.warm body.proposal #searchPane .shead{background:var(--brand-tint,#f4eee6);
 /* set filter pills on the gold are white with the navy edge and navy text (Sam, Nov 25): the light navy fill on light gold
    stacked two tints and looked muddy */
 html.warm body.proposal #searchPane .shead .fpill.on{background:var(--bg,#fff)}
-/* the add button on each result row is an outline (Sam, Nov 25): a solid navy square on every row competed with the navy room
-   bar, the page's one "you are here" mark. Navy icon on white with a divider from the quantity; filled navy on hover */
-html.warm body.proposal .addpill .add:not(:disabled){background:var(--bg,#fff);color:var(--navy,#001E52);border-left:1px solid var(--control-line,#8a8a8a)}
-html.warm body.proposal .addpill .add:not(:disabled):hover{background:var(--navy-hover,#00153d);color:#fff}
-html.warm body.proposal .addpill .add:disabled{border-left:1px solid var(--line,#e5e5e5)}
+/* the add button on each result row is solid navy with a white + (Sam, Nov 25): an outline version (navy + on white, filled on
+   hover) was tried the same evening, to keep a column of navy squares from competing with the navy room bar, and undone */
 
 /* filter pills: one look on both screens (Sam, Nov 25 audit). The quote page's product filters now behave like the Quotes list's:
    unset pills (and the More filters icon) hover in the navy wash with the #8a8a8a field edge instead of grey; while a pill's
