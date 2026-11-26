@@ -4528,6 +4528,21 @@ body.ptab-rooms #ptForm{display:none}
 html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
 html.warm .srow.inview{background:var(--navy-wash,#eef1f6);box-shadow:inset 3px 0 0 var(--navy,#001E52)}
 html.warm .srgo .srtag{background:var(--navy,#001E52)}
+/* (Sam, Nov 25) the problems pill sits on the lines-and-subtotal line, and the room you're adding to is a dark row, like its bar
+   in the quote: black, or navy in the navy trial, with white text (16:1) and "Adding here" as a white outline tag. On it, the
+   in-view bar is white */
+.srgo .srline{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.srgo .srline .srmeta,.srgo .srline .srwarn{grid-column:auto;margin-top:0}
+.srow.adding,.srow.adding:hover{background:var(--ink)}
+.srow.adding .srgo,.srow.adding .srgo .srmeta,.srow.adding .srmore,.srow.adding .srgrip{color:#fff}
+.srow.adding .srgo .srmeta{opacity:.8}
+.srow.adding .srgo .srtag{background:none;box-shadow:inset 0 0 0 1px #fff;color:#fff}
+.srow.adding .srmore:hover,.srow.adding.menuopen .srmore{border-color:#fff}
+.srow.adding .srgo:focus-visible{outline-color:#fff}
+.srow.adding.inview{box-shadow:inset 3px 0 0 #fff}
+html.warm .srow.adding,html.warm .srow.adding:hover{background:var(--navy,#001E52)}
+html.warm .srow.adding .srgo .srtag{background:none}
+html.warm .srow.adding.inview{box-shadow:inset 3px 0 0 #fff}
 /* top alignment (Sam, Nov 25): the tool column, the search side's header and the quote's Find box start on one line under the
    facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;
    now the row is 44px (the toggle's touch target) pulled up 4px so the box's top edge meets the tools' top. */
@@ -4895,9 +4910,9 @@ apply();
   function rowHtml(r,i,n){ const nm=esc(r.name), k=r.lines.length, a=roomAttention(r), cur=S.room===r.name, m=SR.menu===r.name;
     const warn=a.n?`<span class="srwarn ${a.sev}">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:"";
     const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
-    return `<div class="srow${SR.view===r.name?" inview":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
+    return `<div class="srow${SR.view===r.name?" inview":""}${cur?" adding":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
       <span class="srgrip" title="Drag to reorder">${GRIP}</span>
-      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</button>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srline"><span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</span></button>
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }

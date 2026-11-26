@@ -349,9 +349,9 @@ apply();
   function rowHtml(r,i,n){ const nm=esc(r.name), k=r.lines.length, a=roomAttention(r), cur=S.room===r.name, m=SR.menu===r.name;
     const warn=a.n?`<span class="srwarn ${a.sev}">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:"";
     const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
-    return `<div class="srow${SR.view===r.name?" inview":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
+    return `<div class="srow${SR.view===r.name?" inview":""}${cur?" adding":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
       <span class="srgrip" title="Drag to reorder">${GRIP}</span>
-      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</button>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srline"><span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</span></button>
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }
