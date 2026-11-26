@@ -4470,7 +4470,7 @@ html body.proposal .ptitle .ptype:not([hidden]){height:20px;padding:0 10px;borde
    theme's grey ring. A field marked invalid focuses in red, so an error never looks like focus.
    html:not(#a) (matches every page, ID weight) lifts these above the Spartan layer's long :focus-visible selector lists. */
 html:not(#a) body :is(input:not([type=checkbox],[type=radio],[type=range],[type=button],[type=submit],[type=reset],[type=color],[type=file]),select,textarea):focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 1px var(--brand-mark)}
-html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):focus-within{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand-mark)}
+html:not(#a) body :is(.qty .stepper,.addpill,.bmbox,.pf-box,.lfilter):focus-within{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand-mark)} /* the product search box and Find in this quote draw their edge on a wrapper, so the wrapper takes the focus (Nov 25: they kept the black edge and grey ring) */
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox,.pf-box,.lfilter,.gsin) :is(input,select):focus{box-shadow:none}
 html:not(#a) body :is(input,select,textarea)[aria-invalid="true"]:focus,html:not(#a) body :is(.qty .stepper,.addpill,.bmbox):has([aria-invalid="true"]):focus-within{border-color:var(--destructive);box-shadow:0 0 0 1px var(--block-bg)}
 html:not(#a) body :is(.qty .stepper,.addpill,.bmbox) [aria-invalid="true"]:focus{box-shadow:none}
