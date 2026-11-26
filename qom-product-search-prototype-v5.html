@@ -6403,7 +6403,7 @@ html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)
    and read as a box in a box. Now the panel is white and the count and results run its full width, with the count lined up
    under the search box. One hairline, the full height of the gutter, splits search from quote (the drag grip stays on it). */
 html.warm #searchPane :is(.resmeta,table.res){background:transparent}
-html.warm #searchPane .shead{background:var(--surface,#f3f3f3);padding:12px 0;margin:0} /* the controls sit straight on the grey panel; its fill masks results scrolling under the sticky header */
+html.warm #searchPane .shead{background:var(--bg,#fff);padding:12px;margin:0;border-radius:var(--r-lg,4px);box-shadow:var(--card-shadow)} /* a white card: hairline edge all round, shadow along the bottom only */
 html.warm #searchPane .shead .filterwrap{margin-bottom:0} /* the panel's own padding is the space under the pills (Sam, Nov 25: the extra 12px read as too much grey) */
 html.warm #searchPane .shead .fpclear{margin-block:-4px -8px} /* Clear filters keeps its 44px target, overlapping the padding, so the text sits about 12px from the panel's edge like the top */
 /* the sticky search header is a grey panel (Sam, Nov 25): Adding to, the search box and the filter pills sit white on theme v1's
@@ -6458,16 +6458,18 @@ html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy-wash,#e
    so the left side reads as raised cards beside the quote. Details' section track moves to the light grey the Quotes list uses on white. */
 html.warm{--card-shadow:0 0 0 1px rgb(0 0 0 / .06),0 1px 3px 0 rgb(0 0 0 / .1),0 1px 2px -1px rgb(0 0 0 / .1)}
 
-/* left side, third try (Sam, Nov 25): a white card on the white page looked unanchored, so the left side is a grey panel again
-   (#f3f3f3, rounded) with white cards on it. The search controls sit straight on the grey, 12px in, so Adding to stays level
-   with the quote's Find box; the results (count and list) are a white card with --card-shadow; Details' fields sit on the grey
-   with their white inputs; the Rooms panel is a white card. */
-html.warm body.proposal :is(#searchPane,#ptView){background:var(--surface,#f3f3f3);border-radius:var(--r-lg,4px)}
-html.warm body.proposal #searchPane{padding:0 12px 12px}
-html.warm body.proposal #searchPane .resmeta{padding:12px 12px 10px;background:var(--bg,#fff);border-radius:var(--r-lg,4px) var(--r-lg,4px) 0 0;box-shadow:var(--card-shadow);clip-path:inset(-8px -8px 0 -8px)}
-html.warm body.proposal #searchPane #results{background:var(--bg,#fff);border-radius:0 0 var(--r-lg,4px) var(--r-lg,4px);box-shadow:var(--card-shadow);clip-path:inset(0 -8px -8px -8px)}
-html.warm body.proposal #searchPane #results:has(> .state){border-radius:var(--r-lg,4px);clip-path:none}
-html.warm body.proposal .ptrooms .qside{background:var(--bg,#fff);box-shadow:var(--card-shadow)}
+/* left side, fourth try (Sam, Nov 25): back to white cards on the white page, now with the shadow along the bottom edge only
+   (a 6% hairline all round for the edge, then a soft shadow pulled in at the sides so nothing shows above or beside the card).
+   The search card holds Adding to, search and the filter pills, and the results run plain white under it. Details and the Rooms
+   panel are the same white card. The grey-panel version (third try) read as heavier. */
+html.warm{--card-shadow:0 0 0 1px rgb(0 0 0 / .06),0 4px 6px -4px rgb(0 0 0 / .18)}
+html.warm body.proposal #searchPane{background:var(--bg,#fff)}
+html.warm body.proposal #ptView{background:var(--bg,#fff);border-radius:var(--r-lg,4px);box-shadow:var(--card-shadow);margin:0 2px 6px}
+html.warm body.proposal #ptView .dnav{background:var(--bg,#fff)}
+html.warm:not(#x) .dnav .dseg{background:var(--surface,#f3f3f3)}
+html.warm:not(#x) .dnav button:hover{background:rgb(0 0 0 / .04)}
+html.warm body.proposal .ptrooms .qside{border:0;box-shadow:none;background:none} /* the Rooms panel is the card's content, not a box inside it */
+html.warm body.proposal #searchPane .shead{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .06),0 4px 6px -4px rgb(0 0 0 / .18)} /* edge drawn inside: the card sits at the scrolling pane's top, which would clip an outside hairline */
 </style>
 <script>
 /* "Navy buttons and greys" switch (Nov 25): on by default (Sam, Nov 25), remembered in the browser */
