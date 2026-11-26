@@ -4498,6 +4498,11 @@ html:not(#x) .dnav button{border-color:transparent;background:none;box-shadow:no
 html:not(#x) .dnav button:hover{color:var(--ink);background:rgb(255 255 255 / .55)}
 html:not(#x) .dnav button[aria-current="true"]{background:var(--bg,#fff);border-color:transparent;color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12),0 0 0 1px rgb(0 0 0 / .04)}
 html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
+/* Rooms tool (Sam, Nov 25): full view's Rooms panel in the left pane, a white box on the pane's grey like the search side's cards */
+.ptrooms{display:none}
+body.ptab-rooms .ptrooms{display:block}
+body.ptab-rooms #ptForm{display:none}
+.ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
@@ -4510,6 +4515,7 @@ const q=s=>document.querySelector(s);
 const IC={
   warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', /* Lucide clock */
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  rooms:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7M14 9h7M14 15h7M14 20h7"/></svg>',
   form:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap="round"/></svg>',
   doc:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4v15H6z"/><path d="M14 2.5v4h4"/></svg>',
   x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
@@ -4543,7 +4549,7 @@ function renderFacts(){
 
 /* ---------- the tool column: Search and Details ---------- */
 const tools=document.createElement("nav"); tools.className="ptools"; tools.setAttribute("aria-label","Quote tools");
-tools.innerHTML=`<a href="#" class="ptab ptool" data-ptab="4">${IC.search}<span>Products</span></a><a href="#" class="ptab ptool" data-ptab="5" aria-describedby="pDotLbl">${IC.form}<span>Details</span><span class="pdot" id="pDot" hidden></span><span class="sr" id="pDotLbl"></span></a>`;
+tools.innerHTML=`<a href="#" class="ptab ptool" data-ptab="4">${IC.search}<span>Products</span></a><a href="#" class="ptab ptool" data-ptab="6">${IC.rooms}<span>Rooms</span></a><a href="#" class="ptab ptool" data-ptab="5" aria-describedby="pDotLbl">${IC.form}<span>Details</span><span class="pdot" id="pDot" hidden></span><span class="sr" id="pDotLbl"></span></a>`;
 q("#work").prepend(tools);
 /* hide or show the panel (Sam, Nov 25): Lucide's panel-left-close / panel-left-open as a button under the tools. It stays in the same
    place whether the panel is open or folded. Clicking the open tool still folds it too (VS Code's pattern), as a shortcut */
@@ -4576,7 +4582,7 @@ function applyFold(){ document.body.classList.toggle("prop-fold",P.on&&P.fold); 
 
 /* wrap v2: the field tabs all open Details; opening a tool unfolds the column */
 const oSetPTab=setPTab;
-setPTab=function(n){ if(P.on&&n>=0&&n<=3) n=5; if(!P.on&&n===5) n=4; if(P.on&&P.fold){ P.fold=false; applyFold(); } oSetPTab(n); };
+setPTab=function(n){ if(P.on&&n>=0&&n<=3) n=5; if(!P.on&&(n===5||n===6)) n=4; if(P.on&&P.fold){ P.fold=false; applyFold(); } oSetPTab(n); };
 const oRenderQuote=renderQuote;
 renderQuote=function(){ oRenderQuote.apply(this,arguments); if(P.on) refreshTools(); };
 /* Things to fix: a missing field is in Details now, not on a tab */
@@ -4782,7 +4788,7 @@ const oSetPage=setPage; setPage=function(p){ leaveCreate(); return oSetPage.appl
 /* ---------- the switch in the demo bar ---------- */
 function apply(){
   document.body.classList.toggle("proposal",P.on);
-  if(P.on){ acts.append(more); } else { tabs.append(more); P.fold=false; if(S.ptab===5) oSetPTab(4); leaveCreate(); if(!pal.hidden) gsClose(); }
+  if(P.on){ acts.append(more); } else { tabs.append(more); P.fold=false; if(S.ptab===5||S.ptab===6) oSetPTab(4); leaveCreate(); if(!pal.hidden) gsClose(); }
   if(P.on&&S.ptab>=0&&S.ptab<=3) setPTab(5);
   if(P.on&&S.qview!=="products"&&typeof setQView==="function") setQView("products");
   document.querySelectorAll("a.ptool").forEach(t=>t.classList.toggle("cur",+t.dataset.ptab===S.ptab));
@@ -4813,6 +4819,26 @@ apply();
   const fix=()=>{ document.querySelectorAll("#fpills .fpx").forEach(b=>{ if(!b.querySelector("svg")) b.innerHTML=X; });
     const c=document.querySelector("#fpills .fpclear"); if(c&&c.textContent!=="Clear filters") c.textContent="Clear filters"; };
   const o=renderFilters; renderFilters=function(){ const r=o.apply(this,arguments); fix(); return r; }; fix(); })();
+
+/* ---------- Rooms tool (Sam, Nov 25) ----------
+   Full view's Rooms panel was the only thing full view added, so it's a third tool here: Products, Rooms, Details. It shows the
+   same panel (#qSide: each room with its line count and "Adding here", a click scrolls the quote to that room, "+ Add room" opens
+   the add-room form at its top). The panel node moves into the left pane while Rooms is open and back into the quote for full view.
+   It sits beside #ptForm, not inside it, since renderPTab rewrites the form. */
+(function(){
+  const q=s=>document.querySelector(s);
+  PT_FORMS[6]=()=>""; PT_NAMES[6]="Rooms";
+  const side=q("#qSide"), home=side.parentNode, view=q("#ptView");
+  const host=document.createElement("div"); host.className="ptrooms"; host.id="ptRooms"; view.append(host);
+  const on=()=>document.body.classList.contains("proposal")&&S.ptab===6&&!S.expanded;
+  function sync(){ const r=on(); document.body.classList.toggle("ptab-rooms",r);
+    if(r){ if(side.parentNode!==host) host.append(side); side.hidden=false; }
+    else { if(side.parentNode!==home){ home.prepend(side); S.sideAdd=false; } side.hidden=!S.expanded||S.qview!=="products"; } }
+  const oSet=setPTab; setPTab=function(n){ const was=S.ptab; oSet(n); if(was===6&&S.ptab!==6) S.sideAdd=false; sync(); if(was!==S.ptab) renderQuote(); };
+  const oExp=setExpanded; setExpanded=function(){ const r=oExp.apply(this,arguments); sync(); return r; };
+  const oAdd=startAddRoom; startAddRoom=function(){ if(on()){ S.sideAdd=true; renderQuote(); q("#sideRoomType")?.focus(); return; } return oAdd.apply(this,arguments); };
+  sync();
+})();
 </script>
 <style>/* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332). On while body has .qlx-on (demo bar switch) ==== */
 body:not(.qlx-on) .qlx,body:not(.qlx-on) .qlxqv{display:none}
@@ -6264,6 +6290,13 @@ html.warm.sp .menu > .act:is(:hover,:focus-visible):not([aria-disabled="true"]),
    pills and result list, keeps the grey; the quote side, where the rooms are, is white, so the rooms read as the document
    and the grey and navy room bars mark each room. (Search white and quote grey was tried first, the same day.) */
 html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)}
+/* search side on white too (Sam, Nov 25, later): the results were a white card inset in the grey panel, so they lost width
+   and read as a box in a box. Now the panel is white and the count and results run its full width, with the count lined up
+   under the search box. One hairline, the full height of the gutter, splits search from quote (the drag grip stays on it). */
+html.warm #searchPane{background:var(--bg)}
+html.warm #searchPane :is(.shead,.resmeta,table.res){background:transparent}
+html.warm #searchPane .resmeta{padding-left:0;padding-right:0}
+html.warm .work[data-layout="split"] .gutter{background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
 
 /* hover in light navy (Sam, Nov 25): rows and menu items you can pick take a pale navy wash (#eef1f6) on hover or keyboard
    focus instead of grey, in the same family as the navy controls. Not light gold: the pale bronze is the selected row's
@@ -6300,12 +6333,11 @@ html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-
    #ebebeb, with charcoal headings (4.8:1) and the sorted column in the darker link bronze (5.0:1). Rows hover navy, so
    the header and a hovered row no longer match. The other room bars on the quote keep the grey. */
 html.warm .qlxt th{background:var(--brand-tint,#f4eee6)}
-/* The quote page's tool column (Sam, Nov 25): the open tool (Search or Details) is solid navy with white text and icon (16:1),
-   like the room you're adding to, instead of grey; the others hover in the navy wash. Its red dot gets a white ring so it
-   still reads on navy. Folded, no tool is open, so none is navy. */
+/* The quote page's tool column (Sam, Nov 25): the open tool (Products, Rooms or Details) takes the pale navy wash with navy text
+   and icon (16:1), instead of grey; the others hover in the same wash with black text. Solid navy was tried first the same day
+   and read too heavy. Folded, no tool is open, so none is marked. */
 html.warm body.proposal .ptool:hover{background:var(--navy-wash,#eef1f6);color:var(--ink)}
-html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy,#001E52);color:#fff}
-html.warm body.proposal:not(.prop-fold) .ptool.cur .pdot{box-shadow:0 0 0 2px #fff}
+html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy-wash,#eef1f6);color:var(--navy,#001E52)}
 </style>
 <script>
 /* "Navy buttons and greys" switch (Nov 25): on by default (Sam, Nov 25), remembered in the browser */

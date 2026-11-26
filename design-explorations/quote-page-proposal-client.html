@@ -1,0 +1,713 @@
+<title>Quote Page Proposal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a write-up column with a live, scaled QOM wireframe in the middle. Page chrome follows the viewer's theme; the wireframe stays QOM light. */
+:root{
+  --bg:#f6f6f4; --fg:#16181a; --muted:#5d6166; --line:#dcdcd8; --card:#ffffff; --accent:#1d4ed8; --good:#047857; --bad:#b42318;
+  --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif; --sans:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* wireframe: QOM's own light palette, same in both themes */
+  --m-ink:#121212; --m-2:#666; --m-line:#e5e5e5; --m-fill:#f3f3f3; --m-bg:#fff; --m-draft:#f5d547; --m-red:#c62828; --m-note:#1d4ed8;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#141517; --fg:#ececea; --muted:#a3a6aa; --line:#2e3034; --card:#1c1d20; --accent:#8fb0ff; --good:#5fd3a6; --bad:#ff8a80; color-scheme:dark } }
+:root[data-theme="dark"]{ --bg:#141517; --fg:#ececea; --muted:#a3a6aa; --line:#2e3034; --card:#1c1d20; --accent:#8fb0ff; --good:#5fd3a6; --bad:#ff8a80; color-scheme:dark }
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--sans);font-size:15px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:28px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.15;margin:0;text-wrap:balance}
+h2{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 8px;text-wrap:balance}
+h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px;color:var(--muted);font-weight:600}
+p{margin:0;max-width:68ch}
+.lede{color:var(--muted);font-size:17px;max-width:70ch}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:inherit;font-size:14px;font-weight:600;padding:10px 16px;min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.opt[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.opt .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--good);color:var(--bg)}
+.opt .tag.no{background:var(--bad)}
+.opt:focus-visible,.m button:focus-visible,.m a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.stage{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.hint{font-size:13px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;display:grid;gap:10px;align-content:start;min-width:0}
+ul{margin:0;padding-left:20px;display:grid;gap:6px}
+li{max-width:66ch}
+.pro li::marker{color:var(--good)} .con li::marker{color:var(--bad)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tw{overflow-x:auto}
+code{font-size:13px;background:var(--line);padding:1px 5px;border-radius:4px}
+
+/* ---------- wireframe ---------- */
+.m{width:1100px;height:600px;display:grid;grid-template-columns:56px 1fr;font-family:var(--sans);font-size:13px;color:var(--m-ink);background:var(--m-bg);position:relative;line-height:1.4}
+.m button{font:inherit;color:inherit;cursor:pointer}
+.rail{background:#000;display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:16px}
+.rail i{width:22px;height:22px;border:1.5px solid #777;border-radius:4px;display:block}
+.rail i.cur{border-color:#fff}
+.main{display:grid;grid-template-rows:auto auto 1fr 57px;min-width:0;min-height:0}
+.qh{padding:12px 20px 0;display:grid;gap:4px}
+.crumb{font-size:11px;color:var(--m-2)}
+.qt{display:flex;align-items:center;gap:10px}
+.qt b{font-family:var(--serif);font-weight:400;font-size:22px}
+.draft{background:var(--m-draft);font-size:11px;font-weight:600;padding:2px 8px;border-radius:3px}
+.qid{font-size:12px;color:var(--m-2)}
+.ptabs{display:flex;align-items:flex-end;gap:2px;padding:10px 20px 0;border-bottom:1px solid var(--m-line);white-space:nowrap}
+.ptab{border:0;background:none;padding:8px 10px;font-size:12.5px;color:var(--m-2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.ptab.cur{color:var(--m-ink);border-bottom-color:var(--m-ink);font-weight:600}
+.ptabs .sp{flex:1}
+.pbtn{border:1px solid var(--m-ink);background:var(--m-bg);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:3px;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.more{border:1px solid var(--m-ink);background:none;width:26px;height:26px;border-radius:50%;margin:0 0 5px 6px;font-size:13px;line-height:1}
+.body{display:grid;min-height:0;transition:grid-template-columns .22s ease}
+.left{background:var(--m-fill);border-right:1px solid var(--m-line);min-width:0;overflow:hidden;position:relative}
+.lin{padding:14px 16px;display:grid;gap:10px;align-content:start}
+.search{border:1px solid #8a8a8a;background:#fff;border-radius:3px;padding:8px 10px;color:var(--m-2)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--m-line);background:#fff;border-radius:99px;padding:3px 10px;font-size:11.5px}
+.res{background:#fff;border:1px solid var(--m-line);padding:8px 10px;display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center}
+.res .ph{width:34px;height:34px;background:var(--m-fill)}
+.res small{color:var(--m-2);display:block}
+.add{border:0;background:var(--m-ink);color:#fff;font-size:10.5px;font-weight:600;letter-spacing:.06em;padding:5px 9px;border-radius:3px}
+.fld{display:grid;gap:3px}
+.fld span{font-size:11px;color:var(--m-2)}
+.fld div{border:1px solid #8a8a8a;background:#fff;border-radius:3px;padding:7px 9px}
+.lhead{display:flex;align-items:center;justify-content:space-between;font-weight:600}
+.colbtn{border:1px solid var(--m-line);background:#fff;border-radius:3px;width:28px;height:28px;display:grid;place-items:center;flex:none}
+.collapsed{display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:12px;height:100%;cursor:pointer;border:0;background:none;width:100%}
+.collapsed .vl{writing-mode:vertical-rl;transform:rotate(180deg);font-size:12px;font-weight:600;letter-spacing:.04em}
+.collapsed:hover{background:#e9e9e9}
+.panel{display:grid;grid-template-rows:auto 1fr;min-width:0;min-height:0;position:relative}
+.qbar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--m-line);white-space:nowrap}
+.qtabs{display:flex;gap:16px}
+.qtab{border:0;background:none;padding:4px 0;font-size:12.5px;color:var(--m-2);border-bottom:2px solid transparent}
+.qtab.cur{color:var(--m-ink);border-bottom-color:var(--m-ink);font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--m-line);border-radius:6px;padding:2px;background:var(--m-fill)}
+.seg button{border:0;background:none;padding:4px 10px;border-radius:4px;font-size:12px;display:flex;gap:5px;align-items:center;color:var(--m-2)}
+.seg button.cur{background:#fff;color:var(--m-ink);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+.qbar .meta{color:var(--m-2);font-size:12px}
+.qbar .grow{flex:1}
+.lnk{border:0;background:none;font-size:12px;text-decoration:underline;text-underline-offset:2px;padding:4px}
+.qscroll{overflow:hidden;padding:12px 16px;display:grid;gap:8px;align-content:start}
+.room{background:#ececec;padding:6px 10px;font-weight:600;display:flex;justify-content:space-between}
+.line{display:grid;grid-template-columns:40px 1fr 78px 80px;gap:12px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--m-line)}
+.line .ph{width:40px;height:40px;background:var(--m-fill)}
+.line small{display:block;color:var(--m-2)}
+.step{border:1px solid #8a8a8a;border-radius:3px;text-align:center;padding:5px}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+.sum .k{font-size:11px;color:var(--m-2)}
+.sum h4{grid-column:1/-1;margin:6px 0 0;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.foot{border-top:1px solid var(--m-line);display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:0 16px;white-space:nowrap}
+.foot .tot{font-family:var(--serif);font-size:20px}
+.foot .div{width:1px;height:28px;background:var(--m-line)}
+.fb{border:1px solid var(--m-ink);background:#fff;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:9px 12px;border-radius:3px}
+.fb.k{background:var(--m-ink);color:#fff}
+.sheet{position:absolute;inset:0;background:rgba(18,18,18,.4);display:grid;place-items:center;z-index:5}
+.sheet .pg{background:#fff;width:520px;height:88%;box-shadow:0 10px 40px rgba(0,0,0,.25);display:grid;grid-template-rows:auto 1fr}
+.sheet .sh{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--m-line);background:var(--m-fill);font-weight:600}
+.sheet .doc{padding:28px 36px;display:grid;gap:10px;align-content:start}
+.sheet .doc .wm{font-family:var(--serif);letter-spacing:.3em;font-size:16px}
+.bar{height:8px;background:var(--m-fill)}
+.ann{position:absolute;z-index:4;background:var(--m-note);color:#fff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:3px;pointer-events:none;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.ann::before{content:"";position:absolute;width:8px;height:8px;background:inherit;transform:rotate(45deg)}
+#m2{height:760px} .ann.right::before{right:-4px;top:9px}
+.ann.up::before{top:-4px;left:14px} .ann.down::before{bottom:-4px;right:20px} .ann.left::before{left:-4px;top:9px}
+.ann.bad{background:var(--m-red)}
+.dim{opacity:.35}
+/* option C: tool column + lines */
+.tools{display:flex;flex-direction:column;gap:4px;padding:8px 4px;border-right:1px solid var(--m-line);background:#fff;align-items:center}
+.tool{border:0;background:none;width:88px;text-align:center;letter-spacing:-.01em;min-height:52px;padding:8px 2px;border-radius:6px;display:grid;justify-items:center;align-content:center;gap:4px;font-size:10.5px;color:var(--m-2);position:relative}
+.tool:hover{background:var(--m-fill)}
+.tool.cur{background:var(--m-fill);color:var(--m-ink);font-weight:600;box-shadow:inset 2px 0 0 var(--m-ink)}
+.tool .dot{position:absolute;top:7px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--m-red)}
+.facts{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--m-2);padding-bottom:10px;border-bottom:1px solid var(--m-line)}
+.facts b{color:var(--m-ink);font-weight:500}
+.qt .sp{flex:1}
+.secnav{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:-14px;background:var(--m-fill);padding:8px 0;z-index:1}
+.secnav button{font-size:11px;border:1px solid var(--m-line);border-radius:99px;padding:3px 10px;background:#fff;display:flex;align-items:center;gap:5px}
+.secnav button.cur{border-color:var(--m-ink)}
+.secnav .sdot{width:6px;height:6px;border-radius:50%;background:var(--m-red);display:inline-block}
+.left.scroll{overflow:auto}
+.sec{scroll-margin-top:44px}
+.sec{display:grid;gap:8px}
+.sec h5{margin:4px 0 0;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.fld.err div{border-color:var(--m-red);color:var(--m-2)}
+.fld.err em{font-style:normal;font-size:11px;color:var(--m-red)}
+.log{background:#fff;border:1px solid var(--m-line);padding:8px 10px;display:grid;gap:2px}
+.log small{color:var(--m-2)}
+/* new quote flow */
+.create{display:grid;justify-items:center;align-content:start;padding:28px 16px;overflow:auto;background:var(--m-fill)}
+.cform{width:560px;background:#fff;border:1px solid var(--m-line);padding:22px 28px;display:grid;gap:14px}
+.cform .ttl{font-family:var(--serif);font-size:22px}
+.cform .sub{color:var(--m-2);font-size:12px;margin-top:-8px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;align-items:start}
+.cnote{font-size:11px;color:#b45309}
+.defaults{background:var(--m-fill);padding:10px 12px;font-size:12px;color:var(--m-2);display:grid;gap:6px}
+.defaults b{color:var(--m-ink);font-weight:600}
+.defaults .dl{display:flex;flex-wrap:wrap;gap:4px 14px}
+.defaults .dl span b{font-weight:500}
+.cact{display:flex;justify-content:flex-end;gap:8px}
+.roomstart{border:1px dashed #b9b9b9;padding:22px;display:grid;gap:12px;justify-items:start;background:#fff}
+.roomstart .rt{font-family:var(--serif);font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--m-line);background:#fff;border-radius:99px;padding:5px 12px;font-size:12px}
+.chip:hover{border-color:var(--m-ink)}
+.chip.add{border-style:dashed}
+.fb{position:relative}
+.fb[disabled]{background:var(--m-fill);color:var(--m-2);border-color:var(--m-line);cursor:default}
+.badge{position:absolute;top:-8px;right:-8px;background:var(--m-red);color:#fff;font-size:10px;border-radius:99px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px;letter-spacing:0}
+.okbar{background:#e8f5ee;border:1px solid #9fd3b6;color:#14532d;padding:8px 10px;font-size:12px}
+.emptyline{padding:10px;color:var(--m-2);font-size:12px;border-bottom:1px solid var(--m-line)}
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+/* ---------- component styling ---------- */
+.m{--r-sm:2.4px;--r-md:3.2px;--r-lg:4px;--r-xl:5.6px;--sp-ring:0 0 0 3px rgb(18 18 18 / .5);--sp-xs:0 1px 2px 0 rgb(0 0 0 / .05);--sp-md:0 4px 6px -1px rgb(0 0 0 / .1),0 2px 4px -2px rgb(0 0 0 / .1);--sp-lg:0 10px 15px -3px rgb(0 0 0 / .1),0 4px 6px -4px rgb(0 0 0 / .1);--sp-edge:0 0 0 1px rgb(18 18 18 / .1);font-synthesis:none}
+.m :is(button,a,input,select,[tabindex]):focus-visible{outline:none!important;box-shadow:var(--sp-ring)!important}
+/* buttons: sentence case, medium, rounded-md; default black, outline light border + shadow-xs, disabled 50% */
+.m :is(.fb,.pbtn,.add){display:inline-flex;align-items:center;justify-content:center;gap:6px;text-transform:none;letter-spacing:0;font-weight:500;border-radius:var(--r-md)}
+.m .fb{height:36px;padding:0 12px;font-size:13.5px;background:var(--m-bg);color:var(--m-ink);border:1px solid var(--m-line);box-shadow:var(--sp-xs)}
+.m .fb:hover:not(:disabled){background:var(--m-fill)}
+.m .fb.k{background:var(--m-ink);color:#fff;border-color:transparent;box-shadow:none;height:40px;padding:0 16px}
+.m .fb.k:hover:not(:disabled){background:rgb(18 18 18 / .8)}
+.m .fb:disabled{opacity:.5;cursor:not-allowed;background:var(--m-bg);color:var(--m-ink);border-color:var(--m-line)}
+.m .fb.k:disabled{background:var(--m-ink);color:#fff;border-color:transparent}
+.m .pbtn{height:32px;padding:0 10px;font-size:13px;background:var(--m-bg);border:1px solid var(--m-line);box-shadow:var(--sp-xs)}
+.m .pbtn:hover:not(:disabled){background:var(--m-fill)}
+.m .pbtn:disabled{opacity:.5;cursor:not-allowed}
+.m .add{height:28px;padding:0 10px;font-size:12px;background:var(--m-ink);color:#fff}
+.m .colbtn{border-radius:var(--r-md);border-color:var(--m-line);box-shadow:var(--sp-xs)}
+.m .colbtn:hover{background:var(--m-fill)}
+.m .more{border-color:var(--m-line);box-shadow:var(--sp-xs)}
+/* fields: #8a8a8a edge, rounded-md, shadow-xs, 36px */
+.m .search,.m .fld div{border:1px solid #8a8a8a;border-radius:var(--r-md);box-shadow:var(--sp-xs);min-height:36px;box-sizing:border-box;display:flex;align-items:center;padding:0 10px;background:#fff}
+.m .fld.err div{border-color:var(--m-red)}
+.m .step{border-radius:var(--r-md);border-color:#8a8a8a;box-shadow:var(--sp-xs);height:28px;display:grid;place-items:center;padding:0}
+/* filter pills and chips: outline buttons */
+.m .pill,.m .chip,.m .secnav button{border-radius:var(--r-md);border:1px solid var(--m-line);box-shadow:var(--sp-xs);font-weight:500;background:#fff}
+.m .pill{padding:5px 10px}
+.m .chip:hover,.m .secnav button:hover{background:var(--m-fill);border-color:var(--m-line)}
+.m .chip.add{border-style:dashed;box-shadow:none}
+.m .secnav button.cur{border-color:var(--m-ink)}
+/* tabs: line variant, 2px underline, medium */
+.m .ptab,.m .qtab{font-weight:500;border-bottom-width:2px}
+.m .ptab.cur,.m .qtab.cur{font-weight:500}
+.m .seg{border-radius:var(--r-lg);background:var(--m-fill);border-color:transparent;padding:3px}
+.m .seg button{border-radius:var(--r-md);font-weight:500}
+.m .seg button.cur{box-shadow:var(--sp-xs);font-weight:500}
+/* badges: full pills */
+.m .draft{border-radius:999px;padding:2px 10px;font-weight:500}
+.m .badge{font-weight:500}
+/* alert: rounded-lg, status border at 30% */
+.m .okbar{border-radius:var(--r-lg);border-color:rgb(4 120 87 / .3);background:#ecfdf5;color:#047857}
+/* cards and overlays */
+.m .res,.m .log,.m .cform,.m .roomstart{border-radius:var(--r-lg)}
+.m .cform{box-shadow:var(--sp-edge),var(--sp-md);border:0}
+.m .sheet{background:rgb(0 0 0 / .5)}
+.m .sheet .pg{border-radius:var(--r-xl);box-shadow:var(--sp-edge),var(--sp-lg);overflow:hidden}
+.m .sheet .sh{font-weight:500;font-size:15px;background:#fff}
+.m .tool{border-radius:var(--r-md);font-weight:500}
+.m .tool.cur{font-weight:500}
+.m .lhead,.m .qbar b{font-weight:500}
+/* quote actions menu */
+.qmenuwrap{position:absolute;right:20px;top:66px;z-index:6}
+.m .qmore{min-width:260px;padding:4px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sp-edge),var(--sp-md);display:grid}
+.m .qm-item{display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;border:0;background:none;border-radius:var(--r-sm);font:inherit;font-size:13px;color:var(--m-ink);text-align:left;white-space:nowrap}
+.m .qm-item svg{width:18px;height:18px;flex:none}
+.m .qm-item:hover:not([aria-disabled="true"]){background:var(--m-fill)}
+.m .qm-item[aria-disabled="true"]{opacity:.5;cursor:default}
+.m .qm-sep{border:0;border-top:1px solid var(--m-line);margin:4px -4px}
+.m .qm-new{font-weight:500}
+.m .newpill{margin-left:auto;padding:2px 9px;border-radius:999px;background:#047857;color:#fff;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;line-height:1.5}
+/* mock PDF */
+.m .sheet .pg{width:640px;height:94%}
+.m .sheet .doc{padding:0;overflow:auto;display:block}
+.pdfwrap{background:#e9e9e9;padding:12px}
+.pdfpage{position:relative;overflow:hidden;background:#fff;color:#111;border:1px solid var(--m-line);padding:18px 18px 10px;margin-bottom:12px;font-size:10px;line-height:1.35}
+.pdfpage:last-child{margin-bottom:0}
+.pdfpage .wm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);font:700 110px var(--sans);letter-spacing:.12em;color:rgba(0,0,0,.07);pointer-events:none;white-space:nowrap}
+.pdfpage>*{position:relative}
+.pdfhead{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.pdfmark{font-family:var(--serif);letter-spacing:.3em;font-size:16px}
+.pdfmark small{display:block;letter-spacing:.2em;font-size:7px;margin-top:3px}
+.pdftitle{font-weight:700;font-size:17px;text-align:right;margin-bottom:6px}
+.pdfkv{border:1px solid #111;min-width:210px}
+.pdfkv div{display:flex;gap:8px;padding:3px 6px;border-bottom:1px solid #111}
+.pdfkv div:last-child{border-bottom:0}
+.pdfkv b{min-width:92px}
+.pdfgrid{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #111;margin-top:12px}
+.pdfgrid>div{padding:6px 8px;min-height:84px;min-width:0}
+.pdfgrid>div+div{border-left:1px solid #111}
+.pdfsec{border:1px solid #111;border-top:0;padding:6px 8px;display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap}
+.pdfsec.tall{min-height:90px;display:block}
+.pdfsum{display:grid;grid-template-columns:auto auto;gap:2px 22px;justify-content:start;margin-top:3px}
+.pdfsum span:nth-child(even){text-align:right}
+.pdfterms{font-size:8px;margin-top:12px}
+.pdfterms b{font-size:10px;display:block;margin-bottom:3px}
+.pdffoot{display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap;border-top:1px solid #111;margin-top:12px;padding-top:6px;font-size:9px}
+.pdfpg{text-align:right;font-size:9px;font-weight:700;margin-top:8px}
+.pdftbl{width:100%;border-collapse:collapse;margin-top:12px;font-size:10px}
+.pdftbl th{background:#eee;text-align:left;padding:4px 6px;border:1px solid #111}
+.pdftbl td{padding:4px 6px;border:1px solid #cfcfcf;vertical-align:top}
+.pdftbl .r{text-align:right;white-space:nowrap}
+.pdftbl .c{text-align:center;width:36px}
+.pdftbl tr.rm td{background:#f4f4f4;font-weight:700}
+.pdftbl .mm{color:#555}
+/* Find in this quote and full view */
+.m .lfind{display:flex;align-items:center;gap:8px;min-width:0}
+.m .lfilter{display:flex;align-items:center;gap:6px;height:32px;padding:0 4px 0 8px;border:1px solid #8a8a8a;border-radius:var(--r-md);box-shadow:var(--sp-xs);background:#fff;width:210px;color:var(--m-2)}
+.m .lfilter:focus-within{border-color:var(--m-ink);box-shadow:var(--sp-ring)}
+.m .lfilter input{border:0;outline:0;font:inherit;font-size:13px;flex:1;min-width:0;background:none;color:var(--m-ink)}
+.m .lfilter input:focus-visible{box-shadow:none!important}
+.m .fbtn{border:0;background:none;width:24px;height:24px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--m-ink)}
+.m .fbtn:hover{background:var(--m-fill)}
+.m .fcount{font-size:11.5px;color:var(--m-ink);white-space:nowrap}
+.m mark{background:#ffd3a3;color:inherit;border-radius:2px}
+.m mark.on{background:#ff9632}
+.m .line.cur{outline:2px solid var(--m-ink);outline-offset:-2px;border-radius:var(--r-md)}
+.m .room .fm{font-weight:400;color:var(--m-2)}
+.m .qscroll{position:relative}
+.fullq{position:absolute;left:0;top:0;right:0;bottom:57px;z-index:4;background:var(--m-fill);display:grid;grid-template-rows:auto minmax(0,1fr);padding:16px 24px 16px}
+.fqtop{display:flex;align-items:center;gap:12px;padding-bottom:12px;white-space:nowrap}
+.fqtop .lfilter{width:340px}
+.m .exitfull{border:0;background:none;display:flex;align-items:center;gap:6px;font-weight:500;padding:6px;border-radius:var(--r-md)}
+.m .exitfull:hover{text-decoration:underline;text-underline-offset:3px}
+.fqbody{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;min-height:0}
+.fqside{background:#fff;border:1px solid var(--m-line);border-radius:var(--r-lg);align-self:start;display:grid}
+.qsidet{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--m-line)}
+.m .fqroom{border:0;background:none;text-align:left;padding:10px 12px;display:flex;justify-content:space-between;font:inherit;font-size:13px;border-bottom:1px solid var(--m-line)}
+.m .fqroom:hover{background:var(--m-fill)}
+.fqtot{padding:12px;display:grid;grid-template-columns:1fr auto;gap:4px;font-size:13px}
+.fqtot i{grid-column:1/-1;color:var(--m-2);font-size:12px}
+.fqlines{position:relative;background:#fff;border:1px solid var(--m-line);border-radius:var(--r-lg);overflow:auto;padding:12px 16px;display:grid;gap:8px;align-content:start}
+/* field label, helper text and error, from Spartan's field components (hlm-label, hlm-field-description, hlm-field-error, hlm-field, hlm-field-group) */
+.m .fld{gap:12px}
+.m .fld>span:first-child{font-size:14px;font-weight:500;line-height:1;color:var(--m-ink)}
+.m .fld>.cnote,.m .fld>.cnote span{font-size:14px;line-height:1.5;font-weight:400;color:var(--m-2)!important}
+.m .fld>em{font-size:14px;line-height:1.5;font-style:normal;color:var(--m-red)}
+.m .cgrid{row-gap:28px}
+.m .fld>div{font-size:14px} /* hlm-input: text-sm */
+.m .cform .sub{font-size:14px;line-height:1.5;color:var(--m-2);margin-top:-6px} /* a description under the title */
+.kv{display:flex;justify-content:space-between;border-bottom:1px solid var(--m-line);padding:6px 0;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){ .body{transition:none} }
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:12px">
+    <h1>A simpler way to build a quote</h1>
+    <p class="lede">Building a quote today means moving between two rows of tabs: the quote's own tabs across the top (Essential Quote Info through Communications), and a second set inside the quote panel (Products, Quote information and PDF preview). This proposal removes both. The products on the quote stay in the middle of the screen, and the tools you need, product search and the quote's details, open beside them when you want them.</p>
+    <p class="lede">The page starts with creating a new quote, then shows the quote page itself, as it works today and as proposed. These are clickable mockups with sample data: try opening and closing the tools, searching the quote and previewing the PDF. <a href="#quote-page">Jump to the quote page</a>.</p>
+  </header>
+
+  <section id="new-quote" style="display:grid;gap:16px;scroll-margin-top:16px">
+    <div style="display:grid;gap:8px">
+      <h2>Creating a new quote</h2>
+      <p>Today a new quote opens on Essential Quote Info, with an empty preview filling half the screen. After Create, about 13 more required fields wait across four tabs, and nothing says which ones. In the proposal, creating a quote is one short step. QOM fills in what it can, and the sales consultant goes straight to adding products. Anything still missing is listed in one place, ready to finish before sending.</p>
+    </div>
+    <div class="steps" role="group" aria-label="Step">
+      <button class="opt" id="n-1" data-n="1" aria-pressed="true">1 · Create the quote</button>
+      <button class="opt" id="n-2" data-n="2" aria-pressed="false">2 · Right after Create</button>
+    </div>
+    <div class="stage"><div class="m" id="m2"></div></div>
+    <p class="hint" id="hint2"></p>
+    <div class="cols">
+      <div class="box"><h3>Step 1 · Create the quote</h3><ul class="pro">
+        <li>One short form, with no tabs and no empty preview beside it.</li>
+        <li>Only the fields M3 needs to create a quote, plus an optional Project, which can also fill in the quote description.</li>
+        <li>Order Type and Order Subtype come from the customer record.</li>
+        <li>A "Filled in for you" box shows every default, such as the sales consultant and the shipping service level, so nothing is set without the sales consultant seeing it. Each one can be changed later.</li>
+      </ul></div>
+      <div class="box"><h3>Step 2 · Right after Create</h3><ul class="pro">
+        <li>The quote opens on product search, ready to type.</li>
+        <li>The empty quote starts with rooms: pick a room type, or add your own.</li>
+        <li>Details still needed before sending, such as the delivery address, don't stop anyone adding products. They're marked on Details and counted on Send to client.</li>
+      </ul></div>
+      <div class="box"><h3>Still to confirm</h3><ul class="con">
+        <li>The default for each field, such as Responsible, Status, the expiry term and Cost Center.</li>
+        <li>Which fields M3 needs before a quote can be saved, not just before it's sent. Any of those would move into step 1.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <h2 id="quote-page" style="margin:0;scroll-margin-top:16px">The quote page</h2>
+
+  <div class="opts" role="group" aria-label="Option">
+    <button class="opt" id="o-now" data-o="now" aria-pressed="false">Today</button>
+    <button class="opt" id="o-c" data-o="c" aria-pressed="true">Proposed · Tool column, no tabs</button>
+  </div>
+
+  <div class="stage"><div class="m" id="m"></div></div>
+  <p class="hint" id="hint"></p>
+
+  <section class="cols" id="notes"></section>
+
+  <section class="box">
+    <h2>Why two rows of tabs get in the way</h2>
+    <p>The two rows look the same but do different jobs. The tabs across the top choose which part of the quote you're editing. The tabs in the quote panel choose how you're looking at the whole quote. Stacked together, they look as if one belongs to the other, so it's easy to lose track of where you are. And two of the three panel tabs aren't places to work:</p>
+    <ul>
+      <li><b>Quote information</b> is a read-only summary of the quote, which the tabs across the top already cover field by field. In the proposal, the few facts worth keeping in view sit in the quote's header.</li>
+      <li><b>PDF preview</b> is something you check, not somewhere you edit. In the proposal it's a button that opens the PDF and closes back to where you were.</li>
+      <li><b>Products</b> is what the panel is really for. In the proposal it becomes the middle of the page.</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>Making room for the quote</h2>
+    <ul>
+      <li><b>Fold the tools.</b> Click the open tool again, or the arrow in its header, to fold it away and give the quote the full width. Click any tool to bring it back.</li>
+      <li><b>Search is always one click away.</b> The column of tools never folds.</li>
+      <li><b>Full view.</b> For a long quote, the full view fills the screen with the products, a list of rooms to jump between, and the subtotal.</li>
+      <li><b>Find in this quote.</b> Type a product name, finish or item number to highlight every matching line and step through them.</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>Today and the proposal</h2>
+    <div class="tw"><table>
+      <thead><tr><th></th><th>Today</th><th>Proposed</th></tr></thead>
+      <tbody>
+        <tr><td>Rows of tabs</td><td>Two, that look the same</td><td>None. A column of tools beside the products</td></tr>
+        <tr><td>Quote summary</td><td>A panel tab that repeats the other tabs</td><td>Key facts in the quote's header</td></tr>
+        <tr><td>PDF preview</td><td>A panel tab</td><td>A button that opens the PDF over the page</td></tr>
+        <tr><td>Products in view while editing details</td><td>Only when the panel is on Products</td><td>Always</td></tr>
+        <tr><td>More room for the quote</td><td>Expand button</td><td>Fold the tools, or open the full view</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="box">
+    <h2>Where the fields go</h2>
+    <p>Today the fields follow how M3 stores them, so one job is spread across several tabs. Payer is on Header Information but Payer Contact is on Associations. Delivery Address is on Shipping Information but Delivery Contact is on Associations. Primary Specifier Contact is on two tabs. In the proposal, one Details panel groups them by what the sales consultant is filling in. Every field stays, with the same name.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Details section</th><th>Fields</th><th>Where they are today</th></tr></thead>
+      <tbody>
+        <tr><td><b>Customer</b></td><td>Customer *, Primary Specifier Contact *, Associated Parties 2–6</td><td>Essential Quote Info; Associations (Specifier is on both)</td></tr>
+        <tr><td><b>Bill to</b></td><td>Payer ("Bill To") * with Same as Customer, Payer Contact ("Bill To") *, Customer PO Number</td><td>Header Information; Associations; Shipping Information</td></tr>
+        <tr><td><b>Ship to</b></td><td>Delivery Address *, Delivery Contact ("Ship To") *, Service Level *, Accessorial Terms</td><td>Shipping Information; Associations</td></tr>
+        <tr><td><b>Quote</b></td><td>Quote Description *, Project, Order Type *, Order Subtype *, Status *, Requested Delivery Date *, Est. Conv. Date *, Expiration Date *</td><td>Essential Quote Info; Header Information</td></tr>
+        <tr><td><b>Team</b></td><td>Sales Consultant * (up to 3), Responsible *, Cost Center *</td><td>Header Information; Shipping Information</td></tr>
+        <tr><td><b>Quote header</b> (read-only)</td><td>Customer with its region (USC), Payer when it isn't the customer, Project, Requested delivery, Expires (as "in 12 days"), list or trade pricing, and payment and fulfillment terms (pay in full or deposit). A click opens Details at that field.</td><td>The page title, Quote information and Admin: Calculations</td></tr>
+        <tr><td><b>Hidden for now</b></td><td>Admin: Calculations and Communications</td><td>Their own tabs. Client type and payment terms move into the header; the rest mostly repeats the quote or is empty</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>Details has a link to each section at the top. A section with a missing required field is marked, so the list of things to fix before sending can open Details right at that field.</li>
+      <li>Empty Associated Parties are tucked behind "+ Add associated party" instead of five empty boxes.</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>Questions for you</h2>
+    <ul>
+      <li>Do the facts in the header (customer, project, requested delivery, expiry, pricing and payment terms) match what you check most often?</li>
+      <li>Is anything on Admin: Calculations or Communications used day to day?</li>
+      <li>Would sales consultants miss having the quote summary beside the products?</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const S={o:"c",tab:"prod",col:false,view:"lines",pdf:false,tool:"search",menu:false,full:false,find:"",fi:0,findFocus:false};
+const $=s=>document.querySelector(s);
+const TABS_NOW=[["ess","Essential Quote Info"],["hdr","Header Information"],["ship","Shipping Information"],["assoc","Associations"],["prod","Product Selection"],["calc","Admin: Calculations"],["comm","Communications"]];
+const TABS_A=[["ov","Overview"],...TABS_NOW];
+const FORM={ess:"Essential Quote Info",hdr:"Header Information",ship:"Shipping Information",assoc:"Associations",calc:"Admin: Calculations",comm:"Communications",ov:"Overview"};
+const ICON={search:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>',
+  form:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" rx="1"/><path d="M5 5.5h6M5 8h6M5 10.5h4"/></svg>',
+  l:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>',
+  r:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>',
+  doc:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 1.5h5.5l3 3v10h-8.5z"/><path d="M9.5 1.5v3h3"/></svg>',
+  list:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 4h9M5 8h9M5 12h9M2 4h.5M2 8h.5M2 12h.5"/></svg>',
+  info:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5v.5"/></svg>',
+  exp:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg>'};
+
+const lines=()=>`
+  <div class="room"><span>Primary Bath</span><span class="meta" style="font-weight:400">3 lines</span></div>
+  <div class="line"><span class="ph"></span><div>Henry Lavatory Faucet in Polished Nickel<small>HNLF-PN · In stock</small></div><div class="step">2</div><div class="r">$2,840.00</div></div>
+  <div class="line"><span class="ph"></span><div>Henry Towel Bar 24" in Polished Nickel<small>HNTB24-PN · In stock</small></div><div class="step">1</div><div class="r">$410.00</div></div>
+  <div class="line"><span class="ph"></span><div>Henry Robe Hook in Polished Nickel<small>HNHK-PN · Out of stock in USC</small></div><div class="step">2</div><div class="r">$290.00</div></div>
+  <div class="room"><span>Powder Room</span><span class="meta" style="font-weight:400">2 lines</span></div>
+  <div class="line"><span class="ph"></span><div>Henry Wall Mounted Faucet in Chrome<small>HNWM-CH · In stock</small></div><div class="step">1</div><div class="r">$1,180.00</div></div>
+  <div class="line"><span class="ph"></span><div>Henry Paper Holder in Chrome<small>HNPH-CH · In stock</small></div><div class="step">1</div><div class="r">$215.00</div></div>`;
+
+const summary=()=>`<div class="sum">
+  <h4>Dates</h4><div><div class="k">Requested delivery</div>Dec 19, 2026</div><div><div class="k">Quote expires</div>Apr 27, 2028</div>
+  <h4>People</h4><div><div class="k">Payer</div>Pat Morgan-Ellis</div><div><div class="k">Sales consultant</div>Alex Rivera</div>
+  <h4>Payment</h4><div><div class="k">Quote total</div>$4,935.00</div><div><div class="k">Deposit to convert</div>$2,467.50</div>
+  <h4>Fulfillment</h4><div><div class="k">Shipping</div>Standard shipping (S01)</div><div><div class="k">Showroom</div>Sample Design Center</div></div>`;
+
+const pdf=()=>`<div style="display:grid;gap:10px;justify-items:center;padding-top:8px"><div style="background:#fff;width:300px;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:22px;display:grid;gap:8px"><div style="font-family:var(--serif);letter-spacing:.3em">WATERWORKS</div><div class="bar"></div><div class="bar" style="width:70%"></div><div class="bar"></div><div class="bar" style="width:50%"></div></div></div>`;
+
+function leftHtml(){
+  const isProd=S.tab==="prod";
+  const name=isProd?"Search products":FORM[S.tab];
+  if(S.o!=="now"&&S.col) return `<button class="collapsed" id="unfold" aria-expanded="false" aria-controls="m" title="Show ${name.toLowerCase()}">${isProd?ICON.search:ICON.form}<span class="vl">${name}</span>${ICON.r}</button>`;
+  const head=S.o==="now"?`<div class="lhead"><span>${isProd?"Product search":FORM[S.tab]}</span></div>`
+    :`<div class="lhead"><span>${isProd?"Product search":FORM[S.tab]}</span><button class="colbtn" id="fold" aria-expanded="true" aria-label="Hide ${isProd?"product search":FORM[S.tab]}" title="Hide ${isProd?"product search":FORM[S.tab]}">${ICON.l}</button></div>`;
+  if(S.tab==="ov") return `<div class="lin">${head}${summary()}</div>`;
+  if(!isProd) return `<div class="lin">${head}
+    <div class="fld"><span>Payer</span><div>PAT MORGAN-ELLIS</div></div><div class="fld"><span>Sales Consultant</span><div>Alex Rivera</div></div>
+    <div class="fld"><span>Service Level</span><div>Standard Shipping (S01)</div></div><div class="fld"><span>Cost Center</span><div>Sample Design Center</div></div></div>`;
+  return `<div class="lin">${head}<div class="search">henry</div>
+    <div class="pills"><span class="pill">Finish</span><span class="pill">Collection</span><span class="pill">Category</span><span class="pill">More filters</span></div>
+    ${["Henry Lavatory Faucet","Henry Towel Bar 18\"","Henry Towel Ring","Henry Robe Hook"].map((n,i)=>`<div class="res"><span class="ph"></span><div>${n}<small>${["In stock: 4 in USC","In stock: 12 in USC","In stock: 6 in USC","Out of stock in USC"][i]}</small></div><span class="add">Add</span></div>`).join("")}</div>`;
+}
+
+function panelHtml(){
+  let bar, content;
+  if(S.o==="now"){
+    bar=`<div class="qtabs" role="tablist">${[["lines","Products"],["sum","Quote information"],["pdf","PDF preview"]].map(([k,t])=>`<button class="qtab ${S.view===k?"cur":""}" data-v="${k}" role="tab" aria-selected="${S.view===k}">${t}</button>`).join("")}</div><span class="grow"></span><button class="colbtn" aria-label="Expand quote">${ICON.exp}</button>`;
+  }else if(S.o==="a"){
+    bar=`<b style="font-size:13px">Products</b><span class="meta">5 lines · 2 rooms</span><span class="grow"></span>${S.col&&S.tab==="prod"?`<button class="pbtn" id="addp" style="margin:0">+ Add products</button>`:""}<span class="meta">Show details</span>`;
+  }else{
+    bar=`<div class="seg" role="radiogroup" aria-label="Show the quote as">${[["lines","Lines",ICON.list],["sum","Summary",ICON.info],["pdf","PDF",ICON.doc]].map(([k,t,i])=>`<button class="${S.view===k?"cur":""}" data-v="${k}" role="radio" aria-checked="${S.view===k}">${i}${t}</button>`).join("")}</div><span class="meta">5 lines · 2 rooms</span><span class="grow"></span>${S.col&&S.tab==="prod"?`<button class="pbtn" id="addp" style="margin:0">+ Add products</button>`:""}`;
+  }
+  const v=S.o==="a"?"lines":S.view;
+  content=v==="lines"?lines():v==="sum"?summary():pdfDoc();
+  return `<div class="qbar">${bar}</div><div class="qscroll"${v==="pdf"?' style="overflow:auto;padding:0"':""}>${content}</div>`;
+}
+
+const TOOLS=[["search","Search",ICON.search],["details","Details",ICON.form]];
+const TOOLS_HIDDEN=[
+
+  ["calc","Calculations",'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="1.5" width="10" height="13" rx="1"/><path d="M5.5 4.5h5M5.5 8h1M9.5 8h1M5.5 11h1M9.5 11h1"/></svg>'],
+  ["comm","Communications",'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h12v8H7l-3 3v-3H2z"/></svg>']];
+const TOOLNAME={search:"Search products",details:"Quote details",calc:"Admin: Calculations",comm:"Communications"};
+function toolHtml(){
+  const head=`<div class="lhead"><span>${TOOLNAME[S.tool]}</span><button class="colbtn" id="foldc" aria-label="Hide ${TOOLNAME[S.tool].toLowerCase()}" title="Hide ${TOOLNAME[S.tool].toLowerCase()}">${ICON.l}</button></div>`;
+  if(S.tool==="search") return leftHtml().replace(/<div class="lhead">[\s\S]*?<\/div>/,head);
+  if(S.tool==="details"){
+    const f=(l,v,o={})=>`<div class="fld${o.err?" err":""}"><span>${l}${o.req?" *":""}${o.extra||""}</span><div>${v}</div>${o.err?"<em>Needed before you send</em>":""}</div>`;
+    const SECS=[["cust","Customer",f("Customer","10000418 - QUALITY FINISHES",{req:1})+f("Primary Specifier Contact","Dana Whitfield · Whitfield Design Studio",{req:1})+`<button class="lnk" style="justify-self:start">+ Add associated party</button>`],
+      ["bill","Bill to",f("Payer","10000418 - QUALITY FINISHES",{req:1,extra:' <label style="float:right">☑ Same as Customer</label>'})+f("Payer Contact","Pat Morgan-Ellis · pat.morgan-ellis@example.com",{req:1})+f("Customer PO Number","Enter a Customer PO Number")],
+      ["ship","Ship to",f("Delivery Address","Choose a Delivery Address",{req:1,err:1})+f("Delivery Contact","Pat Morgan-Ellis · pat.morgan-ellis@example.com",{req:1})+f("Service Level","Standard Shipping (S01)",{req:1})+f("Accessorial Terms","Select accessorial terms")],
+      ["quote","Quote",f("Quote Description","Bar and club house fittings and tile",{req:1})+f("Project","Henry bar and club house")+f("Order Type","Residential",{req:1})+f("Order Subtype","US Domestic",{req:1})+f("Status","Open",{req:1})+f("Requested Delivery Date","12/19/2026",{req:1})+f("Est. Conv. Date","10/26/2026",{req:1})+f("Expiration Date","04/27/2028",{req:1})],
+      ["team","Team",f("Sales Consultant","Alex Rivera",{req:1})+`<button class="lnk" style="justify-self:start">+ Add sales consultant (up to 3)</button>`+f("Responsible","Alex Rivera",{req:1})+f("Cost Center","Sample Design Center",{req:1})]];
+    return `<div class="lin">${head}
+    <div class="secnav">${SECS.map(([k,t],i)=>`<button data-sec="${k}" class="${i===0?"cur":""}">${t}${k==="ship"?' <i class="sdot"></i>':""}</button>`).join("")}</div>
+    ${SECS.map(([k,t,b])=>`<div class="sec" id="sec-${k}"><h5>${t}</h5>${b}</div>`).join("")}</div>`;
+  }
+  return `<div class="lin">${head}<div class="log"><b>Not mapped yet</b><small>This is QOM's ${TOOLNAME[S.tool]} tab. This mockup doesn't include it.</small></div></div>`;
+}
+// the quote actions menu
+const QMENU=`<div class="qmore" role="menu" aria-label="Quote actions"><button type="button" role="menuitem" class="qm-item" data-qmore="override" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h12v9"/><path d="M5 3.5v17h7"/><path d="M8 8h6M8 11h3"/><path d="M8 14.5h3"/><circle cx="17" cy="17" r="1.6"/><path d="M14 21.5c.4-1.6 1.6-2.4 3-2.4s2.6.8 3 2.4"/></svg><span>Override Automated Payment</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="followup" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h12v9"/><path d="M5 3.5v17h7"/><path d="M8 8h6M8 11h3"/><path d="M8 14.5h3"/><circle cx="17" cy="17" r="1.6"/><path d="M14 21.5c.4-1.6 1.6-2.4 3-2.4s2.6.8 3 2.4"/></svg><span>Follow-up Notes</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="internal" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h10.5l3.5 3.5v13.5H5z"/><path d="M8 10h8M8 13.5h8M8 17h5"/></svg><span>Internal Notes</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="duplicate" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3.5h8l3.5 3.5v11H8z"/><path d="M8 7H4.5v13.5H15V18"/></svg><span>Duplicate Quote</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="archive" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="4" width="15" height="16" rx="1"/><path d="M4.5 8.5h15"/><path d="M12 11v5.5M9.5 14l2.5 2.5 2.5-2.5"/></svg><span>Archive Quote</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="specpacks" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h10l3 3v14H6z"/><path d="M4 6v16h12"/><text x="8.3" y="12.6" font-size="4.6" font-family="Arial" stroke="none" fill="currentColor">PDF</text></svg><span>Generate SpecPacks</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="charge" aria-disabled="true" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5h5l-1.5 3h-2z"/><path d="M11 7.5C6.5 9.5 5 13 5 16c0 2.5 2 4.5 7 4.5s7-2 7-4.5c0-3-1.5-6.5-6-8.5"/><circle cx="12" cy="14.5" r="1.4"/></svg><span>Add Charge</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="refresh" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="14" height="13" rx="1"/><path d="M4 9h14M8 3v4M14 3v4"/><path d="M15.5 21a3.5 3.5 0 1 0-3.2-4.9"/><path d="M12 13.8v2.6h2.6"/></svg><span>Refresh Quote</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="dates" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="14" height="14" rx="1"/><path d="M4 9h14M8 3v4M14 3v4"/><path d="M14 20.5l1-3 5-5 2 2-5 5z"/></svg><span>Refresh Dates</span></button><button type="button" role="menuitem" class="qm-item" data-qmore="saveexit" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="4" width="15" height="16" rx="1.5"/><path d="M8.5 4v4.5h7V4"/><circle cx="12" cy="14" r="1.3" fill="currentColor"/></svg><span>Save &amp; Exit</span></button><hr class="qm-sep"><button type="button" role="menuitem" class="qm-item qm-new" data-qmore="finish" tabindex="-1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/><path d="M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7"/><path d="M7 17h.01"/><path d="m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8"/></svg><span>Change finish</span><span class="newpill">New</span></button></div>`;
+const PDFLINES=[["Primary Bath",[[2,"Henry Lavatory Faucet in Polished Nickel","HNLF-PN",1420,"In stock"],[1,"Henry Towel Bar 24\" in Polished Nickel","HNTB24-PN",410,"In stock"],[2,"Henry Robe Hook in Polished Nickel","HNHK-PN",145,"Out of stock in USC"]]],["Powder Room",[[1,"Henry Wall Mounted Faucet in Chrome","HNWM-CH",1180,"In stock"],[1,"Henry Paper Holder in Chrome","HNPH-CH",215,"In stock"]]]];
+const money=n=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+// the mock PDF
+function pdfDoc(){
+  let sub=0; const body=[];
+  PDFLINES.forEach(([room,ls])=>{ body.push(`<tr class="rm"><td colspan="4">${room}</td></tr>`); ls.forEach(([q,n,sku,u])=>{ sub+=q*u; body.push(`<tr><td class="c">${q}</td><td>${n}<br><span class="mm">${sku}</span></td><td class="r">${money(u)}</td><td class="r">${money(q*u)}</td></tr>`); }); });
+  const tax=sub*0.068, total=sub+tax;
+  const head=t=>`<div class="pdfhead"><div class="pdfmark">WATERWORKS<small>ESTB. 1978</small></div><div><div class="pdftitle">${t}</div>`;
+  return `<div class="pdfwrap" role="document" aria-label="PDF preview of the quote">
+  <div class="pdfpage"><div class="wm" aria-hidden="true">DRAFT</div>
+    ${head("Sales Quote")}<div class="pdfkv"><div><b>PROJECT NAME:</b>Henry bar and club house</div><div><b>QUOTE DESCRIPTION</b>Bar and club house fittings and tile</div><div><b>QUOTE NUMBER</b>6000024967</div><div><b>DATE ENTERED:</b>10-30-26</div><div><b>DATE REVISED:</b>10-30-26</div></div></div></div>
+    <div class="pdfgrid"><div><b>SOLD TO:</b><br>QUALITY FINISHES<br>12 Sample Street<br>ANYTOWN MA 01000<br>United States</div><div><b>SHIP TO:</b><br>12 Sample Street<br>ANYTOWN MA 01000<br>United States</div><div><b>SOLD TO CONTACT:</b><br><br><b>DELIVERY CONTACT:</b></div></div>
+    <div class="pdfsec"><div><b>PROJECT SUMMARY</b><div class="pdfsum"><span>SUB-TOTAL</span><span>${money(sub)}</span><span>FREIGHT</span><span>${money(0)}</span><span>TAX</span><span>${money(tax)}</span><span>TOTAL</span><span>${money(total)}</span></div></div>
+      <div><b>CUSTOMER PO:</b><br><b>PROJECT NUMBER:</b><br><b>SHIPPING METHOD:</b> Standard Shipping</div></div>
+    <div class="pdfsec tall"><b>ASSOCIATED PARTIES:</b></div>
+    <div class="pdfterms"><b>SALES QUOTE TERMS AND CONDITIONS</b>Sample terms for this mockup only. Pricing and availability shown are estimates and are subject to change; the final terms come from the real quote document.</div>
+    <div class="pdffoot"><div><b>SALES CONSULTANT</b> Alex Rivera<br><b>PHONE</b> (555) 010-0100<br><b>EMAIL</b> alex.rivera@example.com</div><div><b>SHOWROOM</b> Sample Showroom<br>1 Example Way, Anytown</div></div>
+    <div class="pdfpg">Page 1 of 2</div></div>
+  <div class="pdfpage"><div class="wm" aria-hidden="true">DRAFT</div>
+    ${head("Quote Detail")}<div class="pdfkv"><div><b>PROJECT NAME:</b>Henry bar and club house</div><div><b>QUOTE NUMBER:</b>6000024967</div><div><b>DATE REVISED:</b>10-30-26</div></div></div></div>
+    <table class="pdftbl"><thead><tr><th class="c">QTY</th><th>ITEM</th><th class="r">UNIT $</th><th class="r">PRICE $</th></tr></thead><tbody>${body.join("")}</tbody>
+      <tfoot><tr><td colspan="3">TOTAL (before freight)</td><td class="r">${money(total)}</td></tr></tfoot></table>
+    <div class="pdfpg">Page 2 of 2</div></div>
+  </div>`;
+}
+const menuHtml=()=>S.menu?`<div class="qmenuwrap" style="top:${S.o==="c"?66:118}px">${QMENU}</div>`:"";
+
+// ---------- Find in this quote (every word matches the start of a word in the name with its finish, or the start of the item number) ----------
+const ICON2={unexp:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 1v4H1M11 1v4h4M15 11h-4v4M1 11h4v4"/></svg>',
+  up:'<svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6.5l5-5 5 5"/></svg>',
+  down:'<svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg>'};
+const terms=()=>S.find.toLowerCase().trim().split(/\s+/).filter(Boolean);
+const reEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+const isHit=(n,sku)=>{ const t=terms(); if(!t.length) return false; const w=n.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  return t.every(x=>w.some(y=>y.startsWith(x))||sku.toLowerCase().startsWith(x)); };
+const hits=()=>{ const out=[]; PDFLINES.forEach(([,ls],ri)=>ls.forEach(([,n,sku],li)=>{ if(isHit(n,sku)) out.push(ri+"-"+li); })); return out; };
+const hl=(txt,on,isSku)=>{ let h=txt; terms().forEach(t=>{ h=isSku?h.replace(new RegExp("^("+reEsc(t)+")","i"),"\u0001$1\u0002"):h.replace(new RegExp("(^|[^A-Za-z0-9\u0001])("+reEsc(t)+")","gi"),"$1\u0001$2\u0002"); });
+  return h.replace(/\u0001/g,`<mark${on?' class="on"':""}>`).replace(/\u0002/g,"</mark>"); };
+function findBox(){
+  const H=hits(), n=H.length, cur=n?Math.min(S.fi,n-1)+1:0;
+  const msg=!S.find.trim()?"":n?`${cur} of ${n} match${n>1?"es":""}`:"No matching lines";
+  return `<div class="lfind"><label class="lfilter">${ICON.search}<input type="search" id="findq" placeholder="Find in this quote" aria-label="Find in this quote: product name, finish or item number" autocomplete="off" value="${S.find.replace(/"/g,"&quot;")}">${n>1?`<button type="button" class="fbtn" data-fstep="-1" aria-label="Previous match">${ICON2.up}</button><button type="button" class="fbtn" data-fstep="1" aria-label="Next match">${ICON2.down}</button>`:""}</label><span class="fcount" aria-live="polite">${msg}</span></div>`;
+}
+function linesC(){
+  const H=hits(), cur=H.length?H[Math.min(S.fi,H.length-1)]:null;
+  return PDFLINES.map(([room,ls],ri)=>{ const m=ls.filter(([,n,sku])=>isHit(n,sku)).length;
+    return `<div class="room" id="rm-${ri}${S.full?"f":""}"><span>${room}${m?` <span class="fm">· ${m} match${m>1?"es":""}</span>`:""}</span><span class="meta" style="font-weight:400">${ls.length} lines</span></div>`+
+      ls.map(([q,n,sku,u,st],li)=>{ const k=ri+"-"+li, hit=H.includes(k), on=k===cur;
+        return `<div class="line${on?" cur":""}" data-k="${k}"><span class="ph"></span><div>${hit?hl(n,on):n}<small>${hit?hl(sku,on,1):sku} · ${st}</small></div><div class="step">${q}</div><div class="r">${money(q*u)}</div></div>`; }).join(""); }).join("");
+}
+function fullHtml(){
+  if(!S.full) return "";
+  return `<div class="fullq" role="region" aria-label="Quote, full view">
+    <div class="fqtop"><b style="font-size:15px;font-weight:500">Products</b>${findBox()}<span class="meta">5 lines · 2 rooms</span><span class="grow"></span><span class="meta">Show details</span><button type="button" class="exitfull" data-full>${ICON2.unexp}<span>Exit full view</span></button></div>
+    <div class="fqbody"><nav class="fqside" aria-label="Rooms"><div class="qsidet"><b>Rooms <span class="meta" style="font-weight:400">(2)</span></b><button type="button" class="lnk">+ Add room</button></div>
+      ${PDFLINES.map(([room,ls],ri)=>`<button type="button" class="fqroom" data-jump="${ri}"><span>${room}</span><span class="meta">${ls.length} lines</span></button>`).join("")}
+      <div class="fqtot"><span>Subtotal</span><b>$4,935.00</b><i>Total is before freight</i></div></nav>
+      <div class="fqlines" id="fqlines">${linesC()}</div></div></div>`;
+}
+function afterFind(){
+  if(S.findFocus){ S.findFocus=false; const i=$("#findq"); if(i){ i.focus(); const L=i.value.length; i.setSelectionRange(L,L); } }
+  const box=S.full?$("#fqlines"):$("#clines"), c=box?.querySelector(".line.cur");
+  if(box&&c){ const t=c.offsetTop-box.offsetTop, b=t+c.offsetHeight; if(t<box.scrollTop||b>box.scrollTop+box.clientHeight) box.scrollTop=t-40; }
+}
+document.addEventListener("input",e=>{ if(e.target.id!=="findq") return; S.find=e.target.value; S.fi=0; S.findFocus=true; render(); });
+document.addEventListener("keydown",e=>{ if(e.target.id!=="findq"||e.key!=="Enter") return; e.preventDefault(); const n=hits().length; if(!n) return; S.fi=(S.fi+(e.shiftKey?-1:1)+n)%n; S.findFocus=true; render(); });
+document.addEventListener("click",e=>{
+  const st=e.target.closest("[data-fstep]"); if(st){ const n=hits().length; S.fi=(S.fi+ +st.dataset.fstep+n)%n; S.findFocus=true; render(); return; }
+  if(e.target.closest("[data-full]")){ S.full=!S.full; S.menu=false; render(); (S.full?$(".exitfull"):$('[data-full]'))?.focus(); return; }
+  const j=e.target.closest("[data-jump]"); if(j){ const box=$("#fqlines"), r=$("#rm-"+j.dataset.jump+"f"); if(box&&r) box.scrollTop=r.offsetTop-box.offsetTop; return; }
+});
+function renderC(){
+  const w=S.col?"0px":"380px";
+  $("#m").innerHTML=`
+  <nav class="rail" aria-label="Side nav (mockup)"><i></i><i></i><i></i><i class="cur"></i><i></i></nav>
+  <div class="main" style="grid-template-rows:auto 1fr 57px">
+    <div class="qh"><div class="crumb">Projects › Quote</div>
+      <div class="qt"><b>Pat Morgan-Ellis</b><span class="draft">Draft</span><span class="qid">Quote 6000024967</span><span class="sp"></span><button class="pbtn" id="pdfbtn" style="margin:0">${ICON.doc}Preview PDF</button><button class="more" style="margin:0 0 0 6px" data-qmenu aria-haspopup="menu" aria-expanded="${!!S.menu}" aria-label="More quote actions">•••</button></div>
+      <div class="facts"><span>Customer <b>Quality Finishes (USC)</b></span><span>Project <b>Henry bar and club house</b></span><span>Requested delivery <b>Dec 19, 2026</b></span><span>Expires <b>in 30 days</b></span><span><b>Trade pricing</b></span><span><b>Pay in full (PIF)</b></span></div></div>
+    <div class="body" style="grid-template-columns:96px ${w} 1fr">
+      <div class="tools" role="toolbar" aria-label="Quote tools" aria-orientation="vertical">${TOOLS.map(([k,t,i])=>`<button class="tool ${S.tool===k&&!S.col?"cur":""}" data-tool="${k}" aria-pressed="${S.tool===k&&!S.col}" aria-label="${TOOLNAME[k]}">${i}<span>${t}</span>${k==="details"?'<span class="dot" title="1 field needed before you send"></span>':""}</button>`).join("")}</div>
+      <div class="left scroll" id="cleft" ${S.col?'style="border:0"':""}>${S.col?"":toolHtml()}</div>
+      <div class="panel"><div class="qbar">${findBox()}<span class="meta">5 lines · 2 rooms</span><span class="grow"></span><span class="meta">Show details</span><button type="button" class="colbtn" data-full aria-label="Full view of the quote" title="Full view">${ICON.exp}</button></div><div class="qscroll" id="clines" style="overflow:auto">${linesC()}</div></div>
+    </div>
+    <div class="foot"><span class="tot">$4,935.00</span><span class="div"></span><span style="color:var(--m-2)">Saved 10:42 AM</span><button class="fb">Save</button><button class="fb">Calculate freight</button><button class="fb k">Send to client</button></div>
+  </div>
+  ${S.pdf?`<div class="sheet" id="sheet"><div class="pg" role="dialog" aria-label="PDF preview"><div class="sh"><span>Sales quote PDF · preview</span><button class="colbtn" id="closepdf" aria-label="Close preview">✕</button></div><div class="doc">${pdfDoc()}</div></div></div>`:""}
+  ${fullHtml()}
+  ${menuHtml()}
+  ${S.pdf||S.menu||S.full||S.find.trim()?"":S.col?`<div class="ann left" style="left:160px;top:140px">Folded. Click any tool to open it</div>`
+    :`<div class="ann left" style="left:160px;top:250px">Click the open tool again to fold</div><div class="ann up" style="left:820px;top:94px">Summary lives in the header</div><div class="ann right" style="left:800px;top:30px">PDF is an action</div>`}`;
+  after(); afterFind();
+}
+function render(){
+  if(S.o==="c") return renderC();
+  const tabs=S.o==="a"?TABS_A:TABS_NOW;
+  const leftW=S.o!=="now"&&S.col?"40px":(S.tab==="ov"?"420px":"380px");
+  $("#m").innerHTML=`
+  <nav class="rail" aria-label="Side nav (mockup)"><i></i><i></i><i></i><i class="cur"></i><i></i></nav>
+  <div class="main">
+    <div class="qh"><div class="crumb">Projects › Quote</div><div class="qt"><b>Pat Morgan-Ellis</b><span class="draft">Draft</span><span class="qid">Quote 6000024967</span></div></div>
+    <div class="ptabs" role="tablist">${tabs.map(([k,t])=>`<button class="ptab ${S.tab===k?"cur":""}" data-t="${k}" role="tab" aria-selected="${S.tab===k}">${t}</button>`).join("")}<span class="sp"></span>${S.o==="a"?`<button class="pbtn" id="pdfbtn">${ICON.doc}Preview PDF</button>`:""}<button class="more" data-qmenu aria-haspopup="menu" aria-expanded="${!!S.menu}" aria-label="More quote actions">•••</button></div>
+    <div class="body" style="grid-template-columns:${leftW} 1fr"><div class="left">${leftHtml()}</div><div class="panel">${panelHtml()}</div></div>
+    <div class="foot"><span class="tot">$4,935.00</span><span class="div"></span><span style="color:var(--m-2)">Saved 10:42 AM</span><button class="fb">Save</button><button class="fb">Calculate freight</button><button class="fb k">Send to client</button></div>
+  </div>
+  ${S.pdf?`<div class="sheet" id="sheet"><div class="pg" role="dialog" aria-label="PDF preview"><div class="sh"><span>Sales quote PDF · preview</span><button class="colbtn" id="closepdf" aria-label="Close preview">✕</button></div><div class="doc">${pdfDoc()}</div></div></div>`:""}
+  ${menuHtml()}
+  ${annotations()}`;
+  after();
+}
+function after(){
+  document.querySelectorAll(".opt[data-o]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.o===S.o));
+  $("#hint").textContent={now:"Today: click Quote information or PDF preview in the panel. The panel changes while the tab across the top stays on Product Selection.",
+    c:"Try: click Details (its red dot is a field needed before sending), then click Details again to fold it. Open Preview PDF, or ••• for the quote's actions. In the products, try finding \"nickel\", or open the full view from the corner icon."}[S.o];
+  notes();
+}
+
+function annotations(){
+  if(S.pdf||S.menu) return "";
+  if(S.o==="now") return `<div class="ann bad up" style="left:340px;top:112px">Row 1: page tabs</div><div class="ann bad up" style="left:${S.tab==="prod"?520:520}px;top:172px">Row 2: panel tabs, styled the same</div>`;
+  if(S.o==="a") return S.col?`<div class="ann left" style="left:110px;top:190px">Folded: click the strip to open</div><div class="ann up" style="left:880px;top:175px">Way back to search</div>`
+    :`<div class="ann up" style="left:72px;top:112px">Summary is now a page tab</div><div class="ann up" style="left:880px;top:112px">PDF is an action</div><div class="ann left" style="left:${S.tab==="ov"?486:446}px;top:150px">Fold the left side</div>`;
+  return `<div class="ann up" style="left:${S.col?140:460}px;top:175px">A switch, not a second tab row</div>`;
+}
+
+function notes(){
+  const N={
+    now:[["What gets in the way",["Two rows of tabs that look the same, but the lower row doesn't change with the upper one.","Quote information repeats what's on Essential Quote Info and Header Information.","PDF preview hides the products while it's open.","Two different ways to make the quote wider: the expand button and the drag handle."],"con"]],
+    c:[["What changes",["No rows of tabs. The products are always in the middle of the page.","Product search and the quote's details open from a column of tools on the left. Click the open tool again to fold it.","Essential Quote Info, Header Information, Shipping Information and Associations become sections of one Details panel.","Key facts about the quote sit in its header on every screen. The PDF opens from a button."],"pro"],
+       ["Trade-offs",["Two narrow columns sit side by side on the left: the main menu and the tools. The main menu would start folded on quote pages.","Details is one long form in a narrow panel, so it needs clear sections.","Sales consultants would need to learn where things have moved, such as Header Information's fields."],"con"]]
+  }[S.o];
+  $("#notes").innerHTML=N.map(([h,items,c])=>`<div class="box"><h3>${h}</h3><ul class="${c}">${items.map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("");
+}
+
+document.addEventListener("click",e=>{
+  const tl=e.target.closest("[data-tool]"); if(tl){ const k=tl.dataset.tool; if(S.tool===k&&!S.col) S.col=true; else { S.tool=k; S.col=false; } render(); document.querySelector(`[data-tool="${k}"]`)?.focus(); return; }
+  const sc=e.target.closest("[data-sec]"); if(sc){ const L=$("#cleft"), el=$("#sec-"+sc.dataset.sec); if(L&&el) L.scrollTop=el.offsetTop-44; document.querySelectorAll("[data-sec]").forEach(b=>b.classList.toggle("cur",b===sc)); return; }
+  if(e.target.closest("#foldc")){ S.col=true; render(); document.querySelector(`[data-tool="${S.tool}"]`)?.focus(); return; }
+  const o=e.target.closest(".opt[data-o]"); if(o){ S.o=o.dataset.o; S.view="lines"; S.pdf=false; S.full=false; S.menu=false; S.col=false; S.tool="search"; if(S.o!=="a"&&S.tab==="ov") S.tab="prod"; if(S.o==="now") S.col=false; render(); return; }
+  const t=e.target.closest("[data-t]"); if(t){ S.tab=t.dataset.t; render(); return; }
+  const v=e.target.closest("[data-v]"); if(v){ S.view=v.dataset.v; render(); return; }
+  if(e.target.closest("#fold")){ S.col=true; render(); $("#unfold")?.focus(); return; }
+  if(e.target.closest("#unfold")||e.target.closest("#addp")){ S.col=false; S.tab=e.target.closest("#addp")?"prod":S.tab; render(); $("#fold")?.focus(); return; }
+  if(e.target.closest("#pdfbtn")){ S.pdf=true; render(); $("#closepdf")?.focus(); return; }
+  if(e.target.closest("#closepdf")||e.target.id==="sheet"){ S.pdf=false; render(); $("#pdfbtn")?.focus(); return; }
+});
+document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return; if(S.pdf||S.menu){ S.pdf=false; S.menu=false; render(); } else if(S.full){ S.full=false; render(); } });
+document.addEventListener("click",e=>{
+  if(e.target.closest("[data-qmenu]")){ S.menu=!S.menu; render(); if(S.menu) document.querySelector(".qmenuwrap .qm-item:not([aria-disabled])")?.focus(); return; }
+  const it=e.target.closest(".qmenuwrap .qm-item"); if(it){ if(it.getAttribute("aria-disabled")==="true") return; S.menu=false; render(); $("#hint").textContent=`${it.textContent.replace("New","").trim()} isn't part of this mockup.`; return; }
+  if(S.menu&&!e.target.closest(".qmenuwrap")&&e.target.closest("#m")){ S.menu=false; render(); }
+},true);
+render();
+
+// ---------- new quote flow ----------
+const N={step:1,rooms:[]};
+const ROOMTYPES=["Primary Bath","Guest Bath","Powder Room","Kitchen","Laundry"];
+const FIX=["Delivery Address","Payer Contact","Delivery Contact","Quote Description"];
+function renderN(){
+  const fld=(l,v,o={})=>`<div class="fld"><span>${l}${o.req?" *":""}</span><div${o.ph?' style="color:var(--m-2)"':""}>${v}</div>${o.note?`<span class="cnote">${o.note}</span>`:""}</div>`;
+  let html;
+  if(N.step===1){
+    html=`<nav class="rail" aria-label="Side nav (mockup)"><i></i><i></i><i></i><i class="cur"></i><i></i></nav>
+    <div class="main" style="grid-template-rows:auto 1fr">
+      <div class="qh" style="padding-bottom:10px;border-bottom:1px solid var(--m-line)"><div class="crumb">Projects › Quotes › New quote</div></div>
+      <div class="create"><form class="cform" id="cform" aria-label="New quote">
+        <div class="ttl">New quote</div><div class="sub">These create the quote in M3. Everything else can wait.</div>
+        <div class="cgrid">
+          ${fld("Customer","10000418 - QUALITY FINISHES",{req:1})}${fld("Primary Specifier Contact","Dana Whitfield · Whitfield Design Studio",{req:1})}
+          ${fld("Order Type","Residential",{req:1,note:'<span style="color:var(--m-2)">From the customer record</span>'})}${fld("Order Subtype","US Domestic",{req:1,note:'<span style="color:var(--m-2)">From the customer record</span>'})}
+          ${fld("Requested Delivery Date","12/19/2026",{req:1,note:"Orders entered after 3pm ET can't be requested for today."})}${fld("Est. Conv. Date","10/26/2026",{req:1})}
+          ${fld("Project (optional)","Choose a project",{ph:1})}
+        </div>
+        <div class="defaults"><div><b>Filled in for you.</b> Change any of these later in Details.</div>
+          <div class="dl"><span>Sales Consultant <b>Alex Rivera</b></span><span>Responsible <b>Alex Rivera</b></span><span>Payer <b>Same as customer</b></span><span>Status <b>Open</b></span><span>Expires <b>in 30 days</b></span><span>Cost Center <b>Sample Design Center</b></span><span>Service Level <b>Standard Shipping (S01)</b></span></div></div>
+        <div class="cact"><button type="button" class="fb" id="ndiscard">Discard</button><button type="submit" class="fb k">Create quote</button></div>
+      </form></div>
+    </div>
+    <div class="ann left" style="left:870px;top:110px">Only what M3 needs</div>
+    <div class="ann left" style="left:870px;top:500px">Defaults, shown, not typed</div>`;
+  }else{
+    const lines=N.rooms.length?N.rooms.map(r=>`<div class="room"><span>${r}</span><span class="meta" style="font-weight:400">0 lines</span></div><div class="emptyline">No products yet. Search on the left, then Add.</div>`).join("")
+      +`<div style="display:grid;gap:8px;margin-top:6px"><span class="meta">Add another room</span><div class="chips">${ROOMTYPES.map(t=>`<button class="chip" data-room="${t}">${t}</button>`).join("")}<button class="chip add" data-room="custom">+ Add room</button></div></div>`
+      :`<div class="roomstart"><div class="rt">Start with a room</div><span class="meta">Products go into rooms. Pick a type, or add your own.</span><div class="chips">${ROOMTYPES.map(t=>`<button class="chip" data-room="${t}">${t}</button>`).join("")}<button class="chip add" data-room="custom">+ Add room</button></div></div>`;
+    const room=N.rooms[N.rooms.length-1];
+    html=`<nav class="rail" aria-label="Side nav (mockup)"><i></i><i></i><i></i><i class="cur"></i><i></i></nav>
+    <div class="main" style="grid-template-rows:auto 1fr 57px">
+      <div class="qh"><div class="crumb">Projects › Quote</div>
+        <div class="qt"><b>Quality Finishes</b><span class="draft">Draft</span><span class="qid">Quote 6000024967</span><span class="sp"></span><button class="pbtn" style="margin:0" disabled>${ICON.doc}Preview PDF</button><button class="more" style="margin:0 0 0 6px" aria-label="More quote actions">•••</button></div>
+        <div class="facts"><span>Customer <b>Quality Finishes (USC)</b></span><span>Requested delivery <b>Dec 19, 2026</b></span><span>Expires <b>in 30 days</b></span><span><b>Trade pricing</b></span><span><b>Pay in full (PIF)</b></span></div></div>
+      <div class="body" style="grid-template-columns:96px 380px 1fr">
+        <div class="tools" role="toolbar" aria-label="Quote tools" aria-orientation="vertical">
+          <button class="tool cur" aria-pressed="true">${ICON.search}<span>Search</span></button>
+          <button class="tool" aria-label="Quote details, 4 fields needed before you send">${ICON.form}<span>Details</span><span class="dot"></span></button></div>
+        <div class="left"><div class="lin"><div class="lhead"><span>Product search</span></div>
+          <div class="fld"><div style="${room?"":"color:var(--m-2)"}">${room||"Choose a room to add products"} ▾</div></div>
+          <div class="search" style="border-color:var(--m-ink);box-shadow:0 0 0 3px rgb(18 18 18 / .5)">Name, collection, finish or item #<span style="border-left:1.5px solid var(--m-ink);margin-left:2px"></span></div>
+          <div class="pills"><span class="pill">Finish</span><span class="pill">Collection</span><span class="pill">Category</span><span class="pill">More filters</span></div>
+          <div style="text-align:center;color:var(--m-2);padding-top:40px;display:grid;gap:6px;justify-items:center">${ICON.search}<b style="color:var(--m-ink);font-weight:500">Search, or start with a finish</b></div></div></div>
+        <div class="panel"><div class="qbar"><b style="font-size:13px">Products</b><span class="meta">${N.rooms.length?`0 lines · ${N.rooms.length} room${N.rooms.length>1?"s":""}`:"No rooms yet"}</span></div>
+          <div class="qscroll" style="overflow:auto"><div class="okbar">Quote 6000024967 created. Add products, and fill in the 4 details marked in red before you send.</div>${lines}</div></div>
+      </div>
+      <div class="foot"><span class="tot" style="color:var(--m-2)">$0.00</span><span class="div"></span><span style="color:var(--m-2)">Saved just now</span><button class="fb" disabled>Save</button><button class="fb" disabled>Calculate freight</button><button class="fb" disabled title="4 things to fix before sending">Send to client<span class="badge">4</span></button></div>
+    </div>
+    <div class="ann down" style="left:890px;top:578px">4 details left, not blocking</div>
+    <div class="ann left" style="left:540px;top:${N.rooms.length?236:206}px">Cursor lands in search</div>
+    ${N.rooms.length?"":`<div class="ann up" style="left:600px;top:352px">The empty quote starts with rooms</div>`}`;
+  }
+  $("#m2").innerHTML=html;
+  document.querySelectorAll("[data-n]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.n===N.step)));
+  $("#hint2").textContent=N.step===1?"Try: Create quote.":"Try: pick a room type in the lines area. The room picker on the search side fills in with it.";
+}
+document.addEventListener("click",e=>{
+  const s=e.target.closest("[data-n]"); if(s){ N.step=+s.dataset.n; if(N.step===1) N.rooms=[]; renderN(); return; }
+  const r=e.target.closest("[data-room]"); if(r){ const t=r.dataset.room==="custom"?"Room":r.dataset.room; const n=N.rooms.filter(x=>x.startsWith(t+" ")).length+1; N.rooms.push(`${t} ${n}`); renderN(); return; }
+  if(e.target.closest("#ndiscard")){ return; }
+});
+const goHash=()=>{ const id={"#new-quote":"new-quote","#quote-page":"quote-page"}[location.hash]; if(id) document.getElementById(id)?.scrollIntoView(); };
+window.addEventListener("hashchange",goHash); setTimeout(goHash,0);
+document.addEventListener("submit",e=>{ if(e.target.id!=="cform") return; e.preventDefault(); N.step=2; N.rooms=[]; renderN(); });
+renderN();
+</script>

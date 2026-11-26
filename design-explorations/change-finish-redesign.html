@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Change finish redesign options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Static design exploration for the QOM prototype's Change finish modal (Nov 16). Mock data only; nothing here is wired up.
+   Same tokens as the prototype: black and white, Figtree, Caslon for money, #dcdcdc lines, #f5f5f5 surfaces. */
+:root{--bg:#fff;--ink:#111;--ink-2:#4a4a4a;--ink-3:#6f6f6f;--line:#dcdcdc;--line-2:#ebebeb;--surface:#f5f5f5;--surface-2:#ebebeb;
+  --ok:#2d6a4f;--ok-bg:#e8f3ed;--amber:#8a5200;--amber-bg:#fdf1d6;--block:#a8461a;--alert:#e0201b;--prog:#2b5c8a;--prog-bg:#eef3f8;
+  --serif:"Libre Caslon Text",Georgia,serif;--sans:Figtree,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#e9e9e9;color:var(--ink);font:14px/1.45 var(--sans)}
+.page{max-width:1640px;margin:0 auto;padding:32px 24px 80px}
+.page>h1{font:400 30px var(--serif);margin:0 0 6px}
+.page>p.lead{margin:0 0 28px;color:var(--ink-2);max-width:900px}
+.opt{margin:0 0 56px}
+.opt>header{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.opt>header h2{margin:0;font:600 20px var(--sans)}
+.opt>header .tag{padding:2px 10px;border-radius:999px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.opt>p{margin:0 0 16px;color:var(--ink-2);max-width:980px}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.pair>figure{margin:0}
+.pair figcaption{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+.dlg{background:var(--bg);box-shadow:0 24px 60px rgba(0,0,0,.18);display:flex;flex-direction:column;height:760px;overflow:hidden}
+.x{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:0;background:none;margin-left:auto;color:var(--ink)}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{height:48px;padding:0 28px;border:1px solid var(--ink);background:var(--bg);letter-spacing:.12em;text-transform:uppercase;font-size:13px;font-weight:600}
+.btn.pri{background:var(--ink);color:#fff}
+.btn.off{background:#bdbdbd;border-color:#bdbdbd;color:#fff;cursor:not-allowed}
+.sw{display:inline-block;width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);vertical-align:-1px}
+.pn{background:#cfcfca}.bb{background:#a8844a}
+.chk{width:18px;height:18px;flex:none;border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;background:var(--bg)}
+.chk.on{background:var(--ink)} .chk.on::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.chk.dis{border-color:var(--line);background:var(--surface)}
+.sel{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border:1px solid var(--ink);background:var(--bg);font-size:15px}
+.sel::after{content:"";width:8px;height:8px;border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);transform:rotate(45deg) translateY(-3px)}
+.cant{color:var(--alert)}
+.muted{color:var(--ink-3)}
+.money{font-variant-numeric:tabular-nums}
+.up{color:var(--ink)}
+.flag{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.flag.w{background:var(--amber-bg);color:var(--amber)} .flag.x{background:#fde8e7;color:#b3150f} .flag.n{background:var(--surface);color:var(--ink-2)}
+.pay{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:var(--amber-bg);color:var(--amber);font-size:13px}
+
+/* ---------- Option A: Refined ---------- */
+.oa .hd{display:flex;align-items:flex-start;gap:14px;padding:22px 28px 0}
+.oa .hd h3{margin:0;font:500 22px/1.25 var(--sans)}
+.oa .hd .meta{margin:4px 0 0;color:var(--ink-3);font-size:13px}
+.oa .steps{display:flex;gap:6px;margin:14px 28px 0;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.oa .steps span{flex:1;padding-top:8px;border-top:3px solid var(--line-2)} .oa .steps span.on{border-color:var(--ink);color:var(--ink)} .oa .steps span.done{border-color:var(--ink-3)}
+.oa .body{flex:1;min-height:0;display:flex;flex-direction:column;padding:18px 28px 0}
+.oa .fromto{display:grid;grid-template-columns:1fr 28px 1fr;align-items:end;gap:10px}
+.oa .fromto label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.oa .fromto .arrow{height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--ink-3)}
+.oa .sel.to{border-width:2px}
+.oa .hint{margin:8px 0 0;font-size:12px;color:var(--ink-3)}
+.oa .list{flex:1;min-height:0;margin-top:16px;border:1px solid var(--line);display:flex;flex-direction:column}
+.oa .lh{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.oa .lh b{font-weight:600}
+.oa .rows{overflow:auto}
+.oa .row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line-2)}
+.oa .row:first-child{border-top:0}
+.oa .row .nm{font-weight:500}
+.oa .row .sub{font-size:12px;color:var(--ink-3)}
+.oa .row .pr{text-align:right;font-size:13px}
+.oa .row.dim .nm,.oa .row.dim .pr{color:var(--ink-3)}
+.oa .grp{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface);font-size:13px;color:var(--ink-2);border-top:1px solid var(--line)}
+.oa .ft{display:flex;align-items:center;gap:12px;padding:16px 28px;margin-top:16px;border-top:1px solid var(--line)}
+.oa .ft .sum{margin-right:auto;font-size:13px;color:var(--ink-2)}
+.oa .stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
+.oa .stats div{padding:12px 14px} .oa .stats div+div{border-left:1px solid var(--line)}
+.oa .stats small{display:block;font-size:12px;color:var(--ink-3)} .oa .stats b{display:block;font:400 22px var(--serif)} .oa .stats b.w{color:var(--amber)}
+.oa .sec{margin-top:14px} .oa .sec h4{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.oa .att{border:1px solid var(--line)} .oa .att div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 14px;border-top:1px solid var(--line-2)} .oa .att div:first-child{border-top:0}
+.oa table{width:100%;border-collapse:collapse;font-size:13px}
+.oa th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0}
+.oa td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.oa td.r,.oa th.r{text-align:right}
+.oa .tw{flex:1;min-height:0;overflow:auto;border:1px solid var(--line)}
+.oa .sku{font-size:12px;color:var(--ink-3)} .oa .sku b{color:var(--ink);font-weight:600}
+
+/* ---------- Option B: Table-first ---------- */
+.ob .hd{display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid var(--line)}
+.ob .hd h3{margin:0;font:600 18px var(--sans)}
+.ob .crumb{font-size:13px;color:var(--ink-3)}
+.ob .bar{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--line);font-size:13px}
+.ob .bar .sel{height:40px;min-width:200px;font-size:14px}
+.ob .bar .sp{margin-left:auto;color:var(--ink-2)}
+.ob .tw{flex:1;min-height:0;overflow:auto}
+.ob table{width:100%;border-collapse:collapse;font-size:13px}
+.ob th{position:sticky;top:0;z-index:1;text-align:left;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--line)}
+.ob td{padding:10px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.ob td.r,.ob th.r{text-align:right}
+.ob tr.dim td{color:var(--ink-3)}
+.ob tr.grp td{background:var(--surface);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding:7px 12px}
+.ob .nm{font-weight:500;color:var(--ink)} .ob tr.dim .nm{color:var(--ink-3)}
+.ob .sku{display:block;font-size:12px;color:var(--ink-3)}
+.ob .delta{font-weight:600}
+.ob td .flag{min-width:max-content} .ob th:last-child,.ob td:last-child{white-space:nowrap}
+.ob .ft{display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--line)}
+.ob .ft .tot{margin-right:auto;display:flex;align-items:baseline;gap:10px} .ob .ft .tot b{font:400 20px var(--serif)} .ob .ft .tot small{color:var(--ink-3)}
+
+/* ---------- Option C: Summary card ---------- */
+.oc .hd{display:flex;align-items:center;gap:12px;padding:20px 28px 0}
+.oc .hd h3{margin:0;font:500 20px var(--sans)}
+.oc .body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:20px;padding:16px 28px 0}
+.oc .main{min-height:0;display:flex;flex-direction:column}
+.oc .side{border:1px solid var(--line);background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:14px;align-self:start}
+.oc .side h4{margin:0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.oc .swatches{display:flex;align-items:center;gap:10px;font-size:13px}
+.oc .swatches .big{width:34px;height:34px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.oc .kv{display:flex;justify-content:space-between;font-size:13px} .oc .kv b{font-weight:600}
+.oc .tot b{display:block;font:400 22px var(--serif)} .oc .tot small{color:var(--ink-3);font-size:12px}
+.oc label.l{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.oc .chips{display:flex;flex-wrap:wrap;gap:8px}
+.oc .chip{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;font-size:13px;background:var(--bg)}
+.oc .chip.on{border:2px solid var(--ink);font-weight:600}
+.oc .chip small{color:var(--ink-3);font-weight:400}
+.oc .list{flex:1;min-height:0;overflow:auto;margin-top:14px;border-top:1px solid var(--line)}
+.oc .row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line-2)}
+.oc .row .nm{font-weight:500} .oc .row .sub{font-size:12px;color:var(--ink-3)}
+.oc .row.dim .nm{color:var(--ink-3)}
+.oc .ft{display:flex;justify-content:flex-end;gap:12px;padding:16px 28px;margin-top:14px;border-top:1px solid var(--line)}
+.oc .card{border:1px solid var(--line);padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.oc .card+.card{border-top:0}
+.oc .card .nm{font-weight:500} .oc .card .sub{grid-column:1/-1;font-size:12px;color:var(--ink-3)} .oc .card .sub b{color:var(--ink)}
+.oc .seclbl{margin:14px 0 8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.audit{background:var(--bg);padding:22px 26px;margin:0 0 40px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.audit h2{margin:0 0 10px;font:600 20px var(--sans)}
+.audit .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.audit h3{margin:0 0 6px;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.audit ol{margin:0;padding-left:18px} .audit li{margin:4px 0;color:var(--ink-2)} .audit li b{color:var(--ink)}
+@media (width < 1100px){ .pair{grid-template-columns:1fr} .audit .cols{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Change finish: redesign options</h1>
+<p class="lead">Static mocks for the prototype's Change finish modal, using the Primary Bath, Polished Nickel → Burnished Brass case (7 lines that can change; one has no brass version, one is a rough-in, one a tile). Same QOM tokens as the prototype. Mock data only; nothing is wired up.</p>
+
+<section class="audit">
+<h2>Audit of the current modal</h2>
+<div class="cols">
+<div><h3>Step 1 · Select</h3><ol>
+<li><b>Two left edges.</b> The subline is indented under the title, while the fields and list start at the dialog edge, so the header doesn't read as one block.</li>
+<li><b>The main decision isn't emphasised.</b> Current finish and New finish are equal weight; the eye lands on "All finishes" first.</li>
+<li><b>Three levels of checkboxes</b> (Select all, room, line) for what's usually "everything in this room".</li>
+<li><b>Dense rows.</b> Five facts on one grey line (item, finish, qty, price, delivery) at 12px; price, the one number SCs compare, isn't aligned.</li>
+<li><b>Lines that can't change sit between ones that can,</b> each taking a full row with a red reason, so the list reads as a list of problems.</li>
+<li><b>Footer is a lone grey button</b> whose label is an instruction ("Choose a finish"); no summary of what Next will do.</li>
+</ol></div>
+<div><h3>Step 2 · Confirm</h3><ol>
+<li><b>The title is a two-line sentence</b> carrying every key fact; it's the hardest thing on the screen to scan.</li>
+<li><b>"Will change" repeats a five-row label/value table per line,</b> mostly "unchanged", and repeats the finish change that's identical on every line.</li>
+<li><b>No net impact up front:</b> the quote total sits at the bottom and "+$1,176" is left for the SC to work out.</li>
+<li><b>Needs attention and the payment warning are in two places</b> (top and under the buttons), styled differently.</li>
+<li><b>Heavy chrome:</b> icon circle, eyebrow, black room band, two accordions and a grey total box stack up before any content.</li>
+<li><b>Step progress is a grey phrase</b> ("Step 2 of 2 · Nothing has changed yet") rather than something visible.</li>
+</ol></div>
+</div>
+</section>
+
+<!-- ======================= OPTION A ======================= -->
+<section class="opt oa">
+<header><h2>A · Refined</h2><span class="tag">Recommended</span></header>
+<p>Keeps today's two steps and controls, fixes hierarchy. A step bar replaces the grey step phrase. From → To reads as one sentence with an arrow, and New finish is the heavier field. Rows put price in its own right-aligned column, and lines that can't change fold into one group at the bottom. Confirm leads with three numbers (lines, total change, needs attention), then a compact table that shows only what changes.</p>
+<div class="pair">
+<figure><figcaption>Step 1 · Select</figcaption>
+<div class="dlg">
+  <div class="hd"><div><h3>Change finish · Primary Bath</h3><p class="meta">Residential quote · 7 lines in this room</p></div><button class="x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="steps"><span class="on">1 Select</span><span>2 Confirm</span></div>
+  <div class="body">
+    <div class="fromto">
+      <div><label>From</label><div class="sel"><span><span class="sw pn"></span>&nbsp; Polished Nickel · 7 lines</span></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div><label>To</label><div class="sel to"><span><span class="sw bb"></span>&nbsp; Burnished Brass · 6 of 7</span></div></div>
+    </div>
+    <p class="hint">Only finishes these lines come in. Untick any line to leave it.</p>
+    <div class="list">
+      <div class="lh"><b>6 of 9 lines will change</b><span style="display:flex;gap:8px;align-items:center"><span class="chk on"></span>Select all</span></div>
+      <div class="rows">
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery One Hole Lavatory Faucet</div><div class="sub">AVLAV-PN · qty 2 · Nov 23</div></div><div class="pr money">$1,480.00</div></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Handshower on Bar</div><div class="sub">AVHS18-PN · qty 1 · <span style="color:var(--amber)">2 matches, you pick next</span></div></div><div class="pr money">$1,960.00</div></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Towel Bar 24 inch</div><div class="sub">AVTB24-PN · qty 2 · Nov 23</div></div><div class="pr money">$369.00</div></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Robe Hook</div><div class="sub">AVRH-PN · qty 2 · Nov 23</div></div><div class="pr money">$165.00</div></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Metal Two Leg Washstand <span class="flag n">Kit</span></div><div class="sub">AVWS-PN · qty 1 · Nov 23</div></div><div class="pr money">$6,840.00</div></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Rain Shower Head 10 inch</div><div class="sub">AVSH-PN · qty 1 · Nov 23</div></div><div class="pr money">$780.00</div></div>
+        <div class="grp"><span>3 lines can't change</span><svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 1.5l5 5 5-5"/></svg></div>
+        <div class="row dim"><span class="chk dis"></span><div><div class="nm">Avery Thermostatic Valve Trim</div><div class="sub cant">No version in Burnished Brass</div></div><div class="pr"></div></div>
+        <div class="row dim"><span class="chk dis"></span><div><div class="nm">Avery Thermostatic Rough Valve</div><div class="sub cant">No metal finish (rough-in)</div></div><div class="pr"></div></div>
+        <div class="row dim"><span class="chk dis"></span><div><div class="nm">Calder 3 x 6 Tile</div><div class="sub cant">No metal finish (tile)</div></div><div class="pr"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ft"><span class="sum">6 lines selected · nothing changes until you confirm</span><button class="btn">Cancel</button><button class="btn pri">Review 6 lines</button></div>
+</div></figure>
+
+<figure><figcaption>Step 2 · Confirm</figcaption>
+<div class="dlg">
+  <div class="hd"><div><h3>Confirm change to Burnished Brass</h3><p class="meta">Primary Bath · Residential quote</p></div><button class="x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="steps"><span class="done">1 Select</span><span class="on">2 Confirm</span></div>
+  <div class="body">
+    <div class="stats">
+      <div><small>Lines changing</small><b>6</b></div>
+      <div><small>Quote total</small><b class="money">+$1,176.00</b></div>
+      <div><small>Needs attention</small><b class="w">2</b></div>
+    </div>
+    <div class="sec"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg> Needs attention</h4>
+      <div class="att">
+        <div><span>Avery Towel Bar 24 inch</span><span style="display:flex;gap:6px"><span class="flag w">Custom price $369 → $443</span><span class="flag w">Limited: 1 of 2 · Jan 18</span></span></div>
+        <div><span>Avery Robe Hook</span><span class="flag w">Out of stock · Feb 1</span></div>
+      </div>
+    </div>
+    <div class="sec" style="flex:1;min-height:0;display:flex;flex-direction:column"><h4>Will change (6)</h4>
+      <div class="tw"><table>
+        <thead><tr><th>Item</th><th class="r">Price each</th><th class="r">Delivery</th></tr></thead>
+        <tbody>
+          <tr><td>Avery One Hole Lavatory Faucet<div class="sku">AVLAV-PN → <b>AVLAV-BB</b></div></td><td class="r money">$1,480 → <b>$1,598</b></td><td class="r muted">Same</td></tr>
+          <tr><td>Avery Handshower on Bar<div class="sku">AVHS18-PN → <b>AVHS18-BB</b> · 1.8 gpm</div></td><td class="r money">$1,960 → <b>$2,117</b></td><td class="r muted">Same</td></tr>
+          <tr><td>Avery Towel Bar 24 inch<div class="sku">AVTB24-PN → <b>AVTB24-BB</b></div></td><td class="r money">$369 → <b>$443</b></td><td class="r">Nov 23 → <b>Jan 18</b></td></tr>
+          <tr><td>Avery Robe Hook<div class="sku">AVRH-PN → <b>AVRH-BB</b></div></td><td class="r money">$165 → <b>$178</b></td><td class="r">Nov 23 → <b>Feb 1</b></td></tr>
+          <tr><td>Avery Metal Two Leg Washstand<div class="sku">AVWS-PN → <b>AVWS-BB</b> · kit</div></td><td class="r money">$6,840 → <b>$7,387</b></td><td class="r muted">Same</td></tr>
+          <tr><td>Avery Rain Shower Head 10 inch<div class="sku">AVSH-PN → <b>AVSH-BB</b></div></td><td class="r money">$780 → <b>$842</b></td><td class="r muted">Same</td></tr>
+        </tbody></table></div>
+    </div>
+  </div>
+  <div class="ft" style="flex-direction:column;align-items:stretch;gap:12px">
+    <div class="pay"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg><span>The client's payment link stops working after this change. Send a new one afterwards.</span></div>
+    <div style="display:flex;gap:12px;align-items:center"><span class="sum">Quote total $29,208.00 → <b>$30,384.00</b></span><button class="btn">Back</button><button class="btn pri">Change 6 lines</button></div>
+  </div>
+</div></figure>
+</div>
+</section>
+
+<!-- ======================= OPTION B ======================= -->
+<section class="opt ob">
+<header><h2>B · Table-first</h2></header>
+<p>Treats it as a bulk edit, like the quote grid SCs already use. A toolbar holds From, To and the room scope. Step 1 is a sortable table with a checkbox column and a "Now" price, and step 2 is the same table with New item, Δ price and Delivery columns plus a running total in the footer. It's the densest and fastest for big quotes, but it reads more like a spreadsheet than a decision.</p>
+<div class="pair">
+<figure><figcaption>Step 1 · Select</figcaption>
+<div class="dlg">
+  <div class="hd"><h3>Change finish</h3><span class="crumb">Primary Bath · Step 1 of 2</span><button class="x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="bar"><div class="sel"><span><span class="sw pn"></span>&nbsp; Polished Nickel</span></div><span aria-hidden="true">→</span><div class="sel" style="border-width:2px"><span><span class="sw bb"></span>&nbsp; Burnished Brass</span></div><span class="sp">6 of 9 selected</span></div>
+  <div class="tw"><table>
+    <thead><tr><th style="width:36px"><span class="chk on"></span></th><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th>Burnished Brass</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chk on"></span></td><td><span class="nm">Avery One Hole Lavatory Faucet</span><span class="sku">AVLAV-PN</span></td><td class="r">2</td><td class="r money">$1,480.00</td><td><span class="flag n">1 match</span></td></tr>
+      <tr><td><span class="chk on"></span></td><td><span class="nm">Avery Handshower on Bar</span><span class="sku">AVHS18-PN</span></td><td class="r">1</td><td class="r money">$1,960.00</td><td><span class="flag w">2 matches</span></td></tr>
+      <tr><td><span class="chk on"></span></td><td><span class="nm">Avery Towel Bar 24 inch</span><span class="sku">AVTB24-PN</span></td><td class="r">2</td><td class="r money">$369.00</td><td><span class="flag n">1 match</span></td></tr>
+      <tr><td><span class="chk on"></span></td><td><span class="nm">Avery Robe Hook</span><span class="sku">AVRH-PN</span></td><td class="r">2</td><td class="r money">$165.00</td><td><span class="flag n">1 match</span></td></tr>
+      <tr><td><span class="chk on"></span></td><td><span class="nm">Avery Metal Two Leg Washstand</span><span class="sku">AVWS-PN · kit</span></td><td class="r">1</td><td class="r money">$6,840.00</td><td><span class="flag n">1 match</span></td></tr>
+      <tr><td><span class="chk on"></span></td><td><span class="nm">Avery Rain Shower Head 10 inch</span><span class="sku">AVSH-PN</span></td><td class="r">1</td><td class="r money">$780.00</td><td><span class="flag n">1 match</span></td></tr>
+      <tr class="dim"><td><span class="chk dis"></span></td><td><span class="nm">Avery Thermostatic Valve Trim</span><span class="sku">AVTH-PN</span></td><td class="r">1</td><td class="r money">$2,240.00</td><td><span class="flag x">No version</span></td></tr>
+      <tr class="dim"><td><span class="chk dis"></span></td><td><span class="nm">Avery Thermostatic Rough Valve</span><span class="sku">AVRV-UF</span></td><td class="r">1</td><td class="r money">$640.00</td><td><span class="flag x">No metal finish</span></td></tr>
+      <tr class="dim"><td><span class="chk dis"></span></td><td><span class="nm">Calder 3 x 6 Tile</span><span class="sku">CLT36-BIA</span></td><td class="r">40</td><td class="r money">$28.00</td><td><span class="flag x">No metal finish</span></td></tr>
+    </tbody></table></div>
+  <div class="ft"><span class="tot"><small>6 lines selected</small></span><button class="btn">Cancel</button><button class="btn pri">Review</button></div>
+</div></figure>
+
+<figure><figcaption>Step 2 · Confirm</figcaption>
+<div class="dlg">
+  <div class="hd"><h3>Confirm: Polished Nickel → Burnished Brass</h3><span class="crumb">Primary Bath · Step 2 of 2</span><button class="x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="bar"><span class="flag w">2 need attention</span><span class="flag n">Payment link will stop working</span><span class="sp">Nothing has changed yet</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th>New item</th><th class="r">Δ price</th><th>Delivery</th><th></th></tr></thead>
+    <tbody>
+      <tr><td><span class="nm">Avery One Hole Lavatory Faucet</span><span class="sku">AVLAV-PN · qty 2</span></td><td>AVLAV-BB</td><td class="r delta money">+$236</td><td class="muted">Same</td><td></td></tr>
+      <tr><td><span class="nm">Avery Handshower on Bar</span><span class="sku">AVHS18-PN · qty 1</span></td><td>AVHS18-BB<span class="sku">1.8 gpm</span></td><td class="r delta money">+$157</td><td class="muted">Same</td><td></td></tr>
+      <tr><td><span class="nm">Avery Towel Bar 24 inch</span><span class="sku">AVTB24-PN · qty 2</span></td><td>AVTB24-BB</td><td class="r delta money">+$148</td><td>Jan 18</td><td><span class="flag w">Custom price · Limited</span></td></tr>
+      <tr><td><span class="nm">Avery Robe Hook</span><span class="sku">AVRH-PN · qty 2</span></td><td>AVRH-BB</td><td class="r delta money">+$26</td><td>Feb 1</td><td><span class="flag w">Out of stock</span></td></tr>
+      <tr><td><span class="nm">Avery Metal Two Leg Washstand</span><span class="sku">AVWS-PN · kit</span></td><td>AVWS-BB</td><td class="r delta money">+$547</td><td class="muted">Same</td><td></td></tr>
+      <tr><td><span class="nm">Avery Rain Shower Head 10 inch</span><span class="sku">AVSH-PN · qty 1</span></td><td>AVSH-BB</td><td class="r delta money">+$62</td><td class="muted">Same</td><td></td></tr>
+      <tr class="grp"><td colspan="5">Not changing (3)</td></tr>
+      <tr class="dim"><td><span class="nm">Avery Thermostatic Valve Trim</span></td><td colspan="4" class="cant">No version in Burnished Brass</td></tr>
+      <tr class="dim"><td><span class="nm">Avery Thermostatic Rough Valve</span></td><td colspan="4" class="cant">No metal finish</td></tr>
+      <tr class="dim"><td><span class="nm">Calder 3 x 6 Tile</span></td><td colspan="4" class="cant">No metal finish</td></tr>
+    </tbody></table></div>
+  <div class="ft"><span class="tot"><small>Quote total</small><b class="money">$29,208 → $30,384</b><small>+$1,176</small></span><button class="btn">Back</button><button class="btn pri">Change 6 lines</button></div>
+</div></figure>
+</div>
+</section>
+
+<!-- ======================= OPTION C ======================= -->
+<section class="opt oc">
+<header><h2>C · Summary card</h2></header>
+<p>Two columns: the work on the left and a live summary card on the right (From → To swatches, lines, total change, attention count) that stays put while the list scrolls. Finishes are chips with coverage, so the choice is visible without opening a dropdown. Confirm keeps the card and turns the list into "check these first" and "everything else". It's the most visual and gives the fastest read of impact, but it needs width; under about 900px the card would stack on top.</p>
+<div class="pair">
+<figure><figcaption>Step 1 · Select</figcaption>
+<div class="dlg">
+  <div class="hd"><h3>Change finish in Primary Bath</h3><button class="x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="body">
+    <div class="main">
+      <label class="l">New finish</label>
+      <div class="chips">
+        <span class="chip on"><span class="sw bb"></span>Burnished Brass <small>6/7</small></span>
+        <span class="chip"><span class="sw" style="background:#dfe3e6"></span>Chrome <small>7/7</small></span>
+        <span class="chip"><span class="sw" style="background:#a3a39c"></span>Matte Nickel <small>6/7</small></span>
+        <span class="chip"><span class="sw" style="background:#c9a45a"></span>Unlacquered Brass <small>1/7</small></span>
+      </div>
+      <div class="list">
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery One Hole Lavatory Faucet</div><div class="sub">AVLAV-PN · qty 2 · $1,480.00</div></div><span class="flag n">1 match</span></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Handshower on Bar</div><div class="sub">AVHS18-PN · qty 1 · $1,960.00</div></div><span class="flag w">Pick next</span></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Towel Bar 24 inch</div><div class="sub">AVTB24-PN · qty 2 · $369.00</div></div><span class="flag n">1 match</span></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Robe Hook</div><div class="sub">AVRH-PN · qty 2 · $165.00</div></div><span class="flag n">1 match</span></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Metal Two Leg Washstand</div><div class="sub">AVWS-PN · kit · $6,840.00</div></div><span class="flag n">1 match</span></div>
+        <div class="row"><span class="chk on"></span><div><div class="nm">Avery Rain Shower Head 10 inch</div><div class="sub">AVSH-PN · qty 1 · $780.00</div></div><span class="flag n">1 match</span></div>
+        <div class="row dim"><span class="chk dis"></span><div><div class="nm">Avery Thermostatic Valve Trim</div><div class="sub cant">No version in Burnished Brass</div></div><span></span></div>
+      </div>
+    </div>
+    <aside class="side">
+      <h4>Summary</h4>
+      <div class="swatches"><span class="big" style="background:#cfcfca"></span>→<span class="big" style="background:#a8844a"></span></div>
+      <div style="font-size:13px">Polished Nickel → <b>Burnished Brass</b></div>
+      <div class="kv"><span>Lines changing</span><b>6 of 9</b></div>
+      <div class="kv"><span>Can't change</span><b>3</b></div>
+      <div class="tot"><small>Quote total</small><b class="money">+$1,176</b><small>after choices · estimate</small></div>
+    </aside>
+  </div>
+  <div class="ft"><button class="btn">Cancel</button><button class="btn pri">Next</button></div>
+</div></figure>
+
+<figure><figcaption>Step 2 · Confirm</figcaption>
+<div class="dlg">
+  <div class="hd"><h3>Confirm the change</h3><button class="x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11"/></svg></button></div>
+  <div class="body">
+    <div class="main" style="overflow:auto">
+      <div class="seclbl" style="margin-top:0">Check these first</div>
+      <div class="card"><span class="nm">Avery Towel Bar 24 inch</span><span class="flag w">Custom price resets</span><span class="sub">AVTB24-PN → <b>AVTB24-BB</b> · $369 → <b>$443</b> · limited, delivery Jan 18</span></div>
+      <div class="card"><span class="nm">Avery Robe Hook</span><span class="flag w">Out of stock</span><span class="sub">AVRH-PN → <b>AVRH-BB</b> · $165 → <b>$178</b> · delivery Feb 1</span></div>
+      <div class="seclbl">Everything else (4)</div>
+      <div class="card"><span class="nm">Avery One Hole Lavatory Faucet</span><span class="muted money">+$236</span><span class="sub">AVLAV-PN → <b>AVLAV-BB</b></span></div>
+      <div class="card"><span class="nm">Avery Handshower on Bar</span><span class="muted money">+$157</span><span class="sub">AVHS18-PN → <b>AVHS18-BB</b> · 1.8 gpm</span></div>
+      <div class="card"><span class="nm">Avery Metal Two Leg Washstand</span><span class="muted money">+$547</span><span class="sub">AVWS-PN → <b>AVWS-BB</b> · kit</span></div>
+      <div class="card"><span class="nm">Avery Rain Shower Head 10 inch</span><span class="muted money">+$62</span><span class="sub">AVSH-PN → <b>AVSH-BB</b></span></div>
+    </div>
+    <aside class="side">
+      <h4>Summary</h4>
+      <div class="swatches"><span class="big" style="background:#cfcfca"></span>→<span class="big" style="background:#a8844a"></span></div>
+      <div style="font-size:13px">Polished Nickel → <b>Burnished Brass</b><br><span class="muted">Primary Bath</span></div>
+      <div class="kv"><span>Lines changing</span><b>6</b></div>
+      <div class="kv"><span>Needs attention</span><b style="color:var(--amber)">2</b></div>
+      <div class="tot"><small>Quote total</small><b class="money">$30,384.00</b><small>was $29,208.00 · +$1,176</small></div>
+      <div class="pay" style="padding:8px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg><span>The payment link stops working. Send a new one after.</span></div>
+    </aside>
+  </div>
+  <div class="ft"><button class="btn">Back</button><button class="btn pri">Change 6 lines</button></div>
+</div></figure>
+</div>
+</section>
+</div>
+</body>
+</html>

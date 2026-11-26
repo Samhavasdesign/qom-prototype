@@ -261,3 +261,8 @@ html:not(#x) .dnav button{border-color:transparent;background:none;box-shadow:no
 html:not(#x) .dnav button:hover{color:var(--ink);background:rgb(255 255 255 / .55)}
 html:not(#x) .dnav button[aria-current="true"]{background:var(--bg,#fff);border-color:transparent;color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12),0 0 0 1px rgb(0 0 0 / .04)}
 html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
+/* Rooms tool (Sam, Nov 25): full view's Rooms panel in the left pane, a white box on the pane's grey like the search side's cards */
+.ptrooms{display:none}
+body.ptab-rooms .ptrooms{display:block}
+body.ptab-rooms #ptForm{display:none}
+.ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}

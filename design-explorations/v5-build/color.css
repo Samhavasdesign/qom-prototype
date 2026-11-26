@@ -51,6 +51,13 @@ html.warm.sp .menu > .act:is(:hover,:focus-visible):not([aria-disabled="true"]),
    pills and result list, keeps the grey; the quote side, where the rooms are, is white, so the rooms read as the document
    and the grey and navy room bars mark each room. (Search white and quote grey was tried first, the same day.) */
 html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)}
+/* search side on white too (Sam, Nov 25, later): the results were a white card inset in the grey panel, so they lost width
+   and read as a box in a box. Now the panel is white and the count and results run its full width, with the count lined up
+   under the search box. One hairline, the full height of the gutter, splits search from quote (the drag grip stays on it). */
+html.warm #searchPane{background:var(--bg)}
+html.warm #searchPane :is(.shead,.resmeta,table.res){background:transparent}
+html.warm #searchPane .resmeta{padding-left:0;padding-right:0}
+html.warm .work[data-layout="split"] .gutter{background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
 
 /* hover in light navy (Sam, Nov 25): rows and menu items you can pick take a pale navy wash (#eef1f6) on hover or keyboard
    focus instead of grey, in the same family as the navy controls. Not light gold: the pale bronze is the selected row's
@@ -87,9 +94,8 @@ html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-
    #ebebeb, with charcoal headings (4.8:1) and the sorted column in the darker link bronze (5.0:1). Rows hover navy, so
    the header and a hovered row no longer match. The other room bars on the quote keep the grey. */
 html.warm .qlxt th{background:var(--brand-tint,#f4eee6)}
-/* The quote page's tool column (Sam, Nov 25): the open tool (Search or Details) is solid navy with white text and icon (16:1),
-   like the room you're adding to, instead of grey; the others hover in the navy wash. Its red dot gets a white ring so it
-   still reads on navy. Folded, no tool is open, so none is navy. */
+/* The quote page's tool column (Sam, Nov 25): the open tool (Products, Rooms or Details) takes the pale navy wash with navy text
+   and icon (16:1), instead of grey; the others hover in the same wash with black text. Solid navy was tried first the same day
+   and read too heavy. Folded, no tool is open, so none is marked. */
 html.warm body.proposal .ptool:hover{background:var(--navy-wash,#eef1f6);color:var(--ink)}
-html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy,#001E52);color:#fff}
-html.warm body.proposal:not(.prop-fold) .ptool.cur .pdot{box-shadow:0 0 0 2px #fff}
+html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy-wash,#eef1f6);color:var(--navy,#001E52)}

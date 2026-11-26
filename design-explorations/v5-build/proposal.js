@@ -9,6 +9,7 @@ const q=s=>document.querySelector(s);
 const IC={
   warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', /* Lucide clock */
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  rooms:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7M14 9h7M14 15h7M14 20h7"/></svg>',
   form:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap="round"/></svg>',
   doc:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4v15H6z"/><path d="M14 2.5v4h4"/></svg>',
   x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
@@ -42,7 +43,7 @@ function renderFacts(){
 
 /* ---------- the tool column: Search and Details ---------- */
 const tools=document.createElement("nav"); tools.className="ptools"; tools.setAttribute("aria-label","Quote tools");
-tools.innerHTML=`<a href="#" class="ptab ptool" data-ptab="4">${IC.search}<span>Products</span></a><a href="#" class="ptab ptool" data-ptab="5" aria-describedby="pDotLbl">${IC.form}<span>Details</span><span class="pdot" id="pDot" hidden></span><span class="sr" id="pDotLbl"></span></a>`;
+tools.innerHTML=`<a href="#" class="ptab ptool" data-ptab="4">${IC.search}<span>Products</span></a><a href="#" class="ptab ptool" data-ptab="6">${IC.rooms}<span>Rooms</span></a><a href="#" class="ptab ptool" data-ptab="5" aria-describedby="pDotLbl">${IC.form}<span>Details</span><span class="pdot" id="pDot" hidden></span><span class="sr" id="pDotLbl"></span></a>`;
 q("#work").prepend(tools);
 /* hide or show the panel (Sam, Nov 25): Lucide's panel-left-close / panel-left-open as a button under the tools. It stays in the same
    place whether the panel is open or folded. Clicking the open tool still folds it too (VS Code's pattern), as a shortcut */
@@ -75,7 +76,7 @@ function applyFold(){ document.body.classList.toggle("prop-fold",P.on&&P.fold); 
 
 /* wrap v2: the field tabs all open Details; opening a tool unfolds the column */
 const oSetPTab=setPTab;
-setPTab=function(n){ if(P.on&&n>=0&&n<=3) n=5; if(!P.on&&n===5) n=4; if(P.on&&P.fold){ P.fold=false; applyFold(); } oSetPTab(n); };
+setPTab=function(n){ if(P.on&&n>=0&&n<=3) n=5; if(!P.on&&(n===5||n===6)) n=4; if(P.on&&P.fold){ P.fold=false; applyFold(); } oSetPTab(n); };
 const oRenderQuote=renderQuote;
 renderQuote=function(){ oRenderQuote.apply(this,arguments); if(P.on) refreshTools(); };
 /* Things to fix: a missing field is in Details now, not on a tab */
@@ -281,7 +282,7 @@ const oSetPage=setPage; setPage=function(p){ leaveCreate(); return oSetPage.appl
 /* ---------- the switch in the demo bar ---------- */
 function apply(){
   document.body.classList.toggle("proposal",P.on);
-  if(P.on){ acts.append(more); } else { tabs.append(more); P.fold=false; if(S.ptab===5) oSetPTab(4); leaveCreate(); if(!pal.hidden) gsClose(); }
+  if(P.on){ acts.append(more); } else { tabs.append(more); P.fold=false; if(S.ptab===5||S.ptab===6) oSetPTab(4); leaveCreate(); if(!pal.hidden) gsClose(); }
   if(P.on&&S.ptab>=0&&S.ptab<=3) setPTab(5);
   if(P.on&&S.qview!=="products"&&typeof setQView==="function") setQView("products");
   document.querySelectorAll("a.ptool").forEach(t=>t.classList.toggle("cur",+t.dataset.ptab===S.ptab));
@@ -312,4 +313,24 @@ apply();
   const fix=()=>{ document.querySelectorAll("#fpills .fpx").forEach(b=>{ if(!b.querySelector("svg")) b.innerHTML=X; });
     const c=document.querySelector("#fpills .fpclear"); if(c&&c.textContent!=="Clear filters") c.textContent="Clear filters"; };
   const o=renderFilters; renderFilters=function(){ const r=o.apply(this,arguments); fix(); return r; }; fix(); })();
+
+/* ---------- Rooms tool (Sam, Nov 25) ----------
+   Full view's Rooms panel was the only thing full view added, so it's a third tool here: Products, Rooms, Details. It shows the
+   same panel (#qSide: each room with its line count and "Adding here", a click scrolls the quote to that room, "+ Add room" opens
+   the add-room form at its top). The panel node moves into the left pane while Rooms is open and back into the quote for full view.
+   It sits beside #ptForm, not inside it, since renderPTab rewrites the form. */
+(function(){
+  const q=s=>document.querySelector(s);
+  PT_FORMS[6]=()=>""; PT_NAMES[6]="Rooms";
+  const side=q("#qSide"), home=side.parentNode, view=q("#ptView");
+  const host=document.createElement("div"); host.className="ptrooms"; host.id="ptRooms"; view.append(host);
+  const on=()=>document.body.classList.contains("proposal")&&S.ptab===6&&!S.expanded;
+  function sync(){ const r=on(); document.body.classList.toggle("ptab-rooms",r);
+    if(r){ if(side.parentNode!==host) host.append(side); side.hidden=false; }
+    else { if(side.parentNode!==home){ home.prepend(side); S.sideAdd=false; } side.hidden=!S.expanded||S.qview!=="products"; } }
+  const oSet=setPTab; setPTab=function(n){ const was=S.ptab; oSet(n); if(was===6&&S.ptab!==6) S.sideAdd=false; sync(); if(was!==S.ptab) renderQuote(); };
+  const oExp=setExpanded; setExpanded=function(){ const r=oExp.apply(this,arguments); sync(); return r; };
+  const oAdd=startAddRoom; startAddRoom=function(){ if(on()){ S.sideAdd=true; renderQuote(); q("#sideRoomType")?.focus(); return; } return oAdd.apply(this,arguments); };
+  sync();
+})();
 </script>
