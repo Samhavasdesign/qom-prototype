@@ -266,10 +266,36 @@ html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
 body.ptab-rooms .ptrooms{display:block}
 body.ptab-rooms #ptForm{display:none}
 .ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}
+/* room list rows (Sam, Nov 25): grip, the room (name, Adding here, lines and subtotal, problems), and a "…" menu */
+.srow{position:relative;display:flex;align-items:stretch;border-bottom:1px solid var(--hdr-line,var(--line));background:var(--bg)}
+.srow:last-child{border-bottom:0}
+.srow:hover{background:var(--surface)}
+.srow.inview{background:var(--surface);box-shadow:inset 3px 0 0 var(--ink)}
+.srow.dragging{opacity:.45}
+.srow.dropb{box-shadow:inset 0 2px 0 var(--ink)}.srow.dropa{box-shadow:inset 0 -2px 0 var(--ink)}
+.srgrip{flex:none;display:grid;place-items:center;width:28px;color:var(--ink-3);cursor:grab;opacity:.55}
+.srow:hover .srgrip{opacity:1}
+.srgo{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:10px 4px 10px 0;border:0;background:none;font:inherit;text-align:left;color:var(--ink);cursor:pointer}
+.srgo:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.srgo .srname{grid-column:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow.inview .srname{font-weight:500}
+.srgo .srtag{grid-column:2;grid-row:1;justify-self:end;display:inline-flex;align-items:center;height:20px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--ink);color:#fff}
+.srgo .srmeta{grid-column:1/-1;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.srgo .srwarn{grid-column:1/-1;justify-self:start;display:inline-flex;align-items:center;gap:4px;margin-top:4px;height:20px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--block-bg,#fdecea);color:var(--block,#c62828)}
+.srgo .srwarn.risk{background:var(--caution-bg,#fff4e5);color:var(--caution,#b45309)}
+.srgo .srwarn svg{width:12px;height:12px}
+.srmore{flex:none;align-self:center;display:grid;place-items:center;width:32px;height:32px;margin-right:8px;border:1px solid transparent;border-radius:999px;background:none;color:var(--ink-2);cursor:pointer}
+.srmore:hover,.srow.menuopen .srmore{border-color:var(--ink);color:var(--ink)}
+.srmenu{position:absolute;right:8px;top:calc(100% - 6px);z-index:20;min-width:200px}
+.srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
+html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
+html.warm .srow.inview{background:var(--navy-wash,#eef1f6);box-shadow:inset 3px 0 0 var(--navy,#001E52)}
+html.warm .srgo .srtag{background:var(--navy,#001E52)}
 /* top alignment (Sam, Nov 25): the tool column, the search side's header and the quote's Find box start on one line under the
    facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;
    now the row is 44px (the toggle's touch target) pulled up 4px so the box's top edge meets the tools' top. */
-body.proposal .qtools{margin-top:8px;min-height:44px} /* the box starts 12px under the line, level with the first control inside the left cards (Sam, Nov 25) */
+body.proposal .qtools{margin-top:12px;min-height:36px}
+body.proposal .qtools .qtact{margin-block:-4px} /* Show details and Collapse all keep their 44px targets without making the row taller, so the Find box sits on the row's top at every width, wrapped or not */ /* the box starts 12px under the line, level with the first control inside the left cards (Sam, Nov 25) */
 /* Details' section links as a real segmented control (Sam, Nov 25), the same shape as the Quotes list's Mine / My team / Everyone:
    a rounded track with 3px inside, 36px high, the current section a white segment with a soft shadow, the others charcoal.
    The panel is grey, so the track is a step darker (--surface-header #ebebeb) to show its edge; the nav itself stays the

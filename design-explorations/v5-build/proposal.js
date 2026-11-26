@@ -332,5 +332,67 @@ apply();
   const oExp=setExpanded; setExpanded=function(){ const r=oExp.apply(this,arguments); sync(); return r; };
   const oAdd=startAddRoom; startAddRoom=function(){ if(on()){ S.sideAdd=true; renderQuote(); q("#sideRoomType")?.focus(); return; } return oAdd.apply(this,arguments); };
   sync();
+
+  /* The room list (Sam, Nov 25, after seeing it with 12 rooms): each row says what scrolling the quote can't.
+     1 Problems: "2 need attention" in red (amber if only risks), counted as on a folded room bar, whether the room is open or not.
+     2 Where you are: the room on screen in the quote is marked (a bar on the left and a light fill) as you scroll; a click
+       opens the room if it's folded, then scrolls to it.
+     3 Room totals: lines and subtotal ("10 lines · $18,240"), before freight and tax.
+     4 Rearranging: drag a row by its grip to reorder rooms, or use its "…" menu: Add products here, Move up, Move down,
+       Rename, Duplicate, Delete room (the same actions as the room bar's menu, which still works).
+     "Adding here" stays as its tag. Full view's Rooms panel gets the same rows. */
+  const SR={menu:null,drag:null,view:null};
+  const GRIP='<svg width="10" height="14" viewBox="0 0 10 14" aria-hidden="true"><g fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></g></svg>';
+  const dots='<svg width="14" height="4" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg>';
+  const sub=r=>r.lines.reduce((a,l)=>a+l.qty*l.unit,0);
+  const isOpen=x=>S.allOpen?!S.folded.includes(x.name):(S.room===x.name&&S.collapsedFor!==x.name);
+  function rowHtml(r,i,n){ const nm=esc(r.name), k=r.lines.length, a=roomAttention(r), cur=S.room===r.name, m=SR.menu===r.name;
+    const warn=a.n?`<span class="srwarn ${a.sev}">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:"";
+    const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
+    return `<div class="srow${SR.view===r.name?" inview":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
+      <span class="srgrip" title="Drag to reorder">${GRIP}</span>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</button>
+      <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
+      ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
+    </div>`; }
+  function paint(){ const box=q("#sideRooms"); if(!box) return; const rs=S.quote.rooms; if(!rs.length) return;
+    box.querySelectorAll(".srow,.sroom").forEach(e=>e.remove());
+    box.insertAdjacentHTML("beforeend",rs.map((r,i)=>rowHtml(r,i,rs.length)).join("")); }
+  const oRQ=renderQuote; renderQuote=function(){ const r=oRQ.apply(this,arguments); paint(); spy(); return r; };
+  /* where you are: the last room whose bar has reached the line under the quote's toolbar */
+  function spy(){ const bar=q(".qbar"), bl=[...document.querySelectorAll("#rooms .rmblock")]; if(!bar||!bl.length) return;
+    const y=bar.getBoundingClientRect().bottom+24; let v=bl[0].dataset.rm; bl.forEach(b=>{ if(b.getBoundingClientRect().top<=y) v=b.dataset.rm; });
+    const atEnd=(()=>{ const s=scrollerOf(bl[0]); return s&&Math.ceil(s.scrollTop+s.clientHeight)>=s.scrollHeight-2; })(); if(atEnd&&bl.length&&bl[bl.length-1].getBoundingClientRect().top<innerHeight) v=bl[bl.length-1].dataset.rm;
+    if(v===SR.view) return; SR.view=v;
+    document.querySelectorAll("#sideRooms .srow").forEach(e=>{ const on=e.dataset.srrow===v; e.classList.toggle("inview",on); const b=e.querySelector(".srgo"); on?b.setAttribute("aria-current","location"):b.removeAttribute("aria-current"); });
+    /* keep the marked room in sight: scroll the left pane (never the page) just enough to show it */
+    const row=q("#sideRooms .srow.inview"), s=row&&scrollerOf(row); if(!s||s===document.scrollingElement||s===document.documentElement||s===document.body) return;
+    const sr=s.getBoundingClientRect(), rr=row.getBoundingClientRect(); if(rr.top<sr.top+8) s.scrollTop-=sr.top+8-rr.top; else if(rr.bottom>sr.bottom-8) s.scrollTop+=rr.bottom-sr.bottom+8; }
+  let raf=0; document.addEventListener("scroll",()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; spy(); }); },true);
+  function go(name){ const r=S.quote.rooms.find(x=>x.name===name); if(!r) return;
+    if(!isOpen(r)){ if(S.allOpen) S.folded=S.folded.filter(x=>x!==name); else if(S.room===name) S.collapsedFor=null; else { S.folded=S.quote.rooms.filter(x=>x!==r&&!isOpen(x)).map(x=>x.name); S.allOpen=true; } renderQuote(); }
+    const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(!blk) return;
+    revealBelowHeader(blk); SR.view=null; spy(); }
+  function move(name,d){ const rs=S.quote.rooms, i=rs.findIndex(x=>x.name===name), j=i+d; if(i<0||j<0||j>=rs.length) return;
+    [rs[i],rs[j]]=[rs[j],rs[i]]; S.dirty=true; renderRoomMenu(); renderQuote(); showToast(`Moved ${name} ${d<0?"up":"down"}`,"ok"); }
+  side.addEventListener("click",ev=>{
+    const g=ev.target.closest("[data-srgo]"); if(g){ ev.stopPropagation(); SR.menu=null; go(g.dataset.srgo); return; }
+    const mo=ev.target.closest("[data-srmore]"); if(mo){ ev.stopPropagation(); const n=mo.dataset.srmore; SR.menu=SR.menu===n?null:n; paint(); (SR.menu?q("#sideRooms .srmenu [role=menuitem]:not([aria-disabled])"):q(`[data-srmore="${CSS.escape(n)}"]`))?.focus(); return; }
+    const a=ev.target.closest("[data-sract]"); if(a){ ev.stopPropagation(); if(a.getAttribute("aria-disabled")==="true") return; const n=a.dataset.srname, act=a.dataset.sract; SR.menu=null;
+      if(act==="here"){ pickRoom(n); setPTab(4); q("#q")?.focus(); return; }
+      if(act==="up"||act==="down"){ move(n,act==="up"?-1:1); q(`[data-srmore="${CSS.escape(n)}"]`)?.focus(); return; }
+      if(act==="ren"){ setPTab(4); startRename(n); return; }
+      if(act==="dup"){ duplicateRoom(n); return; }
+      if(act==="del"){ paint(); removeRoom(n); return; } } });
+  document.addEventListener("click",ev=>{ if(SR.menu&&!ev.target.closest(".srmenu,[data-srmore]")){ SR.menu=null; paint(); } },true);
+  document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&SR.menu){ const n=SR.menu; SR.menu=null; paint(); q(`[data-srmore="${CSS.escape(n)}"]`)?.focus(); } });
+  /* drag a row to reorder: it lands before or after the row you drop on, by which half you're over */
+  side.addEventListener("dragstart",ev=>{ const r=ev.target.closest?.(".srow"); if(!r) return; SR.drag=r.dataset.srrow; r.classList.add("dragging"); ev.dataTransfer.effectAllowed="move"; try{ ev.dataTransfer.setData("text/plain",SR.drag); }catch(e){} });
+  side.addEventListener("dragover",ev=>{ const r=ev.target.closest?.(".srow"); if(!SR.drag||!r) return; ev.preventDefault();
+    const after=ev.clientY>r.getBoundingClientRect().top+r.offsetHeight/2; side.querySelectorAll(".srow").forEach(e=>e.classList.remove("dropb","dropa")); if(r.dataset.srrow!==SR.drag) r.classList.add(after?"dropa":"dropb"); });
+  side.addEventListener("drop",ev=>{ const r=ev.target.closest?.(".srow"); if(!SR.drag||!r) return; ev.preventDefault(); const after=r.classList.contains("dropa"), n=SR.drag;
+    if(r.dataset.srrow!==n&&moveItem(S.quote.rooms,x=>x.name===n,x=>x.name===r.dataset.srrow,after)){ S.dirty=true; renderRoomMenu(); renderQuote(); showToast(`Moved ${n}`,"ok"); } });
+  side.addEventListener("dragend",()=>{ SR.drag=null; side.querySelectorAll(".srow").forEach(e=>e.classList.remove("dragging","dropb","dropa")); });
+  paint(); spy();
 })();
 </script>

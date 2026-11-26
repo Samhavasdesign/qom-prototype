@@ -4503,10 +4503,36 @@ html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
 body.ptab-rooms .ptrooms{display:block}
 body.ptab-rooms #ptForm{display:none}
 .ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}
+/* room list rows (Sam, Nov 25): grip, the room (name, Adding here, lines and subtotal, problems), and a "…" menu */
+.srow{position:relative;display:flex;align-items:stretch;border-bottom:1px solid var(--hdr-line,var(--line));background:var(--bg)}
+.srow:last-child{border-bottom:0}
+.srow:hover{background:var(--surface)}
+.srow.inview{background:var(--surface);box-shadow:inset 3px 0 0 var(--ink)}
+.srow.dragging{opacity:.45}
+.srow.dropb{box-shadow:inset 0 2px 0 var(--ink)}.srow.dropa{box-shadow:inset 0 -2px 0 var(--ink)}
+.srgrip{flex:none;display:grid;place-items:center;width:28px;color:var(--ink-3);cursor:grab;opacity:.55}
+.srow:hover .srgrip{opacity:1}
+.srgo{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:10px 4px 10px 0;border:0;background:none;font:inherit;text-align:left;color:var(--ink);cursor:pointer}
+.srgo:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.srgo .srname{grid-column:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow.inview .srname{font-weight:500}
+.srgo .srtag{grid-column:2;grid-row:1;justify-self:end;display:inline-flex;align-items:center;height:20px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--ink);color:#fff}
+.srgo .srmeta{grid-column:1/-1;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.srgo .srwarn{grid-column:1/-1;justify-self:start;display:inline-flex;align-items:center;gap:4px;margin-top:4px;height:20px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--block-bg,#fdecea);color:var(--block,#c62828)}
+.srgo .srwarn.risk{background:var(--caution-bg,#fff4e5);color:var(--caution,#b45309)}
+.srgo .srwarn svg{width:12px;height:12px}
+.srmore{flex:none;align-self:center;display:grid;place-items:center;width:32px;height:32px;margin-right:8px;border:1px solid transparent;border-radius:999px;background:none;color:var(--ink-2);cursor:pointer}
+.srmore:hover,.srow.menuopen .srmore{border-color:var(--ink);color:var(--ink)}
+.srmenu{position:absolute;right:8px;top:calc(100% - 6px);z-index:20;min-width:200px}
+.srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
+html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
+html.warm .srow.inview{background:var(--navy-wash,#eef1f6);box-shadow:inset 3px 0 0 var(--navy,#001E52)}
+html.warm .srgo .srtag{background:var(--navy,#001E52)}
 /* top alignment (Sam, Nov 25): the tool column, the search side's header and the quote's Find box start on one line under the
    facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;
    now the row is 44px (the toggle's touch target) pulled up 4px so the box's top edge meets the tools' top. */
-body.proposal .qtools{margin-top:8px;min-height:44px} /* the box starts 12px under the line, level with the first control inside the left cards (Sam, Nov 25) */
+body.proposal .qtools{margin-top:12px;min-height:36px}
+body.proposal .qtools .qtact{margin-block:-4px} /* Show details and Collapse all keep their 44px targets without making the row taller, so the Find box sits on the row's top at every width, wrapped or not */ /* the box starts 12px under the line, level with the first control inside the left cards (Sam, Nov 25) */
 /* Details' section links as a real segmented control (Sam, Nov 25), the same shape as the Quotes list's Mine / My team / Everyone:
    a rounded track with 3px inside, 36px high, the current section a white segment with a soft shadow, the others charcoal.
    The panel is grey, so the track is a step darker (--surface-header #ebebeb) to show its edge; the nav itself stays the
@@ -4852,6 +4878,68 @@ apply();
   const oExp=setExpanded; setExpanded=function(){ const r=oExp.apply(this,arguments); sync(); return r; };
   const oAdd=startAddRoom; startAddRoom=function(){ if(on()){ S.sideAdd=true; renderQuote(); q("#sideRoomType")?.focus(); return; } return oAdd.apply(this,arguments); };
   sync();
+
+  /* The room list (Sam, Nov 25, after seeing it with 12 rooms): each row says what scrolling the quote can't.
+     1 Problems: "2 need attention" in red (amber if only risks), counted as on a folded room bar, whether the room is open or not.
+     2 Where you are: the room on screen in the quote is marked (a bar on the left and a light fill) as you scroll; a click
+       opens the room if it's folded, then scrolls to it.
+     3 Room totals: lines and subtotal ("10 lines · $18,240"), before freight and tax.
+     4 Rearranging: drag a row by its grip to reorder rooms, or use its "…" menu: Add products here, Move up, Move down,
+       Rename, Duplicate, Delete room (the same actions as the room bar's menu, which still works).
+     "Adding here" stays as its tag. Full view's Rooms panel gets the same rows. */
+  const SR={menu:null,drag:null,view:null};
+  const GRIP='<svg width="10" height="14" viewBox="0 0 10 14" aria-hidden="true"><g fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></g></svg>';
+  const dots='<svg width="14" height="4" viewBox="0 0 14 4" aria-hidden="true"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="7" cy="2" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg>';
+  const sub=r=>r.lines.reduce((a,l)=>a+l.qty*l.unit,0);
+  const isOpen=x=>S.allOpen?!S.folded.includes(x.name):(S.room===x.name&&S.collapsedFor!==x.name);
+  function rowHtml(r,i,n){ const nm=esc(r.name), k=r.lines.length, a=roomAttention(r), cur=S.room===r.name, m=SR.menu===r.name;
+    const warn=a.n?`<span class="srwarn ${a.sev}">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:"";
+    const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
+    return `<div class="srow${SR.view===r.name?" inview":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
+      <span class="srgrip" title="Drag to reorder">${GRIP}</span>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</button>
+      <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
+      ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
+    </div>`; }
+  function paint(){ const box=q("#sideRooms"); if(!box) return; const rs=S.quote.rooms; if(!rs.length) return;
+    box.querySelectorAll(".srow,.sroom").forEach(e=>e.remove());
+    box.insertAdjacentHTML("beforeend",rs.map((r,i)=>rowHtml(r,i,rs.length)).join("")); }
+  const oRQ=renderQuote; renderQuote=function(){ const r=oRQ.apply(this,arguments); paint(); spy(); return r; };
+  /* where you are: the last room whose bar has reached the line under the quote's toolbar */
+  function spy(){ const bar=q(".qbar"), bl=[...document.querySelectorAll("#rooms .rmblock")]; if(!bar||!bl.length) return;
+    const y=bar.getBoundingClientRect().bottom+24; let v=bl[0].dataset.rm; bl.forEach(b=>{ if(b.getBoundingClientRect().top<=y) v=b.dataset.rm; });
+    const atEnd=(()=>{ const s=scrollerOf(bl[0]); return s&&Math.ceil(s.scrollTop+s.clientHeight)>=s.scrollHeight-2; })(); if(atEnd&&bl.length&&bl[bl.length-1].getBoundingClientRect().top<innerHeight) v=bl[bl.length-1].dataset.rm;
+    if(v===SR.view) return; SR.view=v;
+    document.querySelectorAll("#sideRooms .srow").forEach(e=>{ const on=e.dataset.srrow===v; e.classList.toggle("inview",on); const b=e.querySelector(".srgo"); on?b.setAttribute("aria-current","location"):b.removeAttribute("aria-current"); });
+    /* keep the marked room in sight: scroll the left pane (never the page) just enough to show it */
+    const row=q("#sideRooms .srow.inview"), s=row&&scrollerOf(row); if(!s||s===document.scrollingElement||s===document.documentElement||s===document.body) return;
+    const sr=s.getBoundingClientRect(), rr=row.getBoundingClientRect(); if(rr.top<sr.top+8) s.scrollTop-=sr.top+8-rr.top; else if(rr.bottom>sr.bottom-8) s.scrollTop+=rr.bottom-sr.bottom+8; }
+  let raf=0; document.addEventListener("scroll",()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; spy(); }); },true);
+  function go(name){ const r=S.quote.rooms.find(x=>x.name===name); if(!r) return;
+    if(!isOpen(r)){ if(S.allOpen) S.folded=S.folded.filter(x=>x!==name); else if(S.room===name) S.collapsedFor=null; else { S.folded=S.quote.rooms.filter(x=>x!==r&&!isOpen(x)).map(x=>x.name); S.allOpen=true; } renderQuote(); }
+    const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(!blk) return;
+    revealBelowHeader(blk); SR.view=null; spy(); }
+  function move(name,d){ const rs=S.quote.rooms, i=rs.findIndex(x=>x.name===name), j=i+d; if(i<0||j<0||j>=rs.length) return;
+    [rs[i],rs[j]]=[rs[j],rs[i]]; S.dirty=true; renderRoomMenu(); renderQuote(); showToast(`Moved ${name} ${d<0?"up":"down"}`,"ok"); }
+  side.addEventListener("click",ev=>{
+    const g=ev.target.closest("[data-srgo]"); if(g){ ev.stopPropagation(); SR.menu=null; go(g.dataset.srgo); return; }
+    const mo=ev.target.closest("[data-srmore]"); if(mo){ ev.stopPropagation(); const n=mo.dataset.srmore; SR.menu=SR.menu===n?null:n; paint(); (SR.menu?q("#sideRooms .srmenu [role=menuitem]:not([aria-disabled])"):q(`[data-srmore="${CSS.escape(n)}"]`))?.focus(); return; }
+    const a=ev.target.closest("[data-sract]"); if(a){ ev.stopPropagation(); if(a.getAttribute("aria-disabled")==="true") return; const n=a.dataset.srname, act=a.dataset.sract; SR.menu=null;
+      if(act==="here"){ pickRoom(n); setPTab(4); q("#q")?.focus(); return; }
+      if(act==="up"||act==="down"){ move(n,act==="up"?-1:1); q(`[data-srmore="${CSS.escape(n)}"]`)?.focus(); return; }
+      if(act==="ren"){ setPTab(4); startRename(n); return; }
+      if(act==="dup"){ duplicateRoom(n); return; }
+      if(act==="del"){ paint(); removeRoom(n); return; } } });
+  document.addEventListener("click",ev=>{ if(SR.menu&&!ev.target.closest(".srmenu,[data-srmore]")){ SR.menu=null; paint(); } },true);
+  document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&SR.menu){ const n=SR.menu; SR.menu=null; paint(); q(`[data-srmore="${CSS.escape(n)}"]`)?.focus(); } });
+  /* drag a row to reorder: it lands before or after the row you drop on, by which half you're over */
+  side.addEventListener("dragstart",ev=>{ const r=ev.target.closest?.(".srow"); if(!r) return; SR.drag=r.dataset.srrow; r.classList.add("dragging"); ev.dataTransfer.effectAllowed="move"; try{ ev.dataTransfer.setData("text/plain",SR.drag); }catch(e){} });
+  side.addEventListener("dragover",ev=>{ const r=ev.target.closest?.(".srow"); if(!SR.drag||!r) return; ev.preventDefault();
+    const after=ev.clientY>r.getBoundingClientRect().top+r.offsetHeight/2; side.querySelectorAll(".srow").forEach(e=>e.classList.remove("dropb","dropa")); if(r.dataset.srrow!==SR.drag) r.classList.add(after?"dropa":"dropb"); });
+  side.addEventListener("drop",ev=>{ const r=ev.target.closest?.(".srow"); if(!SR.drag||!r) return; ev.preventDefault(); const after=r.classList.contains("dropa"), n=SR.drag;
+    if(r.dataset.srrow!==n&&moveItem(S.quote.rooms,x=>x.name===n,x=>x.name===r.dataset.srrow,after)){ S.dirty=true; renderRoomMenu(); renderQuote(); showToast(`Moved ${n}`,"ok"); } });
+  side.addEventListener("dragend",()=>{ SR.drag=null; side.querySelectorAll(".srow").forEach(e=>e.classList.remove("dragging","dropb","dropa")); });
+  paint(); spy();
 })();
 </script>
 <style>/* ==== v5 (Nov 24): Quotes list redesign, first pass (QOM-3332). On while body has .qlx-on (demo bar switch) ==== */
@@ -6314,9 +6402,8 @@ html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)
 /* search side on white too (Sam, Nov 25, later): the results were a white card inset in the grey panel, so they lost width
    and read as a box in a box. Now the panel is white and the count and results run its full width, with the count lined up
    under the search box. One hairline, the full height of the gutter, splits search from quote (the drag grip stays on it). */
-html.warm #searchPane{background:var(--bg)}
 html.warm #searchPane :is(.resmeta,table.res){background:transparent}
-html.warm #searchPane .shead{background:var(--bg,#fff);padding:12px;margin-top:0;border-radius:var(--r-lg,4px);box-shadow:var(--card-shadow)} /* a white card with a soft shadow, not a grey box (Sam, Nov 25) */
+html.warm #searchPane .shead{background:var(--surface,#f3f3f3);padding:12px 0;margin:0} /* the controls sit straight on the grey panel; its fill masks results scrolling under the sticky header */
 html.warm #searchPane .shead .filterwrap{margin-bottom:0} /* the panel's own padding is the space under the pills (Sam, Nov 25: the extra 12px read as too much grey) */
 html.warm #searchPane .shead .fpclear{margin-block:-4px -8px} /* Clear filters keeps its 44px target, overlapping the padding, so the text sits about 12px from the panel's edge like the top */
 /* the sticky search header is a grey panel (Sam, Nov 25): Adding to, the search box and the filter pills sit white on theme v1's
@@ -6370,11 +6457,17 @@ html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy-wash,#e
    boxes on the white page; they're white with a soft shadow and a hairline ring for the edge (Tailwind's shadow-sm plus ring-1 at 6%),
    so the left side reads as raised cards beside the quote. Details' section track moves to the light grey the Quotes list uses on white. */
 html.warm{--card-shadow:0 0 0 1px rgb(0 0 0 / .06),0 1px 3px 0 rgb(0 0 0 / .1),0 1px 2px -1px rgb(0 0 0 / .1)}
-html.warm body.proposal #ptView{background:var(--bg,#fff);border-radius:var(--r-lg,4px);box-shadow:var(--card-shadow);margin:0 2px}
-html.warm body.proposal #ptView .dnav{background:var(--bg,#fff)}
-html.warm:not(#x) .dnav .dseg{background:var(--surface,#f3f3f3)}
-html.warm:not(#x) .dnav button:hover{background:rgb(0 0 0 / .04)}
-html.warm body.proposal .ptrooms .qside{border:0;box-shadow:none;background:none} /* the Rooms panel is the card's content, not a box inside it */
+
+/* left side, third try (Sam, Nov 25): a white card on the white page looked unanchored, so the left side is a grey panel again
+   (#f3f3f3, rounded) with white cards on it. The search controls sit straight on the grey, 12px in, so Adding to stays level
+   with the quote's Find box; the results (count and list) are a white card with --card-shadow; Details' fields sit on the grey
+   with their white inputs; the Rooms panel is a white card. */
+html.warm body.proposal :is(#searchPane,#ptView){background:var(--surface,#f3f3f3);border-radius:var(--r-lg,4px)}
+html.warm body.proposal #searchPane{padding:0 12px 12px}
+html.warm body.proposal #searchPane .resmeta{padding:12px 12px 10px;background:var(--bg,#fff);border-radius:var(--r-lg,4px) var(--r-lg,4px) 0 0;box-shadow:var(--card-shadow);clip-path:inset(-8px -8px 0 -8px)}
+html.warm body.proposal #searchPane #results{background:var(--bg,#fff);border-radius:0 0 var(--r-lg,4px) var(--r-lg,4px);box-shadow:var(--card-shadow);clip-path:inset(0 -8px -8px -8px)}
+html.warm body.proposal #searchPane #results:has(> .state){border-radius:var(--r-lg,4px);clip-path:none}
+html.warm body.proposal .ptrooms .qside{background:var(--bg,#fff);box-shadow:var(--card-shadow)}
 </style>
 <script>
 /* "Navy buttons and greys" switch (Nov 25): on by default (Sam, Nov 25), remembered in the browser */
