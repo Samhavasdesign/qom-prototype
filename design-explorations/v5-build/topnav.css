@@ -89,3 +89,10 @@ html.tnav:not(.topnav) .protoshow{top:56px}
 .tnlinks > a,.tnsplit{position:relative}
 .tnlinks > a[aria-current="page"]::after,.tnsplit:has(>a[aria-current])::after{content:"";position:absolute;left:var(--tn-pad);right:var(--tn-pad);bottom:0;height:3px;border-radius:2px 2px 0 0;background:var(--rail-ink)}
 body.qlx-bronze .tnlinks > a[aria-current="page"]::after,body.qlx-bronze .tnsplit:has(>a[aria-current])::after{background:var(--brand,#8c704e)}
+
+/* sticky (Sam, Nov 25): the bar stays at the top of the window while the page scrolls, so search, New quote, notifications and
+   the account menu are always in reach. Whatever else sticks to the top of the window sits under it: the Quotes list's table
+   header (1440px and wider) and the quote page's tool column. Below md the phone top bar takes over, as before. */
+html.tnav:not(.topnav) .tnbar{position:sticky;top:0;z-index:40}
+html.tnav:not(.topnav) .qlxt thead th{top:56px}
+html.tnav:not(.topnav) body.proposal .ptools{top:68px}

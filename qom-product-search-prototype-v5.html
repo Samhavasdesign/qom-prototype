@@ -5809,6 +5809,13 @@ html.tnav:not(.topnav) .protoshow{top:56px}
 .tnlinks > a,.tnsplit{position:relative}
 .tnlinks > a[aria-current="page"]::after,.tnsplit:has(>a[aria-current])::after{content:"";position:absolute;left:var(--tn-pad);right:var(--tn-pad);bottom:0;height:3px;border-radius:2px 2px 0 0;background:var(--rail-ink)}
 body.qlx-bronze .tnlinks > a[aria-current="page"]::after,body.qlx-bronze .tnsplit:has(>a[aria-current])::after{background:var(--brand,#8c704e)}
+
+/* sticky (Sam, Nov 25): the bar stays at the top of the window while the page scrolls, so search, New quote, notifications and
+   the account menu are always in reach. Whatever else sticks to the top of the window sits under it: the Quotes list's table
+   header (1440px and wider) and the quote page's tool column. Below md the phone top bar takes over, as before. */
+html.tnav:not(.topnav) .tnbar{position:sticky;top:0;z-index:40}
+html.tnav:not(.topnav) .qlxt thead th{top:56px}
+html.tnav:not(.topnav) body.proposal .ptools{top:68px}
 </style>
 <script>
 /* ==== v5 (Nov 25): top navigation bar, a trial (see topnav.css). The demo bar's "Top navigation bar" switch turns it on;
@@ -6294,7 +6301,8 @@ html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)
    and read as a box in a box. Now the panel is white and the count and results run its full width, with the count lined up
    under the search box. One hairline, the full height of the gutter, splits search from quote (the drag grip stays on it). */
 html.warm #searchPane{background:var(--bg)}
-html.warm #searchPane :is(.shead,.resmeta,table.res){background:transparent}
+html.warm #searchPane :is(.resmeta,table.res){background:transparent}
+html.warm #searchPane .shead{background:var(--bg)} /* the sticky search header stays solid white, so results don't show through as they scroll under it (Sam, Nov 25) */
 html.warm #searchPane .resmeta{padding-left:0;padding-right:0}
 html.warm .work[data-layout="split"] .gutter{background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
 
