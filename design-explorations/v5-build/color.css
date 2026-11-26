@@ -144,7 +144,7 @@ html.warm body .fpill:not(.on):is(:hover,.open),
 html.warm body .qlxpill:not(.on) .qlxpb:is(:hover,[aria-expanded="true"]){background:var(--navy-wash);border-color:var(--input);box-shadow:var(--sp-xs,0 1px 2px 0 rgb(0 0 0 / .05))}
 html.warm body .fpill.on .fpx{color:var(--ink-2)}
 html.warm body .fpill.on .fpx:hover{color:var(--ink);background:linear-gradient(rgb(0 0 0 / .06),rgb(0 0 0 / .06)) calc(50% - 3px) 50% / 26px 26px no-repeat}
-html.warm body #searchPane .fpclear{--bronze:var(--brand,#8c704e);font-weight:500}
+html.warm body #searchPane .fpclear{--bronze:var(--brand-on-fill,#7a6143);font-weight:500} /* the darker link bronze (Sam, Nov 25): the search card is light gold now, where --brand is 4.0:1; this is 5.0:1 */
 /* the pill's chevron sits 6px from its label, as in the Quotes list */
 html body #fpills .fpbtn{gap:6px}
 /* no focus ring on a filter button while its menu is open (Sam, Nov 25): after a click the dark ring stayed on the pill
