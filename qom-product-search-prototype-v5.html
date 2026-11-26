@@ -5756,7 +5756,11 @@ function qvOpen(id,from){ X.qv=id; if(from) qvFrom=from; qv.hidden=false; docume
 function qvClose(){ qv.hidden=true; document.body.classList.remove("qlx-qv"); root.querySelectorAll("tr.qvcur").forEach(t=>t.classList.remove("qvcur"));
   const b=root.querySelector(`[data-qlxqv="${X.qv}"]`)||qvFrom; X.qv=null; if(b&&b.isConnected) b.focus(); }
 function qvGo(d){ const i=shown.findIndex(r=>K(r)===X.qv), n=shown[i+d]; if(n){ X.qv=K(n); qvRender(); root.querySelector(`tr[data-qlxrow="${K(n)}"]`)?.scrollIntoView({block:"nearest"}); } }
-qv.addEventListener("click",ev=>{ if(ev.target===qv){ qvClose(); return; } const b=ev.target.closest("button"); if(!b) return; const d=b.dataset;
+/* a click on the dimmed backdrop closes Quick view and still does what it was aimed at (Sam, Nov 25: a sort header, another row or a
+   filter took two clicks, the first only closing the panel) */
+qv.addEventListener("click",ev=>{ if(ev.target===qv){ qvClose(); const under=document.elementFromPoint(ev.clientX,ev.clientY);
+    if(under&&under!==qv) under.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,view:window,clientX:ev.clientX,clientY:ev.clientY})); return; }
+  const b=ev.target.closest("button"); if(!b) return; const d=b.dataset;
   if(d.qvclose!==undefined) qvClose(); else if(d.qvgo) qvGo(+d.qvgo);
   else if(d.qlxcopy){ navigator.clipboard?.writeText(d.qlxcopy).catch(()=>{}); showToast("Copied "+d.qlxcopy,"ok"); }
   else if(d.qlxopen){ const id=d.qlxopen; qvClose(); openQuote(id); }
