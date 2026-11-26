@@ -297,6 +297,11 @@ body.ptab-rooms #ptForm{display:none}
 .srmore{width:40px;height:40px;border:0 !important;border-radius:0}
 .srmore svg{box-sizing:border-box;width:24px;height:24px;padding:0 6px;border:1.5px solid currentColor;border-radius:50%;overflow:visible;color:var(--ink)}
 .srow.adding .srmore svg{color:#fff}
+/* (Sam, Nov 25) "2 need attention" sits at the row's right, just before the "…" circle, as on the quote's room bars;
+   a click on it opens the room like the rest of the row */
+.srow>.srwarn{flex:none;align-self:center;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;background:var(--block-bg,#fdecea);color:var(--block,#c62828)}
+.srow>.srwarn.risk{background:var(--caution-bg,#fff4e5);color:var(--caution,#b45309)}
+.srow>.srwarn svg{width:12px;height:12px}
 .srmenu.up{top:auto;bottom:calc(100% - 6px)}
 .srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
 html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
@@ -328,7 +333,7 @@ body.proposal .ptrooms .qsidet{min-height:36px;padding-top:0;padding-bottom:0;bo
 html.warm .srow{border-bottom-color:var(--bg,#fff)}
 html.warm .srow.inview{box-shadow:none}
 html.warm .srow.inview .srname{font-weight:inherit}
-html.warm .srow:not(.adding):hover{background:var(--navy-wash,#eef1f6)}
+html.warm .srow:not(.adding):hover{background:var(--surface-header,#ebebeb)} /* no light blue on hover (Sam, Nov 25: it looked odd on the grey): like the quote's room bars, the row keeps its grey and only the grip darkens */
 html.warm .srow.adding.inview{box-shadow:none}
 /* top alignment (Sam, Nov 25): the tool column, the search side's header and the quote's Find box start on one line under the
    facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;

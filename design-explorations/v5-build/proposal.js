@@ -350,11 +350,11 @@ apply();
   const sub=r=>r.lines.reduce((a,l)=>a+l.qty*l.unit,0);
   const isOpen=x=>S.allOpen?!S.folded.includes(x.name):(S.room===x.name&&S.collapsedFor!==x.name);
   function rowHtml(r,i,n){ const nm=esc(r.name), k=r.lines.length, a=roomAttention(r), cur=S.room===r.name, m=SR.menu===r.name;
-    const warn=a.n?`<span class="srwarn ${a.sev}">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:"";
+    const warn=a.n?`<span class="srwarn ${a.sev}" data-srgo="${nm}">${RI.bad}${a.n} need${a.n===1?"s":""} attention</span>`:"";
     const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
     return `<div class="srow${SR.view===r.name?" inview":""}${cur?" adding":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
       <span class="srgrip" title="Drag to reorder">${GRIP}</span>
-      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm} <span class="srcnt">· ${k} line${k===1?"":"s"}</span></span>${cur?'<span class="sr">, adding here</span>':""}${k||a.n?`<span class="srline">${k?`<span class="srmeta">${money(sub(r))}</span>`:""}${warn}</span>`:""}</button>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm} <span class="srcnt">· ${k} line${k===1?"":"s"}</span></span>${cur?'<span class="sr">, adding here</span>':""}${k?`<span class="srline"><span class="srmeta">${money(sub(r))}</span></span>`:""}</button>${warn}
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }
@@ -367,11 +367,11 @@ apply();
   /* where you are: the last room whose bar has reached the line under the quote's toolbar */
   function spy(){ const bar=q(".qbar"), bl=[...document.querySelectorAll("#rooms .rmblock")]; if(!bar||!bl.length) return;
     const y=bar.getBoundingClientRect().bottom+24; let v=bl[0].dataset.rm; bl.forEach(b=>{ if(b.getBoundingClientRect().top<=y) v=b.dataset.rm; });
-    const atEnd=(()=>{ const s=scrollerOf(bl[0]); return s&&Math.ceil(s.scrollTop+s.clientHeight)>=s.scrollHeight-2; })(); if(atEnd&&bl.length&&bl[bl.length-1].getBoundingClientRect().top<innerHeight) v=bl[bl.length-1].dataset.rm;
+    const atEnd=(()=>{ let s=scrollerOf(bl[0]); if(!s||!s.getBoundingClientRect) s=document.scrollingElement; return Math.ceil(s.scrollTop+s.clientHeight)>=s.scrollHeight-2; })(); if(atEnd&&bl.length&&bl[bl.length-1].getBoundingClientRect().top<innerHeight) v=bl[bl.length-1].dataset.rm;
     if(v===SR.view) return; SR.view=v;
     document.querySelectorAll("#sideRooms .srow").forEach(e=>{ const on=e.dataset.srrow===v; e.classList.toggle("inview",on); const b=e.querySelector(".srgo"); on?b.setAttribute("aria-current","location"):b.removeAttribute("aria-current"); });
     /* keep the marked room in sight: scroll the left pane (never the page) just enough to show it */
-    const row=q("#sideRooms .srow.inview"), s=row&&scrollerOf(row); if(!s||s===document.scrollingElement||s===document.documentElement||s===document.body) return;
+    const row=q("#sideRooms .srow.inview"), s=row&&scrollerOf(row); if(!s||!s.getBoundingClientRect||s===document.scrollingElement||s===document.documentElement||s===document.body) return;
     const sr=s.getBoundingClientRect(), rr=row.getBoundingClientRect(); if(rr.top<sr.top+8) s.scrollTop-=sr.top+8-rr.top; else if(rr.bottom>sr.bottom-8) s.scrollTop+=rr.bottom-sr.bottom+8; }
   let raf=0; document.addEventListener("scroll",()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; spy(); }); },true);
   /* One room at a time (Sam, Nov 25): across the quote page, picking a room (its bar, the Rooms list, the search side's
@@ -387,7 +387,7 @@ apply();
     const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(!blk) return;
     revealBelowHeader(blk); SR.view=null; spy(); }
   /* the menu opens upward when the footer bar (or the pane's edge) would cover it and there's room above */
-  function placeMenu(){ const m=q("#sideRooms .srmenu"); if(!m) return; const row=m.closest(".srow"), sc=scrollerOf(row), bar=q("#pbar");
+  function placeMenu(){ const m=q("#sideRooms .srmenu"); if(!m) return; const row=m.closest(".srow"), s0=scrollerOf(row), sc=s0&&s0.getBoundingClientRect?s0:null, bar=q("#pbar");
     const lim=Math.min(bar&&bar.offsetParent?bar.getBoundingClientRect().top:innerHeight, sc&&sc!==document.scrollingElement?sc.getBoundingClientRect().bottom:innerHeight)-8;
     const top=sc&&sc!==document.scrollingElement?sc.getBoundingClientRect().top:0;
     if(m.getBoundingClientRect().bottom>lim&&row.getBoundingClientRect().top-m.offsetHeight>top+8) m.classList.add("up"); }
