@@ -122,6 +122,10 @@ html.warm:not(#x) .dnav .dseg{background:var(--surface,#f3f3f3)}
 html.warm:not(#x) .dnav button:not([aria-current="true"]):hover{color:var(--ink);background:rgb(255 255 255 / .55)} /* same as the Quotes list's Mine / My team / Everyone (Sam, Nov 25; it was a 4% dark wash) */
 html.warm body.proposal .ptrooms .qside{border:0;box-shadow:none;background:none} /* the Rooms panel is the card's content, not a box inside it */
 html.warm body.proposal #searchPane .shead{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .06),0 4px 6px -4px rgb(0 0 0 / .18)} /* edge drawn inside: the card sits at the scrolling pane's top, which would clip an outside hairline */
+/* light gold search panel (Sam, Nov 25): the search controls sit on the pale bronze --brand-tint #f4eee6, the Quotes list's
+   table-header colour, since both are the band of controls over the list they drive; white fields and pills on it, and
+   Clear filters in the darker link bronze (5.0:1 on the tint) */
+html.warm body.proposal #searchPane .shead{background:var(--brand-tint,#f4eee6);--bronze:var(--brand-on-fill,#7a6143)}
 
 /* filter pills: one look on both screens (Sam, Nov 25 audit). The quote page's product filters now behave like the Quotes list's:
    unset pills (and the More filters icon) hover in the navy wash with the #8a8a8a field edge instead of grey; while a pill's
