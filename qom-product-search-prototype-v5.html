@@ -4571,7 +4571,7 @@ body.proposal .qtools .qtact{margin-block:-4px} /* Show details and Collapse all
    full-width sticky strip that masks the fields scrolling under it. */
 html:not(#x) .dnav .dseg{display:inline-flex;gap:2px;height:var(--control-h,36px);padding:3px;border-radius:var(--r-md);background:var(--surface-header,#ebebeb)}
 html:not(#x) .dnav button{height:100%;padding:0 12px;border:0;border-radius:var(--r-sm);font-size:14px}
-html:not(#x) .dnav button:hover{background:rgb(255 255 255 / .6)}
+html:not(#x) .dnav button:not([aria-current="true"]):hover{color:var(--ink);background:rgb(255 255 255 / .55)} /* the Quotes list toggle's hover (Nov 25) */
 html:not(#x) .dnav button:focus-visible{outline:2px solid var(--ink);outline-offset:1px;position:relative;z-index:1}
 /* the track sits 16px inside the grey panel's top, matching its 16px sides; the strip still sticks 20px up (the panel's padding), so the track stays 16px from the top while the fields scroll */
 html:not(#x) .dnav{padding-top:12px} /* 12px, like the search card's padding, so the track lines up with Adding to and the Find box */
@@ -6517,7 +6517,7 @@ html.warm body.proposal #searchPane{background:var(--bg,#fff)}
 html.warm body.proposal #ptView{background:var(--bg,#fff);border-radius:var(--r-lg,4px);box-shadow:var(--card-shadow);margin:0 2px 6px}
 html.warm body.proposal #ptView .dnav{background:var(--bg,#fff)}
 html.warm:not(#x) .dnav .dseg{background:var(--surface,#f3f3f3)}
-html.warm:not(#x) .dnav button:hover{background:rgb(0 0 0 / .04)}
+html.warm:not(#x) .dnav button:not([aria-current="true"]):hover{color:var(--ink);background:rgb(255 255 255 / .55)} /* same as the Quotes list's Mine / My team / Everyone (Sam, Nov 25; it was a 4% dark wash) */
 html.warm body.proposal .ptrooms .qside{border:0;box-shadow:none;background:none} /* the Rooms panel is the card's content, not a box inside it */
 html.warm body.proposal #searchPane .shead{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .06),0 4px 6px -4px rgb(0 0 0 / .18)} /* edge drawn inside: the card sits at the scrolling pane's top, which would clip an outside hairline */
 
