@@ -4253,9 +4253,12 @@ body.proposal #qTop .qseg{display:none}
 body.proposal:not(.noscroll) #qTop{display:none} /* only held the expand button, which is in the title row now */
 .ptitle .expandbtn{width:36px;height:36px;border-radius:50%}
 .ptitle .expandbtn:hover{background:var(--surface-2)}
+/* full view of the quote is gone from v5 (Sam, Nov 25: no longer needed), so the expand button doesn't show */
+body.proposal #expandBtn{display:none !important}
 
-/* title row: the quote's name, then Preview PDF and the quote actions (•••) on the right */
-.ptitle{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* title row: the quote's name, then Preview PDF and the quote actions (•••) on the right.
+   Everything sits on the row's bottom edge (Sam, Nov 25), so the badges and buttons line up with the foot of the title */
+.ptitle{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
 .ptitle > h1{margin-right:auto}
 .ptitle .pacts{display:none;align-items:center;gap:8px}
 body.proposal .ptitle .pacts{display:flex}
