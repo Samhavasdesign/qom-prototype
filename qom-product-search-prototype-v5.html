@@ -4502,7 +4502,7 @@ html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
 .ptrooms{display:none}
 body.ptab-rooms .ptrooms{display:block}
 body.ptab-rooms #ptForm{display:none}
-.ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}
+.ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px)} /* overflow stays visible so a row's "…" menu isn't cut off (Sam, Nov 25) */
 /* room list rows (Sam, Nov 25): grip, the room (name, Adding here, lines and subtotal, problems), and a "…" menu */
 .srow{position:relative;display:flex;align-items:stretch;border-bottom:1px solid var(--hdr-line,var(--line));background:var(--bg)}
 .srow:last-child{border-bottom:0}
@@ -6485,6 +6485,17 @@ html.warm:not(#x) .dnav .dseg{background:var(--surface,#f3f3f3)}
 html.warm:not(#x) .dnav button:hover{background:rgb(0 0 0 / .04)}
 html.warm body.proposal .ptrooms .qside{border:0;box-shadow:none;background:none} /* the Rooms panel is the card's content, not a box inside it */
 html.warm body.proposal #searchPane .shead{box-shadow:inset 0 0 0 1px rgb(0 0 0 / .06),0 4px 6px -4px rgb(0 0 0 / .18)} /* edge drawn inside: the card sits at the scrolling pane's top, which would clip an outside hairline */
+
+/* filter pills: one look on both screens (Sam, Nov 25 audit). The quote page's product filters now behave like the Quotes list's:
+   unset pills (and the More filters icon) hover in the navy wash with the #8a8a8a field edge instead of grey; while a pill's
+   menu is open it keeps that hover look on both screens (the quote page's black edge and ring, and the list's lack of any open
+   state, both go); a set pill's × is charcoal and turns black on a small 6% grey square, as in the list, instead of navy with a
+   full-height navy tint; Clear filters is the brand bronze at medium weight, as in the list, now that the search card is white. */
+html.warm body .fpill:not(.on):is(:hover,.open),
+html.warm body .qlxpill:not(.on) .qlxpb:is(:hover,[aria-expanded="true"]){background:var(--navy-wash);border-color:var(--input);box-shadow:var(--sp-xs,0 1px 2px 0 rgb(0 0 0 / .05))}
+html.warm body .fpill.on .fpx{color:var(--ink-2)}
+html.warm body .fpill.on .fpx:hover{color:var(--ink);background:linear-gradient(rgb(0 0 0 / .06),rgb(0 0 0 / .06)) calc(50% - 3px) 50% / 26px 26px no-repeat}
+html.warm body #searchPane .fpclear{--bronze:var(--brand,#8c704e);font-weight:500}
 </style>
 <script>
 /* "Navy buttons and greys" switch (Nov 25): on by default (Sam, Nov 25), remembered in the browser */

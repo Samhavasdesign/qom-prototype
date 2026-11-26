@@ -265,7 +265,7 @@ html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
 .ptrooms{display:none}
 body.ptab-rooms .ptrooms{display:block}
 body.ptab-rooms #ptForm{display:none}
-.ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}
+.ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px)} /* overflow stays visible so a row's "…" menu isn't cut off (Sam, Nov 25) */
 /* room list rows (Sam, Nov 25): grip, the room (name, Adding here, lines and subtotal, problems), and a "…" menu */
 .srow{position:relative;display:flex;align-items:stretch;border-bottom:1px solid var(--hdr-line,var(--line));background:var(--bg)}
 .srow:last-child{border-bottom:0}
