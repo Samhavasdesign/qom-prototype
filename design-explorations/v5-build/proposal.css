@@ -287,6 +287,7 @@ body.ptab-rooms #ptForm{display:none}
 .srmore{flex:none;align-self:center;display:grid;place-items:center;width:32px;height:32px;margin-right:8px;border:1px solid transparent;border-radius:999px;background:none;color:var(--ink-2);cursor:pointer}
 .srmore:hover,.srow.menuopen .srmore{border-color:var(--ink);color:var(--ink)}
 .srmenu{position:absolute;right:8px;top:calc(100% - 6px);z-index:20;min-width:200px}
+.srmenu.up{top:auto;bottom:calc(100% - 6px)}
 .srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
 html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
 html.warm .srow.inview{background:var(--navy-wash,#eef1f6);box-shadow:inset 3px 0 0 var(--navy,#001E52)}

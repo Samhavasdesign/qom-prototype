@@ -4524,6 +4524,7 @@ body.ptab-rooms #ptForm{display:none}
 .srmore{flex:none;align-self:center;display:grid;place-items:center;width:32px;height:32px;margin-right:8px;border:1px solid transparent;border-radius:999px;background:none;color:var(--ink-2);cursor:pointer}
 .srmore:hover,.srow.menuopen .srmore{border-color:var(--ink);color:var(--ink)}
 .srmenu{position:absolute;right:8px;top:calc(100% - 6px);z-index:20;min-width:200px}
+.srmenu.up{top:auto;bottom:calc(100% - 6px)}
 .srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
 html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
 html.warm .srow.inview{background:var(--navy-wash,#eef1f6);box-shadow:inset 3px 0 0 var(--navy,#001E52)}
@@ -4912,7 +4913,7 @@ apply();
     const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
     return `<div class="srow${SR.view===r.name?" inview":""}${cur?" adding":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
       <span class="srgrip" title="Drag to reorder">${GRIP}</span>
-      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="srtag">Adding here</span>':""}<span class="srline"><span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</span></button>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="sr">, adding here</span>':""}<span class="srline"><span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</span></button>
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }
@@ -4930,15 +4931,22 @@ apply();
     const row=q("#sideRooms .srow.inview"), s=row&&scrollerOf(row); if(!s||s===document.scrollingElement||s===document.documentElement||s===document.body) return;
     const sr=s.getBoundingClientRect(), rr=row.getBoundingClientRect(); if(rr.top<sr.top+8) s.scrollTop-=sr.top+8-rr.top; else if(rr.bottom>sr.bottom-8) s.scrollTop+=rr.bottom-sr.bottom+8; }
   let raf=0; document.addEventListener("scroll",()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; spy(); }); },true);
+  /* a click makes the room the one you're adding to (as the room picker does), opens it if folded, and scrolls the quote to it (Sam, Nov 25) */
   function go(name){ const r=S.quote.rooms.find(x=>x.name===name); if(!r) return;
-    if(!isOpen(r)){ if(S.allOpen) S.folded=S.folded.filter(x=>x!==name); else if(S.room===name) S.collapsedFor=null; else { S.folded=S.quote.rooms.filter(x=>x!==r&&!isOpen(x)).map(x=>x.name); S.allOpen=true; } renderQuote(); }
+    if(S.allOpen) S.folded=S.folded.filter(x=>x!==name);
+    pickRoom(name);
     const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(!blk) return;
     revealBelowHeader(blk); SR.view=null; spy(); }
+  /* the menu opens upward when the footer bar (or the pane's edge) would cover it and there's room above */
+  function placeMenu(){ const m=q("#sideRooms .srmenu"); if(!m) return; const row=m.closest(".srow"), sc=scrollerOf(row), bar=q("#pbar");
+    const lim=Math.min(bar&&bar.offsetParent?bar.getBoundingClientRect().top:innerHeight, sc&&sc!==document.scrollingElement?sc.getBoundingClientRect().bottom:innerHeight)-8;
+    const top=sc&&sc!==document.scrollingElement?sc.getBoundingClientRect().top:0;
+    if(m.getBoundingClientRect().bottom>lim&&row.getBoundingClientRect().top-m.offsetHeight>top+8) m.classList.add("up"); }
   function move(name,d){ const rs=S.quote.rooms, i=rs.findIndex(x=>x.name===name), j=i+d; if(i<0||j<0||j>=rs.length) return;
     [rs[i],rs[j]]=[rs[j],rs[i]]; S.dirty=true; renderRoomMenu(); renderQuote(); showToast(`Moved ${name} ${d<0?"up":"down"}`,"ok"); }
   side.addEventListener("click",ev=>{
     const g=ev.target.closest("[data-srgo]"); if(g){ ev.stopPropagation(); SR.menu=null; go(g.dataset.srgo); return; }
-    const mo=ev.target.closest("[data-srmore]"); if(mo){ ev.stopPropagation(); const n=mo.dataset.srmore; SR.menu=SR.menu===n?null:n; paint(); (SR.menu?q("#sideRooms .srmenu [role=menuitem]:not([aria-disabled])"):q(`[data-srmore="${CSS.escape(n)}"]`))?.focus(); return; }
+    const mo=ev.target.closest("[data-srmore]"); if(mo){ ev.stopPropagation(); const n=mo.dataset.srmore; SR.menu=SR.menu===n?null:n; paint(); placeMenu(); (SR.menu?q("#sideRooms .srmenu [role=menuitem]:not([aria-disabled])"):q(`[data-srmore="${CSS.escape(n)}"]`))?.focus(); return; }
     const a=ev.target.closest("[data-sract]"); if(a){ ev.stopPropagation(); if(a.getAttribute("aria-disabled")==="true") return; const n=a.dataset.srname, act=a.dataset.sract; SR.menu=null;
       if(act==="here"){ pickRoom(n); setPTab(4); q("#q")?.focus(); return; }
       if(act==="up"||act==="down"){ move(n,act==="up"?-1:1); q(`[data-srmore="${CSS.escape(n)}"]`)?.focus(); return; }
