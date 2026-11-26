@@ -4503,6 +4503,10 @@ html:not(#x) .dnav button[aria-current="true"] .sdot{box-shadow:none}
 body.ptab-rooms .ptrooms{display:block}
 body.ptab-rooms #ptForm{display:none}
 .ptrooms .qside{position:static;grid-column:auto;grid-row:auto;max-height:none;overflow:visible;border-radius:var(--r-lg,4px);overflow:hidden}
+/* top alignment (Sam, Nov 25): the tool column, the search side's header and the quote's Find box start on one line under the
+   facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;
+   now the row is 44px (the toggle's touch target) pulled up 4px so the box's top edge meets the tools' top. */
+body.proposal .qtools{margin-top:-4px;min-height:44px}
 </style>
 <script>
 /* ==== v5 (Nov 23): the Quote Page Proposal and global search, layered on v4 ====
@@ -6302,7 +6306,7 @@ html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)
    under the search box. One hairline, the full height of the gutter, splits search from quote (the drag grip stays on it). */
 html.warm #searchPane{background:var(--bg)}
 html.warm #searchPane :is(.resmeta,table.res){background:transparent}
-html.warm #searchPane .shead{background:var(--surface,#f3f3f3);padding:12px;margin-top:16px;border-radius:var(--r-lg,4px);--bronze:var(--brand-on-fill,#7a6143)}
+html.warm #searchPane .shead{background:var(--surface,#f3f3f3);padding:12px;margin-top:0;border-radius:var(--r-lg,4px);--bronze:var(--brand-on-fill,#7a6143)}
 /* the sticky search header is a grey panel (Sam, Nov 25): Adding to, the search box and the filter pills sit white on theme v1's
    fill, so the inputs read as one block apart from the results, and the results scroll out of sight under it (it was white,
    and before that transparent, which let them show through). Clear filters on the grey takes the darker link bronze (5.2:1). */
