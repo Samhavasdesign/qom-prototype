@@ -22,7 +22,7 @@ i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'quotes-list.css').read()+'</style>\n'+open(D+'quotes-list.js').read()+s[i:]
 # Top navigation bar (Nov 25): a trial, off by default, with its own switch
 rep('<strong>Quotes list redesign</strong></label>',
-    '<strong>Quotes list redesign</strong></label>\n  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>')
+    '<strong>Quotes list redesign</strong></label>\n  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). On by default."><input type="checkbox" id="tnOn" checked autocomplete="off"> <strong>Top navigation bar</strong></label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'topnav.css').read()+'</style>\n'+open(D+'topnav.js').read()+s[i:]
 # Notifications (Nov 25): the top bar's bell, as production's (sp-fe notifications component) in v5's styles
@@ -33,7 +33,7 @@ i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'home.css').read()+'</style>\n'+open(D+'home.js').read()+s[i:]
 # Navy buttons and greys (Nov 25): a color trial, off by default, with its own switch after Bronze accent
 rep('id="qlxBronze" checked autocomplete="off"> Bronze accent</label>',
-    'id="qlxBronze" checked autocomplete="off"> Bronze accent</label>\n  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and greys</label>')
+    'id="qlxBronze" checked autocomplete="off"> Bronze accent</label>\n  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. On by default."><input type="checkbox" id="warmOn" checked autocomplete="off"> Navy buttons and greys</label>')
 i=s.rindex('</body>')
 s=s[:i]+'<style>'+open(D+'color.css').read()+'</style>\n'+open(D+'color.js').read()+s[i:]
 # How a quote becomes an order (Nov 25, backend research): Convert to order for no-charge quotes, and paid, order pending. Its demo controls are added by orders.js

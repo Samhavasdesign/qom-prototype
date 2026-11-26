@@ -5,7 +5,7 @@
    sign-out dialog. Search and New quote sit in the right-hand group (Sam, Nov 25), so the links have room. */
 (function(){
 const q=s=>document.querySelector(s);
-let on=false; try{ on=localStorage.getItem("qom-v5-topnav")==="on"; }catch(e){}
+let on=true; try{ on=localStorage.getItem("qom-v5-topnav")!=="off"; }catch(e){}
 const rail=q(".rail"); if(!rail) return;
 /* Quotes is found by data-nav: the Quotes list layer may already have renamed it "Quotes & orders" */
 const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-nav="quotes"]'))||[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };

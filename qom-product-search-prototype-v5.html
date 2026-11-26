@@ -1766,9 +1766,9 @@ window.NAV=(function(){ var d=document.documentElement, cs=getComputedStyle(d), 
   <label><input type="checkbox" id="liveSearch" checked autocomplete="off"> Search as you type</label>
   <label title="v5 only: the Quote Page Proposal (tool column, Details, no tabs, new quote in one step) and global search (side nav, ⌘K)."><input type="checkbox" id="propOn" checked autocomplete="off"> <strong>Proposal layout and global search</strong></label>
   <label title="v5 only: first pass at the Quotes list redesign (QOM-3332). Off shows today's list."><input type="checkbox" id="qlxOn" checked autocomplete="off"> <strong>Quotes list redesign</strong></label>
-  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). Off by default."><input type="checkbox" id="tnOn" autocomplete="off"> <strong>Top navigation bar</strong></label>
+  <label title="v5 only: trial of a black top bar in place of the side nav (from md up). On by default."><input type="checkbox" id="tnOn" checked autocomplete="off"> <strong>Top navigation bar</strong></label>
   <label title="v5 only: the Waterworks brand bronze (#8C704E, from Jen's deck) as the accent: the Quotes list's links and selection marks, and text links on every page. Off shows them in black and grey."><input type="checkbox" id="qlxBronze" checked autocomplete="off"> Bronze accent</label>
-  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. Off by default."><input type="checkbox" id="warmOn" autocomplete="off"> Navy buttons and greys</label>
+  <label title="v5 only: trial of navy for dark controls inside the page (buttons, set pills, selected toggles; the app frame stays black) and a navy bar for the room being added to, with neutral grey fills and charcoal secondary text. On by default."><input type="checkbox" id="warmOn" checked autocomplete="off"> Navy buttons and greys</label>
   <label title="v4 only: restyles controls to match Spartan components. Off shows theme v1 on QOM controls."><input type="checkbox" id="spSkin" checked autocomplete="off"> <strong>Spartan components</strong></label>
   <label><input type="checkbox" id="riskDemo" checked autocomplete="off"> Stock warning examples</label>
   <label><input type="checkbox" id="showDisc" checked> Show discontinued and in-development</label>
@@ -5777,7 +5777,7 @@ body.qlx-bronze .tnlinks > a[aria-current="page"]::after,body.qlx-bronze .tnspli
    sign-out dialog. Search and New quote sit in the right-hand group (Sam, Nov 25), so the links have room. */
 (function(){
 const q=s=>document.querySelector(s);
-let on=false; try{ on=localStorage.getItem("qom-v5-topnav")==="on"; }catch(e){}
+let on=true; try{ on=localStorage.getItem("qom-v5-topnav")!=="off"; }catch(e){}
 const rail=q(".rail"); if(!rail) return;
 /* Quotes is found by data-nav: the Quotes list layer may already have renamed it "Quotes & orders" */
 const icon=name=>{ const a=(name==="Quotes"&&rail.querySelector('a.rlink[data-nav="quotes"]'))||[...rail.querySelectorAll("a.rlink")].find(x=>x.textContent.trim()===name); const s=a&&a.querySelector("svg"); return s?s.outerHTML.replace(/width="22" height="22"/,'width="16" height="16"'):""; };
@@ -6287,9 +6287,9 @@ html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-
 html.warm .qlxt th{background:var(--brand-tint,#f4eee6)}
 </style>
 <script>
-/* "Navy buttons and greys" switch (Nov 25): off by default, remembered in the browser */
+/* "Navy buttons and greys" switch (Nov 25): on by default (Sam, Nov 25), remembered in the browser */
 (function(){
-  let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
+  let on=true; try{ on=localStorage.getItem("qom-v5-warm")!=="off"; }catch(e){}
   document.documentElement.classList.toggle("warm",on);
   const sw=document.getElementById("warmOn"); if(!sw) return;
   sw.checked=on;

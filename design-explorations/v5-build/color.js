@@ -1,7 +1,7 @@
 <script>
-/* "Navy buttons and greys" switch (Nov 25): off by default, remembered in the browser */
+/* "Navy buttons and greys" switch (Nov 25): on by default (Sam, Nov 25), remembered in the browser */
 (function(){
-  let on=false; try{ on=localStorage.getItem("qom-v5-warm")==="on"; }catch(e){}
+  let on=true; try{ on=localStorage.getItem("qom-v5-warm")!=="off"; }catch(e){}
   document.documentElement.classList.toggle("warm",on);
   const sw=document.getElementById("warmOn"); if(!sw) return;
   sw.checked=on;
