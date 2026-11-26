@@ -71,10 +71,10 @@ body.qlx-on.page-quotes .ql h1{margin-top:0}
 .qlxt th.c-tot .th{justify-content:flex-end}
 .qlxt th button:hover{color:var(--ink)}
 .qlxt th[aria-sort] button{color:var(--ink)}
-.qlxt th .si{display:inline-flex;opacity:0} /* the idle arrow shows only on hover or focus, so the header row stays quiet */
-.qlxt th button:is(:hover,:focus-visible) .si{opacity:.45}
-.qlxt th .si.on{opacity:1}
-.qlxt th[aria-sort="descending"] .si svg{transform:rotate(180deg)}
+.qlxt th .si{display:inline-flex;color:var(--ink-2)} /* sortable headers show one grey arrow at rest, pointing the way the first click sorts (Sam, Nov 25: hidden until hover, nothing said the column sorted; up-down chevrons read as a drag handle) */
+.qlxt th button:is(:hover,:focus-visible) .si{color:var(--ink)}
+.qlxt th .si.on{opacity:1;color:inherit}
+.qlxt th .si.dn svg{transform:rotate(180deg)}
 .qlxt td{height:var(--qlx-row);padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.3}
 .qlxt tbody tr:last-child td{border-bottom:0}
 .qlxt tbody tr[data-qlxrow]{cursor:pointer}
@@ -334,7 +334,7 @@ html:not(#x) .qlx .qlxseg button[aria-pressed="true"]{background:var(--bg,#fff);
 html:not(#x) .qlx .qlxseg button:focus-visible{outline:2px solid var(--ink);outline-offset:1px;position:relative;z-index:1}
 /* Column headings in black, not charcoal (Sam, Nov 25): grey medium text on the tinted header read as disabled, and the bronze
    sorted column ended up the darkest heading. The audit treats table headers as labels (14 / 20 medium, the text colour).
-   The sorted column keeps its bronze and arrow; sortable ones show their faint arrow on hover */
+   The sorted column keeps its bronze and arrow; sortable ones show a grey arrow (their first-click direction) at rest, black on hover */
 .qlxt th button,.qlxt th .th{color:var(--ink)}
 /* the search's clear button (Sam, Nov 25): Chrome's own × is bold and blue, unlike anything else here, so it's hidden and this
    one, the set filters' ×, sits in its place: grey, darker on hover, a 28px target inside the field */

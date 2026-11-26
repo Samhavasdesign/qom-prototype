@@ -145,6 +145,11 @@ const COLS=()=>(X.tab==="orders"?COLSO:COLSQ).filter(c=>(X.tot||c[0]!=="tot")&&(
 /* on Mine every row is yours, so Sales consultant goes and Description gets the room (Nov 25 audit) */
 const showSC=()=>X.who!=="me";
 const sortsFor=t=>SORTS[t].filter(k=>X.tot||k!=="tot");
+/* each sortable column's first click is its most useful order (Sam, Nov 25): newest quote or order, highest amount, most likely
+   pipeline status, soonest expiry. The idle arrow points that way, and the tooltip names what a click does */
+const FIRST={id:-1,odate:-1,tot:-1,paid:-1,ship:-1,pipe:1,exp:1};
+const SORTSAY={id:["oldest first","newest first"],odate:["oldest first","newest first"],tot:["lowest first","highest first"],paid:["lowest first","highest first"],ship:["lowest first","highest first"],pipe:["most likely first","least likely first"],exp:["soonest first","latest first"]};
+const sortNext=k=>X.sort===k?-X.dir:FIRST[k];
 const VALS=[[0,"Any"],[10000,"Over $10,000"],[50000,"Over $50,000"],[100000,"Over $100,000"]];
 const title=s=>String(s).toLowerCase().replace(/(^|[\s&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const words=()=>X.q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -287,7 +292,7 @@ function render(){ if(!X.on) return; syncBuilt(); if(!X.tot&&X.sort==="tot") [X.
   /* head */
   const COLS_=COLS();
   /* only the columns worth sorting sort (Sam, Nov 25): names and descriptions are found by search, not by scrolling A to Z */
-  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}>${sortsFor(X.tab).includes(k)?`<button type="button" data-qlxsort="${k}">${l}<span class="si${X.sort===k?" on":""}">${X.sort===k?IC.up:IC.sort}</span></button>`:`<span class="th">${l}</span>`}</th>`).join("");
+  q("#qlxHead").innerHTML=COLS_.map(([k,l])=>`<th scope="col" class="c-${k}"${X.sort===k?` aria-sort="${X.dir>0?"ascending":"descending"}"`:""}>${sortsFor(X.tab).includes(k)?`<button type="button" data-qlxsort="${k}" title="Sort ${SORTSAY[k][sortNext(k)>0?0:1]}">${l}<span class="si${X.sort===k?" on":""}${(X.sort===k?X.dir:FIRST[k])<0?" dn":""}">${IC.up}</span></button>`:`<span class="th">${l}</span>`}</th>`).join("");
   /* body */
   const idCell=x=>`<span class="qlxid"><a href="#" data-qlxopen="${x.id}">${hl(x.id,ws)}</a><button type="button" class="qlxcp" data-qlxcopy="${x.id}" aria-label="Copy quote number ${x.id}" title="Copy">${IC.copy}</button></span>`;
   const qvb=x=>`<button type="button" class="qlxqvb" data-qlxqv="${K(x)}" aria-label="Quick view of ${x.oo?"order "+x.ord:"quote "+x.id}" title="Quick view">${IC.eye}<span>Quick view</span></button>`;
@@ -449,7 +454,7 @@ root.addEventListener("click",ev=>{ const b=ev.target.closest("button,a"); const
   if(d.qlxclr){ ev.stopPropagation(); const k=d.qlxclr; if(k==="type") X.type=""; else if(k==="pipe"){ X.pipes.clear(); X.lostX.clear(); } else X.val=0; X.page=1; closePops(); render(); q({type:"#qlxTypeW",pipe:"#qlxPipeW",val:"#qlxValW"}[k]+" .qlxpb")?.focus(); return; }
   if(d.qlxquick){ const was=X[d.qlxquick]; QUEUES.forEach(k=>{ X[k]=false; }); X[d.qlxquick]=!was; X.page=1; render(); root.querySelector(`[data-qlxquick="${d.qlxquick}"]`).focus(); return; }
   if(d.qlxwho!==undefined){ X.who=d.qlxwho; X.page=1; render(); return; }
-  if(d.qlxsort){ if(X.sort===d.qlxsort) X.dir=-X.dir; else { X.sort=d.qlxsort; X.dir=["id","tot"].includes(d.qlxsort)?-1:1; } render(); q(`[data-qlxsort="${d.qlxsort}"]`).focus(); return; }
+  if(d.qlxsort){ if(X.sort===d.qlxsort) X.dir=-X.dir; else { X.sort=d.qlxsort; X.dir=FIRST[d.qlxsort]; } render(); q(`[data-qlxsort="${d.qlxsort}"]`).focus(); return; }
   if(d.qlxpage){ X.page=+d.qlxpage; render(); q("#qlxPager [aria-current]")?.focus(); q("#qlTitle").scrollIntoView({block:"start"}); return; }
   if(d.qlx==="new"){ q("#qlNew").click(); return; }
   if(d.qlx==="clearpipe"){ X.pipes.clear(); X.lostX.clear(); render(); return; }
