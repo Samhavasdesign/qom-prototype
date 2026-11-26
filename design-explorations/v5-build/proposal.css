@@ -350,3 +350,6 @@ html:not(#x) .dnav button:not([aria-current="true"]):hover{color:var(--ink);back
 html:not(#x) .dnav button:focus-visible{outline:2px solid var(--ink);outline-offset:1px;position:relative;z-index:1}
 /* the track sits 16px inside the grey panel's top, matching its 16px sides; the strip still sticks 20px up (the panel's padding), so the track stays 16px from the top while the fields scroll */
 html:not(#x) .dnav{padding-top:12px} /* 12px, like the search card's padding, so the track lines up with Adding to and the Find box */
+/* search results' Details tray (Sam, Nov 25: thinner): the four facts (unit, weight, collection, finish) run in two columns
+   instead of four stacked lines, with less padding, so the open tray is about half as tall. The markup is v2's (lines split by <br>) */
+html:not(#x) table.res tr.tray td{column-count:2;column-gap:24px;padding:6px 12px 8px 0;font-size:12px;line-height:18px}
