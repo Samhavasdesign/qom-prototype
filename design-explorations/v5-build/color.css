@@ -41,7 +41,7 @@ html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
 
 /* room bars: the other rooms take the Quotes list header's light gold, the pale bronze --brand-tint #f4eee6 (Sam, Nov 25;
    grey #ebebeb before that, after a navy try), with black names and charcoal counts (4.8:1); the room you're adding to is navy (above). */
-html.warm .roomhdr:not(.active){background:var(--brand-tint,#f4eee6);border-color:var(--brand-tint,#f4eee6);color:var(--ink)}
+html.warm .roomhdr:not(.active){background:var(--surface-header,#ebebeb);border-color:var(--surface-header,#ebebeb);color:var(--ink)} /* grey again (Sam, Nov 25, later): the pale gold means "selected" in the audit, the opposite of these rooms */
 
 /* room picker (Sam, Nov 25): the quote's rooms rest on the light fill; "+ Add room" stays navy with white text on hover and focus. */
 html.warm .menu > button[data-room]{background:var(--surface)}

@@ -4550,7 +4550,11 @@ html.warm .srow.adding.inview{box-shadow:inset 3px 0 0 #fff}
 /* (Sam, Nov 25) the other rooms take the quote's room-bar gold, the pale bronze --brand-tint #f4eee6, so the list matches the
    bars on the right: gold rooms and one navy room you're adding to. White lines split the rows, rows hover in the navy wash,
    and the light blue "on screen" marker is dropped: with one room open at a time it only ever disagreed with the navy row */
-html.warm .srow:not(.adding){background:var(--brand-tint,#f4eee6)}
+html.warm .srow:not(.adding){background:var(--surface-header,#ebebeb)} /* grey, like the quote's other room bars (Sam, Nov 25: gold read as selected) */
+/* top alignment (Sam, Nov 25): the Rooms card's top edge meets the quote's Find box (12px under the line, not 20), and its
+   "3 rooms" / "+ Add room" row is the Find box's 36px, so the heading sits level with "Find in this quote"; the rows start under it */
+body.proposal.ptab-rooms #ptView{padding-top:12px !important}
+body.proposal .ptrooms .qsidet{min-height:36px;padding-top:0;padding-bottom:0;box-sizing:content-box;border-bottom:0;margin-bottom:8px}
 html.warm .srow{border-bottom-color:var(--bg,#fff)}
 html.warm .srow.inview{box-shadow:none}
 html.warm .srow.inview .srname{font-weight:inherit}
@@ -4932,7 +4936,9 @@ apply();
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }
-  function paint(){ const box=q("#sideRooms"); if(!box) return; const rs=S.quote.rooms; if(!rs.length) return;
+  function paint(){ const box=q("#sideRooms"); if(!box) return; const rs=S.quote.rooms;
+    const h=q("#sideRoomsH"); if(h) h.textContent=rs.length?`${rs.length} room${rs.length===1?"":"s"}`:"Rooms"; /* "3 rooms", not "Rooms · 3" (Sam, Nov 25) */
+    if(!rs.length) return;
     box.querySelectorAll(".srow,.sroom").forEach(e=>e.remove());
     box.insertAdjacentHTML("beforeend",rs.map((r,i)=>rowHtml(r,i,rs.length)).join("")); }
   const oRQ=renderQuote; renderQuote=function(){ const r=oRQ.apply(this,arguments); paint(); spy(); return r; };
@@ -6433,7 +6439,7 @@ html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
 
 /* room bars: the other rooms take the Quotes list header's light gold, the pale bronze --brand-tint #f4eee6 (Sam, Nov 25;
    grey #ebebeb before that, after a navy try), with black names and charcoal counts (4.8:1); the room you're adding to is navy (above). */
-html.warm .roomhdr:not(.active){background:var(--brand-tint,#f4eee6);border-color:var(--brand-tint,#f4eee6);color:var(--ink)}
+html.warm .roomhdr:not(.active){background:var(--surface-header,#ebebeb);border-color:var(--surface-header,#ebebeb);color:var(--ink)} /* grey again (Sam, Nov 25, later): the pale gold means "selected" in the audit, the opposite of these rooms */
 
 /* room picker (Sam, Nov 25): the quote's rooms rest on the light fill; "+ Add room" stays navy with white text on hover and focus. */
 html.warm .menu > button[data-room]{background:var(--surface)}

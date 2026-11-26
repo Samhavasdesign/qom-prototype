@@ -358,7 +358,9 @@ apply();
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }
-  function paint(){ const box=q("#sideRooms"); if(!box) return; const rs=S.quote.rooms; if(!rs.length) return;
+  function paint(){ const box=q("#sideRooms"); if(!box) return; const rs=S.quote.rooms;
+    const h=q("#sideRoomsH"); if(h) h.textContent=rs.length?`${rs.length} room${rs.length===1?"":"s"}`:"Rooms"; /* "3 rooms", not "Rooms · 3" (Sam, Nov 25) */
+    if(!rs.length) return;
     box.querySelectorAll(".srow,.sroom").forEach(e=>e.remove());
     box.insertAdjacentHTML("beforeend",rs.map((r,i)=>rowHtml(r,i,rs.length)).join("")); }
   const oRQ=renderQuote; renderQuote=function(){ const r=oRQ.apply(this,arguments); paint(); spy(); return r; };
