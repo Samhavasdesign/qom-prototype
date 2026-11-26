@@ -354,7 +354,7 @@ apply();
     const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
     return `<div class="srow${SR.view===r.name?" inview":""}${cur?" adding":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
       <span class="srgrip" title="Drag to reorder">${GRIP}</span>
-      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="sr">, adding here</span>':""}<span class="srline"><span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</span></button>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm} <span class="srcnt">· ${k} line${k===1?"":"s"}</span></span>${cur?'<span class="sr">, adding here</span>':""}${k||a.n?`<span class="srline">${k?`<span class="srmeta">${money(sub(r))}</span>`:""}${warn}</span>`:""}</button>
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }

@@ -290,6 +290,13 @@ body.ptab-rooms #ptForm{display:none}
 .srmore{flex:none;align-self:center;display:grid;place-items:center;width:32px;height:32px;margin-right:8px;border:1px solid transparent;border-radius:999px;background:none;color:var(--ink-2);cursor:pointer}
 .srmore:hover,.srow.menuopen .srmore{border-color:var(--ink);color:var(--ink)}
 .srmenu{position:absolute;right:8px;top:calc(100% - 6px);z-index:20;min-width:200px}
+/* (Sam, Nov 25) rows read like the room bars in the quote: "Bar · 3 lines" on one line, the subtotal and any problems under it,
+   and the "…" in a circle drawn as the dots' own border (24px, 1.5px), white on the navy row */
+.srgo .srname .srcnt{color:var(--ink-2);font-weight:400}
+.srow.adding .srgo .srname .srcnt{color:#fff;opacity:.75}
+.srmore{width:40px;height:40px;border:0 !important;border-radius:0}
+.srmore svg{box-sizing:border-box;width:24px;height:24px;padding:0 6px;border:1.5px solid currentColor;border-radius:50%;overflow:visible;color:var(--ink)}
+.srow.adding .srmore svg{color:#fff}
 .srmenu.up{top:auto;bottom:calc(100% - 6px)}
 .srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
 html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}

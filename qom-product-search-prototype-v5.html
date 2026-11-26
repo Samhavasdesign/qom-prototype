@@ -4527,6 +4527,13 @@ body.ptab-rooms #ptForm{display:none}
 .srmore{flex:none;align-self:center;display:grid;place-items:center;width:32px;height:32px;margin-right:8px;border:1px solid transparent;border-radius:999px;background:none;color:var(--ink-2);cursor:pointer}
 .srmore:hover,.srow.menuopen .srmore{border-color:var(--ink);color:var(--ink)}
 .srmenu{position:absolute;right:8px;top:calc(100% - 6px);z-index:20;min-width:200px}
+/* (Sam, Nov 25) rows read like the room bars in the quote: "Bar · 3 lines" on one line, the subtotal and any problems under it,
+   and the "…" in a circle drawn as the dots' own border (24px, 1.5px), white on the navy row */
+.srgo .srname .srcnt{color:var(--ink-2);font-weight:400}
+.srow.adding .srgo .srname .srcnt{color:#fff;opacity:.75}
+.srmore{width:40px;height:40px;border:0 !important;border-radius:0}
+.srmore svg{box-sizing:border-box;width:24px;height:24px;padding:0 6px;border:1.5px solid currentColor;border-radius:50%;overflow:visible;color:var(--ink)}
+.srow.adding .srmore svg{color:#fff}
 .srmenu.up{top:auto;bottom:calc(100% - 6px)}
 .srmenu [aria-disabled="true"]{color:var(--ink-3);cursor:default}
 html.warm .srow:hover{background:var(--navy-wash,#eef1f6)}
@@ -4932,7 +4939,7 @@ apply();
     const item=(act,label,dis)=>`<button type="button" role="menuitem" data-sract="${act}" data-srname="${nm}"${dis?' aria-disabled="true"':""}>${label}</button>`;
     return `<div class="srow${SR.view===r.name?" inview":""}${cur?" adding":""}${m?" menuopen":""}" data-srrow="${nm}" draggable="true">
       <span class="srgrip" title="Drag to reorder">${GRIP}</span>
-      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm}</span>${cur?'<span class="sr">, adding here</span>':""}<span class="srline"><span class="srmeta">${k?`${k} line${k===1?"":"s"} · ${money(sub(r))}`:"No lines"}</span>${warn}</span></button>
+      <button type="button" class="srgo" data-srgo="${nm}"${SR.view===r.name?' aria-current="location"':""}><span class="srname">${nm} <span class="srcnt">· ${k} line${k===1?"":"s"}</span></span>${cur?'<span class="sr">, adding here</span>':""}${k||a.n?`<span class="srline">${k?`<span class="srmeta">${money(sub(r))}</span>`:""}${warn}</span>`:""}</button>
       <button type="button" class="srmore" data-srmore="${nm}" aria-haspopup="menu" aria-expanded="${m}" aria-label="More actions for ${nm}">${dots}</button>
       ${m?`<div class="lmenu srmenu" role="menu" aria-label="Actions for ${nm}">${cur?"":item("here","Add products here")}${item("up","Move up",i===0)}${item("down","Move down",i===n-1)}<hr class="lmsep">${item("ren","Rename room")}${item("dup","Duplicate room")}${item("del","Delete room")}</div>`:""}
     </div>`; }
