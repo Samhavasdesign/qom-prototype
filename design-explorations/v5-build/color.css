@@ -39,9 +39,9 @@ html.warm .fpill.on :is(.fpbtn,.fpx){color:var(--navy)}
 html.warm .fpill.on :is(.fpbtn,.fpx):focus-visible{outline-color:var(--navy)}
 html.warm .fpill.on .fpx:hover{background:rgb(0 30 82 / .08)}
 
-/* room bars: the other rooms are the same grey as the Quotes list's table header (--surface-header #ebebeb; Sam, Nov 25,
-   after a navy try), with black names and charcoal counts (4.6:1); the room you're adding to is navy (above). */
-html.warm .roomhdr:not(.active){background:var(--surface-header,#ebebeb);border-color:var(--surface-header,#ebebeb);color:var(--ink)}
+/* room bars: the other rooms take the Quotes list header's light gold, the pale bronze --brand-tint #f4eee6 (Sam, Nov 25;
+   grey #ebebeb before that, after a navy try), with black names and charcoal counts (4.8:1); the room you're adding to is navy (above). */
+html.warm .roomhdr:not(.active){background:var(--brand-tint,#f4eee6);border-color:var(--brand-tint,#f4eee6);color:var(--ink)}
 
 /* room picker (Sam, Nov 25): the quote's rooms rest on the light fill; "+ Add room" stays navy with white text on hover and focus. */
 html.warm .menu > button[data-room]{background:var(--surface)}
@@ -87,3 +87,9 @@ html.warm .qlxseg button:not([aria-pressed="true"]):hover{background:var(--navy-
    #ebebeb, with charcoal headings (4.8:1) and the sorted column in the darker link bronze (5.0:1). Rows hover navy, so
    the header and a hovered row no longer match. The other room bars on the quote keep the grey. */
 html.warm .qlxt th{background:var(--brand-tint,#f4eee6)}
+/* The quote page's tool column (Sam, Nov 25): the open tool (Search or Details) is solid navy with white text and icon (16:1),
+   like the room you're adding to, instead of grey; the others hover in the navy wash. Its red dot gets a white ring so it
+   still reads on navy. Folded, no tool is open, so none is navy. */
+html.warm body.proposal .ptool:hover{background:var(--navy-wash,#eef1f6);color:var(--ink)}
+html.warm body.proposal:not(.prop-fold) .ptool.cur{background:var(--navy,#001E52);color:#fff}
+html.warm body.proposal:not(.prop-fold) .ptool.cur .pdot{box-shadow:0 0 0 2px #fff}
