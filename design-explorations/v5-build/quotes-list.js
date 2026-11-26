@@ -504,5 +504,14 @@ q("#qlxCom").addEventListener("change",e=>{ X.com=e.target.checked; if(!X.com) X
 q("#qlxData").addEventListener("change",e=>{ LD.mode=e.target.value; clearTimeout(LD.t); Object.assign(LD,{busy:false,err:false,sig:null,errSig:null,retried:false,prev:null}); render(); });
 const sw=q("#qlxOn"); if(sw){ sw.checked=X.on; sw.addEventListener("change",()=>{ X.on=sw.checked; try{ localStorage.setItem("qom-v5-qlx",X.on?"on":"off"); }catch(e){} apply(); }); }
 apply();
+/* the prototype opens on Quotes & orders (Sam, Nov 25; it opened on the quote page). A scenario link (?scenario=…) or ?page=quote
+   still opens the quote page; ?page=home opens Home. Runs once every layer has loaded */
+setTimeout(()=>{ /* the address as opened: v2 writes ?scenario=fresh into the address bar while it loads */
+  let href=location.href; try{ href=performance.getEntriesByType("navigation")[0]?.name||href; }catch(e){}
+  const u=new URL(href).searchParams, pg=(u.get("page")||"").toLowerCase();
+  if(pg==="quote"||u.has("scenario")||u.has("view")) return;
+  if(pg==="home"){ setTimeout(()=>{ window.qomOpenHome?.(); try{ history.replaceState(history.state,"",href); }catch(e){} },200); return; } /* after the quote page's own start-up, which leaves Home */
+  if(X.on) setPage("quotes");
+  try{ history.replaceState(history.state,"",href); }catch(e){} /* drop the ?scenario=fresh v2 added, so a refresh stays here */ },0);
 })();
 </script>

@@ -66,6 +66,7 @@ function openHome(){ if(document.body.classList.contains("page-home")){ q("#hmTi
   renderRecent(); document.body.classList.add("page-home"); setCur(true); document.title="Home · QOM";
   scrollTo(0,0); document.documentElement.style.setProperty("--home-top",Math.round(page.getBoundingClientRect().top+scrollY)+"px");
   q("#hmTitle").focus({preventScroll:true}); }
+window.qomOpenHome=()=>openHome(); /* for ?page=home (quotes-list.js) */
 function leaveHome(){ if(!document.body.classList.contains("page-home")) return; document.body.classList.remove("page-home"); setCur(false); document.title=prevTitle;
   dispatchEvent(new Event("resize")); if(typeof fitPanes==="function") fitPanes(); if(typeof placeBar==="function") placeBar(); }
 document.addEventListener("click",ev=>{ const a=ev.target.closest("[data-nav='home']"); if(!a) return; ev.preventDefault(); ev.stopPropagation(); openHome(); },true);
