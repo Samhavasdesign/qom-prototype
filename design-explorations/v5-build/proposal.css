@@ -270,3 +270,13 @@ body.ptab-rooms #ptForm{display:none}
    facts row. The Find row had a 12px margin from when page tabs sat above it, and its 56px row centred the 36px box 10px lower;
    now the row is 44px (the toggle's touch target) pulled up 4px so the box's top edge meets the tools' top. */
 body.proposal .qtools{margin-top:-4px;min-height:44px}
+/* Details' section links as a real segmented control (Sam, Nov 25), the same shape as the Quotes list's Mine / My team / Everyone:
+   a rounded track with 3px inside, 36px high, the current section a white segment with a soft shadow, the others charcoal.
+   The panel is grey, so the track is a step darker (--surface-header #ebebeb) to show its edge; the nav itself stays the
+   full-width sticky strip that masks the fields scrolling under it. */
+html:not(#x) .dnav .dseg{display:inline-flex;gap:2px;height:var(--control-h,36px);padding:3px;border-radius:var(--r-md);background:var(--surface-header,#ebebeb)}
+html:not(#x) .dnav button{height:100%;padding:0 12px;border:0;border-radius:var(--r-sm);font-size:14px}
+html:not(#x) .dnav button:hover{background:rgb(255 255 255 / .6)}
+html:not(#x) .dnav button:focus-visible{outline:2px solid var(--ink);outline-offset:1px;position:relative;z-index:1}
+/* the track sits 16px inside the grey panel's top, matching its 16px sides; the strip still sticks 20px up (the panel's padding), so the track stays 16px from the top while the fields scroll */
+html:not(#x) .dnav{padding-top:16px}

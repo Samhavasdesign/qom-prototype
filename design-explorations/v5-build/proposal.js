@@ -63,7 +63,7 @@ function fieldMap(){ const m={}, tmp=document.createElement("div");
 const secOf=k=>(SECS.find(s=>s[2].includes(k))||[])[0];
 function missingKeys(){ return [...(SEND.addr?[]:["addr"]),...reqMissing().map(x=>x[0])]; }
 PT_FORMS[5]=()=>{ const m=fieldMap(), miss=new Set(missingKeys().map(secOf));
-  const nav=`<div class="pf wide dnav" role="navigation" aria-label="Details sections">${SECS.map(([id,t],i)=>`<button type="button" data-dsec="${id}"${i?"":' aria-current="true"'}>${t}${miss.has(id)?'<span class="sdot" aria-label="needs a field before sending"></span>':""}</button>`).join("")}</div>`;
+  const nav=`<div class="pf wide dnav" role="navigation" aria-label="Details sections"><span class="dseg">${SECS.map(([id,t],i)=>`<button type="button" data-dsec="${id}"${i?"":' aria-current="true"'}>${t}${miss.has(id)?'<span class="sdot" aria-label="needs a field before sending"></span>':""}</button>`).join("")}</span></div>`;
   return nav+SECS.map(([id,t,keys])=>`<div class="pf wide dsech" id="dsec-${id}"><h3>${t}</h3></div>`+keys.map(k=>m[k]||"").join("")
     +(id==="cust"?(P.assoc?["p2","p3","p4","p5","p6"].map(k=>m[k]||"").join(""):`<div class="pf wide"><button type="button" class="dmore" data-dassoc>+ Add associated party</button></div>`):"")).join("")+`<div class="pf wide dspacer" aria-hidden="true"></div>`; };
 PT_NAMES[5]="Quote details";

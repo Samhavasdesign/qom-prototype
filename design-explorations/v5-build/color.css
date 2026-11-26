@@ -57,6 +57,7 @@ html.warm :is(#quotePane,#quotePane .qbox,#quotePane .qbar){background:var(--bg)
 html.warm #searchPane{background:var(--bg)}
 html.warm #searchPane :is(.resmeta,table.res){background:transparent}
 html.warm #searchPane .shead{background:var(--surface,#f3f3f3);padding:12px;margin-top:0;border-radius:var(--r-lg,4px);--bronze:var(--brand-on-fill,#7a6143)}
+html.warm #searchPane .shead .filterwrap{margin-bottom:0} /* the panel's own padding is the space under the pills (Sam, Nov 25: the extra 12px read as too much grey) */
 /* the sticky search header is a grey panel (Sam, Nov 25): Adding to, the search box and the filter pills sit white on theme v1's
    fill, so the inputs read as one block apart from the results, and the results scroll out of sight under it (it was white,
    and before that transparent, which let them show through). Clear filters on the grey takes the darker link bronze (5.2:1). */
