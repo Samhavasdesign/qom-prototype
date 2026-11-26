@@ -310,7 +310,10 @@ apply();
    "Clear filters". Wraps v2's renderFilters; the styles are in proposal.css */
 (function(){ if(typeof renderFilters!=="function") return;
   const X='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  /* the chevron is the Quotes list's too: Lucide's 14px chevron-down, not v2's 10x7 one (Sam, Nov 25 audit) */
+  const CH='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   const fix=()=>{ document.querySelectorAll("#fpills .fpx").forEach(b=>{ if(!b.querySelector("svg")) b.innerHTML=X; });
+    document.querySelectorAll('#fpills .fpbtn svg[viewBox="0 0 12 8"]').forEach(v=>{ v.outerHTML=CH; });
     const c=document.querySelector("#fpills .fpclear"); if(c&&c.textContent!=="Clear filters") c.textContent="Clear filters"; };
   const o=renderFilters; renderFilters=function(){ const r=o.apply(this,arguments); fix(); return r; }; fix(); })();
 
@@ -369,9 +372,15 @@ apply();
     const row=q("#sideRooms .srow.inview"), s=row&&scrollerOf(row); if(!s||s===document.scrollingElement||s===document.documentElement||s===document.body) return;
     const sr=s.getBoundingClientRect(), rr=row.getBoundingClientRect(); if(rr.top<sr.top+8) s.scrollTop-=sr.top+8-rr.top; else if(rr.bottom>sr.bottom-8) s.scrollTop+=rr.bottom-sr.bottom+8; }
   let raf=0; document.addEventListener("scroll",()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; spy(); }); },true);
-  /* a click makes the room the one you're adding to (as the room picker does), opens it if folded, and scrolls the quote to it (Sam, Nov 25) */
+  /* One room at a time (Sam, Nov 25): across the quote page, picking a room (its bar, the Rooms list, the search side's
+     "Adding to" picker) makes it the room you're adding to, opens it and folds the others, then scrolls the quote to it.
+     Clicking the open room's own bar still folds it, and Collapse all / Expand all still work; after Expand all, picking
+     another room goes back to one open. Find in this quote still opens the rooms it lands in without changing Adding here. */
+  const oPick=pickRoom; pickRoom=function(name){ const was=S.room, wasAll=S.allOpen; S.allOpen=false; S.folded=[]; oPick.apply(this,arguments);
+    if((was!==name||wasAll)&&!S.expanded) requestAnimationFrame(()=>{ const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(blk&&blk.offsetParent) revealBelowHeader(blk); }); };
+  const oToggle=toggleRoom; toggleRoom=function(name){ if(document.body.classList.contains("proposal")&&name!==S.room){ pickRoom(name); document.querySelector(`[data-toggleroom="${CSS.escape(name)}"]`)?.focus({preventScroll:true}); return; } return oToggle.apply(this,arguments); };
+  /* a click in the Rooms list does the same */
   function go(name){ const r=S.quote.rooms.find(x=>x.name===name); if(!r) return;
-    if(S.allOpen) S.folded=S.folded.filter(x=>x!==name);
     pickRoom(name);
     const blk=document.querySelector(`#rooms .rmblock[data-rm="${CSS.escape(name)}"]`); if(!blk) return;
     revealBelowHeader(blk); SR.view=null; spy(); }
